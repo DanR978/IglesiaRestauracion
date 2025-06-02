@@ -1,3 +1,44 @@
+:root {
+  --fs-xxl: clamp(2rem, -1rem + 10vw, 5rem);
+  --fs-xl:  clamp(1.75rem, -0.875rem + 9vw, 4rem);
+  --fs-lg:  clamp(1rem, -0.05rem + 2.8vw, 2.5rem);
+  --fs-md:  clamp(0.875rem, -0.5rem + 5vw, 2rem);
+  --fs-sm:  clamp(0.85rem, -1rem + 2vw, 1rem);
+  --fs-xs:  clamp(0.65rem, 0.1vw + 0.25rem, 1rem);
+}
+
+.font-sm {
+  font-size: var(--fs-sm);
+}
+
+.font-md {
+  font-size: var(--fs-md);
+}
+
+.font-lg {
+  font-size: var(--fs-lg);
+}
+
+.font-xl {
+  font-size: var(--fs-xl);
+}
+
+.font-xxl {
+  font-size: var(--fs-xxl);
+}
+
+/* Default light mode icon */
+#theme-icon {
+  content: url('./images/title/light-church-logo.ico');
+}
+
+/* Swap to dark mode icon */
+@media (prefers-color-scheme: dark) {
+  #theme-icon {
+    content: url('./images/title/dark-church-logo.ico');
+  }
+}
+
 /* Change default nav link style */
 .nav-pills .nav-link {
   font-weight: 600;
@@ -6,7 +47,7 @@
 
 /* Change active nav link background and text color */
 .nav-pills .nav-link.active {
-  background-color: #2D4D56;
+  background-color: #2D4D56 !important;
   color: white;
 }
 
