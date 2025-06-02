@@ -1,0 +1,26 @@
+/* Change default nav link style */
+.nav-pills .nav-link {
+  font-weight: 600;
+  color: white;
+}
+
+/* Change active nav link background and text color */
+.nav-pills .nav-link.active {
+  background-color: #2D4D56;
+  color: white;
+}
+
+.white {
+  color: #2D4D56;
+}
+
+.full-width-header {
+  background-image: url('/images/your-image.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100vw;
+  height: auto;
+  padding: 5rem 1rem;
+}
+
