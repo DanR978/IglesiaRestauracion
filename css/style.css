@@ -16,7 +16,17 @@
     --gp-small:      min(90px, max(calc(4vw - 10px), 0px));
 
     /* responsive margin */
-    --mg-medium:     calc(50px + 1.5625vw);
+    --mg-xxs: calc(2px + 0.2vw);
+    --mg-xs: calc(4px + 0.3vw);
+    --mg-sm: calc(6px + 0.4vw);
+    --mg-ms: calc(8px + 0.5vw);
+    --mg-md: calc(12px + 1vw);
+    --mg-ml: calc(20px + 1.2vw);
+    --mg-lg: calc(40px + 1.5vw);
+    --mg-xl: calc(64px + 2vw);
+    --mg-xxl: calc(96px + 2.5vw);
+    --mg-auto: auto;
+
 
     /* fonts */
     --font-lexend:              "Lexend Deca", sans-serif;
@@ -64,9 +74,21 @@ header {
   background: #000;
 }
 
+.wrapper--footer {
+  margin: var(--mg-);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: #000;
+}
+
+
 @media (min-width: 600px) {
   .wrapper {
-    margin: 3.5rem;
+    margin: var(--mg-md);
+  }
+  .wrapper--footer {
+    margin: var(--mg-md);
   }
   header {
     height: 60vh;
