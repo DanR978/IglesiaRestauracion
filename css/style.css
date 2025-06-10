@@ -68,13 +68,13 @@
 header {
   display: grid;
   place-items: center;
-  height: 50vh;
+  height: 70vh;
   position: relative;
 }
 
 .wrapper {
   max-width: 100%;
-  margin: 0.2rem;
+  margin: var(--mg-md);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
@@ -82,25 +82,13 @@ header {
 }
 
 .wrapper--footer {
-  margin: var(--mg-small);
+  margin: var(--mg-md);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   background: #000;
 }
 
-
-@media (min-width: 600px) {
-  .wrapper {
-    margin: var(--mg-md);
-  }
-  .wrapper--footer {
-    margin: var(--mg-md);
-  }
-  header {
-    height: 60vh;
-  }
-}
 /* HEADER */
 .header-container {
   display: flex;
@@ -227,18 +215,6 @@ header {
   transition: transform 0.4s ease;
 }
 
-@media (max-width: 400px) {
-  .buttons {
-    flex-direction: column;
-    max-width: 100%;
-  }
-
-  .primary-btn,
-  .secondary-btn {
-    width: 100%;
-  }
-}
-
 /* Hero Content */
 .hero-content {
   position: absolute;
@@ -271,14 +247,6 @@ header {
   text-overflow: ellipsis;     
   max-width: 90vw;          
 }
-
-
-@media (max-width: 450px) {
-  .hero-content h1 {
-    font-size: var(--fs-large);  
-  }
-}
-
 
 .hero-content p {
   font-size: var(--fs-small);
@@ -329,21 +297,8 @@ header {
   color: var(--color-accent);
 }
 
-@media (max-width:767px) {
-  .footer-dark .item:not(.social) {
-    text-align:center;
-    padding-bottom:20px;
-  }
-}
-
 .footer-dark .item.text {
   margin-bottom:36px;
-}
-
-@media (max-width:767px) {
-  .footer-dark .item.text {
-    margin-bottom:0;
-  }
 }
 
 .footer-dark .item.text p {
@@ -353,13 +308,6 @@ header {
 
 .footer-dark .item.social {
   text-align:center;
-}
-
-@media (max-width:991px) {
-  .footer-dark .item.social {
-    text-align:center;
-    margin-top:20px;
-  }
 }
 
 .footer-dark .item.social > a {
@@ -394,4 +342,57 @@ header {
   border-color: var(--color-accent);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transform: translateY(-5px);
+}
+
+
+
+/* ===== Mobile Styles ===== */
+@media (max-width: 400px) {
+  .buttons {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .primary-btn,
+  .secondary-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 450px) {
+  .hero-content h1 {
+    font-size: var(--fs-large);
+  }
+}
+
+@media (max-width: 599px) {
+  .wrapper {
+    margin: var(--mg-xs);
+  }
+
+  .wrapper--footer {
+    margin: var(--mg-xs);
+  }
+
+  header {
+    height: 50vh;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer-dark .item:not(.social) {
+    text-align: center;
+    padding-bottom: 20px;
+  }
+
+  .footer-dark .item.text {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 991px) {
+  .footer-dark .item.social {
+    text-align: center;
+    margin-top: 20px;
+  }
 }
