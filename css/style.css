@@ -9,7 +9,14 @@
     --fs-small:      clamp(0.69rem, 0.07rem + 1.65vw, 1.13rem);
 
     /* responsive padding */
-    --pd-medium:     calc(0.75rem + 0.5vw);
+    --pd-xs:        calc(0.25rem + 0.2vw);
+    --pd-small:     calc(0.75rem + 0.5vw);
+    --pd-medium:    calc(1rem + 1vw);
+    --pd-large:     calc(1.5rem + 1.5vw);
+    --pd-xl:        calc(2rem + 2vw);
+    --pd-2xl:       calc(3rem + 3vw);
+    --pd-auto:      auto;
+
 
     /* responsive gaps */
     --gp-medium:     min(150px, max(calc(7vw - 30px), 0px));
@@ -166,10 +173,10 @@ header {
 }
 
 .buttons a {
-  width: auto;                /* Don't stretch full width */
-  max-width: 280px;           /* Prevent it from growing too wide */
-  padding: 12px 24px;         /* Normal padding */
-  margin: 0 auto;             /* Center horizontally */
+  width: auto;      
+  max-width: 280px;        
+  padding: 12px 24px;        
+  margin: 0 auto;             
 }
 
 .primary-btn {
@@ -259,16 +266,16 @@ header {
   font-weight: var(--fw-bold);
   color: var(--color-white);
   line-height: 1.2;
-  white-space: nowrap;         /* ✅ Force single line */
-  overflow: hidden;            /* ✅ Prevent wrapping overflow */
-  text-overflow: ellipsis;     /* Optional: fade with ... if too long */
-  max-width: 90vw;             /* ✅ Restrict width to screen */
+  white-space: nowrap;  
+  overflow: hidden;     
+  text-overflow: ellipsis;     
+  max-width: 90vw;          
 }
 
 
 @media (max-width: 450px) {
   .hero-content h1 {
-    font-size: var(--fs-large);        /* ✅ Shrinks to fit on small screens */
+    font-size: var(--fs-large);  
   }
 }
 
@@ -290,7 +297,7 @@ header {
 
 /* FOOTER */
 .footer-dark {
-  padding:50px 0;
+  padding: var(--pd-large);
   color:#f0f9ff;
   background-color: var(--color-dark);
 }
@@ -300,10 +307,11 @@ header {
   margin-bottom:12px;
   font-weight:bold;
   font-size:16px;
+  padding: var(--pd-auto);
 }
 
 .footer-dark ul {
-  padding:0;
+  padding: var(--pd-auto);
   list-style:none;
   line-height:1.6;
   font-size:14px;
