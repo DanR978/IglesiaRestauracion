@@ -76,6 +76,7 @@
   background-color: var(--color-dark);
   width: 100%;
   align-items: center;
+  justify-content: center;
 }
 
 /************************************************************************/
@@ -463,7 +464,6 @@ header {
   .map{
     height: 100%;
     width: 100%;
-    object-fit: cover;
   }
 
   .img-wrapper {
@@ -472,10 +472,10 @@ header {
     align-items: center;
     justify-content: center;
     width: 100%;
-    max-width: clamp(250px, 50vw, 800px);
-    max-height: clamp(350px, 50vh, 800px);
+    width: clamp(300px, 50vw, 800px);
+    height: clamp(300px, 30vh, 800px);
     object-fit: cover;
-    margin: var(--mg-ml);
+    margin: clamp(var(--mg-xs), 4vw, var(--mg-lg)) var(--mg-sm);
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
