@@ -187,8 +187,8 @@ header {
 }
 
   .buttons a {
-    width: 145px;       
-    padding: 10px 2px;        
+    width: clamp(140px, 20vw, 250px);     
+    padding: 10px 5px;        
     text-align: center;             
   }
 
