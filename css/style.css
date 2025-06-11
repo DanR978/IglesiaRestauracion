@@ -189,7 +189,7 @@ header {
 }
 
   .buttons a {
-    width: clamp(145px, 20vw, 250px);     
+    width: clamp(145px, 25vw, 250px);     
     padding: 10px 5px;        
     text-align: center;             
   }
