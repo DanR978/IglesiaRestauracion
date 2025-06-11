@@ -3,11 +3,12 @@
 
 :root {
     /* responsive font size */
-    --fs-xlarge:     clamp(1.38rem, -0.66rem + 5.42vw, 2.81rem);
-    --fs-large:      clamp(1.125rem, -0.2031em + 4.25vw, 2.1875rem); 
-    --fs-medium:     clamp(0.88rem, -0.72rem + 4.25vw, 2rem);
-    --fs-small:      clamp(0.69rem, 0.07rem + 1.65vw, 1.13rem);
-    --fs-xs:         clamp(0.55rem, 0.05rem + 1vw, 0.9rem);
+    --fs-xlarge:           clamp(1.38rem, -0.66rem + 5.42vw, 2.81rem);
+    --fs-large:            clamp(1.125rem, -0.2031em + 4.25vw, 2.1875rem); 
+    --fs-medium:           clamp(0.88rem, -0.72rem + 4.25vw, 2rem);
+    --fs-small:            clamp(0.69rem, 0.07rem + 1.65vw, 1.13rem);
+    --fs-xs:               clamp(0.55rem, 0.05rem + 1vw, 0.9rem);
+    --fs-btn-regular:      clamp(0.88rem, 0.52rem + 0.94vw, 1.13rem);
 
 
     /* responsive padding */
@@ -188,14 +189,14 @@ header {
 }
 
   .buttons a {
-    width: clamp(140px, 20vw, 250px);     
+    width: clamp(145px, 20vw, 250px);     
     padding: 10px 5px;        
     text-align: center;             
   }
 
     .primary-btn {
       display: inline-block;
-      font-size: var(--fs-small);
+      font-size: var(--fs-btn-regular);
       font-weight: var(--fw-semibold);
       text-align: center;
       padding: 12px 16px;
@@ -208,8 +209,8 @@ header {
 
     .outline-btn {
       display: inline-block;
-      font-size: var(--fs-xs);
-      font-weight: bold;
+      font-size: var(--fs-btn-regular);
+      font-weight: var(--fw-medium);
       text-align: center;
       padding: 12px 16px;
       border-radius: 6px;
@@ -237,7 +238,7 @@ header {
 
     .secondary-btn {
       display: inline-block;
-      font-size: var(--fs-small);
+      font-size: var(--fs-btn-regular);
       font-weight: var(--fw-semibold);
       text-align: center;
       padding: 12px 16px;
@@ -261,7 +262,7 @@ header {
 
     .action-btn {
       display: inline-block;
-      font-size: var(--fs-xs);
+      font-size: var(--fs-btn-regular);
       font-weight: var(--fw-semibold);
       text-align: center;
       padding: 12px 16px;
@@ -282,7 +283,7 @@ header {
     }
     .link-btn {
       display: inline-block;
-      font-size: var(--fs-xs);
+      font-size: var(--fs-btn-regular);
       font-weight: var(--fw-semibold);
       text-align: center;
       padding: 12px 16px;
