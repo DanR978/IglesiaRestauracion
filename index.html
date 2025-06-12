@@ -47,33 +47,59 @@
 
 <body>
   <div class="wrapper">
-      <header>
-        <video autoplay muted loop playsinline class="hero">
-          <source src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/content/videos/hero.mp4" type="video/mp4" />
-        </video>
+    <header>
+      <!-- Background Video -->
+      <video autoplay muted loop playsinline class="hero">
+        <source src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/content/videos/hero.mp4" type="video/mp4" />
+      </video>
 
-        <div class="overlay"></div>
-      
-        <div class="header-container">
-          <a href="https://www.irdlex.org" style="font-weight: var(--fw-semibold);">IGLESIA RESTAURACIÓN DIVINA</a>
-      
-          <nav>
-            <a href="#">About</a>
-            <a href="#">Connect</a>
-            <a href="#">Store</a>
-            <a href="#">Give</a>
-          </nav>
+      <!-- Overlay -->
+      <div class="overlay"></div>
+
+      <!-- Top Navigation -->
+      <div class="nav-container">
+        <a href="/" class="logo">IGLESIA RESTAURACIÓN DIVINA</a>
+
+        <button id="burgerToggle" class="burger" aria-label="Toggle menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+
+        <nav id="mainNav" class="nav">
+          <ul class="menu">
+            <li class="menu-item has-submenu">
+              <a href="#">About</a>
+              <!--<button class="submenu-toggle" aria-label="Toggle submenu">
+                <svg width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+              <ul class="submenu">
+                <li><a href="#">New Here</a></li>
+                <li><a href="#">Watch Online</a></li>
+                <li><a href="#">Who We Are</a></li>
+                <li><a href="#">Staff & Leadership</a></li>
+              </ul>
+            -->
+            </li>
+            <li class="menu-item"><a href="#">Ministries</a></li>
+            <li class="menu-item"><a href="#">Events</a></li>
+            <li class="menu-item give"><a href="#">Give</a></li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <h2 style="letter-spacing: 4px;">WELCOME TO</h2>
+        <h1>Iglesia Restauracion Divina</h1>
+        <div class="buttons">
+          <a href="#" class="primary-btn">PLAN A VISIT</a>
+          <a href="#" class="secondary-btn">NEXT STEPS</a>
         </div>
-      
-        <div class="hero-content">
-          <h2 style="letter-spacing: 4px;">BIENVENIDO A</h2>
-          <h1>Iglesia Restauracion Divina</h1>
-          <div class="buttons">
-            <a href="#" class="primary-btn">PLANEA UNA VISITA</a>
-            <a href="#" class="secondary-btn">PRÓXIMOS PASOS</a>
-          </div>
-        </div>
-      </header>
+      </div>
+    </header>
   </div>
 
   <main>
@@ -194,6 +220,25 @@
       yearSpan.textContent = currentYear;
     });
   </script>
+  <script>
+    const burger = document.getElementById('burgerToggle');
+    const nav = document.getElementById('mainNav');
+    const submenuToggles = document.querySelectorAll('.submenu-toggle');
+
+    burger.addEventListener('click', () => {
+      burger.classList.toggle('open'); // 🪄 Animate burger to X
+      nav.classList.toggle('open');
+      document.body.classList.toggle('no-scroll');
+    });
+
+    submenuToggles.forEach(button => {
+      button.addEventListener('click', e => {
+        const submenu = button.parentElement.nextElementSibling;
+        submenu.classList.toggle('show');
+      });
+    });
+</script>
+
 
 </body>
 </html>
