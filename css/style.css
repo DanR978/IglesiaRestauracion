@@ -22,8 +22,11 @@
 
 
     /* responsive gaps */
-    --gp-medium:     min(150px, max(calc(7vw - 30px), 0px));
-    --gp-small:      min(90px, max(calc(4vw - 10px), 0px));
+    --gp-2xlarge:     min(320px, max(calc(15vw), 0px));
+    --gp-xlarge:      min(250px, max(calc(12vw), 0px));
+    --gp-large:       min(200px, max(calc(9vw - 10px), 0px));
+    --gp-medium:      min(150px, max(calc(7vw - 30px), 0px));
+    --gp-small:       min(90px, max(calc(4vw - 10px), 0px));
 
     /* responsive margin */
     --mg-xxs: calc(2px + 0.2vw);
@@ -343,7 +346,7 @@ header {
 
 
 .column-container {
-  padding: var(--pd-medium) var(--pd-xs);
+  padding: var(--pd-medium) var(--pd-auto);
   display: flex;
   justify-content: center;
 }
@@ -353,17 +356,19 @@ header {
       flex-direction: row;
       align-items: center;
       gap: var(--gp-small);
-      max-width: 80%;
-      margin: 0 auto;
+      justify-content: center;
+      max-width: 90%;
+      margin: var(--mg-md);
       width: 100%;
     }
 
     .mission-content {
       display: flex;
+      width: clamp(300px, 85vw, 700px);
+      max-width: 700px;
       text-align: left;
       flex-direction: column;
       padding-top: var(--pd-small);
-      padding-bottom: var(--pd-small);
     }
 
     .mission-subheading {
@@ -378,7 +383,7 @@ header {
       font-size: var(--fs-xlarge);
       font-weight: var(--fw-bold);
       padding-top: var(--pd-small);
-      width: 70%;
+      padding-bottom: var(--pd-medium);
     }
 
     .mission-description {
@@ -386,14 +391,14 @@ header {
       font-size: var(--fs-small);
       font-family: var(--font-lexend);
       font-weight: var(--fw-light);
-      width: 80%;
     }
 
     .crown-thorns {
-      display: block;
-      width: clamp(250px, 70vw, 900px);
+      width: clamp(200px, 40vw + 5rem, 400px);
+
+      max-width: 100%;
       height: auto;
-      margin: 0 auto;
+      margin: 0;
       padding-bottom: var(--pd-large);
       filter: drop-shadow(0px 40px 8px rgba(0, 0, 0, 0.6));
     }
@@ -705,6 +710,19 @@ header {
   padding: 0;
 }
 
+.menu a {
+  text-decoration: none;
+  color: var(--color-white);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-small);
+  transition: color 0.3s ease;
+}
+
+.menu a:hover {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
 .menu-item {
   position: relative;
 }
@@ -716,43 +734,9 @@ header {
   font-size: var(--fs-small);
 }
 
-.menu-item .submenu-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding-left: 5px;
-  color: var(--color-white);
-}
-
-.submenu {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: var(--color-white);
-  padding: 10px 0;
-  border-radius: 6px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  min-width: 160px;
-  z-index: 999;
-}
-
-.submenu li a {
-  display: block;
-  padding: 10px 20px;
-  color: var(--color-white);
-  text-decoration: none;
-  font-size: var(--fs-small);
-}
-
-.submenu li a:hover {
-  background: var(--color-muted);
-  color: white;
-}
-
 /* Mobile Styles */
 .burger {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 6px;
   background: none;
@@ -790,6 +774,12 @@ header {
   transform: rotate(-45deg) translate(6px, -6px);
 }
 
+body.no-scroll {
+  overflow: hidden;
+  position: fixed;
+}
+
+
 @media (max-width: 768px) {
   .burger {
     display: flex;
@@ -797,17 +787,17 @@ header {
 
   .nav {
     position: fixed;
+    bottom: 0;
     top: 0;
     left: 0;
     background: var(--color-dark);
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     opacity: 0;
     transition: transform 0.6s ease, opacity 0.3s ease;
-
   }
 
   .nav.open {
@@ -816,14 +806,15 @@ header {
 
   .menu {
     flex-direction: column;
-    gap: 2rem;
+    gap: var(--gp-large);
+    align-items: center;
+    justify-content: center;
   }
 
   .menu-item > a,
   .submenu-toggle {
     color: var(--color-white);
-    font-size: 1.7rem;
-    gap: var(--gp-medium);
+    font-size: 2rem;
     text-decoration: none;
   }
 
@@ -837,16 +828,5 @@ header {
   .menu a:hover {
     color: var(--color-accent);
     text-decoration: none;
-  }
-
-
-  .submenu {
-    position: static;
-    background: none;
-    box-shadow: none;
-  }
-
-  .submenu li a {
-    padding: 6px 0;
   }
 }
