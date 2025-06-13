@@ -443,7 +443,7 @@ header {
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  width: clamp(330px, 50vw, 800px);
+  width: clamp(330px, 60vw, 800px);
   
 }
 .column-default {
