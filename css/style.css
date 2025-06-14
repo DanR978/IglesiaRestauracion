@@ -430,7 +430,6 @@ header {
 
     .crown-thorns {
       width: clamp(200px, 40vw + 5rem, 400px);
-
       max-width: 100%;
       height: auto;
       margin: 0;
@@ -865,3 +864,31 @@ body.no-scroll {
     text-decoration: none;
   }
 }
+
+.versiculo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  font-weight: var(--fw-semibold);
+  text-align: center;
+}
+
+.versiculo p {
+  align-items: center;
+}
+
+.feature-icon {
+  width: clamp(300px, 40vw, 700px);
+}
+
+.feature-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: clamp(250px, 30vw, 300px);
+  overflow: hidden;
+}
+

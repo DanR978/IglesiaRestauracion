@@ -137,9 +137,6 @@
               <!--<a href="#" class="link-btn">OBTENER DIRECCIONES</a>--> 
             </div>
             <div class="service-content">
-              <div class="feature-icon">
-                <!-- Icon goes here -->
-              </div>
               <div class="content">
                 <h5>Domingo por la Tarde</h5>
                 <p>Servicio a las 2:00 PM (Hora del Este)</p>
@@ -160,8 +157,28 @@
     </section>
 
 
-    <section class="VerseofDay">
-
+    <section class="column-container">
+      <div class="info-container" style="background-color: transparent;">
+        <div class="row-default">
+          <div class="column-default">
+            <div class="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
+                style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" viewBox="0 0 1280 1024">
+                <path
+                  d="M0 0c1.269-15.107 13.962-27.014 29.391-27.014 3.896 0 7.616.766 11.024 2.145 10.822 4.377 18.48 14.987 18.48 27.359v35.698c0 16.268-13.236 29.504-29.504 29.504S-.113 54.456-.113 38.188V2.49C-.113 1.651-.069.822 0 0m-2.946-1.595a32.413 32.413 0 0 0-.267 4.085v35.698c0 17.932 14.672 32.604 32.604 32.604S61.995 56.12 61.995 38.188V2.49c0-13.144-7.887-24.527-19.158-29.674a32.288 32.288 0 0 0-13.446-2.93c-16.549 0-30.31 12.498-32.337 28.519m42.705-22.459c-5.96 8.005-2.192 19.409 6.009 26.431 12.076 10.339 3.925 17.094-15.17 19.396-19.094 2.302 1.73 8.08 1.73 8.08V47.07h9.516v5.875h-9.516v9.696h-5.875v-9.696h-9.515V47.07h9.515V29.853c-20.006-5.854-14.107-11.816 0-13.552 14.108-1.736 4.962-8.439-12.887-12.075C8.496 3.193 4.326 1.929.968.454.92 1.127.887 1.804.887 2.49v35.698c0 15.717 12.787 28.504 28.504 28.504s28.504-12.787 28.504-28.504V2.49c0-12.06-7.532-22.387-18.136-26.544"
+                  style="fill:#2d4e57;fill-rule:nonzero" transform="matrix(4.81815 0 0 -4.81815 498.637 592.814)" />
+              </svg>
+            </div>
+            <div class="service-content">
+              <h4 class="service-subheading" style="color: var(--color-primary); padding-top: var(--pd-large);">Versiculo del dia</h4>            
+            </div>
+            <div class="versiculo">
+              <p id="verse-text">Cargando versículo...</p>
+              <h5 id="verse-ref"></h5>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
 
@@ -237,7 +254,39 @@
         submenu.classList.toggle('show');
       });
     });
-</script>
+  </script>
+  <script>
+    fetch('resources/verses/all-verses.json')
+      .then(res => res.json())
+      .then(verses => {
+        const day = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+        const verse = verses[day % verses.length];
+        const bookNames = {
+          1: "Génesis", 2: "Éxodo", 3: "Levítico", 4: "Números", 5: "Deuteronomio",
+          6: "Josué", 7: "Jueces", 8: "Rut", 9: "1 Samuel", 10: "2 Samuel",
+          11: "1 Reyes", 12: "2 Reyes", 13: "1 Crónicas", 14: "2 Crónicas", 15: "Esdras",
+          16: "Nehemías", 17: "Ester", 18: "Job", 19: "Salmos", 20: "Proverbios",
+          21: "Eclesiastés", 22: "Cantares", 23: "Isaías", 24: "Jeremías", 25: "Lamentaciones",
+          26: "Ezequiel", 27: "Daniel", 28: "Oseas", 29: "Joel", 30: "Amós",
+          31: "Abdías", 32: "Jonás", 33: "Miqueas", 34: "Nahúm", 35: "Habacuc",
+          36: "Sofonías", 37: "Hageo", 38: "Zacarías", 39: "Malaquías", 40: "Mateo",
+          41: "Marcos", 42: "Lucas", 43: "Juan", 44: "Hechos", 45: "Romanos",
+          46: "1 Corintios", 47: "2 Corintios", 48: "Gálatas", 49: "Efesios", 50: "Filipenses",
+          51: "Colosenses", 52: "1 Tesalonicenses", 53: "2 Tesalonicenses", 54: "1 Timoteo",
+          55: "2 Timoteo", 56: "Tito", 57: "Filemón", 58: "Hebreos", 59: "Santiago",
+          60: "1 Pedro", 61: "2 Pedro", 62: "1 Juan", 63: "2 Juan", 64: "3 Juan",
+          65: "Judas", 66: "Apocalipsis"
+        };
+
+
+        document.getElementById("verse-text").innerText = `"${verse.text}"`;
+        document.getElementById("verse-ref").innerText = `– ${books[verse.book_id] || "Libro"} ${verse.chapter}:${verse.verse}`;
+      })
+      .catch(err => {
+        console.error("❌ Error:", err);
+        document.getElementById("verse-text").innerText = "Error al cargar versículo.";
+      });
+  </script>
 
 
 </body>
