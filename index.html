@@ -11,10 +11,10 @@
     <meta name="author" content="Iglesia Restauración Divina" />
 
     <!-- LOGO -->
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/content/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/content/logo%20icons/light-church-logo.ico" rel="icon"> 
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/content/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/content/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon"> 
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
     <!-- SOCIAL SHARING PREVIEW-->
     <link rel="canonical" href="https://www.irdlex.org" />
@@ -23,13 +23,13 @@
     <meta property="og:url" content="https://www.irdlex.org"/>
     <meta property="og:type" content="website"/>
     <meta property="og:description" content="Cristo transforma! Adora con nosotros este domingo.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/content/images/churchLogo_coloredBG.png" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
 
     <!-- MESSAGING PREVIEW -->
     <meta name="twitter:card" content="summary"/>
     <meta name="twitter:title" content="Ven a Iglesia Restauración Divina" />
     <meta name="twitter:description" content="Cristo transforma! Adora con nosotros este domingo." />
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/content/images/churchLogo_coloredBG.png" />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
 
     <!-- STYLESHEETS -->
     <link rel="stylesheet" href="./css/style.css">
@@ -50,7 +50,7 @@
     <header>
       <!-- Background Video -->
       <video autoplay muted loop playsinline class="hero">
-        <source src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/content/videos/hero.mp4" type="video/mp4" />
+        <source src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/videos/hero.mp4" type="video/mp4" />
       </video>
 
       <!-- Overlay -->
@@ -107,7 +107,7 @@
     <section class="column-container">
       <div class="mission-wrapper">
         <div class="crown-thorns">
-          <img src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/content/images/thorns.svg" alt="Crown of throns" class="autoRotate" />
+          <img src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns.svg" alt="Crown of throns" class="autoRotate" />
         </div>
         <div class="mission-content">
           <h4 class="mission-subheading">NUESTRA MISIÓN</h4>
@@ -256,37 +256,52 @@
     });
   </script>
   <script>
-    fetch('resources/verses/all-verses.json')
-      .then(res => res.json())
-      .then(verses => {
-        const day = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-        const verse = verses[day % verses.length];
-        const bookNames = {
-          1: "Génesis", 2: "Éxodo", 3: "Levítico", 4: "Números", 5: "Deuteronomio",
-          6: "Josué", 7: "Jueces", 8: "Rut", 9: "1 Samuel", 10: "2 Samuel",
-          11: "1 Reyes", 12: "2 Reyes", 13: "1 Crónicas", 14: "2 Crónicas", 15: "Esdras",
-          16: "Nehemías", 17: "Ester", 18: "Job", 19: "Salmos", 20: "Proverbios",
-          21: "Eclesiastés", 22: "Cantares", 23: "Isaías", 24: "Jeremías", 25: "Lamentaciones",
-          26: "Ezequiel", 27: "Daniel", 28: "Oseas", 29: "Joel", 30: "Amós",
-          31: "Abdías", 32: "Jonás", 33: "Miqueas", 34: "Nahúm", 35: "Habacuc",
-          36: "Sofonías", 37: "Hageo", 38: "Zacarías", 39: "Malaquías", 40: "Mateo",
-          41: "Marcos", 42: "Lucas", 43: "Juan", 44: "Hechos", 45: "Romanos",
-          46: "1 Corintios", 47: "2 Corintios", 48: "Gálatas", 49: "Efesios", 50: "Filipenses",
-          51: "Colosenses", 52: "1 Tesalonicenses", 53: "2 Tesalonicenses", 54: "1 Timoteo",
-          55: "2 Timoteo", 56: "Tito", 57: "Filemón", 58: "Hebreos", 59: "Santiago",
-          60: "1 Pedro", 61: "2 Pedro", 62: "1 Juan", 63: "2 Juan", 64: "3 Juan",
-          65: "Judas", 66: "Apocalipsis"
-        };
+  // URL to your all-verses.json file on GitHub
+  const url = "https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/verses/all-verses.json";
 
+  // Fetch and display a random verse
+  fetch(url)
+    .then(response => {
+      if (!response.ok) throw new Error("Could not load JSON file");
+      return response.json();
+    })
+    .then(verses => {
+      // Choose a random verse from the array
+      const index = Math.floor(Math.random() * verses.length);
+      const verse = verses[index];
 
-        document.getElementById("verse-text").innerText = `"${verse.text}"`;
-        document.getElementById("verse-ref").innerText = `– ${books[verse.book_id] || "Libro"} ${verse.chapter}:${verse.verse}`;
-      })
-      .catch(err => {
-        console.error("❌ Error:", err);
-        document.getElementById("verse-text").innerText = "Error al cargar versículo.";
-      });
-  </script>
+      // Map book_id to book name
+      const books = {
+        1: "Genesis", 2: "Exodus", 3: "Leviticus", 4: "Numbers", 5: "Deuteronomy",
+        6: "Joshua", 7: "Judges", 8: "Ruth", 9: "1 Samuel", 10: "2 Samuel",
+        11: "1 Kings", 12: "2 Kings", 13: "1 Chronicles", 14: "2 Chronicles", 15: "Ezra",
+        16: "Nehemiah", 17: "Esther", 18: "Job", 19: "Psalms", 20: "Proverbs",
+        21: "Ecclesiastes", 22: "Song of Solomon", 23: "Isaiah", 24: "Jeremiah", 25: "Lamentations",
+        26: "Ezekiel", 27: "Daniel", 28: "Hosea", 29: "Joel", 30: "Amos",
+        31: "Obadiah", 32: "Jonah", 33: "Micah", 34: "Nahum", 35: "Habakkuk",
+        36: "Zephaniah", 37: "Haggai", 38: "Zechariah", 39: "Malachi", 40: "Matthew",
+        41: "Mark", 42: "Luke", 43: "John", 44: "Acts", 45: "Romans",
+        46: "1 Corinthians", 47: "2 Corinthians", 48: "Galatians", 49: "Ephesians", 50: "Philippians",
+        51: "Colossians", 52: "1 Thessalonians", 53: "2 Thessalonians", 54: "1 Timothy",
+        55: "2 Timothy", 56: "Titus", 57: "Philemon", 58: "Hebrews", 59: "James",
+        60: "1 Peter", 61: "2 Peter", 62: "1 John", 63: "2 John", 64: "3 John",
+        65: "Jude", 66: "Revelation"
+      };
+
+      // Build text and reference
+      const text = `"${verse.text.replace(/\\n/g, '\n')}"`;
+      const reference = `– ${books[verse.book_id] || "Book"} ${verse.chapter}:${verse.verse}`;
+
+      // Show on page
+      document.getElementById("verse-text").innerText = text;
+      document.getElementById("verse-ref").innerText = reference;
+    })
+    .catch(error => {
+      console.error("❌ Error loading verse:", error);
+      document.getElementById("verse-text").innerText = "Error loading verse.";
+      document.getElementById("verse-ref").innerText = "";
+    });
+</script>
 
 
 </body>
