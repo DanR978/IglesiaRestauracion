@@ -1,0 +1,17 @@
+# Ignore OS-specific clutter
+.DS_Store
+Thumbs.db
+
+# VS Code settings (optional)
+.vscode/
+
+# Python cache (if you're using any scripts)
+__pycache__/
+*.pyc
+
+# Logs (if any are generated)
+*.log
+
+# GitHub Pages doesn’t need build or dist folders (if not used)
+dist/
+build/

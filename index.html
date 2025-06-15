@@ -69,7 +69,7 @@
         <nav id="mainNav" class="nav">
           <ul class="menu">
             <li class="menu-item">
-              <a href="#">About</a>
+              <a href="#">Nosotros</a>
               <!--<button class="submenu-toggle" aria-label="Toggle submenu">
                 <svg width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none">
                   <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
@@ -83,20 +83,20 @@
               </ul>
             -->
             </li>
-            <li class="menu-item"><a href="#">Ministries</a></li>
-            <li class="menu-item"><a href="#">Events</a></li>
-            <li class="menu-item"><a href="#">Give</a></li>
+            <li class="menu-item"><a href="#">Conectate</a></li>
+            <li class="menu-item"><a href="#">Eventos</a></li>
+            <li class="menu-item"><a href="#">Donar</a></li>
           </ul>
         </nav>
       </div>
 
       <!-- Hero Content -->
       <div class="hero-content">
-        <h2 style="letter-spacing: 4px;">WELCOME TO</h2>
+        <h2 style="letter-spacing: 4px;">BIENVENIDO A</h2>
         <h1>Iglesia Restauracion Divina</h1>
         <div class="buttons">
-          <a href="#" class="primary-btn">PLAN A VISIT</a>
-          <a href="#" class="secondary-btn">NEXT STEPS</a>
+          <a href="#" class="primary-btn">VISITANOS</a>
+          <a href="#" class="secondary-btn">PROXIMOS PASOS</a>
         </div>
       </div>
     </header>
@@ -189,7 +189,7 @@
           <div class="container">
             <div class="row">
               <div class=" col-12 col-sm-6 col-md-3 item">
-                <h3>Connect</h3>
+                <h3>Conectate</h3>
                 <ul>
                   <li><a href="#">¿Nuevo aquí?</a></li>
                   <li><a href="#">Ver en Línea</a></li>
@@ -198,7 +198,7 @@
                 </ul>
               </div>
               <div class="col-sm-6 col-md-3 item">
-                <h3>About</h3>
+                <h3>Nosotros</h3>
                 <ul>
                   <li><a href="#">Nuestra Historia</a></li>
                   <li><a href="#">Equipo y Liderazgo</a></li>
@@ -256,52 +256,50 @@
     });
   </script>
   <script>
-  // URL to your all-verses.json file on GitHub
-  const url = "https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/verses/all-verses.json";
+    const url = "https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/verses/all-verses.json?nocache=" + new Date().getTime();
 
-  // Fetch and display a random verse
-  fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error("Could not load JSON file");
-      return response.json();
-    })
-    .then(verses => {
-      // Choose a random verse from the array
-      const index = Math.floor(Math.random() * verses.length);
-      const verse = verses[index];
+    fetch(url)
+      .then(response => {
+        if (!response.ok) throw new Error("No se pudo cargar el archivo JSON");
+        return response.json();
+      })
+      .then(verses => {
+        const index = Math.floor(Math.random() * verses.length);
+        const verse = verses[index];
 
-      // Map book_id to book name
-      const books = {
-        1: "Genesis", 2: "Exodus", 3: "Leviticus", 4: "Numbers", 5: "Deuteronomy",
-        6: "Joshua", 7: "Judges", 8: "Ruth", 9: "1 Samuel", 10: "2 Samuel",
-        11: "1 Kings", 12: "2 Kings", 13: "1 Chronicles", 14: "2 Chronicles", 15: "Ezra",
-        16: "Nehemiah", 17: "Esther", 18: "Job", 19: "Psalms", 20: "Proverbs",
-        21: "Ecclesiastes", 22: "Song of Solomon", 23: "Isaiah", 24: "Jeremiah", 25: "Lamentations",
-        26: "Ezekiel", 27: "Daniel", 28: "Hosea", 29: "Joel", 30: "Amos",
-        31: "Obadiah", 32: "Jonah", 33: "Micah", 34: "Nahum", 35: "Habakkuk",
-        36: "Zephaniah", 37: "Haggai", 38: "Zechariah", 39: "Malachi", 40: "Matthew",
-        41: "Mark", 42: "Luke", 43: "John", 44: "Acts", 45: "Romans",
-        46: "1 Corinthians", 47: "2 Corinthians", 48: "Galatians", 49: "Ephesians", 50: "Philippians",
-        51: "Colossians", 52: "1 Thessalonians", 53: "2 Thessalonians", 54: "1 Timothy",
-        55: "2 Timothy", 56: "Titus", 57: "Philemon", 58: "Hebrews", 59: "James",
-        60: "1 Peter", 61: "2 Peter", 62: "1 John", 63: "2 John", 64: "3 John",
-        65: "Jude", 66: "Revelation"
-      };
+        // Diccionario de libros en español por ID
+        const libros = {
+          1: "Génesis", 2: "Éxodo", 3: "Levítico", 4: "Números", 5: "Deuteronomio",
+          6: "Josué", 7: "Jueces", 8: "Rut", 9: "1 Samuel", 10: "2 Samuel",
+          11: "1 Reyes", 12: "2 Reyes", 13: "1 Crónicas", 14: "2 Crónicas", 15: "Esdras",
+          16: "Nehemías", 17: "Ester", 18: "Job", 19: "Salmos", 20: "Proverbios",
+          21: "Eclesiastés", 22: "Cantares", 23: "Isaías", 24: "Jeremías", 25: "Lamentaciones",
+          26: "Ezequiel", 27: "Daniel", 28: "Oseas", 29: "Joel", 30: "Amós",
+          31: "Abdías", 32: "Jonás", 33: "Miqueas", 34: "Nahúm", 35: "Habacuc",
+          36: "Sofonías", 37: "Hageo", 38: "Zacarías", 39: "Malaquías", 40: "Mateo",
+          41: "Marcos", 42: "Lucas", 43: "Juan", 44: "Hechos", 45: "Romanos",
+          46: "1 Corintios", 47: "2 Corintios", 48: "Gálatas", 49: "Efesios", 50: "Filipenses",
+          51: "Colosenses", 52: "1 Tesalonicenses", 53: "2 Tesalonicenses", 54: "1 Timoteo",
+          55: "2 Timoteo", 56: "Tito", 57: "Filemón", 58: "Hebreos", 59: "Santiago",
+          60: "1 Pedro", 61: "2 Pedro", 62: "1 Juan", 63: "2 Juan", 64: "3 Juan",
+          65: "Judas", 66: "Apocalipsis"
+        };
 
-      // Build text and reference
-      const text = `"${verse.text.replace(/\\n/g, '\n')}"`;
-      const reference = `– ${books[verse.book_id] || "Book"} ${verse.chapter}:${verse.verse}`;
+        // Limpiar y convertir saltos de línea a <br>
+        const cleanText = verse.text.replace(/\\n|\n/g, "<br>");
+        const reference = `– ${libros[verse.book_id] || "Libro"} ${verse.chapter}:${verse.verse}`;
 
-      // Show on page
-      document.getElementById("verse-text").innerText = text;
-      document.getElementById("verse-ref").innerText = reference;
-    })
-    .catch(error => {
-      console.error("❌ Error loading verse:", error);
-      document.getElementById("verse-text").innerText = "Error loading verse.";
-      document.getElementById("verse-ref").innerText = "";
-    });
-</script>
+        // Mostrar en la página con formato
+        document.getElementById("verse-text").innerHTML = `"${cleanText}"`;
+        document.getElementById("verse-ref").innerText = reference;
+      })
+      .catch(error => {
+        console.error("❌ Error al cargar el versículo:", error);
+        document.getElementById("verse-text").innerText = "Error al cargar el versículo.";
+        document.getElementById("verse-ref").innerText = "";
+      });
+  </script>
+
 
 
 </body>
