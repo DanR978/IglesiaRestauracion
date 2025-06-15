@@ -1,6 +1,9 @@
 
 /* WELCOME :) */
 
+/* imports */
+@import url('https://fonts.googleapis.com/css2?family=Carattere&family=Geist:wght@100..900&display=swap');
+
 :root {
     /* responsive font size */
     --fs-xlarge:           clamp(1.38rem, -0.66rem + 5.42vw, 2rem);
@@ -45,6 +48,8 @@
     --font-lexend:              "Lexend Deca", sans-serif;
     --font-Helvetica-Neue:      "Helvetica Neue", sans-serif;
     --font-DM-Sans:             "DM Sans", sans-serif;
+    --font-Carattere:           "Carattere", cursive;
+    --font-Geist:               "Geist", sans-serif;
 
 
     /* Font Weights */
@@ -870,14 +875,25 @@ body.no-scroll {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: var(--color-primary);
-  font-size: 1.2rem;
-  font-weight: var(--fw-semibold);
-  text-align: center;
 }
 
 .versiculo p {
   align-items: center;
+  color: var(--color-primary);
+  font-size: var(--fs-small);
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.versiculo h5 {
+  color: var(--color-primary);
+  font-size: 1.4rem;
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-semibold);
+  text-align: center;
+  letter-spacing: 0.5px;
 }
 
 .feature-icon {
@@ -890,4 +906,20 @@ body.no-scroll {
   align-items: center;
   width: clamp(250px, 30vw, 300px);
   overflow: hidden;
+}
+
+.cursive-subheading {
+  color: var(--color-primary); 
+  padding-top: var(--pd-large);
+  font-family: var(--font-Carattere);
+  font-size: var(--fs-large);
+}
+
+.glass-effect {
+  background: rgba(45, 78, 87, 0.27);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4.4px);
+  -webkit-backdrop-filter: blur(4.4px);
+  border: 1px solid rgba(45, 78, 87, 1);
 }

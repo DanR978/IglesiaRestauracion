@@ -49,9 +49,10 @@
   <div class="wrapper">
     <header>
       <!-- Background Video -->
-      <video autoplay muted loop playsinline class="hero">
+      <!--<video autoplay muted loop playsinline class="hero">
         <source src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/videos/hero.mp4" type="video/mp4" />
-      </video>
+      </video>-->
+      <img src="./resources/media/images/worshipSample.jpg" alt="worship" class="hero">
 
       <!-- Overlay -->
       <div class="overlay"></div>
@@ -161,7 +162,7 @@
       <div class="info-container" style="background-color: transparent;">
         <div class="row-default">
           <div class="column-default">
-            <div class="feature-icon">
+            <div class="feature-icon icon-wrapper">
               <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve"
                 style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2" viewBox="0 0 1280 1024">
                 <path
@@ -170,7 +171,7 @@
               </svg>
             </div>
             <div class="service-content">
-              <h4 class="service-subheading" style="color: var(--color-primary); padding-top: var(--pd-large);">Versiculo del dia</h4>            
+              <h4 class="cursive-subheading">Versiculo del dia</h4>            
             </div>
             <div class="versiculo">
               <p id="verse-text">Cargando versículo...</p>
@@ -286,7 +287,11 @@
         };
 
         // Limpiar y convertir saltos de línea a <br>
-        const cleanText = verse.text.replace(/\\n|\n/g, "<br>");
+        const cleanText = verse.text
+            .replace(/\\n|\/n|\n/g, "<br>")
+            .replace(/["']/g, "")
+            .trim();
+
         const reference = `– ${libros[verse.book_id] || "Libro"} ${verse.chapter}:${verse.verse}`;
 
         // Mostrar en la página con formato
