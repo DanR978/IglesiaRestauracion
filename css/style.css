@@ -763,7 +763,7 @@ header {
 
 .animate-slide-in-right {
   opacity: 0;
-  transform: translateX(300px);
+  transform: translateX(100px);
   transition: all 2s ease-out;
 }
 .animate-slide-in-right.visible {
@@ -1133,4 +1133,9 @@ body.no-scroll {
     grid-column: 3;
   }
   
+}
+
+a[href^=tel] {
+text-decoration:inherit;
+color: inherit;
 }
