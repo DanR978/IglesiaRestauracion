@@ -448,6 +448,14 @@ header {
   justify-content: space-around;
   align-items: center;
   width: clamp(330px, 60vw, 800px);
+}
+
+.temp-default {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  width: clamp(330px, 60vw, 800px);
   margin: 8rem 0;
 }
 
