@@ -448,6 +448,7 @@ header {
   justify-content: space-around;
   align-items: center;
   width: clamp(330px, 60vw, 800px);
+  margin: 8rem 0;
   
 }
 .column-default {
@@ -667,7 +668,7 @@ header {
 .autoShow {
   animation: text-appear both;
   animation-timeline: view();
-  animation-range: entry 20% cover 100vh;
+  animation-range: entry 5% cover 100vh;
 }
 
 .imageReveal {
@@ -679,6 +680,138 @@ header {
   animation: fadeUp both;
   animation-timeline: view();
 }
+/* ================================
+   Keyframes
+================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-450px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes revealImage {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes revealText {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   Trigger Classes
+================================ */
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out forwards;
+}
+
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.6s ease-out both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 25%;
+}
+
+.animate-slide-in-left {
+  opacity: 0;
+  animation: slideInRight 2s ease-out both;
+}
+
+.animate-slide-in-right {
+  opacity: 0;
+  transform: translateX(300px);
+  transition: all 2s ease-out;
+}
+.animate-slide-in-right.visible {
+  opacity: 1;
+  transform: translateX(0px);
+}
+
+.animate-reveal-image {
+  opacity: 0;
+  animation: revealImage 1.2s ease-out both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 30%;
+}
+
+.animate-reveal-text {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.6s ease-out;
+}
+
+.animate-reveal-text.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.animate-fade-in {
+  opacity: 0;
+  transition: opacity 1s ease-out;
+}
+
+.animate-fade-in.visible {
+  opacity: 1;
+}
+
+.animate-zoom-in {
+  scale: 0.4;
+  transition: scale 1s ease-out;
+}
+
+.animate-zoom-in.visible {
+  scale: 1;
+}
+
+
+
+
+/* ================================
+   Delay Utilities
+================================ */
+.delay-1.visible {transition-delay: 0.2s;}
+.delay-2.visible {transition-delay: 0.5s;}
+.delay-3.visible {transition-delay: 0.7s;}
 
   @keyframes text-appear {
     from {
@@ -718,6 +851,7 @@ header {
       transform: translateY(0) scale(1);
     }
   }
+
 
 .nav-container {
   display: flex;
