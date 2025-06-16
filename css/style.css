@@ -546,7 +546,7 @@ header {
     margin-top:0;
     margin-bottom:12px;
     font-weight:bold;
-    font-size: 1.8rem;
+    font-size: clamp(1.4rem, 2vw + 0.6rem, 1.75rem);
     padding: var(--pd-auto);
   }
 
@@ -554,7 +554,7 @@ header {
       padding: var(--pd-auto);
       list-style:none;
       line-height:1.6;
-      font-size: 1.5rem;
+      font-size: clamp(1.1rem, 1.5vw + 0.4rem, 1.5rem);
       margin-bottom:0;
     }
 
@@ -605,7 +605,7 @@ header {
                   opacity: 0.9;
                   text-align: left;
                   padding: 0 1.5rem;
-                  font-size: 1.1rem;
+                  font-size: 1rem;
                 }
 
                   .item.social a {
@@ -1073,7 +1073,7 @@ body.no-scroll {
 }
 
 .contact-us-content p {
-  font-size: 1.1rem;
+  font-size: 1rem;
   opacity: 0.9;
 }
 
@@ -1108,7 +1108,7 @@ body.no-scroll {
 
 .footer-section.iglesia p {
   opacity: 0.8;
-  font-size: 1.5rem;
+  font-size: clamp(1.1rem, 1.5vw + 0.4rem, 1.5rem);
   padding: var(--pd-auto);
   line-height:1.6;
   opacity: 0.6;
@@ -1138,4 +1138,8 @@ body.no-scroll {
 a[href^=tel] {
 text-decoration:inherit;
 color: inherit;
+}
+a[href^=mailto] {
+  text-decoration: inherit;
+  color: inherit;
 }
