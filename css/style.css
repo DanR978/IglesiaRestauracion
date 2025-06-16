@@ -449,8 +449,8 @@ header {
   align-items: center;
   width: clamp(330px, 60vw, 800px);
   margin: 8rem 0;
-  
 }
+
 .column-default {
   display: flex;
   width: 100%;
@@ -644,10 +644,6 @@ header {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-  }
-
-  .row {
-
   }
 }
 
