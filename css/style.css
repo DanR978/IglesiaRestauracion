@@ -456,7 +456,7 @@ header {
   justify-content: space-around;
   align-items: center;
   width: clamp(330px, 60vw, 800px);
-  margin: 8rem 0;
+  margin: 5rem 0;
 }
 
 .column-default {
@@ -605,7 +605,7 @@ header {
                   opacity: 0.9;
                   text-align: left;
                   padding: 0 1.5rem;
-                  font-size: 1rem;
+                  font-size: 1.1rem;
                 }
 
                   .item.social a {
@@ -781,7 +781,7 @@ header {
 .animate-reveal-text {
   opacity: 0;
   transform: translateY(30px);
-  transition: all 0.6s ease-out;
+  transition: all 1s ease;
 }
 
 .animate-reveal-text.visible {
@@ -1035,18 +1035,17 @@ body.no-scroll {
 
 .versiculo h5 {
   color: var(--color-primary);
-  font-size: 1.4rem;
+  font-size: 1rem;
   font-family: var(--font-Geist);
   font-weight: var(--fw-semibold);
   text-align: center;
-  letter-spacing: 0.5px;
 }
 
 .cursive-subheading {
   color: var(--color-primary); 
   padding-top: var(--pd-large);
   font-family: var(--font-Carattere);
-  font-size: var(--fs-large);
+  font-size: 2rem;
 }
 
 .glass-effect {
@@ -1074,7 +1073,7 @@ body.no-scroll {
 }
 
 .contact-us-content p {
-  font-size: 1rem;
+  font-size: 1.1rem;
   opacity: 0.9;
 }
 
