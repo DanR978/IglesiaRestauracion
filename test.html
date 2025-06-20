@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>Iglesia Restauración Divina</title>
+    <meta name="description" content="Únete a nosotros en Iglesia Restauración Divina. 
+    Descubre una comunidad llena de fe, amor, y esperanza." />
+    <meta name="author" content="Iglesia Restauración Divina" />
+
+    <!-- STYLESHEETS -->
+    <style>
+        @import url(./css/variables.css);
+        
+        :root {
+            --btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            --btn-radius: 1rem;
+            --fs-btn-regular: clamp(0.875rem, 0.5vw + 0.5rem, 1.125rem);
+
+            /* Brand Colors */
+            --color-primary:   #2D4E57;  /* Deep blue-green */
+            --color-secondary: #B38D69;  /* Earthy tan brown */
+            --color-accent:    #F2A152;  /* Warm peach/orange */
+            --color-info:      #6A929D;  /* Cool teal-blue */
+
+            /* Neutral Colors */
+            --color-dark:      #1F2E33;  /* Rich near-black */
+            --color-muted:     #647174;  /* Muted slate-gray */
+            --color-white:     #ffffff;  /* Pure white */
+            --color-light:     #F8F9FA;  /* Soft light gray */
+
+            /* Backgrounds / Fills */
+            --color-bg-light:  #F4F6F7;
+            --color-bg-dark:   #24393F;
+        }
+        
+        .center {
+            display: flex;
+            flex-direction: column;
+            gap: 10rem;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--color-primary);
+            height: 100%;
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: var(--font-base, "Geist", sans-serif);
+            font-size: var(--fs-btn-regular);
+            font-weight: var(--fw-semibold);
+
+            padding: var(--btn-padding-y, 0.75rem) var(--btn-padding-x, 1.5rem);
+            border-radius: 1rem;
+            text-decoration: none;
+            white-space: nowrap;
+
+            border: none;
+            cursor: pointer;
+            touch-action: manipulation;
+            transition: all 0.3s ease, transform 0.2s ease;
+        }
+        
+        .btn-accent        { background-color: var(--color-accent); color: var(--color-white); box-shadow: var(--btn-shadow);}
+        .btn-accent:hover  { background-color: var(--color-secondary); }
+        .btn-accent:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-primary        { background-color: var(--color-primary); color: var(--color-white); box-shadow: var(--btn-shadow);}
+        .btn-primary:hover  { background-color: var(--color-info); }
+        .btn-primary:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-dark        { background-color: var(--color-dark); color: var(--color-white); box-shadow: var(--btn-shadow);}
+        .btn-dark:hover  { background-color: var(--color-primary); }
+        .btn-dark:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-muted        { background-color: var(--color-muted); color: var(--color-white); box-shadow: var(--btn-shadow);}
+        .btn-muted:hover  { background-color: var(--color-info); }
+        .btn-muted:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-info        { background-color: var(--color-info); color: var(--color-white); box-shadow: var(--btn-shadow);}
+        .btn-info:hover  { background-color: var(--color-primary); }
+        .btn-info:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-secondary        { background-color: var(--color-secondary); color: var(--color-white); box-shadow: var(--btn-shadow);}
+        .btn-secondary:hover  { background-color: var(--color-accent); }
+        .btn-secondary:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-white        { background-color: var(--color-white); color: var(--color-primary); box-shadow: var(--btn-shadow);}
+        .btn-white:hover  { background-color: var(--color-accent); color: var(--color-white); }
+        .btn-white:active { transform: translateY(3px) scale(0.98); }
+
+        .btn-outline  { background-color: var(--color-transparent); color: var(--color-white); border: 2px solid var(--color-white); box-shadow: none;}
+        .btn-outline:hover { border-color: var(--color-secondary); color: var(--color-accent); }
+        .btn-outline:active { transform: translateY(3px) scale(0.98);}
+    </style>
+  </head>
+<body>
+    <div class="center">
+        <button class="btn btn-accent">Accent Button</button>
+        <button class="btn btn-primary">Primary Button</button>
+        <button class="btn btn-dark">Dark Button</button>
+        <button class="btn btn-muted">Muted Button</button>
+        <button class="btn btn-info">Info Button</button>
+        <button class="btn btn-secondary">Secondary Button</button>
+        <button class="btn btn-white">White Button</button>
+        <button class="btn btn-outline">White Button</button>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,30 @@
+:root {
+  /* MAIN COLORS */
+  --color-primary:         #2D4E57;  /* Deep blue-green */
+  --color-secondary:       #B38D69;  /* Earthy tan brown */
+  --color-accent:          #F2A152;  /* Warm peach/orange */
+  --color-info:            #6A929D;  /* Cool teal-blue */
+
+  /* NEUTRAL COLORS */
+  --color-dark:            #1F2E33;  /* Rich near-black */
+  --color-muted:           #647174;  /* Muted slate-gray */
+  --color-white:           #ffffff;  /* Pure white */
+  --color-light:           #F8F9FA;  /* Soft light gray */
+
+  /* DARK THEME EXTENSIONS */
+  --color-bg-dark:         #24393F;  /* Default dark background */
+  --color-bg-darker:       #1A252A;  /* Even deeper background */
+  --color-bg-darkest:      #121B1F;  /* Near black, ideal for modals */
+  --color-surface-dark:    #2A3A3F;  /* Elevated surface background */
+  --color-border-dark:     #3B4B51;  /* Subtle border on dark bg */
+  --color-muted-dark:      #829093;  /* Lighter muted text for dark bg */
+  --color-text-dark:       #D1D5D8;  /* Main readable text on dark bg */
+  --color-text-invert:     #0B1214;  /* For dark-on-light reversal */
+  --color-hover-dark:      #344A50;  /* Button hover dark tone */
+  --color-accent-dark:     #E89535;  /* A deeper, richer accent tone */
+  --color-secondary-dark:  #A67A56;  /* A muted earthy tone for dark mode */
+
+  /* BACKGROUNDS / FILLS */
+  --color-bg-light:        #F4F6F7;
+  --color-transparent:     transparent;
+}

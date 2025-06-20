@@ -1,0 +1,36 @@
+*, :before, :after {
+  box-sizing: border-box;
+  border: 0 solid #e5e7eb;
+}
+
+body {
+  margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 17px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-dark);
+  border-radius: 20px;
+  border: 6px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-info);
+}
+
+a[href^=tel] {
+text-decoration:inherit;
+color: inherit;
+}
+a[href^=mailto] {
+  text-decoration: inherit;
+  color: inherit;
+}

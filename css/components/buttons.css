@@ -1,0 +1,79 @@
+/* IMPORT DESIGN TOKENS NEEDED FOR BUTTONS */
+@import url('../variables/colors.css');
+@import url('../variables/spacing.css');
+@import url('../variables/shadows.css');
+@import url('../variables/typography.css');
+@import url('../variables/radius.css');
+
+
+/* Base Template */
+.btn {
+    display:            inline-block;
+    text-align:         center;
+    flex-wrap:          nowrap;
+
+    font-family:        var(--font-base, "Geist", sans-serif);
+    font-size:          var(--fs-btn);
+    font-weight:        var(--fw-semibold);
+
+    padding:            var(--btn-pd-y) var(--btn-pd-x);
+    border-radius:      var(--radius-md);
+    text-decoration:    none;
+
+    border:             none;
+    outline:            none;
+    cursor:             pointer;
+    touch-action:       manipulation;
+    transition:         all 0.3s ease, transform 0.2s ease;
+}
+
+.buttons {
+    display:            flex;
+    flex-direction:     row;
+    justify-content:    center;
+    flex-wrap:          nowrap;
+    gap:                var(--pd-sm);
+    width:              100%;
+    max-width:          100%;
+    margin:             var(--mg-md);
+}
+
+.buttons a {
+    width:              clamp(10rem, 25vw, 250px);
+    padding:            10px 5px;
+    text-align:         center;
+}
+
+/************* Button Variants ************/
+
+.accent-btn           { background-color: var(--color-accent);    color: var(--color-white);    box-shadow: var(--btn-shadow); }
+.accent-btn:hover     { background-color: var(--color-secondary); color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.accent-btn:active    { transform: translateY(3px) scale(0.98); }
+
+.primary-btn          { background-color: var(--color-primary);   color: var(--color-white);    box-shadow: var(--btn-shadow); }
+.primary-btn:hover    { background-color: var(--color-info);      color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.primary-btn:active   { transform: translateY(3px) scale(0.98); }
+
+.dark-btn             { background-color: var(--color-dark);      color: var(--color-white);    box-shadow: var(--btn-shadow); }
+.dark-btn:hover       { background-color: var(--color-primary);   color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.dark-btn:active      { transform: translateY(3px) scale(0.98); }
+
+.muted-btn            { background-color: var(--color-muted);     color: var(--color-white);    box-shadow: var(--btn-shadow); }
+.muted-btn:hover      { background-color: var(--color-info);      color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.muted-btn:active     { transform: translateY(3px) scale(0.98); }
+
+.info-btn             { background-color: var(--color-info);      color: var(--color-white);    box-shadow: var(--btn-shadow); }
+.info-btn:hover       { background-color: var(--color-primary);   color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.info-btn:active      { transform: translateY(3px) scale(0.98); }
+
+.secondary-btn        { background-color: var(--color-secondary); color: var(--color-white);    box-shadow: var(--btn-shadow); }
+.secondary-btn:hover  { background-color: var(--color-accent);    color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.secondary-btn:active { transform: translateY(3px) scale(0.98); }
+
+.white-btn            { background-color: var(--color-white);     color: var(--color-primary);  box-shadow: var(--btn-shadow); }
+.white-btn:hover      { background-color: var(--color-accent);    color: var(--color-white);    text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.white-btn:active     { transform: translateY(3px) scale(0.98); }
+
+.outline-btn          { background-color: transparent;             color: var(--color-white);    border: 2px solid var(--color-white); box-shadow: none; }
+.outline-btn:hover    { border-color: var(--color-secondary);     color: var(--color-accent);   text-decoration: none; transform: translateY(-3px); transition: transform 0.4s ease; }
+.outline-btn:active   { transform: translateY(3px) scale(0.98); }

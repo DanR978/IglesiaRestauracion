@@ -1,0 +1,8 @@
+:root {
+    --z-negative:      -1;
+    --z-base:          1;
+    --z-menu:          10;
+    --z-overlay:       50;
+    --z-modal:         100;
+    --z-max:           999;
+}

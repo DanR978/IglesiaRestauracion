@@ -32,7 +32,7 @@
     <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
 
     <!-- STYLESHEETS -->
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/utilities.css">
     <meta name = "format-detection" content = "telephone=no">
 
     <!-- FONTS -->
@@ -59,7 +59,7 @@
       <div class="overlay"></div>
 
       <!-- Top Navigation -->
-      <div class="nav-container animate-fade-in">
+      <div class="nav-container animate-fade-in" data-threshold="1">
         <a href="https://www.irdlex.org" class="logo">IGLESIA RESTAURACIÓN DIVINA</a>
 
         <button id="burgerToggle" class="burger" aria-label="Toggle menu">
@@ -70,22 +70,23 @@
 
         <nav id="mainNav" class="nav">
           <ul class="menu">
-            <li class="menu-item">
-              <a href="#">Nosotros</a>
-              <!--<button class="submenu-toggle" aria-label="Toggle submenu">
-                <svg width="20" height="20" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
-                </svg>
-              </button>
+            <li class="menu-item has-submenu">
+              <a href="#" class="open-submenu" data-target="submenu-nosotros">Nosotros</a>
               <ul class="submenu">
-                <li><a href="#">New Here</a></li>
-                <li><a href="#">Watch Online</a></li>
-                <li><a href="#">Who We Are</a></li>
-                <li><a href="#">Staff & Leadership</a></li>
+                <li><a href="#">Quiénes Somos</a></li>
+                <li><a href="#">Liderazgo</a></li>
+                <li><a href="#">Contáctanos</a></li>
               </ul>
-            -->
             </li>
-            <li class="menu-item"><a href="#">Conectate</a></li>
+            <li class="menu-item has-submenu">
+              <a href="#" class="open-submenu" data-target="submenu-conectate">Conéctate</a>
+              <ul class="submenu">
+                <li><a href="#">Nuevo Aquí</a></li>
+                <li><a href="#">Ver en Línea</a></li>
+                <li><a href="#">Ministerios</a></li>
+                <li><a href="#">Eventos</a></li>
+              </ul>
+            </li>
             <li class="menu-item"><a href="#">Eventos</a></li>
             <li class="menu-item"><a href="#">Donar</a></li>
           </ul>
@@ -93,10 +94,10 @@
       </div>
 
       <!-- Hero Content -->
-      <div class="hero-content animate-fade-in">
+      <div class="hero-content animate-fade-in" data-threshold="1">
         <h2 style="letter-spacing: 4px;">BIENVENIDO A</h2>
         <h1>Iglesia Restauracion Divina</h1>
-        <div class="buttons animate-fade-in">
+        <div class="buttons animate-fade-in" data-threshold="1">
           <a href="#" class="primary-btn">VISITANOS</a>
           <a href="#" class="secondary-btn">PROXIMOS PASOS</a>
         </div>
@@ -112,15 +113,13 @@
           <img src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns.svg" alt="Crown of throns" class="autoRotate" />
         </div>
         <div class="mission-content">
-          <h4 class="mission-subheading animate-reveal-text">NUESTRA MISIÓN</h4>
-          <h2 class="mission-title animate-reveal-text">Cree en Jesús.<br>Arrepiéntete del pecado.
+          <h4 class="mission-subheading animate-fade-in" data-threshold="1">NUESTRA MISIÓN</h4>
+          <h2 class="mission-title animate-fade-in" data-threshold="1">Cree en Jesús.<br>Arrepiéntete del pecado.
             <br>Recibe nueva vida.<br>Toma tu cruz.<br>Síguelo.</h2>
-          <!--<p class="mission-description">
-            His mission, is our mission. To go and make disciples of all nations baptizing them in the name of the Father
-            and of the Son and of the Holy Spirit and teaching them to obey all He has commanded in the power of the Holy
-            Spirit.
-          </p>-->
-          <div class="button-info animate-reveal-text"><a href="#" class="outline-btn">QUIENES SOMOS</a></div>
+          <p class="mission-description animate-fade-in" data-threshold="1">
+              Jesús vino a reconciliar al mundo con Dios, trayendo salvación y vida eterna a través de su sacrificio en la cruz. Su misión fue buscar y salvar lo que se había perdido, revelando el amor del Padre y llamándonos a seguirle con todo el corazón.
+          </p>
+          <div class="button-info animate-fade-in" data-threshold="1"><a href="#" class="outline-btn">QUIENES SOMOS</a></div>
         </div>
       </div>
     </section>
@@ -131,14 +130,14 @@
         <div class="row-default ">
           <div class="column-default ">
             <div class="service-content ">
-              <h4 class="service-subheading animate-reveal-text">Domingos de adoracion</h4>
-              <h6 class="service-description animate-reveal-text">2601 Clays Mill Road | Lexington, KY 40503</h6>
+              <h4 class="service-subheading animate-fade-in" data-threshold="1">Domingos de adoracion</h4>
+              <h6 class="service-description animate-fade-in" data-threshold="1">2601 Clays Mill Road | Lexington, KY 40503</h6>
             </div>
-            <div class="buttons animate-reveal-text">
+            <div class="buttons animate-fade-in" data-threshold="1">
               <a href="#" class="action-btn">VER CONTENIDO</a>
               <!--<a href="#" class="link-btn">OBTENER DIRECCIONES</a>--> 
             </div>
-            <div class="service-content animate-reveal-text">
+            <div class="service-content animate-fade-in" data-threshold="1">
               <div class="content">
                 <h5>Domingo por la Tarde</h5>
                 <p>Servicio a las 2:00 PM (Hora del Este)</p>
@@ -173,10 +172,10 @@
                   style="fill:#2d4e57;fill-rule:nonzero;" />
               </svg>
             </div>
-            <div class="service-content animate-reveal-text">
+            <div class="service-content animate-fade-in" data-threshold="1">
               <h4 class="cursive-subheading">Versiculo del dia</h4>            
             </div>
-            <div class="versiculo animate-reveal-text">
+            <div class="versiculo animate-fade-in" data-threshold="1">
               <p id="verse-text">Cargando versículo...</p>
               <h5 id="verse-ref"></h5>
             </div>
@@ -194,33 +193,33 @@
           <!-- Left column: Conéctate + Nosotros stacked -->
           <div class="left-group">
             <div class="footer-section">
-              <h3 class="animate-reveal-text">Conéctate</h3>
+              <h3 class="animate-fade-in" data-threshold="1">Conéctate</h3>
               <ul>
-                <li class="animate-reveal-text"><a href="#">¿Nuevo aquí?</a></li>
-                <li class="animate-reveal-text"><a href="#">Ver en Línea</a></li>
-                <li class="animate-reveal-text"><a href="#">Ministerios</a></li>
-                <li class="animate-reveal-text"><a href="#">Eventos</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">¿Nuevo aquí?</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">Ver en Línea</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">Ministerios</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">Eventos</a></li>
               </ul>
             </div>
             <div class="footer-section">
-              <h3 class="animate-reveal-text">Nosotros</h3>
+              <h3 class="animate-fade-in" data-threshold="1">Nosotros</h3>
               <ul >
-                <li class="animate-reveal-text"><a href="#">Nuestra Historia</a></li>
-                <li class="animate-reveal-text"><a href="#">Equipo y Liderazgo</a></li>
-                <li class="animate-reveal-text"><a href="#">Contáctanos</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">Quienes Somos</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">Equipo y Liderazgo</a></li>
+                <li class="animate-fade-in" data-threshold="1"><a href="#">Contáctanos</a></li>
               </ul>
             </div>
           </div>
           <!-- Center: Iglesia Restauración -->
           <div class="footer-section iglesia ">
-            <h3 class="animate-reveal-text">Iglesia Restauración Divina</h3>
-            <p class="animate-reveal-text">
+            <h3 class="animate-fade-in" data-threshold="1">Iglesia Restauración Divina</h3>
+            <p class="animate-fade-in" data-threshold="1">
               Somos una iglesia comprometida a esparcir las buenas nuevas de salvación, proclamar el nombre de Jesús.
             </p>
           </div>
           
           <!-- Right: Contact Card -->
-          <div class="footer-section glass-effect animate-reveal-text">
+          <div class="footer-section glass-effect animate-reveal-text" data-threshold="0.45">
             <div style="display: flex; flex-direction: column; align-items: center; z-index: 1;">
               <!-- SVG Logo -->
               <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -232,16 +231,16 @@
                   style="fill:#fff;fill-rule:nonzero;" />
               </svg>
             </div>
-            <div class="contact-us-content">
-              <p class="animate-reveal-text">Teléfono: (859) 270-8521</p>
-              <p class="animate-reveal-text">E-mail: serve@irdlex.org</p>
-              <p class="animate-reveal-text">Dirección: 2601 Clays Mill<br>Rd, Lexington, KY 40503</p>
+            <div class="contact-us-content animate-fade-in" data-threshold="1">
+              <p class="animate-fade-in" data-threshold="1">Teléfono: (859) 270-8521</p>
+              <p class="animate-fade-in" data-threshold="1">E-mail: serve@irdlex.org</p>
+              <p class="animate-fade-in" data-threshold="1">Dirección: 2601 Clays Mill<br>Rd, Lexington, KY 40503</p>
             </div>
-            <p class="copyright animate-reveal-text">
+            <p class="copyright animate-fade-in" data-threshold="1">
               Copyright © <span id="currentYear"></span> Iglesia Restauración Divina.<br>
               All rights reserved.
             </p>
-            <div class="item social text-left animate-reveal-text">
+            <div class="item social text-left animate-fade-in" data-threshold="1">
               <a href="https://www.facebook.com/iglesia.restauracion2016/" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
               <a href="https://www.tiktok.com/@iglesia.restaurac91" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
               <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
@@ -330,23 +329,29 @@
       });
   </script>
   <script>
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        } else {
-          entry.target.classList.remove('visible');
-        }
-      });
-    }, {
-      threshold: 0.15 // Trigger when 15% visible
-    });
+    const observers = new Map(); // Cache observers by threshold value
 
-    // Observe all elements with any animation class starting with "animate-"
     document.querySelectorAll('[class*="animate-"]').forEach(el => {
-      observer.observe(el);
+      const threshold = parseFloat(el.dataset.threshold) || 0.15; // Default to 0.15 if not set
+
+      if (!observers.has(threshold)) {
+        // Create a new observer for this threshold if one doesn't exist
+        const observer = new IntersectionObserver((entries, obs) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              obs.unobserve(entry.target); // Only animate once
+            }
+          });
+        }, { threshold });
+
+        observers.set(threshold, observer);
+      }
+
+      observers.get(threshold).observe(el); // Observe with the correct threshold
     });
   </script>
+
 
 
 </body>
