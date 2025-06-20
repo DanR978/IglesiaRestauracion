@@ -49,51 +49,44 @@
 <body>
   <div class="wrapper">
     <header>
-      <!-- Background Video -->
-      <!--<video autoplay muted loop playsinline class="hero">
-        <source src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/videos/hero.mp4" type="video/mp4" />
-      </video>-->
       <img src="./resources/media/images/worshipSample.jpg" alt="worship" class="hero">
-
-      <!-- Overlay -->
       <div class="overlay"></div>
 
-      <!-- Top Navigation -->
+      <!-- Top Bar Only: Logo + Burger -->
       <div class="nav-container animate-fade-in" data-threshold="1">
         <a href="https://www.irdlex.org" class="logo">IGLESIA RESTAURACIÓN DIVINA</a>
-
         <button id="burgerToggle" class="burger" aria-label="Toggle menu">
           <span class="bar"></span>
           <span class="bar"></span>
           <span class="bar"></span>
         </button>
-
-        <nav id="mainNav" class="nav">
-          <ul class="menu">
-            <li class="menu-item has-submenu">
-              <a href="#" class="open-submenu" data-target="submenu-nosotros">Nosotros</a>
-              <ul class="submenu">
-                <li><a href="#">Quiénes Somos</a></li>
-                <li><a href="#">Liderazgo</a></li>
-                <li><a href="#">Contáctanos</a></li>
-              </ul>
-            </li>
-            <li class="menu-item has-submenu">
-              <a href="#" class="open-submenu" data-target="submenu-conectate">Conéctate</a>
-              <ul class="submenu">
-                <li><a href="#">Nuevo Aquí</a></li>
-                <li><a href="#">Ver en Línea</a></li>
-                <li><a href="#">Ministerios</a></li>
-                <li><a href="#">Eventos</a></li>
-              </ul>
-            </li>
-            <li class="menu-item"><a href="#">Eventos</a></li>
-            <li class="menu-item"><a href="#">Donar</a></li>
-          </ul>
-        </nav>
       </div>
 
-      <!-- Hero Content -->
+      <!-- FULLSCREEN NAV should be OUTSIDE of .nav-container -->
+      <nav id="mainNav" class="nav">
+        <ul class="menu">
+          <li class="menu-item has-submenu">
+            <a href="#" class="open-submenu" data-target="submenu-nosotros">Nosotros</a>
+            <ul class="submenu">
+              <li><a href="#">Quiénes Somos</a></li>
+              <li><a href="#">Liderazgo</a></li>
+              <li><a href="#">Contáctanos</a></li>
+            </ul>
+          </li>
+          <li class="menu-item has-submenu">
+            <a href="#" class="open-submenu" data-target="submenu-conectate">Conéctate</a>
+            <ul class="submenu">
+              <li><a href="#">Nuevo Aquí</a></li>
+              <li><a href="#">Ver en Línea</a></li>
+              <li><a href="#">Ministerios</a></li>
+              <li><a href="#">Eventos</a></li>
+            </ul>
+          </li>
+          <li class="menu-item"><a href="#">Eventos</a></li>
+          <li class="menu-item"><a href="#">Donar</a></li>
+        </ul>
+      </nav>
+
       <div class="hero-content animate-fade-in" data-threshold="1">
         <h2 style="letter-spacing: 4px;">BIENVENIDO A</h2>
         <h1>Iglesia Restauracion Divina</h1>
@@ -103,6 +96,7 @@
         </div>
       </div>
     </header>
+
   </div>
 
   <main>
