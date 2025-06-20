@@ -210,6 +210,13 @@ header {
   z-index: 0;
 }
 
+.hero-content,
+.hero,
+.buttons {
+  z-index: 1;
+}
+
+
 .button-info {
   display: flex;
   flex-direction: row;
@@ -871,7 +878,7 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10;
+  z-index: 10001;
   text-decoration: none;
 }
 
@@ -1026,8 +1033,9 @@ header {
   outline: none;
   border: none;
   cursor: pointer;
-  z-index: 1002;
+  z-index: 1004;
   transition: transform 0.3s ease;
+  position: relative;
 }
 
 .burger:focus {
@@ -1082,7 +1090,6 @@ body.no-scroll {
     opacity: 0;
     transition: transform 0.6s ease, opacity 0.3s ease;
     pointer-events: none;
-    border: 2px solid red;
   }
 
   .nav.open {
@@ -1100,6 +1107,7 @@ body.no-scroll {
     overflow-y: auto; /* Allow scroll if too long */
     pointer-events: auto;
     opacity: 1;
+    z-index: 10000;
   }
 
 
@@ -1108,7 +1116,6 @@ body.no-scroll {
     gap: var(--gp-large);
     align-items: center;
     justify-content: center;
-    border: 2px solid rgb(17, 207, 99);
   }
 
   .menu a,
@@ -1127,6 +1134,7 @@ body.no-scroll {
     color: var(--color-accent);
     text-decoration: none;
   }
+
   .glass-effect {
   margin-top: 2rem;
   }
