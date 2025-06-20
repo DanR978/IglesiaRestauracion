@@ -85,6 +85,11 @@
   border: 0 solid #e5e7eb;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+
 body {
   margin: 0;
 }
