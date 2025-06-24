@@ -878,7 +878,7 @@ header {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 10001;
+  z-index: 10010;
   text-decoration: none;
 }
 
@@ -887,6 +887,8 @@ header {
   font-weight: var(--fw-bold);
   text-decoration: none;
   font-size: var(--fs-small);
+  position: relative;
+  z-index: 10010;
 }
 
 .logo:hover {
@@ -940,7 +942,7 @@ header {
   position: absolute;
   top: 100%;
   left: 0;
-  height: 30px;       /* size of the hover bridge */
+  height: 30px;
   width: 100%;
   background: transparent;
   pointer-events: auto;
@@ -967,12 +969,13 @@ header {
   display: none;
   z-index: 999;
   min-width: 220px;
-
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
   pointer-events: none;
 }
+
+
 
 .submenu li {
   list-style: none;
@@ -1033,9 +1036,9 @@ header {
   outline: none;
   border: none;
   cursor: pointer;
-  z-index: 1004;
   transition: transform 0.3s ease;
   position: relative;
+  z-index: 10011;
 }
 
 .burger:focus {
@@ -1071,6 +1074,7 @@ body.no-scroll {
 }
 
 @media (max-width: 768px) {
+
   .burger {
     display: flex;
   }
@@ -1090,6 +1094,7 @@ body.no-scroll {
     opacity: 0;
     transition: transform 0.6s ease, opacity 0.3s ease;
     pointer-events: none;
+    z-index: 10000;
   }
 
   .nav.open {
@@ -1097,17 +1102,15 @@ body.no-scroll {
     top: 0;
     left: 0;
     right: 0;
-    height: 100dvh; /* Fix for iPhone Safari toolbar bug */
-    min-height: 100vh; /* Fallback for older devices */
+    height: 100dvh;
+    min-height: 100vh;
     background: var(--color-dark);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    overflow-y: auto; /* Allow scroll if too long */
-    pointer-events: auto;
     opacity: 1;
-    z-index: 10000;
+    pointer-events: auto; 
   }
 
 
@@ -1138,6 +1141,7 @@ body.no-scroll {
   .glass-effect {
   margin-top: 2rem;
   }
+
 }
 
 .versiculo {
