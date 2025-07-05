@@ -65,14 +65,60 @@
 
 
     /* Pallette */
-    --color-primary:   #2D4E57;
-    --color-secondary: #B38D69;
-    --color-accent:    #F2A152;
-    --color-info:      #6A929D;
+    --color-primary:   #345a65;
+    --color-secondary: #ef8c2a;
+    --color-accent:    #be660e;
+    --color-info:      #2d4e57;
     --color-muted:     #736960;
     --color-dark:      #394548;
     --color-white:     #ffffff;
     --color-black:     #000000;
+
+    --color-0:   #000000;
+    --color-5:   #090f11;
+    --color-10:  #111e22;
+    --color-15:  #1a2d32;
+    --color-20:  #233c43;
+    --color-25:  #2b4b54;
+    --color-260: #2d4e57;  /* PRIMARY */
+    --color-30:  #345a65;
+    --color-35:  #3d6976;
+    --color-40:  #457887;
+    --color-45:  #4e8897;
+    --color-50:  #5797a8;
+    --color-55:  #68a1b1;
+    --color-60:  #78abba;
+    --color-65:  #89b6c2;
+    --color-70:  #9ac0cb;
+    --color-75:  #abccd4;
+    --color-80:  #bcd5dc;
+    --color-85:  #cde0e5;
+    --color-90:  #ddeaee;
+    --color-95:  #eef5f6;
+    --color-100: #ffffff;
+
+    --orange-0:   #000000;
+    --orange-5:   #180d02;
+    --orange-10:  #2f1a04;
+    --orange-15:  #472605;
+    --orange-20:  #5f3307;
+    --orange-25:  #774009;
+    --orange-30:  #8e4d0b;
+    --orange-35:  #a6590c;
+    --orange-40:  #be660e;
+    --orange-45:  #d57310;
+    --orange-50:  #ed8012;
+    --orange-55:  #ef8c2a;
+    --orange-60:  #f19941;
+    --orange-64:  #f2a152;
+    --orange-65:  #f3a659;
+    --orange-70:  #f4b371;
+    --orange-75:  #f6bf88;
+    --orange-80:  #f8cca0;
+    --orange-85:  #fad9b8;
+    --orange-90:  #fbe6d0;
+    --orange-95:  #fdf2e7;
+    --orange-100: #ffffff;
 
     /* Styles */
     --btn-shadow: 0px 5px 7px rgba(0, 0, 0, 0.3);

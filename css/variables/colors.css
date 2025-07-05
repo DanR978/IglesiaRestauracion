@@ -1,28 +1,62 @@
 :root {
-  /* MAIN COLORS */
-  --color-primary:         #2D4E57;  /* Deep blue-green */
-  --color-secondary:       #B38D69;  /* Earthy tan brown */
-  --color-accent:          #F2A152;  /* Warm peach/orange */
-  --color-info:            #6A929D;  /* Cool teal-blue */
+  /* === Core Palette === */
+  --color-primary:        #345a65;   /* Main UI color */
+  --color-secondary:      #ef8c2a;   /* Buttons, links, highlights */
+  --color-accent:         #be660e;   /* Alternative CTA or hover */
+  --color-info:           #2d4e57;   /* Optional blue-teal info color */
+  --color-muted:          #736960;   /* Muted text or backgrounds */
+  --color-dark:           #394548;   /* Footer, dark mode backgrounds */
+  --color-white:          #ffffff;
+  --color-black:          #000000;
+  --color-darkmode-font:  #c2e6ff;
 
-  /* NEUTRAL COLORS */
-  --color-dark:            #1F2E33;  /* Rich near-black */
-  --color-muted:           #647174;  /* Muted slate-gray */
-  --color-white:           #ffffff;  /* Pure white */
-  --color-light:           #F8F9FA;  /* Soft light gray */
+  /* === Teal-Tinted Grayscale (Primary Color Scale) === */
+  --color-0:              #000000;
+  --color-5:              #090f11;
+  --color-10:             #111e22;
+  --color-15:             #1a2d32;
+  --color-20:             #233c43;
+  --color-25:             #2b4b54;
+  --color-26:             #2d4e57;   /* Primary anchor */
+  --color-30:             #345a65;
+  --color-35:             #3d6976;
+  --color-40:             #457887;
+  --color-45:             #4e8897;
+  --color-50:             #5797a8;
+  --color-55:             #68a1b1;
+  --color-60:             #78abba;
+  --color-65:             #89b6c2;
+  --color-70:             #9ac0cb;
+  --color-75:             #abccd4;
+  --color-80:             #bcd5dc;
+  --color-85:             #cde0e5;
+  --color-90:             #ddeaee;
+  --color-95:             #eef5f6;
+  --color-100:            #ffffff;
 
-  /* DARK THEME EXTENSIONS */
-  --color-bg-dark:         #24393F;  /* Default dark background */
-  --color-bg-darker:       #1A252A;  /* Even deeper background */
-  --color-bg-darkest:      #121B1F;  /* Near black, ideal for modals */
-  --color-surface-dark:    #2A3A3F;  /* Elevated surface background */
-  --color-border-dark:     #3B4B51;  /* Subtle border on dark bg */
-  --color-muted-dark:      #829093;  /* Lighter muted text for dark bg */
-  --color-text-dark:       #D1D5D8;  /* Main readable text on dark bg */
-  --color-text-invert:     #0B1214;  /* For dark-on-light reversal */
-  --color-hover-dark:      #344A50;  /* Button hover dark tone */
-  --color-accent-dark:     #E89535;  /* A deeper, richer accent tone */
-  --color-secondary-dark:  #A67A56;  /* A muted earthy tone for dark mode */
+  /* === Orange Accent Scale === */
+  --orange-0:             #000000;
+  --orange-5:             #180d02;
+  --orange-10:            #2f1a04;
+  --orange-15:            #472605;
+  --orange-20:            #5f3307;
+  --orange-25:            #774009;
+  --orange-30:            #8e4d0b;
+  --orange-35:            #a6590c;
+  --orange-40:            #be660e;
+  --orange-45:            #d57310;
+  --orange-50:            #ed8012;
+  --orange-55:            #ef8c2a;   /* Secondary anchor */
+  --orange-60:            #f19941;
+  --orange-64:            #f2a152;
+  --orange-65:            #f3a659;
+  --orange-70:            #f4b371;
+  --orange-75:            #f6bf88;
+  --orange-80:            #f8cca0;
+  --orange-85:            #fad9b8;
+  --orange-90:            #fbe6d0;
+  --orange-95:            #fdf2e7;
+  --orange-100:           #ffffff;
 
   /* BACKGROUNDS / FILLS */
   --color-bg-light:        #F4F6F7;
