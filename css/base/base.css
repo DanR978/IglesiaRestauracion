@@ -65,6 +65,7 @@ a {
 
 strong {
     color: var(--color-secondary);
+    font-weight: var(--fw-bold) !important;
 }
 
 .section {
