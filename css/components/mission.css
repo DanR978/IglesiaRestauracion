@@ -28,7 +28,7 @@
 }
 
 .mission-subheading {
-  color: var(--color-accent);
+  color: var(--orange-55);
   font-size: var(--fs-xs);
   font-weight: var(--fw-medium);
   font-family: var(--font-DM-Sans);
