@@ -53,7 +53,7 @@
 
 .donate-btn {
     display: inline-block;
-    font-weight: var(--fw-semibold);
+    font-weight: var(--fw-bold);
     text-decoration: none;
     letter-spacing: -0.05em;
     background-color: var(--orange-45);
@@ -85,16 +85,13 @@
 }
 
 .buttons a {
-    width:              12rem;
+    width:              clamp(8rem, 25vw, 12rem);
     text-align:         center;
+    font-size:          clamp(12px, 1vw + 0.5rem, 18px) !important;
+
 }
 
-@media (max-width: 400px) {
-    .buttons a {
-        font-size: var(--fs-xs);
-        width: 8rem;
-    }
-
+@media (max-width: 480px) {
     .primary-btn, .secondary-btn, .donate-btn {
         font-size: var(--fs-xxs);
     }
@@ -104,5 +101,6 @@
     .donate-btn {
         width: 200px;
         text-align: center;
+        font-size: var(--size-lg);
     }
 }

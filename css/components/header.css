@@ -39,7 +39,7 @@ header {
 }
 
 .header-container nav a:hover {
-  color: var(--color-accent);
+  color: var(--orange-55);
   transition: color 0.3s ease;
   text-decoration: none;
 }
@@ -102,7 +102,7 @@ header {
 .menu a:hover,
 .menu a:focus,
 .menu a:active {
-  color: var(--color-accent);
+  color: var(--orange-55);
   text-decoration: none;
 }
 
@@ -196,7 +196,7 @@ body.no-scroll {
   transform: translateX(-50%);
   width: 0;
   height: 3px;
-  background-color: var(--color-accent, #fca311);
+  background-color: var(--orange-55, #fca311);
   border-radius: 999px;
   transition: width 0.4s ease-in-out;
 }
@@ -278,11 +278,13 @@ body.no-scroll {
     opacity: 1;
     pointer-events: auto;
     z-index: var(--z-base);
+    gap: var(--size-5xl);
   }
 
-  .menu {
+  .menu,
+  .menu-donate {
     flex-direction: column;
-    gap: var(--gap-lg);
+    /* gap: var(--gap-lg); */
     align-items: center;
     justify-content: center;
   }
@@ -295,11 +297,18 @@ body.no-scroll {
     margin-top: 2rem;
   }
 
-  .menu-donate {
+  /* .menu-donate {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    margin-top: var(--size-9xl);
+    width: 100%; 
+  } */
+}
+
+@media (min-width: 769px) {
+
+  .menu-donate {
+    margin-left: 1.5rem; /* Adjust as needed */
   }
 }
+
