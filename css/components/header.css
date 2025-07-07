@@ -218,8 +218,8 @@ body.no-scroll {
   /* Mobile Styles */
   .burger {
     display: flex;
-    top: 1.5rem;
-    right: 1.5rem;
+    /* top: 1.5rem;
+    right: 1.5rem; */
     flex-direction: column;
     gap: 6px;
     background: none;
@@ -272,6 +272,10 @@ body.no-scroll {
     transition: transform 0.6s ease, opacity 0.3s ease;
     pointer-events: none;
     z-index: var(--z-base);
+  }
+
+  .nav-container {
+    max-width: 90vw;
   }
 
   .nav.open {

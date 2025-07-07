@@ -1,105 +1,122 @@
-/* IMPORT DESIGN TOKENS NEEDED FOR BUTTONS */
+/* IMPORT DESIGN TOKENS */
 @import url('../variables/colors.css');
 @import url('../variables/spacing.css');
 @import url('../variables/shadows.css');
 @import url('../variables/typography.css');
 @import url('../variables/radius.css');
+@import url('../variables/sizes.css');
 
-
-.primary-btn {
-    display: inline-block;
-    font-weight: var(--fw-semibold);
-    text-decoration: none;
-    letter-spacing: -0.05em;
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: 0.5em 0.7em;
-    border-radius: 6px;
-    box-shadow: 0 10px 20px 	rgba(45, 78, 87, 0.5), 0 6px 6px 	
-    rgba(45, 78, 87, 0.5), 0 0 100px -10px var(--color-primary);
-    transition: transform 0.3s, box-shadow 0.3s;
+/* === Base Button === */
+.ird-btn {
+  display: inline-block;
+  padding: 0.5em 0.7em;
+  font-weight: var(--fw-semibold);
+  font-size: clamp(12px, 1vw + 0.5rem, 18px);
+  text-decoration: none;
+  text-align: center;
+  letter-spacing: -0.05em;
+  color: var(--color-white);
+  border-radius: var(--radius-md);
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: clamp(8rem, 25vw, 12rem);
+  /* max-width: 12rem; */
+  transform: translateY(0);
 }
 
-.primary-btn:hover {
-    text-decoration: none;
-    color: var(--color-white);
-    transform: translateY(-3px);
-    box-shadow: 0 14px 28px 	rgba(45, 78, 87, 0.25), 0 10px 10px 	
-    rgba(45, 78, 87, 0.22), 0 0 120px -10px var(--color-primary);
+/* === Button Color Variants === */
+.ird-btn--teal {
+  background-color: var(--color-primary);
+  box-shadow: 0 10px 20px rgba(45, 78, 87, 0.5),
+              0 6px 6px rgba(45, 78, 87, 0.5),
+              0 0 100px -10px var(--color-primary);
+}
+.ird-btn--teal:hover {
+  text-decoration: none;
+  color: var(--color-white);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(45, 78, 87, 0.25),
+              0 10px 10px rgba(45, 78, 87, 0.22),
+              0 0 120px -10px var(--color-primary);
 }
 
-
-.secondary-btn {
-    display: inline-block;
-    font-weight: var(--fw-semibold);
-    text-decoration: none;
-    letter-spacing: -0.05em;
-    background-color: var(--color-secondary);
-    color: var(--color-white);
-    padding: 0.5em 0.7em;
-    border-radius: 6px;
-    box-shadow: 0 5px 20px 	rgba(243, 166, 89, 0.5), 0 4px 10px 	
-    rgba(243, 166, 89, 0.5), 0 0 100px -10px var(--color-secondary);
-    transition: transform 0.3s, box-shadow 0.3s;
+.ird-btn--orange {
+  text-decoration: none;
+  color: var(--color-white);
+  background-color: var(--color-secondary);
+  box-shadow: 0 5px 20px rgba(243, 166, 89, 0.5),
+              0 4px 10px rgba(243, 166, 89, 0.5),
+              0 0 100px -10px var(--color-secondary);
+}
+.ird-btn--orange:hover {
+  text-decoration: none;
+  color: var(--color-white);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(243, 166, 89, 0.25),
+              0 10px 10px rgba(243, 166, 89, 0.22),
+              0 0 120px -10px var(--color-secondary);
 }
 
-.secondary-btn:hover {
-    text-decoration: none;
-    color: var(--color-white);
-    transform: translateY(-3px);
-    box-shadow: 0 14px 28px 	rgba(243, 166, 89, 0.25), 0 10px 10px 	
-    rgba(243, 166, 89, 0.22), 0 0 120px -10px var(--color-secondary);
+.ird-btn--donate {
+  width: 6rem;
+  font-size: 1rem;
+  background-color: var(--orange-45);
+  font-weight: var(--fw-bold);
+  box-shadow: 0 5px 20px rgba(243, 166, 89, 0.5),
+              0 4px 10px rgba(243, 166, 89, 0.5),
+              0 0 100px -10px var(--orange-45);
+}
+.ird-btn--donate:hover {
+  text-decoration: none;
+  color: var(--color-white);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(243, 166, 89, 0.25),
+              0 10px 10px rgba(243, 166, 89, 0.22),
+              0 0 120px -10px var(--orange-45);
 }
 
-.donate-btn {
-    display: inline-block;
-    font-weight: var(--fw-bold);
-    text-decoration: none;
-    letter-spacing: -0.05em;
-    background-color: var(--orange-45);
-    color: var(--color-white);
-    padding: 0.5em 0.7em;
-    border-radius: 6px;
-    box-shadow: 0 5px 20px 	rgba(243, 166, 89, 0.5), 0 4px 10px 	
-    rgba(243, 166, 89, 0.5), 0 0 100px -10px var(--color-secondary);
-    transition: transform 0.3s, box-shadow 0.3s;
+/* === Outline Modifier === */
+.ird-btn--outline {
+  background-color: transparent;
+  border: 2px solid currentColor;
+  box-shadow: none;
+}
+.ird-btn--orange.ird-btn--outline {
+  color: var(--color-secondary);
+  border-color: var(--color-secondary);
+}
+.ird-btn--teal.ird-btn--outline {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
-.donate-btn:hover {
-    text-decoration: none;
-    color: var(--color-white);
-    transform: translateY(-3px);
-    box-shadow: 0 14px 28px 	rgba(243, 166, 89, 0.25), 0 10px 10px 	
-    rgba(243, 166, 89, 0.22), 0 0 120px -10px var(--color-secondary);
-}
-
+/* === Buttons Container === */
 .buttons {
-    display:            flex;
-    flex-direction:     row;
-    justify-content:    center;
-    flex-wrap:          nowrap;
-    gap:                var(--pd-sm);
-    width:              100%;
-    max-width:          100%;
-    margin:             var(--mg-md);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: var(--pd-sm);
+  width: 100%;
+  max-width: 100%;
+  margin: var(--mg-md);
+  padding: 0 1rem;
 }
 
 .buttons a {
-    width:              clamp(8rem, 25vw, 12rem);
-    text-align:         center;
-    font-size:          clamp(12px, 1vw + 0.5rem, 18px);
+  text-align: center;
 }
 
 @media (max-width: 480px) {
-    .primary-btn, .secondary-btn, .donate-btn {
-        font-size: var(--fs-xxs);
-    }
+  .ird-btn--donate {
+    font-size: var(--size-xl);
+    width: 60vw;
+  }
 }
 
-@media (max-width: 768px) {
-    .donate-btn {
-        width: 200px;
-        text-align: center;
-        font-size: var(--size-lg);
-    }
-}
+/* === Responsive Adjustments === */
+/* @media (max-width: 480px) {
+  .buttons {
+    flex-direction: column;
+    align-items: center;
+  } 
+}*/
