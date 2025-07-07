@@ -115,6 +115,26 @@
   }
 }
 
+@keyframes slideInFromRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutToRight {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(100%); opacity: 0; }
+}
+
+@keyframes slideInFromLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutToLeft {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(-100%); opacity: 0; }
+}
+
 /* ================================
    Trigger Classes
 ================================ */
@@ -181,4 +201,17 @@
 
 .animate-zoom-in.visible {
   scale: 1;
+}
+
+.menu-page.slide-in {
+  animation: slideInFromRight 0.4s forwards;
+}
+.menu-page.slide-out {
+  animation: slideOutToRight 0.4s forwards;
+}
+.menu-page.slide-in-back {
+  animation: slideInFromLeft 0.4s forwards;
+}
+.menu-page.slide-out-back {
+  animation: slideOutToLeft 0.4s forwards;
 }

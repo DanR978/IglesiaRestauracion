@@ -205,11 +205,6 @@ body.no-scroll {
   width: 100%;
 }
 
-/* .menu__line {
-  border: 1px solid var(--color-accent);
-  padding-top: 1.5rem;
-} */
-
 .burger {
   display: none;
 }
@@ -218,8 +213,6 @@ body.no-scroll {
   /* Mobile Styles */
   .burger {
     display: flex;
-    /* top: 1.5rem;
-    right: 1.5rem; */
     flex-direction: column;
     gap: 6px;
     background: none;
@@ -228,6 +221,7 @@ body.no-scroll {
     cursor: pointer;
     z-index: var(--z-max);
     transition: transform 0.3s ease;
+    perspective: 800px;
   }
 
   .burger:focus {
@@ -239,22 +233,23 @@ body.no-scroll {
     height: 3px;
     width: 25px;
     background: var(--color-white);
-    transition: transform 0.8s ease;
+    transition: transform 0.5s ease;
     border-radius: 2px;
     transform-origin: center;
+    transform-style: preserve-3d;
   }
 
   .burger.open .bar:nth-child(1) {
-    transform: rotate(45deg) translate(6px, 6.5px);
+    transform: scale3d(1, 1, 1) rotate(135deg) translateY(-7px) translateX(7px);
   }
 
   .burger.open .bar:nth-child(2) {
+    transform: scale3d(0, 1, 1); /* hidden bar */
     opacity: 0;
-    transition: opacity 0.6s ease;
   }
 
   .burger.open .bar:nth-child(3) {
-    transform: rotate(-45deg) translate(6px, -6.5px);
+    transform: scale3d(1, 1, 1) rotate(-135deg) translateY(6px) translateX(5px);
   }
 
   .nav {
@@ -286,9 +281,9 @@ body.no-scroll {
   }
 
   .menu,
+  .menu-item,
   .menu-donate {
     flex-direction: column;
-    /* gap: var(--gap-lg); */
     align-items: center;
     justify-content: center;
   }
@@ -297,22 +292,41 @@ body.no-scroll {
     font-size: var(--size-3xl);
   }
 
+  .menu-item.has-submenu:hover .submenu,
+  .menu-item.has-submenu:focus-within .submenu {
+    display: none;
+  }
+
+  .chevron-icon {
+    width: var(--size-3xl);
+    height: var(--size-3xl);
+    vertical-align: middle;
+    stroke: var(--color-white);
+    display: inline-block;
+    top: 0.1rem;
+  }
+
+  .open-submenu:hover .chevron-icon {
+    stroke: var(--orange-55);
+    transition: stroke 0.3s ease;
+  }
+  
+  .open-submenu:focus .chevron-icon {
+    stroke: var(--orange-55);
+    transition: stroke 0.3s ease;
+  }
+
   .glass-effect {
     margin-top: 2rem;
   }
-
-  /* .menu-donate {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%; 
-  } */
 }
 
 @media (min-width: 769px) {
-
   .menu-donate {
-    margin-left: 1.5rem; /* Adjust as needed */
+    margin-left: 1.5rem;
+  }
+  .chevron-icon {
+    display: none;
   }
 }
 

@@ -1,3 +1,6 @@
+
+// GET YEAR FOR COPYRIGHT
+
 // Load jQuery and Bootstrap from CDN (if not already globally included in HTML)
 const jqueryScript = document.createElement("script");
 jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js";
@@ -15,27 +18,65 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// 🍔 Burger menu toggle (for mobile navigation)
-document.addEventListener('DOMContentLoaded', () => {
-  const burger = document.getElementById('burgerToggle');
-  const nav = document.getElementById('mainNav');
-  const submenuToggles = document.querySelectorAll('.submenu-toggle');
 
-  if (burger && nav) {
-    burger.addEventListener('click', () => {
-      burger.classList.toggle('open');
-      nav.classList.toggle('open');
-      document.body.classList.toggle('no-scroll');
-    });
+
+// MENU 
+
+document.addEventListener("DOMContentLoaded", () => {
+  const burger = document.getElementById("burgerToggle");
+  const nav = document.getElementById("mainNav");
+  const mainMenu = document.getElementById("main-menu");
+  const submenuViews = document.querySelectorAll(".submenu-view");
+  const openSubmenuLinks = document.querySelectorAll(".open-submenu");
+  const backButtons = document.querySelectorAll(".back-to-main");
+
+  function closeAllSubmenus() {
+    submenuViews.forEach(menu => menu.classList.remove("active"));
+    mainMenu.classList.add("active");
   }
 
-  submenuToggles.forEach(button => {
-    button.addEventListener('click', () => {
-      const submenu = button.parentElement.nextElementSibling;
-      submenu?.classList.toggle('show');
+  // 🍔 Toggle main menu
+  burger?.addEventListener("click", () => {
+    burger.classList.toggle("open");
+    nav.classList.toggle("open");
+    document.body.classList.toggle("no-scroll");
+    closeAllSubmenus();
+  });
+
+  // 📂 Open submenu
+  openSubmenuLinks.forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const targetId = link.getAttribute("data-target");
+      const submenu = document.getElementById(targetId);
+      if (submenu) {
+        mainMenu.classList.remove("active");
+        submenu.classList.add("active");
+      }
     });
   });
+
+  // 🔙 Return to main menu
+  backButtons.forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.preventDefault();
+      closeAllSubmenus();
+    });
+  });
+
+  // 💡 Ensure menu is reset on resize
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 769) {
+      nav.classList.remove("open");
+      burger.classList.remove("open");
+      document.body.classList.remove("no-scroll");
+      closeAllSubmenus();
+    }
+  });
 });
+
+
+// QUERY BIBLE VERSE ON LOAD
 
 // 📖 Load and display a random Bible verse
 document.addEventListener('DOMContentLoaded', () => {
@@ -91,6 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (verseRefEl) verseRefEl.innerText = "";
     });
 });
+
+
+// VIEWPORT ANIMATIONS
 
 // ✨ IntersectionObserver animations (trigger once when element enters viewport)
 document.addEventListener('DOMContentLoaded', () => {
