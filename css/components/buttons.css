@@ -13,7 +13,7 @@
     letter-spacing: -0.05em;
     background-color: var(--color-primary);
     color: var(--color-white);
-    padding: 0.5em 1em;
+    padding: 0.5em 0.7em;
     border-radius: 6px;
     box-shadow: 0 10px 20px 	rgba(45, 78, 87, 0.5), 0 6px 6px 	
     rgba(45, 78, 87, 0.5), 0 0 100px -10px var(--color-primary);
@@ -36,7 +36,7 @@
     letter-spacing: -0.05em;
     background-color: var(--color-secondary);
     color: var(--color-white);
-    padding: 0.5em 1em;
+    padding: 0.5em 0.7em;
     border-radius: 6px;
     box-shadow: 0 5px 20px 	rgba(243, 166, 89, 0.5), 0 4px 10px 	
     rgba(243, 166, 89, 0.5), 0 0 100px -10px var(--color-secondary);
@@ -58,7 +58,7 @@
     letter-spacing: -0.05em;
     background-color: var(--orange-45);
     color: var(--color-white);
-    padding: 0.5em 1em;
+    padding: 0.5em 0.7em;
     border-radius: 6px;
     box-shadow: 0 5px 20px 	rgba(243, 166, 89, 0.5), 0 4px 10px 	
     rgba(243, 166, 89, 0.5), 0 0 100px -10px var(--color-secondary);
@@ -87,8 +87,7 @@
 .buttons a {
     width:              clamp(8rem, 25vw, 12rem);
     text-align:         center;
-    font-size:          clamp(12px, 1vw + 0.5rem, 18px) !important;
-
+    font-size:          clamp(12px, 1vw + 0.5rem, 18px);
 }
 
 @media (max-width: 480px) {
