@@ -18,7 +18,7 @@
   color: var(--color-white);
   border-radius: var(--radius-md);
   transition: transform 0.3s, box-shadow 0.3s;
-  width: clamp(8rem, 25vw, 12rem);
+  width: clamp(9rem, 25vw, 12rem);
   transform: translateY(0);
 }
 
