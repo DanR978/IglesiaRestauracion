@@ -11,14 +11,14 @@
   display: inline-block;
   padding: 0.5em 1em;
   font-weight: var(--fw-semibold);
-  font-size: clamp(0.63rem, 0.07rem + 1.84vw, 1.25rem);
+  font-size: clamp(0.63rem, 0.29rem + 1.1vw, 1rem);
   text-decoration: none;
   text-align: center;
   letter-spacing: -0.05em;
   color: var(--color-white);
   border-radius: var(--radius-md);
   transition: transform 0.3s, box-shadow 0.3s;
-  width: clamp(7rem, 25vw, 12rem);
+  width: clamp(7rem, 25vw, 14rem);
   transform: translateY(0);
 }
 

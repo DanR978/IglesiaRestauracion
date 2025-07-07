@@ -44,7 +44,7 @@
 
 .mission-description {
   padding-top: var(--pd-md);
-  font-size: clamp(0.88rem, 0.43rem + 1.47vw, 1.38rem);
+  font-size: clamp(1rem, 0.67rem + 1.1vw, 1.38rem);
   font-family: var(--font-lexend);
   font-weight: var(--fw-light);
   padding-bottom: 1rem;
