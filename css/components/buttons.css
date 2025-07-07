@@ -9,7 +9,7 @@
 /* === Base Button === */
 .ird-btn {
   display: inline-block;
-  padding: 0.5em 1em;
+  padding: 0.8em 1em;
   font-weight: var(--fw-semibold);
   font-size: clamp(0.63rem, 0.4rem + 0.74vw, 0.88rem);
   text-decoration: none;
@@ -18,7 +18,7 @@
   color: var(--color-white);
   border-radius: var(--radius-md);
   transition: transform 0.3s, box-shadow 0.3s;
-  width: clamp(7rem, 25vw, 12rem);
+  width: clamp(7.8rem, 25vw, 12rem);
   transform: translateY(0);
 }
 
