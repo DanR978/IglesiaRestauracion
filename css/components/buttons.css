@@ -9,8 +9,8 @@
 /* === Base Button === */
 .ird-btn {
   display: inline-block;
-  padding: 0.8em 1em;
-  font-weight: var(--fw-semibold);
+  padding: 0.9em 1em;
+  font-weight: var(--fw-medium);
   font-size: clamp(0.63rem, 0.4rem + 0.74vw, 0.88rem);
   text-decoration: none;
   text-align: center;
