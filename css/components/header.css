@@ -298,8 +298,8 @@ body.no-scroll {
   }
 
   .chevron-icon {
-    width: var(--size-3xl);
-    height: var(--size-3xl);
+    width: var(--size-2xl);
+    height: var(--size-2xl);
     vertical-align: middle;
     stroke: var(--color-white);
     display: inline-block;

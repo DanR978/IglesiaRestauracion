@@ -1,0 +1,124 @@
+/* section--accordion-faq.css */
+.section--accordion-faq {
+  padding: var(--pd-xl);
+  font-family: var(--font-Geist);
+}
+
+.accordion-faq__wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.accordion-faq__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  margin-bottom: var(--mg-lg);
+}
+
+.accordion-faq__item {
+  margin-bottom: var(--mg-sm);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.accordion-faq__question {
+  width: 100%;
+  background-color: var(--color-dark);
+  color: var(--color-white);
+  padding: var(--btn-pd-y) var(--btn-pd-x);
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  border: none;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-family: var(--font-Signika);
+}
+
+.accordion-faq__question:hover {
+  background-color: var(--color-primary);
+}
+
+.accordion-faq__icon {
+  font-size: var(--fs-base);
+  transform: scale(1.2);
+}
+
+.accordion-faq__answer {
+  padding: var(--pd-sm) var(--btn-pd-x);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-light);
+  color: var(--color-dark);
+  background-color: var(--transparent);
+  display: none;
+  line-height: 1.6;
+  font-family: var(--font-Signika);
+}
+
+.accordion-faq__answer.open {
+  display: block;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mg-sm);
+  margin-bottom: var(--mg-lg);
+}
+
+.section-divider__line {
+  flex: 1;
+  height: 1px;
+  background-color: var(--color-muted);
+  border: none;
+}
+
+.section-divider__text {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-dark);
+  font-family: var(--font-Geist);
+  white-space: nowrap;
+}
+
+.accordion-faq__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  position: relative;
+}
+
+.accordion-faq__chevron,
+.accordion-faq__x {
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  stroke: currentColor;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.accordion-faq__chevron {
+  opacity: 1;
+  transform: rotate(0deg);
+}
+
+.accordion-faq__x {
+  opacity: 0;
+  transform: rotate(-90deg);
+}
+
+.accordion-faq__question[aria-expanded="true"] .accordion-faq__chevron {
+  opacity: 0;
+  transform: rotate(90deg);
+}
+
+.accordion-faq__question[aria-expanded="true"] .accordion-faq__x {
+  opacity: 1;
+  transform: rotate(0deg);
+}

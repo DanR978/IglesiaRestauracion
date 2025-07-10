@@ -13,7 +13,6 @@
 @import url('./variables/radius.css');
 @import url('./variables/shadows.css');
 @import url('./variables/z-index.css');
-@import url('./variables/breakpoints.css');
 
 /* ================================
    THEMES (Default: Light)
@@ -33,6 +32,7 @@
 @import url('./components/hero.css');
 @import url('./components/mission.css');
 @import url('./components/versiculo.css');
+@import url('./sections/section--accordion-faq.css');
 
 /* ================================
    MEDIA QUERIES

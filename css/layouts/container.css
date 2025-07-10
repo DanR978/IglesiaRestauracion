@@ -147,3 +147,40 @@
     flex-direction: column;
   }
 }
+
+
+
+
+
+/***************
+     NEW
+***************/
+
+/* container--centered-text-block.css */
+.container--centered-text-block {
+  text-align: center;
+  padding: 4rem 1rem;
+  font-family: var(--font-base)
+}
+
+.centered-text-block__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  min-width: 320px;
+}
+
+.centered-text-block__subtitle {
+  font-size: var(--fs-md);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: var(--fw-bold);
+  margin-bottom: 1rem;
+}
+
+.centered-text-block__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-black);
+  line-height: 1.6;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}

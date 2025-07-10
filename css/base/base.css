@@ -71,3 +71,13 @@ strong {
 .section {
     padding: var(--spacing-5xl) 0;  
 }
+
+.email-link {
+  text-decoration: underline;
+  color: inherit;
+  cursor: pointer;
+}
+
+.email-link:hover {
+  color: inherit;
+}

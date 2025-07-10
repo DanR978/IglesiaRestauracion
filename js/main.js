@@ -1,28 +1,34 @@
+// =============================
+// 🔧 GLOBAL SCRIPT LOADER
+// =============================
 
-// GET YEAR FOR COPYRIGHT
+// Load jQuery and Bootstrap if needed (comment out if already in HTML)
+const loadExternalScripts = () => {
+  const jqueryScript = document.createElement("script");
+  jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js";
+  document.head.appendChild(jqueryScript);
 
-// Load jQuery and Bootstrap from CDN (if not already globally included in HTML)
-const jqueryScript = document.createElement("script");
-jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js";
-document.head.appendChild(jqueryScript);
+  const bootstrapScript = document.createElement("script");
+  bootstrapScript.src = "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js";
+  document.head.appendChild(bootstrapScript);
+};
 
-const bootstrapScript = document.createElement("script");
-bootstrapScript.src = "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js";
-document.head.appendChild(bootstrapScript);
+// =============================
+// 🕒 SET CURRENT YEAR IN FOOTER
+// =============================
 
-// 🕒 Set current year in footer
-document.addEventListener('DOMContentLoaded', () => {
+const setCurrentYear = () => {
   const yearSpan = document.getElementById('currentYear');
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
   }
-});
+};
 
+// =============================
+// 🍔 BURGER MENU LOGIC
+// =============================
 
-
-// MENU 
-
-document.addEventListener("DOMContentLoaded", () => {
+const setupBurgerMenu = () => {
   const burger = document.getElementById("burgerToggle");
   const nav = document.getElementById("mainNav");
   const mainMenu = document.getElementById("main-menu");
@@ -30,33 +36,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const openSubmenuLinks = document.querySelectorAll(".open-submenu");
   const backButtons = document.querySelectorAll(".back-to-main");
 
-  function closeAllSubmenus() {
+  const closeAllSubmenus = () => {
     submenuViews.forEach(menu => menu.classList.remove("active"));
-    mainMenu.classList.add("active");
-  }
+    mainMenu?.classList.add("active");
+  };
 
-  // 🍔 Toggle main menu
   burger?.addEventListener("click", () => {
     burger.classList.toggle("open");
-    nav.classList.toggle("open");
+    nav?.classList.toggle("open");
     document.body.classList.toggle("no-scroll");
     closeAllSubmenus();
   });
 
-  // 📂 Open submenu
   openSubmenuLinks.forEach(link => {
     link.addEventListener("click", e => {
       e.preventDefault();
       const targetId = link.getAttribute("data-target");
       const submenu = document.getElementById(targetId);
       if (submenu) {
-        mainMenu.classList.remove("active");
+        mainMenu?.classList.remove("active");
         submenu.classList.add("active");
       }
     });
   });
 
-  // 🔙 Return to main menu
   backButtons.forEach(btn => {
     btn.addEventListener("click", e => {
       e.preventDefault();
@@ -64,28 +67,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 💡 Ensure menu is reset on resize
   window.addEventListener("resize", () => {
     if (window.innerWidth >= 769) {
-      nav.classList.remove("open");
-      burger.classList.remove("open");
+      nav?.classList.remove("open");
+      burger?.classList.remove("open");
       document.body.classList.remove("no-scroll");
       closeAllSubmenus();
     }
   });
-});
+
+  console.log("✅ Burger menu initialized");
+};
 
 
-// QUERY BIBLE VERSE ON LOAD
 
-// 📖 Load and display a random Bible verse
-document.addEventListener('DOMContentLoaded', () => {
+// =============================
+// 📚 FAQ ACCORDION LOGIC (Multi-Open)
+// =============================
+
+const setupFAQAccordion = () => {
+  const buttons = document.querySelectorAll('.accordion-faq__question');
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const answer = button.nextElementSibling;
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+      button.setAttribute('aria-expanded', !isExpanded);
+      answer.classList.toggle('open');
+    });
+  });
+};
+
+
+
+// =============================
+// 📖 LOAD RANDOM BIBLE VERSE
+// =============================
+
+const loadRandomVerse = () => {
   const url = "https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/verses/all-verses.json?nocache=" + new Date().getTime();
 
   fetch(url)
-    .then(response => {
-      if (!response.ok) throw new Error("No se pudo cargar el archivo JSON");
-      return response.json();
+    .then(res => {
+      if (!res.ok) throw new Error("No se pudo cargar el archivo JSON");
+      return res.json();
     })
     .then(verses => {
       const index = Math.floor(Math.random() * verses.length);
@@ -108,11 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         65: "Judas", 66: "Apocalipsis"
       };
 
-      const cleanText = verse.text
-        .replace(/\\n|\/n|\n/g, "<br>")
-        .replace(/["']/g, "")
-        .trim();
-
+      const cleanText = verse.text.replace(/\\n|\/n|\n/g, "<br>").replace(/["']/g, "").trim();
       const reference = `– ${libros[verse.book_id] || "Libro"} ${verse.chapter}:${verse.verse}`;
 
       const verseTextEl = document.getElementById("verse-text");
@@ -123,39 +145,43 @@ document.addEventListener('DOMContentLoaded', () => {
         verseRefEl.innerText = reference;
       }
     })
-    .catch(error => {
-      console.error("Error al cargar el versículo:", error);
+    .catch(err => {
+      console.error("❌ Error al cargar el versículo:", err);
       const verseTextEl = document.getElementById("verse-text");
       const verseRefEl = document.getElementById("verse-ref");
-
       if (verseTextEl) verseTextEl.innerText = "Error al cargar el versículo.";
       if (verseRefEl) verseRefEl.innerText = "";
     });
-});
+};
 
+// =============================
+// ✨ VIEWPORT ANIMATION
+// =============================
 
-// VIEWPORT ANIMATIONS
-
-// ✨ IntersectionObserver animations (trigger once when element enters viewport)
-document.addEventListener('DOMContentLoaded', () => {
-  const observers = new Map();
+const initAnimations = () => {
+  const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
 
   document.querySelectorAll('[class*="animate-"]').forEach(el => {
-    const threshold = parseFloat(el.dataset.threshold) || 0.15;
-
-    if (!observers.has(threshold)) {
-      const observer = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            obs.unobserve(entry.target);
-          }
-        });
-      }, { threshold });
-
-      observers.set(threshold, observer);
-    }
-
-    observers.get(threshold).observe(el);
+    observer.observe(el);
   });
+};
+
+// =============================
+// 🚀 MASTER INIT
+// =============================
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadExternalScripts();     // jQuery + Bootstrap
+  setCurrentYear();          // Footer copyright year
+  setupBurgerMenu();         // Menu logic
+  loadRandomVerse();         // Daily verse logic
+  initAnimations();          // IntersectionObserver for fade-ins
+  setupFAQAccordion();       // NEW: FAQ Accordion logic
 });
