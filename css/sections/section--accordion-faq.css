@@ -30,6 +30,8 @@
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
   border: none;
+  outline: none;
+  box-shadow: none;
   text-align: left;
   display: flex;
   justify-content: space-between;
