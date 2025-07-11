@@ -1,23 +1,21 @@
 :root {
-  /* === Core Palette === */
-  --color-primary:        #345a65;   /* Main UI color */
-  --color-secondary:      #ef8c2a;   /* Buttons, links, highlights */
-  --color-accent:         #be660e;   /* Alternative CTA or hover */
-  --color-info:           #2d4e57;   /* Optional blue-teal info color */
-  --color-muted:          #736960;   /* Muted text or backgrounds */
-  --color-dark:           #394548;   /* Footer, dark mode backgrounds */
+  --color-primary:        #345a65;
+  --color-secondary:      #ef8c2a;
+  --color-accent:         #be660e;
+  --color-info:           #2d4e57;
+  --color-muted:          #736960;
+  --color-dark:           #394548;
   --color-white:          #ffffff;
   --color-black:          #000000;
   --color-darkmode-font:  #c2e6ff;
 
-  /* === Teal-Tinted Grayscale (Primary Color Scale) === */
   --color-0:              #000000;
   --color-5:              #090f11;
   --color-10:             #111e22;
   --color-15:             #1a2d32;
   --color-20:             #233c43;
   --color-25:             #2b4b54;
-  --color-26:             #2d4e57;   /* Primary anchor */
+  --color-26:             #2d4e57;
   --color-30:             #345a65;
   --color-35:             #3d6976;
   --color-40:             #457887;
@@ -34,7 +32,6 @@
   --color-95:             #eef5f6;
   --color-100:            #ffffff;
 
-  /* === Orange Accent Scale === */
   --orange-0:             #000000;
   --orange-5:             #180d02;
   --orange-10:            #2f1a04;
@@ -46,7 +43,7 @@
   --orange-40:            #be660e;
   --orange-45:            #d57310;
   --orange-50:            #ed8012;
-  --orange-55:            #ef8c2a;   /* Secondary anchor */
+  --orange-55:            #ef8c2a;
   --orange-60:            #f19941;
   --orange-64:            #f2a152;
   --orange-65:            #f3a659;
@@ -58,7 +55,25 @@
   --orange-95:            #fdf2e7;
   --orange-100:           #ffffff;
 
-  /* BACKGROUNDS / FILLS */
-  --color-bg-light:        #F4F6F7;
-  --color-transparent:     transparent;
+  --gray-160:             #A0A0A0;
+  --gray-150:             #A8A8A8;
+  --gray-140:             #A9A9A9;
+  --gray-130:             #B0B0B0;
+  --gray-120:             #B8B8B8;
+  --gray-110:             #BEBEBE;
+  --gray-100:             #C0C0C0;
+  --gray-90:              #C8C8C8;
+  --gray-80:              #D0D0D0;
+  --gray-70:              #D3D3D3;
+  --gray-65:              #D8D8D8;
+  --gray-60:              #DCDCDC;
+  --gray-50:              #E0E0E0;
+  --gray-40:              #E8E8E8;
+  --gray-30:              #F0F0F0;
+  --gray-20:              #F5F5F5;
+  --gray-10:              #F8F8F8;
+  --gray-0:               #FFFFFF;
+
+  --color-bg-light:       #F4F6F7;
+  --color-transparent:    transparent;
 }
