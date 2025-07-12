@@ -31,6 +31,12 @@ const setCurrentYear = () => {
 const setupBurgerMenu = () => {
   const burger = document.getElementById("burgerToggle");
   const nav = document.getElementById("mainNav");
+  console.log({ burger, nav });
+
+  if (!burger || !nav) {
+    console.error("Burger or Nav element not found");
+    return;
+  }
   const mainMenu = document.getElementById("main-menu");
   const submenuViews = document.querySelectorAll(".submenu-view");
   const openSubmenuLinks = document.querySelectorAll(".open-submenu");
@@ -180,8 +186,12 @@ const initAnimations = () => {
 document.addEventListener("DOMContentLoaded", () => {
   loadExternalScripts();     // jQuery + Bootstrap
   setCurrentYear();          // Footer copyright year
-  setupBurgerMenu();         // Menu logic
   loadRandomVerse();         // Daily verse logic
   initAnimations();          // IntersectionObserver for fade-ins
   setupFAQAccordion();       // NEW: FAQ Accordion logic
+
+  setTimeout(() => {
+    setupBurgerMenu();
+    setupFAQAccordion();
+  }, 100);
 });

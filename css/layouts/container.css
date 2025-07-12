@@ -189,24 +189,31 @@
   padding: 4rem 1rem;
   font-family: var(--font-base);
   text-align: center;
+  background-color: var(--color-dark);
 }
+
+
+
 
 /* GRID LIST CARDS */
 
-.list-block__wrapper {
+/* .list-block__wrapper {
   max-width: 100%;
+  margin: var(--mg-md);
   background-color: var(--color-dark);
-  min-width: var(--min-div-size);
-}
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+} */
+
 
 .list-block__items {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   padding: 2rem;
-}
-
-.list-block__header {
-  margin-bottom: 1rem;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
 }
 
 .list-block__heading {
@@ -234,7 +241,11 @@
   color: var(--gray-50);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
+  .list-block__items {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
   .list-block__item {
     border-top: 2px solid var(--gray-130);
     padding-top: 2rem;

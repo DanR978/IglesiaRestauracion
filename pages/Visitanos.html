@@ -49,10 +49,10 @@
 
   <body>
     <!-- Load Header -->
-    <div id="header" data-hero="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/images/grupo_alabanza.JPG"></div>
+    <div id="header" data-hero="resources\media\images\bibleStudy.jpg"></div>
       <!-- Load Hero Content -->
       <div class="hero-content glass-card animate-fade-in" data-threshold="0.8">
-          <h1 style="font-size: var(--fs-2xl);">PLANEA TU VISITA !</h1>
+          <h1 style="font-size: var(--fs-2xl);">PLANEA TU VISITA</h1>
           <H2 style="font-size: var(--fs-sm);">ESPERAMOS VERTE PRONTO</H2>
       </div>
 
@@ -66,8 +66,7 @@
         </div>
       </section>
 
-      <section class="container--list-block">
-        <div class="list-block__wrapper wrapper animate-fade-in" data-threshold="1">
+      <section class="container--list-block wrapper">
           <div class="list-block__items">
             <!-- Sunday Service -->
               <div class="list-block__header">
@@ -103,7 +102,6 @@
               </div>
             </div>
           </div>
-        </div>
       </section>
 
 
@@ -139,7 +137,7 @@
 
           <div class="accordion-faq__item">
             <button class="accordion-faq__question" aria-expanded="false">
-              Tienen classes dominicales para ninos?
+              Tienen clases dominicales para ninos?
               <span class="accordion-faq__icon" aria-hidden="true">
                 <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none"
                   viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -178,14 +176,65 @@
               Envianos un correo a esta dirreción: <a href="mailto:serve@irdlex.org" class="email-link">serve@irdlex.org</a>
             </div>
           </div>
-
-          <!-- Repeat blocks for other questions -->
         </div>
       </section>
 
-      
-    </main>
+      <section>
+        <div class="contact-wrapper">
+          <!-- Logo -->
+          <div class="contact-logo animate-zoom-in">
+            <!-- SVG Logo -->
+            <svg viewBox="0 0 188 235" xmlns="http://www.w3.org/2000/svg" >
+              <path d="M27.127,163.292c2.876,34.244 31.649,61.235 66.623,61.235c8.831,-0 17.264,-1.737 24.989,-4.862c24.531,-9.922 41.89,-33.973 41.89,-62.018l0,-80.919c0,-36.877 -30.003,-66.88 -66.879,-66.88c-36.876,0 -66.879,30.003 -66.879,66.88l-0,80.919c-0,1.902 0.099,3.781 0.256,5.645m-6.678,3.615c-0.397,-3.071 -0.599,-6.163 -0.605,-9.26l-0,-80.919c-0,-40.649 33.258,-73.907 73.906,-73.907c40.648,0 73.906,33.258 73.906,73.907l0,80.919c0,29.795 -17.878,55.598 -43.427,67.265c-9.564,4.378 -19.96,6.644 -30.479,6.642c-37.513,-0 -68.706,-28.33 -73.301,-64.647m96.803,50.91c-13.51,-18.146 -4.969,-43.996 13.621,-59.913c27.374,-23.437 8.897,-38.749 -34.387,-43.967c-43.282,-5.218 3.922,-18.316 3.922,-18.316l-0,-39.027l21.57,-0l0,-13.317l-21.57,-0l-0,-21.979l-13.318,-0l0,21.979l-21.568,-0l-0,13.317l21.568,-0l0,39.027c-45.349,13.27 -31.977,26.785 0,30.72c31.98,3.935 11.248,19.129 -29.212,27.371c-11.493,2.342 -20.945,5.207 -28.557,8.551c-0.109,-1.526 -0.184,-3.061 -0.184,-4.616l0,-80.919c0,-35.628 28.986,-64.613 64.613,-64.613c35.627,-0 64.613,28.985 64.613,64.613l-0,80.919c-0,27.338 -17.074,50.747 -41.111,60.17"
+                style="fill:#2d4e57;fill-rule:nonzero;" />
+            </svg>
+          </div>
 
+          <!-- Form -->
+          <div class="contact-info">
+            <h2 class="contact-info__title">Contáctanos</h2>
+            <p class="contact-info__subtitle">Nos encantaría saber de ti</p>
+
+            <form class="contact-form" action="#" method="POST">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="first-name">Nombre</label>
+                  <input type="text" id="first-name" name="first-name" required />
+                </div>
+
+                <div class="form-group">
+                  <label for="last-name">Apellido</label>
+                  <input type="text" id="last-name" name="last-name" required />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="phone">Número de Teléfono</label>
+                  <input type="tel" id="phone" name="phone" required />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="email">Correo Electrónico</label>
+                  <input type="email" id="email" name="email" required />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="subject">Asunto</label>
+                  <input type="text" id="subject" name="subject" required />
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="message">Mensaje</label>
+                  <textarea id="message" name="message" rows="7" required></textarea>
+                </div>
+              </div>
+              <button type="submit" class="ird-btn ird-btn--teal">Enviar Mensaje</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+
+    </main>
     <div id="footer"></div>
 
     <script src="js/main.js"></script>
