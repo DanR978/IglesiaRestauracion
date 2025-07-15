@@ -1,22 +1,23 @@
-// =============================
-// 🔧 GLOBAL SCRIPT LOADER
-// =============================
-
 // Load jQuery and Bootstrap if needed (comment out if already in HTML)
 const loadExternalScripts = () => {
   const jqueryScript = document.createElement("script");
-  jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js";
-  document.head.appendChild(jqueryScript);
+  jqueryScript.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js";
 
-  const bootstrapScript = document.createElement("script");
-  bootstrapScript.src = "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.bundle.min.js";
-  document.head.appendChild(bootstrapScript);
+  jqueryScript.onload = () => {
+    // Load Bootstrap only after jQuery is fully loaded
+    const bootstrapScript = document.createElement("script");
+    bootstrapScript.src = "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js";
+    document.head.appendChild(bootstrapScript);
+  };
+
+  document.head.appendChild(jqueryScript);
 };
+
+
 
 // =============================
 // 🕒 SET CURRENT YEAR IN FOOTER
 // =============================
-
 const setCurrentYear = () => {
   const yearSpan = document.getElementById('currentYear');
   if (yearSpan) {
@@ -24,19 +25,15 @@ const setCurrentYear = () => {
   }
 };
 
+
+
+
 // =============================
 // 🍔 BURGER MENU LOGIC
 // =============================
-
 const setupBurgerMenu = () => {
   const burger = document.getElementById("burgerToggle");
   const nav = document.getElementById("mainNav");
-  console.log({ burger, nav });
-
-  if (!burger || !nav) {
-    console.error("Burger or Nav element not found");
-    return;
-  }
   const mainMenu = document.getElementById("main-menu");
   const submenuViews = document.querySelectorAll(".submenu-view");
   const openSubmenuLinks = document.querySelectorAll(".open-submenu");
@@ -87,10 +84,10 @@ const setupBurgerMenu = () => {
 
 
 
+
 // =============================
 // 📚 FAQ ACCORDION LOGIC (Multi-Open)
 // =============================
-
 const setupFAQAccordion = () => {
   const buttons = document.querySelectorAll('.accordion-faq__question');
 
@@ -107,13 +104,12 @@ const setupFAQAccordion = () => {
 
 
 
+
 // =============================
 // 📖 LOAD RANDOM BIBLE VERSE
 // =============================
-
 const loadRandomVerse = () => {
   const url = "https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/verses/all-verses.json?nocache=" + new Date().getTime();
-
   fetch(url)
     .then(res => {
       if (!res.ok) throw new Error("No se pudo cargar el archivo JSON");
@@ -122,7 +118,6 @@ const loadRandomVerse = () => {
     .then(verses => {
       const index = Math.floor(Math.random() * verses.length);
       const verse = verses[index];
-
       const libros = {
         1: "Génesis", 2: "Éxodo", 3: "Levítico", 4: "Números", 5: "Deuteronomio",
         6: "Josué", 7: "Jueces", 8: "Rut", 9: "1 Samuel", 10: "2 Samuel",
@@ -160,10 +155,11 @@ const loadRandomVerse = () => {
     });
 };
 
+
+
 // =============================
 // ✨ VIEWPORT ANIMATION
 // =============================
-
 const initAnimations = () => {
   const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
@@ -179,10 +175,11 @@ const initAnimations = () => {
   });
 };
 
+
+
 // =============================
 // 🚀 MASTER INIT
 // =============================
-
 document.addEventListener("DOMContentLoaded", () => {
   loadExternalScripts();     // jQuery + Bootstrap
   setCurrentYear();          // Footer copyright year
@@ -192,6 +189,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setTimeout(() => {
     setupBurgerMenu();
-    setupFAQAccordion();
   }, 100);
 });

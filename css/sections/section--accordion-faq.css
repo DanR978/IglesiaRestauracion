@@ -52,19 +52,19 @@
 .accordion-faq__answer {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.4s ease;
   padding: 0 var(--btn-pd-x);
-  line-height: 1.6;
-  font-family: var(--font-Signika);
   opacity: 0;
+  transition:
+    max-height 0.5s ease,
+    opacity 0.5s ease,
+    padding 0.5s ease;
 }
 
 .accordion-faq__answer.open {
-  padding: var(--pd-sm);
+  max-height: 800px; /* enough for your longest answer */
   opacity: 1;
-  max-height: 700px;
+  padding: var(--pd-sm) var(--btn-pd-x);
 }
-
 
 .section-divider {
   display: flex;
