@@ -221,8 +221,6 @@ function setupDirectionsButton({
 }
 
 
-
-
 // =============================
 // 🚀 MASTER INIT
 // =============================
@@ -233,7 +231,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initAnimations();          // IntersectionObserver for fade-ins
   setupFAQAccordion();       // NEW: FAQ Accordion logic
   setupDirectionsButton();   // Directions button logic
-
 
   setTimeout(() => {
     setupBurgerMenu();
