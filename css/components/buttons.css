@@ -82,7 +82,8 @@
   border: 2px solid currentColor;
   box-shadow: none;
   text-decoration: none;
-  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.4s, color 0.4s;
+  width: clamp(9rem, 25vw, 15rem);
 }
 
 /* === Color Variants for Outline === */
