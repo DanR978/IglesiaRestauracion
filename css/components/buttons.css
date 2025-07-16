@@ -8,12 +8,14 @@
 
 /* === Base Button === */
 .ird-btn {
-  display: inline-block;
+  display: inline-flex;
   padding: 0.9em 1em;
   font-weight: var(--fw-medium);
   font-size: clamp(0.63rem, 0.4rem + 0.74vw, 0.88rem);
   text-decoration: none;
   text-align: center;
+  justify-content: center;
+  align-items: center;
   /* letter-spacing: -0.05em; */
   color: var(--color-white);
   border-radius: var(--radius-md);
@@ -74,20 +76,70 @@
               0 0 120px -10px var(--orange-45);
 }
 
-/* === Outline Modifier === */
+/* === Outline Modifier (Base) === */
 .ird-btn--outline {
   background-color: transparent;
   border: 2px solid currentColor;
   box-shadow: none;
+  text-decoration: none;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s, color 0.3s;
 }
-.ird-btn--orange.ird-btn--outline {
+
+/* === Color Variants for Outline === */
+.ird-btn--outline.ird-btn--orange {
   color: var(--color-secondary);
   border-color: var(--color-secondary);
 }
-.ird-btn--teal.ird-btn--outline {
+
+.ird-btn--outline.ird-btn--teal {
   color: var(--color-primary);
   border-color: var(--color-primary);
 }
+
+.ird-btn--outline.ird-btn--white-fill {
+  color: var(--color-white);
+  border-color: var(--color-white);
+}
+
+.ird-btn--outline.ird-btn--white-empty {
+  color: var(--color-primary);
+  background-color: var(--color-white);
+  border: none;
+}
+
+/* === Hover Effects (Shared Base) === */
+.ird-btn--outline:hover {
+  transform: translateY(-3px);
+  text-decoration: none;
+}
+
+/* === Specific Hover Variants === */
+.ird-btn--outline.ird-btn--orange:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-white);
+  box-shadow: 0 8px 20px rgba(243, 166, 89, 0.3);
+}
+
+.ird-btn--outline.ird-btn--teal:hover {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
+}
+
+.ird-btn--outline.ird-btn--white-fill:hover {
+  background-color: var(--color-white);
+  color: var(--transparent);
+  border-color: var(--color-white);
+  box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
+}
+
+.ird-btn--outline.ird-btn--white-empty:hover {
+  background-color: var(--transparent);
+  border: 2px solid var(--color-white);
+  color: var(--color-white);
+  box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
+}
+
 
 /* === Buttons Container === */
 .buttons {

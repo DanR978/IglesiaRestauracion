@@ -177,6 +177,52 @@ const initAnimations = () => {
 
 
 
+
+
+// =============================
+// ✨ DIRECTIONS BUTTON LOGIC
+// =============================
+
+function setupDirectionsButton({
+  buttonId = "getDirections",
+  destination = { lat: 38.014455, lon: -84.538253 }, // Your church address
+  fallbackUrl = "https://www.google.com/maps?q=334+North+Broadway,+Lexington,+KY"
+} = {}) {
+  const button = document.getElementById(buttonId);
+  if (!button) return;
+
+  button.addEventListener("click", () => {
+    if (!navigator.geolocation) {
+      window.open(fallbackUrl, "_blank");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        
+        if (isIOS) {
+          // Apple Maps URL scheme
+          const mapsUrl = `maps://maps.apple.com/?saddr=${latitude},${longitude}&daddr=${destination.lat},${destination.lon}`;
+          window.location.href = mapsUrl;
+        } else {
+          // Google Maps fallback
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${destination.lat},${destination.lon}`;
+          window.open(mapsUrl, "_blank");
+        }
+      },
+      (error) => {
+        alert("Unable to get your location. Opening default directions.");
+        window.open(fallbackUrl, "_blank");
+      }
+    );
+  });
+}
+
+
+
+
 // =============================
 // 🚀 MASTER INIT
 // =============================
@@ -186,6 +232,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loadRandomVerse();         // Daily verse logic
   initAnimations();          // IntersectionObserver for fade-ins
   setupFAQAccordion();       // NEW: FAQ Accordion logic
+  setupDirectionsButton();   // Directions button logic
+
 
   setTimeout(() => {
     setupBurgerMenu();
