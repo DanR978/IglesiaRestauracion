@@ -17,19 +17,19 @@
     <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
     <!-- SOCIAL SHARING PREVIEW-->
-    <link rel="canonical" href="https://www.irdlex.org" />
+    <link rel="canonical" href="https://www.irdlex.org/visit" />
     <meta property="og:site_name" content="Iglesia Restauración Divina"/>
     <meta property="og:title" content="Iglesia Restauración Divina" />
-    <meta property="og:url" content="https://www.irdlex.org"/>
+    <meta property="og:url" content="https://www.irdlex.org/visit"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:description" content="Cristo transforma! Adora con nosotros este domingo.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
+    <meta property="og:description" content="Cristo transforma! Visitanos este domingo.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/visita.png" />
 
     <!-- MESSAGING PREVIEW -->
     <meta name="twitter:card" content="summary"/>
-    <meta name="twitter:title" content="Ven a Iglesia Restauración Divina" />
-    <meta name="twitter:description" content="Cristo transforma! Adora con nosotros este domingo." />
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
+    <meta name="twitter:title" content="Iglesia Restauración Divina" />
+    <meta name="twitter:description" content="Cristo transforma! Visitanos este domingo." />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/visita.png" />
 
     <base href="/">
     <!-- STYLESHEETS -->
@@ -189,33 +189,33 @@
             <form action="https://formsubmit.co/c0f27151522f7328138e75e6ade0c197" method="POST">
               <div class="form-grid">
                 <div class="form-group">
-                  <label for="first-name">* Nombre</label>
-                  <input type="text" id="first-name" name="first-name" required />
+                  <label for="first-name" class="form-entry-header">* Nombre</label>
+                  <input type="text" id="first-name" name="first-name" placeholder="Ex: Javier" required />
                 </div>
 
                 <div class="form-group">
-                  <label for="last-name">* Apellido</label>
-                  <input type="text" id="last-name" name="last-name" required />
+                  <label for="last-name" class="form-entry-header">* Apellido</label>
+                  <input type="text" id="last-name" name="last-name" placeholder="Ex: Garcia" required />
                 </div>
 
                 <div class="form-group full-width">
-                  <label for="phone">* Número de Teléfono</label>
-                  <input type="tel" id="phone" name="phone" required />
+                  <label for="phone" class="form-entry-header">* Número de Teléfono</label>
+                  <input type="tel" id="phone" name="phone" placeholder="Ex: 857-111-222" required />
                 </div>
 
                 <div class="form-group full-width">
-                  <label for="email">* Correo Electrónico</label>
-                  <input type="email" id="email" name="email" required />
+                  <label for="email" class="form-entry-header">* Correo Electrónico</label>
+                  <input type="email" id="email" name="email" placeholder="Ex: serve@irdlex.org" required />
                 </div>
 
                 <div class="form-group full-width">
-                  <label for="subject">* Asunto</label>
-                  <input type="text" id="subject" name="subject" required />
+                  <label for="subject" class="form-entry-header">* Asunto</label>
+                  <input type="text" id="subject" name="subject" placeholder="Ex: Quiero Conocer a Cristo" required />
                 </div>
 
                 <div class="form-group full-width">
-                  <label for="message">* Mensaje</label>
-                  <textarea id="message" name="message" rows="7" required></textarea>
+                  <label for="message" class="form-entry-header">* Mensaje</label>
+                  <textarea id="message" name="message" rows="7" placeholder="Ex: Me gustaria ir a su Iglesia" required></textarea>
                 </div>
                 <div class="disclaimer">
                   <p>Al enviar este formulario, aceptas que tus datos sean almacenados y procesados para responder a tu consulta.<br><a href="https://www.irdlex.org/privacy-policy" target="_blank">Leer más</a></p>
@@ -223,6 +223,7 @@
                 <!-- Hidden fields -->
                 <input type="hidden" name="_captcha" value="true">
                 <input type="text" name="_honey" style="display:none">
+                <input type="hidden" name="_next" value="https://www.irdlex.org/visit/">
               </div>
 
               <button type="submit" class="ird-btn ird-btn--teal">Enviar Mensaje</button>
