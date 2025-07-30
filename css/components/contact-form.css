@@ -26,7 +26,7 @@
     background: var(--transparent);
     padding: 2rem;
     box-shadow: none;
-    width: clamp(500px, 40vw, 900px);
+    width: clamp(340px, 40vw, 900px);
 }
 
 .contact-info__title {

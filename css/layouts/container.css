@@ -345,8 +345,9 @@
 @media (max-width: 768px) {
   .wrapper--zigzag-grid {
     grid-template-columns: 1fr;
-    margin: var(--mg-xxs);
+    margin: var(--mg-xs);
     gap: 1rem;
+    padding: var(--pd-md)
   }
 
   .zigzag-image {
