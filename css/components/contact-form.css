@@ -122,8 +122,8 @@ textarea {
   font-size: var(--fs-xs);
 }
 
-label {
-  font-size: var(--fs-lg);
+  label {
+    font-size: var(--fs-lg);
 }
 
 }

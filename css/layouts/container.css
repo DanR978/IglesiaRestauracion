@@ -197,16 +197,6 @@
 
 /* GRID LIST CARDS */
 
-/* .list-block__wrapper {
-  max-width: 100%;
-  margin: var(--mg-md);
-  background-color: var(--color-dark);
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  overflow: hidden;
-} */
-
-
 .list-block__items {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -282,4 +272,93 @@
   color: white;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   max-width: 100%;
+}
+
+
+
+/* SPLIT SECTION CONTAINER */
+/* Grid wrapper using your base pattern */
+.wrapper--zigzag-grid {
+  max-width: 100%;
+  margin: var(--mg-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem 2.5rem;
+  padding: 1rem 1rem;
+}
+
+/* Image block */
+.zigzag-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.img-cover-container {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  box-shadow: var(--image-shadow);
+}
+
+/* Content block */
+.zigzag-card {
+  background-color: var(--transparent);
+  border: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+  font-family: var(--font-Signika);
+  gap: 10px;
+}
+
+.zigzag-row {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Titles, subtitles, text */
+.zigzag-card h1 {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--color-dark);
+  letter-spacing: 2px;
+}
+
+.zigzag-card h5 {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--color-dark);
+}
+
+.zigzag-card p {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-light);
+}
+
+/* Responsive: Mobile column layout with image-first reordering */
+@media (max-width: 768px) {
+  .wrapper--zigzag-grid {
+    grid-template-columns: 1fr;
+    margin: var(--mg-xxs);
+    gap: 1rem;
+  }
+
+  .zigzag-image {
+    margin-top: 2rem;
+  }
+
+  .One  { order: 2; }  /* Salvación content */
+  .Two  { order: 1; }  /* Salvación image */
+
+  .Three { order: 3; } /* Bautismo image */
+  .Four  { order: 4; } /* Bautismo content */
+
+  .Five  { order: 6; } /* Servir content */
+  .Six   { order: 5; } /* Servir image */
 }
