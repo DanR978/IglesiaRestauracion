@@ -353,6 +353,10 @@
     margin-top: 2rem;
   }
 
+  .zigzag-card p {
+    font-size: var(--fs-xl);
+}
+
   .One  { order: 2; }  /* Salvación content */
   .Two  { order: 1; }  /* Salvación image */
 
