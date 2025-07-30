@@ -61,7 +61,7 @@
 }
 
 label {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-md);
   font-weight: 600;
   margin-bottom: 0.5rem;
   color: var(--color-info);
@@ -84,10 +84,6 @@ textarea {
 .disclaimer {
   width: 600px;
   font-size: var(--fs-xs);
-}
-
-.form-entry-header {
-  font-size: var(--fs-md);
 }
 
 @media (max-width: 960px) {
@@ -126,7 +122,7 @@ textarea {
   font-size: var(--fs-xs);
 }
 
-.form-entry-header {
+label {
   font-size: var(--fs-lg);
 }
 
