@@ -1,6 +1,6 @@
 :root {
   --color-primary:        #345a65;
-  --color-secondary:      #ef8c2a;
+  --color-secondary:      #d98c59;
   --color-accent:         #be660e;
   --color-info:           #2d4e57;
   --color-muted:          #736960;
@@ -41,9 +41,10 @@
   --orange-30:            #8e4d0b;
   --orange-35:            #a6590c;
   --orange-40:            #be660e;
-  --orange-45:            #d57310;
+  --orange-45:            #d98c59;
   --orange-50:            #ed8012;
-  --orange-55:            #ef8c2a;
+  /* --orange-55:            #ef8c2a; */
+  --orange-55:            #d98c59;
   --orange-60:            #f19941;
   --orange-64:            #f2a152;
   --orange-65:            #f3a659;
