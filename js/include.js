@@ -33,6 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   include("header", "./src/header.html");
-  include("footer", "./src/footer.html");
   include("contact-form", "./src/contact-form.html");
+  include("footer", "./src/footer.html");
 });

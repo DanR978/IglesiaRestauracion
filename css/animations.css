@@ -169,20 +169,23 @@
 
 .animate-reveal-image {
   opacity: 0;
-  animation: revealImage 1.2s ease-out both;
-  animation-timeline: view();
-  animation-range: entry 10% cover 30%;
+  transition: opacity 1.5s ease-out;
+}
+
+.animate-reveal-image.visible {
+  animation: imageReveal 1.5s ease-out both;
+  opacity: 1;
 }
 
 .animate-reveal-text {
   opacity: 0;
-  transform: translateY(30px);
-  transition: all 1s ease;
+  transform: translateY(90px);
+  transition: all 2s ease-in-out;
 }
 
 .animate-reveal-text.visible {
-  opacity: 1;
   transform: translateY(0);
+  opacity: 1;
 }
 
 .animate-fade-in {

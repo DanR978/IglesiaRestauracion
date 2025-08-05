@@ -168,7 +168,7 @@ const initAnimations = () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.9 });
 
   document.querySelectorAll('[class*="animate-"]').forEach(el => {
     observer.observe(el);
