@@ -8,23 +8,29 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!res.ok) throw new Error(`Failed to fetch ${file}`);
       const html = await res.text();
       el.innerHTML = html;
-      console.log(`✅ Loaded ${file} into #${id}`);
+      console.log(`Loaded ${file} into #${id}`);
 
-      // Set hero image
       if (id === "header") {
         const heroURL = el.getAttribute("data-hero");
         const heroImg = el.querySelector(".hero");
         if (heroImg && heroURL) {
           heroImg.setAttribute("src", heroURL);
         }
-
-        // 🧠 Trigger animations AFTER header is inserted
         initAnimations();
       }
 
-      // Optional: you can also trigger animations after footer if it has animated content
+      if (id === "contact-form") {
+        initAnimations();
+      }
+
       if (id === "footer") {
         initAnimations();
+
+        if (typeof setCurrentYear === "function") {
+          setCurrentYear();
+        } else {
+          console.warn("setCurrentYear is not defined");
+        }
       }
 
     } catch (err) {
