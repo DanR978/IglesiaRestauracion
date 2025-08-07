@@ -8,7 +8,6 @@ html {
 
 body {
   margin: 0;
-  background: var(--color-dark);
   font-family: 'General Sans', sans-serif;
 }
 
@@ -80,4 +79,28 @@ strong {
 
 .email-link:hover {
   color: inherit;
+}
+
+/* Dark Mode Variables (already defined elsewhere in @media) */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: var(--color-bg-light) !important; 
+    color: var(--color-dark);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--color-45);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--color-info);
+  }
+
+  a {
+    color: var(--color-50);
+  }
+
+  strong {
+    color: var(--color-secondary);
+  }
 }

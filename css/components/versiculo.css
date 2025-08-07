@@ -8,7 +8,7 @@
 .versiculo p {
   align-items: center;
   color: var(--color-primary);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   font-family: var(--font-Geist);
   font-weight: var(--fw-semibold);
   text-align: center;
@@ -28,4 +28,34 @@
   padding-top: var(--pd-lg);
   font-family: var(--font-Carattere);
   font-size: 2rem;
+}
+
+.logo-svg {
+  color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .versiculo p {
+    font-size: var(--fs-lg);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .cursive-subheading {
+    color: var(--color-white);
+  }
+
+  .versiculo p {
+    color: var(--color-white);
+  }
+  
+  .versiculo h5 {
+    color: var(--color-white);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .logo-svg {
+    color: var(--color-white);
+  }
 }

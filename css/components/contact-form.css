@@ -203,3 +203,22 @@ textarea {
     opacity: 1;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  .contact-info__title {
+    color: var(--color-white);
+  }
+
+  .contact-info__subtitle {
+    color: var(--color-white);
+  }
+
+  input, textarea {
+    border: 1px solid var(--color-white);
+    color: var(--color-white);
+  }
+
+  .disclaimer p {
+    color: var(--color-white);
+  }
+}

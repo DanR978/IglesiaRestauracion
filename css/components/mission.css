@@ -40,6 +40,7 @@
   font-weight: var(--fw-bold);
   padding-top: var(--pd-sm);
   padding-bottom: var(--pd-md);
+  color: var(--color-black);
 }
 
 .mission-description {
@@ -48,6 +49,7 @@
   font-family: var(--font-lexend);
   font-weight: var(--fw-light);
   padding-bottom: 1rem;
+  color: var(--color-black);
 }
 
 .crown-thorns {
@@ -63,12 +65,12 @@
   filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(5);
 }
 
-.theme-image {
+.theme-image-thorns {
   content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns.svg");
 }
 
 @media (prefers-color-scheme: dark) {
-  .theme-image {
+  .theme-image-thorns {
     content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns-dark.svg");
   }
 }
