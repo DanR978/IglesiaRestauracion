@@ -180,7 +180,7 @@
 .animate-reveal-text {
   opacity: 0;
   transform: translateY(90px);
-  transition: all 2s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 
 .animate-reveal-text.visible {
