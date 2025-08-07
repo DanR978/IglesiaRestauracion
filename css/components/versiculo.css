@@ -39,3 +39,9 @@
     font-size: var(--fs-lg);
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  .logo-svg {
+    color: var(--color-black);
+  }
+}
