@@ -122,7 +122,6 @@
   margin: clamp(var(--mg-xs), 4vw, var(--mg-lg)) var(--mg-sm);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--image-shadow);
 }
 
 .map{
