@@ -62,3 +62,13 @@
 .crown-thorns.img {
   filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(5);
 }
+
+.theme-image {
+  content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns.svg");
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-image {
+    content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns-dark.svg");
+  }
+}
