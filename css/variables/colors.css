@@ -76,6 +76,10 @@
 
   --color-bg-light:       #F4F6F7;
   --color-transparent:    transparent;
+
+  --btn-shadow:               0 2px 6px rgba(0, 0, 0, 0.2);
+  --container-shadow:         0 10px 30px rgba(0, 0, 0, 0.25);
+  --image-shadow:             0 0px 10px rgba(0, 0, 0, 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -158,6 +162,17 @@
     --gray-0:               #ffffff;
 
     --color-transparent:    transparent;
+    --btn-shadow:               0 2px 6px rgba(255, 255, 255, 0.25);
+    --container-shadow:         0 10px 30px rgba(255, 255, 255, 0.25);
+    --image-shadow:             0 0px 10px rgba(255, 255, 255, 0.25);
+  }
+
+  .logo-svg {
+    color: var(--color-white);
+  }
+
+  .theme-image-thorns {
+    content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns-dark.svg");
   }
 }
 

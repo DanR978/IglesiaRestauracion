@@ -33,12 +33,12 @@
 .contact-info__title {
   font-size: var(--fs-2xl);
   margin-bottom: 0.5rem;
-  color: var(--color-primary);
+  color: var(--color-black);
 }
 
 .contact-info__subtitle {
   font-size: var(--fs-md);
-  color: var(--color-primary);
+  color: var(--color-black);
   margin-bottom: 1.5rem;
 }
 
@@ -79,10 +79,9 @@ textarea {
 input,
 textarea {
   padding: 0.75rem;
-  border: 1px solid var(--color-info);
+  border: 1px solid var(--color-black);
   border-radius: 8px;
   font-size: var(--fs-sm);
-  background-color: var(--bg-primary);
   color: var(--color-black);
 }
 
@@ -93,6 +92,10 @@ textarea {
 .disclaimer {
   width: 350px;
   font-size: var(--fs-xs);
+}
+
+.disclaimer p {
+  color: var(--color-black);
 }
 
 @media (max-width: 960px) {
@@ -201,24 +204,5 @@ textarea {
   }
   100% {
     opacity: 1;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .contact-info__title {
-    color: var(--color-white);
-  }
-
-  .contact-info__subtitle {
-    color: var(--color-white);
-  }
-
-  input, textarea {
-    border: 1px solid var(--color-white);
-    color: var(--color-white);
-  }
-
-  .disclaimer p {
-    color: var(--color-white);
   }
 }
