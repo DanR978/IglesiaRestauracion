@@ -368,6 +368,7 @@ body.no-scroll {
       display: block;
       border-radius: 0px;
       max-height: 0;
+      box-shadow: none;
   }
 
   .menu-item.open .submenu {
