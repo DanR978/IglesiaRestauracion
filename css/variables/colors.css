@@ -9,6 +9,8 @@
   --color-black:          #000000;
   --color-darkmode-font:  #c2e6ff;
 
+  --color-bg-light:       #121c1f !important;
+
   --color-0:              #000000;
   --color-5:              #090f11;
   --color-10:             #111e22;
@@ -169,6 +171,11 @@
 
   .theme-image-thorns {
     content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns-dark.svg");
+  }
+
+  body {
+    background-color: var(--color-bg-light) !important; 
+    color: var(--color-dark);
   }
 }
 

@@ -28,58 +28,67 @@ const setCurrentYear = () => {
 
 
 
-// =============================
-// 🍔 BURGER MENU LOGIC
-// =============================
+// ————————————————————————————————————————————
+//  MOBILE MENU JS
+// ————————————————————————————————————————————
 const setupBurgerMenu = () => {
-  const burger = document.getElementById("burgerToggle");
-  const nav = document.getElementById("mainNav");
-  const mainMenu = document.getElementById("main-menu");
-  const submenuViews = document.querySelectorAll(".submenu-view");
-  const openSubmenuLinks = document.querySelectorAll(".open-submenu");
-  const backButtons = document.querySelectorAll(".back-to-main");
+  const burger    = document.getElementById("burgerToggle");
+  const nav       = document.getElementById("mainNav");
+  const menuItems = document.querySelectorAll(".menu-item.has-submenu");
 
-  const closeAllSubmenus = () => {
-    submenuViews.forEach(menu => menu.classList.remove("active"));
-    mainMenu?.classList.add("active");
+  // Helper to close all open sections
+  const resetMenu = () => {
+    menuItems.forEach(i => i.classList.remove("open"));
   };
 
-  burger?.addEventListener("click", () => {
-    burger.classList.toggle("open");
-    nav?.classList.toggle("open");
-    document.body.classList.toggle("no-scroll");
-    closeAllSubmenus();
-  });
-
-  openSubmenuLinks.forEach(link => {
-    link.addEventListener("click", e => {
-      e.preventDefault();
-      const targetId = link.getAttribute("data-target");
-      const submenu = document.getElementById(targetId);
-      if (submenu) {
-        mainMenu?.classList.remove("active");
-        submenu.classList.add("active");
-      }
-    });
-  });
-
-  backButtons.forEach(btn => {
-    btn.addEventListener("click", e => {
-      e.preventDefault();
-      closeAllSubmenus();
-    });
-  });
-
-  window.addEventListener("resize", () => {
-    if (window.innerWidth >= 769) {
-      nav?.classList.remove("open");
-      burger?.classList.remove("open");
+  // Open/close panel with exit animation
+  const toggleNav = () => {
+    if (!nav.classList.contains("open")) {
+      nav.classList.add("open");
+      burger.classList.add("open");
+      document.body.classList.add("no-scroll");
+    } else {
+      nav.classList.add("closing");         // Start closing animation
+      burger.classList.remove("open");
       document.body.classList.remove("no-scroll");
-      closeAllSubmenus();
+      resetMenu();
+
+      // Wait for the slide-out animation before removing .open/.closing
+      nav.addEventListener("transitionend", function handler(e) {
+        // Only run for 'transform' transition, and only once
+        if (e.propertyName === "transform") {
+          nav.classList.remove("open", "closing");
+          nav.removeEventListener("transitionend", handler);
+        }
+      });
+    }
+  };
+  burger.addEventListener("click", toggleNav);
+
+  // ACCORDION TOGGLE (Mobile Only)
+  document.querySelectorAll(".accordion-toggle").forEach(btn => {
+    btn.addEventListener("click", e => {
+      if (window.innerWidth > 768) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const li = btn.closest(".menu-item");
+      // Close all other
+      document.querySelectorAll(".menu-item.open")
+        .forEach(i => i !== li && i.classList.remove("open"));
+      // Toggle this one
+      li.classList.toggle("open");
+    });
+  });
+
+  // RESET ON DESKTOP
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) {
+      nav.classList.remove("open", "closing");
+      burger.classList.remove("open");
+      document.body.classList.remove("no-scroll");
+      resetMenu();
     }
   });
-
-  console.log("✅ Burger menu initialized");
 };
 
 
@@ -182,7 +191,6 @@ const initAnimations = () => {
 // =============================
 // ✨ DIRECTIONS BUTTON LOGIC
 // =============================
-
 function setupDirectionsButton({
   buttonId = "getDirections",
   destination = { lat: 38.014455, lon: -84.538253 }, // Your church address

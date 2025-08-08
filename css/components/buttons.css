@@ -61,11 +61,11 @@
   width:6rem;
   font-size: 0.9rem;
   letter-spacing: 1px;
-  background-color: var(--orange-45);
+  background-color: var(--color-secondary);
   font-weight: var(--fw-bold);
   box-shadow: 0 5px 20px rgba(217, 140, 89, 0.5),
               0 4px 10px rgba(217, 140, 89, 0.5),
-              0 0 100px -10px var(--orange-45);
+              0 0 100px -10px var(--color-secondary);
 }
 .ird-btn--donate:hover {
   text-decoration: none;
@@ -73,7 +73,7 @@
   transform: translateY(-3px);
   box-shadow: 0 14px 28px rgba(217, 140, 89, 0.25),
               0 10px 10px rgba(217, 140, 89, 0.22),
-              0 0 120px -10px var(--orange-45);
+              0 0 120px -10px var(--color-secondary);
 }
 
 /* === Outline Modifier (Base) === */
@@ -159,9 +159,9 @@
   text-align: center;
 }
 
-@media (max-width: 480px) {
-  .ird-btn--donate {
-    font-size: var(--size-xl);
-    width: 60vw;
+@media (max-width: 768px) {
+  .ird-btn--donate  {
+    font-size: var(--size-md);
+    width: 15rem;
   }
 }

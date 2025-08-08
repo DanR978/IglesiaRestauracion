@@ -82,7 +82,7 @@ strong {
 }
 
 /* Dark Mode Variables (already defined elsewhere in @media) */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   body {
     background-color: var(--color-bg-light) !important; 
     color: var(--color-dark);
@@ -103,4 +103,4 @@ strong {
   strong {
     color: var(--color-secondary);
   }
-}
+} */
