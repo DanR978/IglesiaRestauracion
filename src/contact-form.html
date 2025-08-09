@@ -1,42 +1,56 @@
 <section>
     <div class="contact-wrapper">
         <div class="contact-info">
-        <h2 class="contact-info__title">Contáctanos</h2>
-        <p class="contact-info__subtitle">Nos encantaría saber de ti</p>
+            <h2 class="contact-info__title">Contáctanos</h2>
+            <p class="contact-info__subtitle">Nos encantaría saber de ti</p>
 
-        <form action="https://formsubmit.co/c0f27151522f7328138e75e6ade0c197" method="POST">
-            <div class="form-grid">
-                <div class="form-group animate-fade-in" data-threshold="1">
-                    <input type="text" id="first-name" name="first-name" placeholder="Nombre" autocomplete="given-name" required />
+            <form class="contact-form" action="https://formsubmit.co/c0f27151522f7328138e75e6ade0c197" method="POST"
+                novalidate>
+                <div class="form-grid">
+                    <div class="form-group animate-fade-in" data-threshold="1">
+                        <input type="text" id="first-name" name="first-name" placeholder="Nombre"
+                            autocomplete="given-name" />
+                    </div>
+
+                    <div class="form-group full-width animate-fade-in" data-threshold="1">
+                        <input type="tel" id="phone" name="phone" placeholder="Teléfono" autocomplete="tel"
+                            inputmode="numeric" pattern="[0-9]*" />
+                    </div>
+
+                    <div class="form-group full-width animate-fade-in" data-threshold="1">
+                        <input type="email" id="email" name="email" placeholder="contactanos@irdlex.org"
+                            autocomplete="email" />
+                    </div>
+
+                    <div class="form-group full-width animate-fade-in" data-threshold="1">
+                        <textarea id="message" name="message" rows="4" maxlength="300" placeholder="Enque podemos ayudarte?"></textarea>
+                    </div>
+
+                    <!-- <div class="disclaimer animate-fade-in" data-threshold="1">
+                        <p>
+                            Al enviar este formulario, aceptas que tus datos sean almacenados
+                            y procesados para responder a tu consulta.
+                            ¡Tu información estará segura!
+                        </p>
+                    </div> -->
+
+                    <input type="hidden" name="_captcha" value="false" />
+                    <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off" />
+                </div>
+                <div class="form-submit">
+                    <button type="submit" class="ird-btn ird-btn--teal animate-fade-in" data-threshold="1">
+                        Enviar Mensaje
+                    </button>
                 </div>
 
-                <div class="form-group full-width animate-fade-in" data-threshold="1">
-                    <input type="tel" id="phone" name="phone" placeholder="Telefono" autocomplete="tel" required />
-                </div>
-
-                <div class="form-group full-width animate-fade-in" data-threshold="1">
-                    <input type="email" id="email" name="email" placeholder="contactanos@irdlex.org" autocomplete="email" required />
-                </div>
-
-                <div class="form-group full-width animate-fade-in" data-threshold="1">
-                    <textarea id="message" name="message" rows="7" placeholder="En que podemos ayudarte?" required></textarea>
-                </div>
-                <div class="disclaimer animate-fade-in" data-threshold="1">
-                    <p>Al enviar este formulario, aceptas que tus datos sean almacenados
-                        y procesados para responder a tu consulta. 
-                        Tu informacion estara segura!</p>
-                </div>
-                <!-- Hidden fields -->
-                <input type="hidden" name="_captcha" value="true">
-                <input type="text" name="_honey" style="display:none">
-                <input type="hidden" name="_next" value="https://www.irdlex.org">
-            </div>
-
-            <button type="submit" class="ird-btn ird-btn--teal animate-fade-in" data-threshold="1">Enviar Mensaje</button>
-        </form>
+                <noscript>
+                    <p style="margin-top:.75rem;color:#b91c1c;">
+                        Para enviar el formulario, habilita JavaScript en tu navegador.
+                    </p>
+                </noscript>
+            </form>
         </div>
         <div class="contact-svg">
-
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 563" fill="none" id="envsvg">
                 <g id="Image">
                     <g id="g14">
@@ -80,7 +94,8 @@
                             <g id="g54">
                                 <path id="path56"
                                     d="M222.015 539.778C157.683 522.604 101.579 476.087 72.2367 415.592C60.1279 390.628 52.3612 362.908 54.182 335.155C56.0014 307.4 68.2732 279.663 90.2639 263.011C112.253 246.359 144.303 242.756 167.56 257.538C190.03 271.821 200.733 299.209 220.204 317.461C243.475 339.274 280.404 345.641 308.459 330.683C336.514 315.723 352.288 279.369 342.05 248.968C332.575 220.834 305.793 203.339 282.527 185.228C259.261 167.115 236.126 141.651 239.454 112.116C242.315 86.7319 264.382 67.653 287.628 57.7513C332.132 38.7951 389.516 47.2223 419.844 85.2787C452.476 126.224 446.202 185.954 431.486 236.425C416.769 286.896 395.069 337.985 402.391 390.086C408.475 433.375 434.97 472.304 470.109 497.688C505.247 523.075 548.365 535.649 591.441 538.326C634.426 540.999 680.569 532.908 712.364 503.476C744.158 474.044 754.899 419.157 726.78 386.108C712.226 369.003 690.497 360.328 669.604 352.466C648.708 344.604 626.907 336.377 611.765 319.807C596.621 303.236 590.753 275.553 604.995 258.181C621.492 238.058 665.44 235.858 680.982 214.969C692.069 200.069 679.116 171.364 666.529 157.269"
-                                    stroke="#00C0E0" stroke-width="2.541" stroke-miterlimit="10" stroke-dasharray="7.62 7.62" />
+                                    stroke="#00C0E0" stroke-width="2.541" stroke-miterlimit="10"
+                                    stroke-dasharray="7.62 7.62" />
                             </g>
                             <g id="g58">
                                 <path id="path60"
@@ -274,24 +289,30 @@
                             <path id="path232" d="M369.032 515.228H310.642V507.32H369.032V515.228Z" fill="#DCEEFB" />
                             <path id="path234" d="M301.035 409.578H224.781V366.082H301.035V409.578Z" fill="#DCEEFB" />
                             <g id="g236">
-                                <path id="path238" d="M224.781 409.579L262.908 387.831L301.034 409.579H224.781Z" fill="#CADBE7" />
+                                <path id="path238" d="M224.781 409.579L262.908 387.831L301.034 409.579H224.781Z"
+                                    fill="#CADBE7" />
                             </g>
                             <g id="g240">
-                                <path id="path242" d="M301.034 366.082L262.908 387.83L224.781 366.082H301.034Z" fill="#CADBE7" />
+                                <path id="path242" d="M301.034 366.082L262.908 387.83L224.781 366.082H301.034Z"
+                                    fill="#CADBE7" />
                             </g>
                             <path id="path244" d="M301.035 465.546H224.781V422.05H301.035V465.546Z" fill="#DCEEFB" />
                             <g id="g246">
-                                <path id="path248" d="M224.781 465.546L262.908 443.798L301.034 465.546H224.781Z" fill="#CADBE7" />
+                                <path id="path248" d="M224.781 465.546L262.908 443.798L301.034 465.546H224.781Z"
+                                    fill="#CADBE7" />
                             </g>
                             <g id="g250">
-                                <path id="path252" d="M301.034 422.05L262.908 443.798L224.781 422.05H301.034Z" fill="#CADBE7" />
+                                <path id="path252" d="M301.034 422.05L262.908 443.798L224.781 422.05H301.034Z"
+                                    fill="#CADBE7" />
                             </g>
                             <path id="path254" d="M301.035 521.515H224.781V478.019H301.035V521.515Z" fill="#DCEEFB" />
                             <g id="g256">
-                                <path id="path258" d="M224.781 521.514L262.908 499.766L301.034 521.514H224.781Z" fill="#CADBE7" />
+                                <path id="path258" d="M224.781 521.514L262.908 499.766L301.034 521.514H224.781Z"
+                                    fill="#CADBE7" />
                             </g>
                             <g id="g260">
-                                <path id="path262" d="M301.034 478.018L262.908 499.766L224.781 478.018H301.034Z" fill="#CADBE7" />
+                                <path id="path262" d="M301.034 478.018L262.908 499.766L224.781 478.018H301.034Z"
+                                    fill="#CADBE7" />
                             </g>
                             <g id="g264">
                                 <g id="g282">
@@ -303,7 +324,8 @@
                                         </g>
                                         <g id="g278" opacity="0.440002">
                                             <path id="path276" opacity="0.440002"
-                                                d="M388.697 305.565L191.254 505.613V449.961L333.77 305.565H388.697Z" fill="white" />
+                                                d="M388.697 305.565L191.254 505.613V449.961L333.77 305.565H388.697Z"
+                                                fill="white" />
                                         </g>
                                     </g>
                                 </g>
@@ -330,19 +352,26 @@
                                         d="M249.266 298.798L351.208 218.764C357.652 213.705 366.657 213.705 373.102 218.764L475.045 298.798V432.924H249.266V298.798Z"
                                         fill="#FF9004" />
                                 </g>
-                                <path id="path308" d="M448.926 227.706H275.382V421.076H448.926V227.706Z" fill="#FAFAFA" />
-                                <path id="path310" d="M438.481 239.346H285.831V245.241H438.481V239.346Z" fill="#DCDCDC" />
-                                <path id="path312" d="M415.561 251.195H285.831V257.09H415.561V251.195Z" fill="#DCDCDC" />
+                                <path id="path308" d="M448.926 227.706H275.382V421.076H448.926V227.706Z"
+                                    fill="#FAFAFA" />
+                                <path id="path310" d="M438.481 239.346H285.831V245.241H438.481V239.346Z"
+                                    fill="#DCDCDC" />
+                                <path id="path312" d="M415.561 251.195H285.831V257.09H415.561V251.195Z"
+                                    fill="#DCDCDC" />
                                 <path id="path314" d="M394.51 263.044H285.831V268.939H394.51V263.044Z" fill="#DCDCDC" />
                                 <path id="path316" d="M394.51 285.792H285.831V291.688H394.51V285.792Z" fill="#DCDCDC" />
-                                <path id="path318" d="M366.443 297.167H285.831V303.062H366.443V297.167Z" fill="#DCDCDC" />
+                                <path id="path318" d="M366.443 297.167H285.831V303.062H366.443V297.167Z"
+                                    fill="#DCDCDC" />
                                 <path id="path320" d="M442.769 321H362.156V326.896H442.769V321Z" fill="#DCDCDC" />
-                                <path id="path322" d="M442.768 332.609H377.201V338.504H442.768V332.609Z" fill="#DCDCDC" />
+                                <path id="path322" d="M442.768 332.609H377.201V338.504H442.768V332.609Z"
+                                    fill="#DCDCDC" />
                                 <g id="g324">
-                                    <path id="path326" d="M362.155 365.9L249.265 298.877V432.924L362.155 365.9Z" fill="#FFAE35" />
+                                    <path id="path326" d="M362.155 365.9L249.265 298.877V432.924L362.155 365.9Z"
+                                        fill="#FFAE35" />
                                 </g>
                                 <g id="g328">
-                                    <path id="path330" d="M362.156 365.9L475.045 298.877V432.924L362.156 365.9Z" fill="#FFAE35" />
+                                    <path id="path330" d="M362.156 365.9L475.045 298.877V432.924L362.156 365.9Z"
+                                        fill="#FFAE35" />
                                 </g>
                                 <g id="g332">
                                     <path id="path334"
@@ -378,7 +407,8 @@
                             <g id="g368">
                                 <path id="path370"
                                     d="M565.214 487.805C565.214 477.497 549.034 468.633 538.283 477.531C527.532 468.633 511.352 477.497 511.352 487.805C511.352 487.805 507.872 508.014 538.283 522.676C568.694 508.014 565.214 487.805 565.214 487.805Z"
-                                    stroke="#FAFAFA" stroke-width="3.811" stroke-miterlimit="10" stroke-linejoin="round" />
+                                    stroke="#FAFAFA" stroke-width="3.811" stroke-miterlimit="10"
+                                    stroke-linejoin="round" />
                             </g>
                             <g id="g372">
                                 <path id="path374"
@@ -469,7 +499,7 @@
                     </g>
                 </g>
             </svg>
-    
+
         </div>
     </div>
 </section>

@@ -16,12 +16,13 @@
   text-align: center;
   justify-content: center;
   align-items: center;
-  /* letter-spacing: -0.05em; */
   color: var(--color-white);
   border-radius: var(--radius-md);
   transition: all 0.3s;
   width: clamp(7.8rem, 25vw, 12rem);
   transform: translateY(0);
+  border: none;
+  outline: none;
 }
 
 /* === Button Color Variants === */
@@ -164,4 +165,11 @@
     font-size: var(--size-md);
     width: 15rem;
   }
+}
+
+
+.ird-btn:focus,
+.ird-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }

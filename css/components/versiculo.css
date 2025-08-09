@@ -31,7 +31,7 @@
 }
 
 .logo-svg {
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 @media (max-width: 768px) {

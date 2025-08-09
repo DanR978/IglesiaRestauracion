@@ -21,6 +21,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (id === "contact-form") {
         initAnimations();
+
+        // 🔗 Wire the form immediately after it’s injected
+        const form = el.querySelector('form[action*="formsubmit.co"]');
+        if (form && typeof attachAjaxToForm === 'function') {
+          console.log('[contact] wiring form from include.js');
+          attachAjaxToForm(form);
+        }
+
+        // optional event (kept if you want listeners)
+        document.dispatchEvent(new CustomEvent('contact:ready', { detail: { el } }));
       }
 
       if (id === "footer") {
