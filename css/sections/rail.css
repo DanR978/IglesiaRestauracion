@@ -65,7 +65,7 @@
     border-radius: 999px;
     cursor: pointer;
     font-weight: var(--fw-semibold, 600);
-    font-size: var(--fs-sm);
+    font-size: var(--fs-md);
     outline: none;
 }
 
@@ -74,16 +74,8 @@
 }
 
 .c-rail__tab.is-active {
-    background: linear-gradient(
-    to right,
-    var(--color-20) 0%,
-    var(--color-35) 35%,
-    var(--color-55) 70%,
-    var(--color-85) 100%
-    );
+    background: var(--color-75);
 }
-
-
 
 /* rails */
 .c-rail {
@@ -226,14 +218,14 @@
     height: var(--rail-card-h);
     border-radius: var(--rail-radius);
     background: linear-gradient(145deg, var(--rail-g1), var(--rail-g2), var(--rail-g3));
-    /* box-shadow: var(--rail-shadow); */
-    color: var(--color-100, #fff);
+    color: var(--color-white);
     --s: var(--scale-min);
     transform: scale(var(--s));
     transition: transform .28s ease, filter .28s ease, border-radius .28s ease;
     transform-origin: center;
     filter: saturate(calc(.8 + (var(--s) - var(--scale-min)) * 1.6));
 }
+
 
 .c-rail__card.is-center {
     z-index: 2;
@@ -293,11 +285,19 @@
     display: inline-flex;
     gap: .45rem;
     align-items: center;
-    background: var(--color-100, #fff);
+    background-color: var(--color-white);
     color: var(--color-5, #090f11);
     text-decoration: none;
-    font-weight: var(--fw-bold, 700);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-md);
     padding: .5rem .8rem;
     border-radius: 12px;
-    /* box-shadow: var(--btn-shadow) */
+}
+
+.c-rail__cta:hover {
+    text-decoration: none;
+    background-color: var(--gray-10);
+    color: var(--color-black);
+    transform: translateY(-2px);
+    transition: transform .4s ease, background-color .4s ease;
 }
