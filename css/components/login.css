@@ -1,0 +1,96 @@
+/* All styles are scoped under .login-container; no globals. */
+
+.login-container {
+    min-height: 100svh;
+    padding: 24px;
+    display: grid;
+    place-items: center;
+    background-color: var(--color-95);
+    color: var(--color-dark);
+    font-family: var(--font-base);
+}
+
+.login-card {
+    width: min(100%, 420px);
+    padding: var(--pd-md);
+    background-color: var(--color-primary);
+    border-radius: 16px;
+    border: none;
+    box-shadow: var(--container-shadow);
+}
+
+.login-title {
+    margin: 0 0 14px;
+    font-weight: var(--fw-bold);
+    color: var(--color-white);
+    font-size: var(--size-2xl);
+}
+
+.login-label {
+    display: block;
+    margin: .5rem 0 .25rem;
+    font-weight: var(--fw-semibold);
+    color: var(--color-white);
+    font-size: var(--size-lg);
+}
+
+.login-input,
+.login-btn {
+    width: 100%;
+    padding: .7rem;
+    border-radius: 10px;
+    font: inherit;
+}
+
+.login-input {
+    margin: var(--mg-sm) 0;
+    border: none;
+    background-color: var(--color-white);
+    color: black;
+    opacity: 0.3;
+}
+
+.login-input:focus {
+    outline: none;
+    opacity: 0.5;
+}
+
+.login-btn {
+    margin-top: 1rem;
+    border: 0;
+    background-color: var(--color-primary);
+    color: var(--color-white);
+    font-weight: var(--fw-bold);
+    box-shadow: var(--btn-shadow);
+    cursor: pointer;
+    transition: transform .12s ease, opacity .12s ease;
+}
+
+.login-btn:hover {
+    transform: translateY(-1px);
+}
+
+.login-btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.login-msg {
+    margin-top: .6rem;
+    min-height: 1.2em;
+    color: var(--orange-40);
+}
+
+.login-footnote {
+    margin: .35rem 0 0;
+}
+
+.login-link {
+    color: var(--color-white);
+    text-decoration: none;
+    font-weight: var(--fw-semibold);
+}
+
+.login-link:hover {
+    text-decoration: none;
+}

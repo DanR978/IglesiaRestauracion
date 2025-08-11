@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+    <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+
+    <!-- 🛡️ Login pages shouldn't be indexed -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="keywords"
+            content="inicio de sesión, panel de administración, Iglesia Restauración Divina, Lexington KY" />
+
+    <title>Iniciar Sesión | Iglesia Restauración Divina</title>
+    <meta name="description"
+            content="Accede al panel de administración de Iglesia Restauración Divina para gestionar contenido y eventos." />
+    <meta name="author" content="Iglesia Restauración Divina" />
+    <meta name="google-site-verification" content="9Ggof1MzUF_y5AMkQwUIHV3WxHoQ-c7EHa_3lsJlBZE" />
+
+    <!-- Favicons -->
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+
+    <!-- Canonical (login path) -->
+    <link rel="canonical" href="https://www.irdlex.org/login/" />
+
+    <!-- Open Graph / Twitter (optional for login; safe to include or omit) -->
+    <meta property="og:site_name" content="Iglesia Restauración Divina" />
+    <meta property="og:title" content="Iniciar Sesión | Iglesia Restauración Divina" />
+    <meta property="og:url" content="https://www.irdlex.org/login/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Accede al panel de administración de Iglesia Restauración Divina." />
+    <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Iniciar Sesión | Iglesia Restauración Divina" />
+    <meta name="twitter:description" content="Accede al panel de administración de Iglesia Restauración Divina." />
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png" />
+
+    <base href="/">
+    <!-- STYLESHEETS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet" />
+
+    <!-- Structured data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Iniciar Sesión",
+        "url": "https://www.irdlex.org/login/"
+    }
+    </script>
+    </head>
+
+  <body>
+    <div class="login-container">
+      <div class="login-card">
+        <h1 class="login-title">Iniciar Sesión</h1>
+
+        <label class="login-label" for="email">Correo</label>
+        <input class="login-input" id="email" type="email" autocomplete="email">
+
+        <label class="login-label" for="password">Contraseña</label>
+        <input class="login-input" id="password" type="password" autocomplete="current-password">
+
+        <button class="login-btn" id="login">Entrar</button>
+
+        <div class="login-msg" id="msg" role="status" aria-live="polite"></div>
+        <p class="login-footnote">
+          <a class="login-link" href="#" id="reset">¿Olvidaste tu contraseña?</a>
+        </p>
+      </div>
+    </div>
+
+    <script type="module">
+      import { login, resetPw, watchAuth, isAdmin } from "/js/firebase.js";
+      const $ = s => document.querySelector(s);
+
+      const emailEl = $('#email');
+      const passEl  = $('#password');
+      const btn     = $('#login');
+      const msg     = $('#msg');
+      const reset   = $('#reset');
+
+      btn?.addEventListener('click', async ()=>{
+        msg.textContent = "";
+        try { await login(emailEl.value.trim(), passEl.value); }
+        catch(e){ msg.textContent = e.message || "Error al iniciar sesión"; }
+      });
+
+      reset?.addEventListener('click', async (e)=>{
+        e.preventDefault();
+        const email = emailEl.value.trim();
+        if (!email) return msg.textContent = "Escribe tu correo primero.";
+        await resetPw(email);
+        msg.textContent = "Te enviamos un correo de restablecimiento.";
+      });
+
+      watchAuth(async (user)=>{
+        if (user && await isAdmin(user.uid)) {
+          location.href = "/manage/index.html";
+        }
+      });
+    </script>
+  </body>
+</html>
