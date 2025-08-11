@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Events Rail – Ultra Smooth</title>
+<style>
+:root{
+  --rail-bg:#ffffff; --rail-fg:#0f172a; --rail-muted:#475569;
+  --rail-card-w: clamp(240px, 38vw, 460px);
+  --rail-card-h: clamp(160px, 32vw, 260px);
+  --rail-gap: clamp(1rem, 3vw, 2rem);
+  --rail-pad: clamp(.8rem, 2vw, 1.25rem);
+  --r-lg: 28px; --shadow: 0 10px 28px rgba(0,0,0,.18);
+  --accent-1:#163a5a; --accent-2:#5c8fca; --accent-3:#2b5fa1;
+  --scale-min:.92; --scale-max:1.18;
+  --fade-w: 56px; --fade-top: calc(var(--rail-pad)*1.6); --fade-bottom: var(--rail-pad);
+}
+
+@media (prefers-color-scheme: dark){
+  :root{ --rail-bg:#0b1020; --rail-fg:#e6edf6; --rail-muted:#9fb0c4; --shadow: 0 10px 32px rgba(0,0,0,.55); }
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,"Noto Sans",sans-serif;background:var(--rail-bg);color:var(--rail-fg)}
+.l-container{max-width:1100px;margin-inline:auto;padding:2rem 1rem}
+
+/* Header + Tabs */
+.c-rail__header{display:flex;justify-content:space-between;align-items:end;gap:1rem;margin-bottom:1rem}
+.c-rail__title{margin:0;font-weight:800;letter-spacing:.2px;font-size:clamp(1.25rem,2.4vw,1.8rem)}
+.c-rail__tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.c-rail__tab{appearance:none;border:none;background:transparent;color:var(--rail-fg);padding:.5rem .85rem;border-radius:999px;cursor:pointer;font-weight:600}
+.c-rail__tab.is-active{background:var(--accent-2);color:#071521}
+
+/* Rails */
+.c-rail{position:relative;display:none}
+.c-rail.is-active{display:block}
+
+/* Edge fades */
+.c-rail::before, .c-rail::after{
+  content:""; position:absolute; z-index:3; pointer-events:none;
+  top: var(--fade-top); bottom: var(--fade-bottom); width: var(--fade-w);
+  opacity:0; transition: opacity .2s ease;
+}
+.c-rail.has-left::before{ opacity:1; left:0; background: linear-gradient(to right, var(--rail-bg), transparent); }
+.c-rail.has-right::after{ opacity:1; right:0; background: linear-gradient(to left,  var(--rail-bg), transparent); }
+
+/* Controls: moved BELOW tabs (no overlap) */
+.c-rail__controls{
+  position:absolute; inset-inline-end:.5rem; inset-block-start:.25rem; /* inside the rail, just above cards */
+  display:flex; gap:.4rem; z-index:4
+}
+.c-rail__btn{
+  width:36px; height:36px; border-radius:999px; border:none;
+  background:var(--rail-bg); color:var(--rail-fg); cursor:pointer; font-size:18px; line-height:1;
+  box-shadow:0 0 0 1px rgba(0,0,0,.06)
+}
+.c-rail__btn.is-disabled{opacity:.45;pointer-events:none}
+
+/* Track (no snap; no borders; no scrollbars) */
+.c-rail__track{
+  display:grid; grid-auto-flow:column; grid-auto-columns:var(--rail-card-w);
+  gap:var(--rail-gap); overflow:auto;
+  padding-block: calc(var(--rail-pad)*1.6);
+  padding-inline: max(var(--rail-pad), var(--edge-pad, 0px)); /* edge pad set by JS */
+  border-radius:var(--r-lg); background:var(--rail-bg);
+  cursor: grab; overscroll-behavior-inline: contain; -webkit-tap-highlight-color: transparent;
+
+  /* hide scrollbars cross-browser */
+  scrollbar-width: none; -ms-overflow-style: none;
+}
+.c-rail__track::-webkit-scrollbar{ display:none }
+.c-rail__track.is-dragging{ cursor: grabbing; user-select:none }
+.c-rail__track:focus{ outline:none }             /* no outline on mouse */
+.c-rail__track:focus-visible{ outline:2px solid var(--accent-2); outline-offset:4px } /* keep keyboard a11y */
+
+/* Cards */
+.c-rail__card{
+  position:relative; display:flex; overflow:hidden;
+  width:var(--rail-card-w); height:var(--rail-card-h);
+  border-radius:28px; background:linear-gradient(145deg,var(--accent-1),var(--accent-2),var(--accent-3));
+  box-shadow:var(--shadow); color:#fff;
+  --s: var(--scale-min); transform: scale(var(--s));
+  transition: transform .28s ease, filter .28s ease, border-radius .28s ease;
+  transform-origin:center; filter: saturate(calc(.8 + (var(--s) - var(--scale-min)) * 1.6));
+}
+.c-rail__card.is-center{ z-index:2; border-radius: calc(26px + (var(--s) - 1) * 60px); }
+.c-rail__media{flex:0 0 38%; background:#000; overflow:hidden}
+.c-rail__media img{width:100%;height:100%;object-fit:cover;display:block}
+.c-rail__body{flex:1; padding:clamp(.9rem,2vw,1.2rem); display:flex; flex-direction:column; justify-content:center; gap:.45rem}
+.c-rail__tag{align-self:flex-start; font-size:.75rem; padding:.25rem .55rem; border-radius:999px; background:rgba(255,255,255,.18)}
+.c-rail__title-sm{margin:0; font-weight:800; line-height:1.15; font-size:clamp(1rem,1.7vw,1.25rem)}
+.c-rail__meta{font-size:.92rem; opacity:.96}
+.c-rail__meta span{opacity:.9}
+.c-rail__cta{align-self:flex-start; margin-top:.35rem; display:inline-flex; gap:.45rem; align-items:center; background:#fff; color:#0b1020; text-decoration:none; font-weight:700; padding:.5rem .8rem; border-radius:12px}
+
+/* Empty */
+.c-rail__card--empty{justify-content:center;align-items:center;text-align:center;background:linear-gradient(145deg,#1f2d43,#3d76ba)}
+.c-rail__card--empty h3{margin:0}
+</style>
+</head>
+<body>
+
+<section class="l-container" aria-labelledby="events-title">
+  <header class="c-rail__header">
+    <h2 id="events-title" class="c-rail__title">Eventos</h2>
+    <nav class="c-rail__tabs" aria-label="Ver eventos">
+      <button class="c-rail__tab is-active js-rail-tab" type="button" data-target="#rail-upcoming">Próximos</button>
+      <button class="c-rail__tab js-rail-tab" type="button" data-target="#rail-past">Pasados</button>
+    </nav>
+  </header>
+
+  <!-- Próximos -->
+  <div id="rail-upcoming" class="c-rail is-active" data-rail="events" data-filter="upcoming" aria-label="Próximos eventos">
+    <div class="c-rail__controls">
+      <button class="c-rail__btn js-rail-prev" type="button" aria-label="Anterior">‹</button>
+      <button class="c-rail__btn js-rail-next" type="button" aria-label="Siguiente">›</button>
+    </div>
+    <div class="c-rail__track js-rail-track" tabindex="0" role="list"></div>
+  </div>
+
+  <!-- Pasados -->
+  <div id="rail-past" class="c-rail" data-rail="events" data-filter="past" aria-label="Eventos pasados">
+    <div class="c-rail__controls">
+      <button class="c-rail__btn js-rail-prev" type="button" aria-label="Anterior">‹</button>
+      <button class="c-rail__btn js-rail-next" type="button" aria-label="Siguiente">›</button>
+    </div>
+    <div class="c-rail__track js-rail-track" tabindex="0" role="list"></div>
+  </div>
+</section>
+
+<script>
+/* helpers */
+const $ = (sel, root=document)=>root.querySelector(sel);
+const $$ = (sel, root=document)=>Array.from(root.querySelectorAll(sel));
+const parseISO = (s)=> new Date(s + (s.length===10 ? "T00:00:00" : ""));
+const startOfToday = ()=> new Date(new Date().toDateString());
+const isPast = (d)=> d < startOfToday();
+const fmtDate = (iso)=> new Intl.DateTimeFormat(undefined,{ dateStyle:"medium" }).format(parseISO(iso));
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+
+/* smooth programmatic scroll (used by arrows only) */
+function animateScrollLeft(el, to, {duration=520, easing=easeOutCubic} = {}){
+  if (el._anim) cancelAnimationFrame(el._anim.rid);
+  const start = el.scrollLeft, change = to - start, t0 = performance.now();
+  let active = true;
+  const step = (now)=>{
+    if (!active) return;
+    const t = Math.min(1, (now - t0) / duration);
+    el.scrollLeft = start + change * easing(t);
+    updateScales(el); el._updateEnds?.();
+    if (t < 1) el._anim.rid = requestAnimationFrame(step);
+  };
+  el._anim = { rid: requestAnimationFrame(step), cancel:()=>{active=false;} };
+}
+
+/* card render */
+function renderCard(ev){
+  const img = ev.image ? `<div class="c-rail__media"><img src="${ev.image}" alt=""></div>` : "";
+  const tag = ev.tag ? `<span class="c-rail__tag">${ev.tag}</span>` : "";
+  const cta = ev.cta ? `<a class="c-rail__cta" href="${ev.cta.url}">${ev.cta.label}</a>` : "";
+  return `
+    <article class="c-rail__card" role="listitem" aria-label="${ev.title}">
+      ${img}
+      <div class="c-rail__body">
+        ${tag}
+        <h3 class="c-rail__title-sm">${ev.title}</h3>
+        <p class="c-rail__meta">
+          <span>${fmtDate(ev.date)}</span>${ev.time ? ` • <span>${ev.time}</span>`:""}${ev.location ? ` • <span>${ev.location}</span>`:""}
+        </p>
+        ${cta}
+      </div>
+    </article>`;
+}
+
+/* empty */
+function emptyState(kind){
+  const msg = kind === "upcoming" ? "Sin eventos programados" : "No hay eventos pasados";
+  return `
+    <article class="c-rail__card c-rail__card--empty" role="status" aria-live="polite">
+      <div class="c-rail__body" style="align-items:center">
+        <h3 class="c-rail__title-sm">${msg}</h3>
+        <p class="c-rail__meta">Vuelve pronto.</p>
+      </div>
+    </article>`;
+}
+
+/* dynamic scale toward center (continuous, no snap) */
+function updateScales(track){
+  const cards = $$(".c-rail__card", track);
+  if (!cards.length) return;
+  const rect = track.getBoundingClientRect();
+  const centerX = rect.left + rect.width/2;
+  let bestIdx = 0, bestScore = -Infinity;
+
+  for (let i=0;i<cards.length;i++){
+    const c = cards[i];
+    const cr = c.getBoundingClientRect();
+    const cx = cr.left + cr.width/2;
+    const dist = Math.abs(cx - centerX);
+    const norm = Math.max(0, 1 - dist / (rect.width * 0.45)); // 0 far → ~1 centered
+    const sMin = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-min')) || .92;
+    const sMax = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scale-max')) || 1.18;
+    const scale = sMin + (sMax - sMin) * norm;
+    c.style.setProperty('--s', scale.toFixed(4));
+    if (norm > bestScore){ bestScore = norm; bestIdx = i; }
+  }
+  cards.forEach((c, idx)=> c.classList.toggle('is-center', idx === bestIdx));
+}
+
+/* fades + buttons */
+function updateEnds(railEl, track){
+  const prev = $(".js-rail-prev", railEl), next = $(".js-rail-next", railEl);
+  const max = Math.max(0, track.scrollWidth - track.clientWidth - 2);
+  const atStart = track.scrollLeft <= 0, atEnd = track.scrollLeft >= max;
+  prev?.classList.toggle("is-disabled", atStart);
+  next?.classList.toggle("is-disabled", atEnd);
+  railEl.classList.toggle('has-left', !atStart);
+  railEl.classList.toggle('has-right', !atEnd);
+}
+
+/* edge padding so first/last CAN center if you scroll them there */
+function setEdgePadding(track){
+  const first = track.firstElementChild;
+  if (!first) return;
+  const cardW = first.getBoundingClientRect().width || 0;
+  const edge = Math.max(0, track.clientWidth/2 - cardW/2);
+  track.style.setProperty('--edge-pad', edge + 'px');
+}
+
+/* wheel horizontal + drag-to-scroll (no snap) */
+function makeScrollable(railEl, track){
+  track._updateEnds = ()=> updateEnds(railEl, track);
+
+  // wheel → horizontal on hover
+  track.addEventListener('wheel', (e)=>{
+    if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
+      e.preventDefault();
+      track._anim?.cancel?.();
+      track.scrollLeft += e.deltaY;
+      updateScales(track); updateEnds(railEl, track);
+    }
+  }, { passive:false });
+
+  // grab to scroll
+  let dragging = false, startX = 0, startLeft = 0, pid = null;
+  track.addEventListener('pointerdown', (e)=>{
+    pid = e.pointerId; dragging = true;
+    startX = e.clientX; startLeft = track.scrollLeft;
+    track.setPointerCapture(pid); track.classList.add('is-dragging');
+    track._anim?.cancel?.();
+  });
+  track.addEventListener('pointermove', (e)=>{
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    track.scrollLeft = startLeft - dx;
+    updateScales(track); updateEnds(railEl, track);
+  });
+  function endDrag(){
+    if (!dragging) return;
+    dragging = false;
+    try{ track.releasePointerCapture(pid); }catch{}
+    track.classList.remove('is-dragging');
+    // no snap on release
+  }
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+  track.addEventListener('pointerleave', endDrag);
+
+  // native scroll (touch)
+  track.addEventListener('scroll', ()=>{ updateScales(track); updateEnds(railEl, track); }, { passive:true });
+
+  // resize
+  const ro = new ResizeObserver(()=>{ setEdgePadding(track); updateScales(track); updateEnds(railEl, track); });
+  ro.observe(track);
+
+  // init
+  requestAnimationFrame(()=>{ setEdgePadding(track); updateScales(track); updateEnds(railEl, track); });
+}
+
+/* populate */
+function populateRail(railEl, events){
+  const kind = railEl.dataset.filter;
+  let list = events.slice().sort((a,b)=> parseISO(a.date) - parseISO(b.date));
+  list = kind === "upcoming" ? list.filter(e => !isPast(parseISO(e.date)))
+                              : list.filter(e => isPast(parseISO(e.date))).reverse();
+
+  const track = $(".js-rail-track", railEl);
+  track.innerHTML = list.length ? list.map(renderCard).join("") : emptyState(kind);
+
+  // arrows scroll by one card width (smooth), no snap-to-center
+  const prev = $(".js-rail-prev", railEl), next = $(".js-rail-next", railEl);
+  const step = () => (track.firstElementChild?.getBoundingClientRect().width || 320) + (parseFloat(getComputedStyle(track).gap) || 16);
+  prev.onclick = ()=> animateScrollLeft(track, Math.max(0, track.scrollLeft - step()));
+  next.onclick = ()=> animateScrollLeft(track, Math.min(track.scrollWidth - track.clientWidth, track.scrollLeft + step()));
+
+  makeScrollable(railEl, track);
+}
+
+/* tabs */
+function wireTabs(){
+  $$(".js-rail-tab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      $$(".c-rail__tab").forEach(b=>b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const target = btn.dataset.target;
+      $$(".c-rail").forEach(r=>r.classList.remove("is-active"));
+      const active = $(target);
+      active?.classList.add("is-active");
+      const t = $(".js-rail-track", active);
+      if (t) { setEdgePadding(t); updateScales(t); t._updateEnds?.(); }
+    });
+  });
+}
+
+/* data: 10 próximos + 6 pasados */
+const EVENTS = [
+  { title:"Servicio Dominical", date:"2025-08-12", time:"11:00", location:"2601 Clays Mill Rd", tag:"Culto", cta:{label:"Detalles",url:"#"}, image:"https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Reunión de Líderes", date:"2025-08-15", time:"18:30", location:"Sala A", tag:"Líderes", cta:{label:"Agenda",url:"#"}, image:"https://images.unsplash.com/photo-1552581234-26160f608093?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Servicio Dominical", date:"2025-08-17", time:"11:00", location:"Santuario", tag:"Culto", cta:{label:"Detalles",url:"#"}, image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Taller de Matrimonios", date:"2025-08-18", time:"19:00", location:"Salón 2", tag:"Familia", cta:{label:"Registrarme",url:"#"}, image:"https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Ayuno Congregacional", date:"2025-08-22", time:"08:00", location:"Auditorio", tag:"Ayuno", cta:{label:"Leer guía",url:"#"}, image:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Jóvenes IRD", date:"2025-08-28", time:"19:30", location:"Anexo", tag:"Juventud", cta:{label:"Unirme",url:"#"}, image:"https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Servicio Dominical", date:"2025-09-03", time:"11:00", location:"Santuario", tag:"Culto", cta:{label:"Detalles",url:"#"}, image:"https://images.unsplash.com/photo-1483729558449-99ef09a8c325?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Clases de Bautismo", date:"2025-09-10", time:"18:30", location:"Salón 2", tag:"Formación", cta:{label:"Registrarme",url:"#"}, image:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Concierto de Adoración", date:"2025-09-17", time:"19:00", location:"Auditorio", tag:"Adoración", cta:{label:"Boletos",url:"#"}, image:"https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Servicio de Celebración", date:"2025-10-01", time:"11:00", location:"Santuario", tag:"Culto", cta:{label:"Detalles",url:"#"}, image:"https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop" },
+
+  { title:"Retiro de Jóvenes", date:"2025-07-12", time:"09:00", location:"Campamento Río", tag:"Juventud", cta:{label:"Galería",url:"#"}, image:"https://images.unsplash.com/photo-1520975922284-9f8a63f6d3dc?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Noche de Oración", date:"2025-08-01", time:"19:00", location:"Auditorio", tag:"Oración", cta:{label:"Ver recap",url:"#"}, image:"https://images.unsplash.com/photo-1504051771394-dd2e66b2e08f?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Encuentro de Hombres", date:"2025-08-05", time:"19:00", location:"Sala B", tag:"Hombres", cta:{label:"Recursos",url:"#"}, image:"https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Noche de Testimonios", date:"2025-08-07", time:"19:00", location:"Auditorio", tag:"Comunidad", cta:{label:"Resumen",url:"#"}, image:"https://images.unsplash.com/photo-1520974735194-5f0bd7be2f5d?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Convivio Familiar", date:"2025-07-28", time:"16:00", location:"Parque Central", tag:"Familia", cta:{label:"Fotos",url:"#"}, image:"https://images.unsplash.com/photo-1455732063391-5f50f4df1854?q=80&w=1600&auto=format&fit=crop" },
+  { title:"Capacitación Voluntarios", date:"2025-06-30", time:"18:00", location:"Salón 1", tag:"Servir", cta:{label:"Materiales",url:"#"}, image:"https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=1600&auto=format&fit=crop" }
+];
+
+/* boot */
+function wireTabs(){
+  $$(".js-rail-tab").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      $$(".c-rail__tab").forEach(b=>b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      const target = btn.dataset.target;
+      $$(".c-rail").forEach(r=>r.classList.remove("is-active"));
+      const active = $(target);
+      active?.classList.add("is-active");
+      const t = $(".js-rail-track", active);
+      if (t) { setEdgePadding(t); updateScales(t); t._updateEnds?.(); }
+    });
+  });
+}
+function init(){
+  wireTabs();
+  $$('[data-rail="events"]').forEach(rail => populateRail(rail, EVENTS));
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>

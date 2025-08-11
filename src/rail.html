@@ -1,0 +1,98 @@
+<!-- /src/rail.html -->
+<section class="l-container" aria-labelledby="events-title">
+  <div class="c-rail__header">
+    <h2 id="events-title" class="c-rail__title">Eventos</h2>
+
+    <nav class="c-rail__tabs" aria-label="Ver eventos">
+      <button class="c-rail__tab is-active js-rail-tab" type="button"
+        data-target="#rail-upcoming">Próximos</button>
+      <button class="c-rail__tab js-rail-tab" type="button"
+        data-target="#rail-past">Pasados</button>
+    </nav>
+  </div>
+
+  <!-- Próximos -->
+  <div id="rail-upcoming" class="c-rail is-active" data-rail="events"
+    data-filter="upcoming" aria-label="Próximos eventos">
+    <div class="c-rail__controls">
+      <button class="c-rail__btn js-rail-prev" type="button"
+        aria-label="Anterior">‹</button>
+      <button class="c-rail__btn js-rail-next" type="button"
+        aria-label="Siguiente">›</button>
+    </div>
+    <div class="c-rail__track js-rail-track" tabindex="0" role="list"></div>
+  </div>
+
+  <!-- Pasados -->
+  <div id="rail-past" class="c-rail" data-rail="events" data-filter="past"
+    aria-label="Eventos pasados">
+    <div class="c-rail__controls">
+      <button class="c-rail__btn js-rail-prev" type="button"
+        aria-label="Anterior">‹</button>
+      <button class="c-rail__btn js-rail-next" type="button"
+        aria-label="Siguiente">›</button>
+    </div>
+    <div class="c-rail__track js-rail-track" tabindex="0" role="list"></div>
+  </div>
+
+  <!-- Inline data (safe; it’s just JSON). Delete this block if you’ll use /events.json -->
+  <script type="application/json" id="events-data">
+[
+  {
+    "title": "Servicio Dominical",
+    "date": "2025-08-17",
+    "time": "11:00",
+    "location": "2601 Clays Mill Rd",
+    "tag": "Culto",
+    "cta": { "label": "Detalles", "url": "#" },
+    "image": "resources/media/images/bibleStudy.jpg"
+  },
+  {
+    "title": "Reunión de Líderes",
+    "date": "2025-08-20",
+    "time": "18:30",
+    "location": "Sala A",
+    "tag": "Líderes",
+    "cta": { "label": "Agenda", "url": "#" },
+    "image": "resources/media/images/bibleStudy.jpg"
+  },
+  {
+    "title": "Clases de Bautismo",
+    "date": "2025-08-22",
+    "time": "18:30",
+    "location": "Salón 2",
+    "tag": "Formación",
+    "cta": { "label": "Registrarme", "url": "#" },
+    "image": "resources/media/images/bibleStudy.jpg"
+  },
+  {
+    "title": "Encuentro de Hombres",
+    "date": "2025-08-05",
+    "time": "19:00",
+    "location": "Sala B",
+    "tag": "Hombres",
+    "cta": { "label": "Recursos", "url": "#" },
+    "image": "resources/media/images/bibleStudy.jpg"
+  },
+  {
+    "title": "Noche de Testimonios",
+    "date": "2025-08-07",
+    "time": "19:00",
+    "location": "Auditorio",
+    "tag": "Comunidad",
+    "cta": { "label": "Resumen", "url": "#" },
+    "image": "resources/media/images/bibleStudy.jpg"
+  },
+  {
+    "title": "Noche de Oración",
+    "date": "2025-08-01",
+    "time": "19:00",
+    "location": "Auditorio",
+    "tag": "Oración",
+    "cta": { "label": "Ver recap", "url": "#" },
+    "image": "resources/media/images/bibleStudy.jpg"
+  }
+]
+
+  </script>
+</section>

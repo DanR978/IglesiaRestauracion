@@ -16,11 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (heroImg && heroURL) {
           heroImg.setAttribute("src", heroURL);
         }
-        initAnimations();
+        if (typeof initAnimations === "function") initAnimations();
       }
 
       if (id === "contact-form") {
-        initAnimations();
+        if (typeof initAnimations === "function") initAnimations();
 
         // 🔗 Wire the form immediately after it’s injected
         const form = el.querySelector('form[action*="formsubmit.co"]');
@@ -29,17 +29,39 @@ document.addEventListener("DOMContentLoaded", () => {
           attachAjaxToForm(form);
         }
 
-        // optional event (kept if you want listeners)
         document.dispatchEvent(new CustomEvent('contact:ready', { detail: { el } }));
       }
 
       if (id === "footer") {
-        initAnimations();
+        if (typeof initAnimations === "function") initAnimations();
 
         if (typeof setCurrentYear === "function") {
           setCurrentYear();
         } else {
           console.warn("setCurrentYear is not defined");
+        }
+      }
+
+      if (id === "events-rail") {
+        // Avoid double-initialization if this gets injected again
+        if (!el.dataset.railInited) {
+          // Ensure the rail JS is available, then init just this injected section
+          if (window.Rail?.init) {
+            await window.Rail.init(el);
+          } else {
+            // Fallback: dynamic import if the script wasn't loaded yet
+            try {
+              await import('/js/rail.js');   // or './js/rail.js' if you prefer relative
+              await window.Rail?.init(el);
+            } catch (e) {
+              console.error("Failed to load rail.js", e);
+            }
+          }
+
+          el.dataset.railInited = "true";
+
+          if (typeof initAnimations === "function") initAnimations();
+          document.dispatchEvent(new CustomEvent('rail:ready', { detail: { el } }));
         }
       }
 
@@ -49,6 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   include("header", "./src/header.html");
+  include("events-rail", "./src/rail.html");
   include("contact-form", "./src/contact-form.html");
   include("footer", "./src/footer.html");
 });
