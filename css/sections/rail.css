@@ -37,9 +37,9 @@
 .c-rail__header {
     display: flex;
     justify-content: space-evenly;
-    align-items: end;
+    align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem
+    margin-bottom: 1rem;
 }
 
 .c-rail__title {
@@ -233,7 +233,7 @@
 }
 
 .c-rail__media {
-    flex: 0 0 38%;
+    flex: 0 0 44%;
     background: #000;
     overflow: hidden
 }
@@ -265,13 +265,13 @@
 .c-rail__title-sm {
     margin: 0;
     font-family: var(--font-base);
-    font-weight: var(--fw-extrabold, 800);
+    font-weight: var(--fw-extrabold);
     line-height: 1.15;
     font-size: var(--fs-md)
 }
 
 .c-rail__meta {
-    font-size: var(--fs-sm);
+    font-size: var(--fs-md);
     opacity: .96
 }
 
