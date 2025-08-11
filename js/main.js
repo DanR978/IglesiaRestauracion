@@ -145,7 +145,7 @@ const initAnimations = () => {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.9 });
+  }, { threshold: 0.4 });
 
   document.querySelectorAll('[class*="animate-"]').forEach(el => observer.observe(el));
 };
@@ -190,7 +190,7 @@ function setupDirectionsButton({
 
 
 /* ============================
-   🔔 Toast with close (×)
+   🔔 Toast with close (×) — animated
    ============================ */
 function showToast(msg, { ok = true, ms = 2400 } = {}) {
   const root =
@@ -221,6 +221,7 @@ function showToast(msg, { ok = true, ms = 2400 } = {}) {
   el.appendChild(btn);
   root.appendChild(el);
 
+  // enter animation
   requestAnimationFrame(() => el.classList.add("show"));
 
   const timer = ms ? setTimeout(remove, ms) : null;
@@ -228,14 +229,15 @@ function showToast(msg, { ok = true, ms = 2400 } = {}) {
 
   function remove() {
     if (timer) clearTimeout(timer);
+    // leave animation
     el.classList.remove("show");
-    el.addEventListener("transitionend", () => el.remove(), { once: true });
+    el.classList.add("hide");
+    el.addEventListener("animationend", () => el.remove(), { once: true });
   }
 }
 
 /* ============================
-   🧩 Checkbox CAPTCHA popup
-   - Returns Promise<boolean>
+   🧩 Checkbox CAPTCHA popup — animated
    ============================ */
 function runCheckboxCaptchaModal() {
   return new Promise((resolve) => {
@@ -274,8 +276,13 @@ function runCheckboxCaptchaModal() {
     check.addEventListener("change", () => setEnabled(check.checked));
 
     function cleanup(ok) {
+      // trigger leave animations on both backdrop and modal
       bd.classList.remove("show");
-      bd.addEventListener("transitionend", () => bd.remove(), { once: true });
+      bd.classList.add("hide");
+      md.classList.add("leaving"); // (not strictly needed, but explicit)
+
+      // remove after modal spin-out ends
+      md.addEventListener("animationend", () => bd.remove(), { once: true });
       document.removeEventListener("keydown", onEsc);
       resolve(!!ok);
     }
@@ -289,18 +296,53 @@ function runCheckboxCaptchaModal() {
 
     bd.appendChild(md);
     document.body.appendChild(bd);
+
+    // enter animation
     requestAnimationFrame(() => bd.classList.add("show"));
     check.focus();
   });
 }
 
+
 /* ============================
-   ✅ Validators
+   ✅ Validators (Email/Name/Phone)
    ============================ */
-const isValidEmail   = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((v || "").trim());
-const isValidUSPhone = (v) => (v || "").replace(/\D/g, "").length === 11;
-// Allows letters (incl. accents), spaces, apostrophes, hyphens; min 2 chars.
-const isValidName    = (v) => /^[A-Za-zÀ-ÖØ-öø-ÿ'’\-\s]{2,}$/.test((v || "").trim());
+
+// Email
+const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((v || "").trim());
+
+// US phone helpers (NANP basic rules, no deps)
+// → returns "+1XXXXXXXXXX" or null
+function normalizeUSPhone(v) {
+  if (!v) return null;
+  let digits = String(v).replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  if (digits.length !== 10) return null;
+
+  const area = digits.slice(0, 3);
+  const exch = digits.slice(3, 6);
+  const line = digits.slice(6);
+
+  // NANP basics: area & exchange can't start with 0 or 1
+  if (!/^[2-9]\d{2}$/.test(area)) return null;
+  if (!/^[2-9]\d{2}$/.test(exch)) return null;
+
+  return `+1${area}${exch}${line}`;
+}
+
+// Boolean validator using the normalizer
+const isValidUSPhone = (v) => normalizeUSPhone(v) !== null;
+
+// Allows letters (incl. accents), spaces, apostrophes, hyphens; min 3 chars.
+const isValidName = (v) => /^[A-Za-zÀ-ÖØ-öø-ÿ'’\-\s]{3,}$/.test((v || "").trim());
+
+/* Optional: format US phone for display (national) */
+function formatUSPhoneNational(v) {
+  const e164 = normalizeUSPhone(v);
+  if (!e164) return v ?? "";
+  const d = e164.slice(2); // strip +1
+  return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+}
 
 /* ============================
    ✍️ Character counter helper
@@ -327,10 +369,9 @@ function setupMessageCounter(form, { minChars = 20, defaultMax = 300 } = {}) {
   counter.style.right = "10px";
   counter.style.fontSize = "12px";
   counter.style.color = "var(--color-black)";
-  counter.style.opacity
+  counter.style.opacity = "0.8";
   counter.style.pointerEvents = "none";
   counter.textContent = `0 / ${field.maxLength}`;
-  
   parent.appendChild(counter);
 
   // Update counter
@@ -343,7 +384,6 @@ function setupMessageCounter(form, { minChars = 20, defaultMax = 300 } = {}) {
 
   return { minChars };
 }
-
 
 /* ============================
    ✉️  AJAX wiring for FormSubmit
@@ -384,28 +424,41 @@ function attachAjaxToForm(form) {
     if (busy) return;
     busy = true;
 
-    const email = form.querySelector('input[type="email"]')?.value || "";
-    const phone = form.querySelector('input[type="tel"]')?.value || "";
-    const name  = form.querySelector("#first-name")?.value || "";
-    const msg   = form.querySelector("#message")?.value || "";
+    const emailEl = form.querySelector('input[type="email"]');
+    const phoneEl = form.querySelector('input[type="tel"]');
+    const nameEl  = form.querySelector("#first-name");
+    const msgEl   = form.querySelector("#message");
+
+    const email = emailEl?.value || "";
+    const phone = phoneEl?.value || "";
+    const name  = nameEl?.value || "";
+    const msg   = msgEl?.value || "";
 
     // ✅ Enhanced validations
     if (!isValidName(name)) {
-      showToast("Por favor ingresa un nombre válido (mínimo 2 letras).", { ok: false });
+      showToast("Por favor ingresa un nombre válido (mínimo 3 letras).", { ok: false });
       busy = false; return;
     }
     if (!isValidUSPhone(phone)) {
-      showToast("El teléfono debe tener 10 dígitos (EE. UU.).", { ok: false });
+      showToast("El teléfono debe ser un número válido de EE. UU. (10 dígitos).", { ok: false });
       busy = false; return;
     }
     if (!isValidEmail(email)) {
-      showToast("Por favor ingresa un email válido.", { ok: false });
+      showToast("Por favor ingresa un correo electronico válido.", { ok: false });
       busy = false; return;
     }
     if (msg.trim().length < MIN_MSG_CHARS) {
       showToast(`El mensaje debe tener al menos ${MIN_MSG_CHARS} caracteres.`, { ok: false });
       busy = false; return;
     }
+
+    // Normalize phone to E.164 before submit so your backend/spreadsheet gets a clean value
+    const normalizedPhone = normalizeUSPhone(phone);
+    if (!normalizedPhone) {
+      showToast("El teléfono no es válido.", { ok: false });
+      busy = false; return;
+    }
+    if (phoneEl) phoneEl.value = normalizedPhone;
 
     // Run CAPTCHA popup
     const human = await runCheckboxCaptchaModal();
@@ -456,7 +509,6 @@ function initContactFormWiring() {
   });
   mo.observe(host, { childList: true, subtree: true });
 }
-
 
 
 

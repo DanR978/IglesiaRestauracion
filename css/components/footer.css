@@ -108,15 +108,23 @@
 .contact-card {
   min-width: 300px;
   max-width: 320px;
-  padding: var(--pd-md);
+  padding: var(--pd-md) var(--pd-sm);
   text-align: center;
   background-color: var(--color-primary);
   border-radius: 40px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
+.contact-card__logo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem;
+}
+
 .glass-effect svg {
-  margin-bottom: var(--pd-md);
+  margin-bottom: var(--pd-lg);
   width: 60px;
   height: auto;
 }
