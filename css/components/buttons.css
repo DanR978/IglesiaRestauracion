@@ -163,7 +163,7 @@
 @media (max-width: 768px) {
   .ird-btn--donate  {
     font-size: var(--size-md);
-    width: 15rem;
+    width: 50%;
   }
 }
 

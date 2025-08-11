@@ -10,6 +10,7 @@
   --color-darkmode-font: #c2e6ff;
 
   --color-bg-light: #121c1f !important;
+  --mobile-menu-bg: #ffffff;
 
   --color-0: #000000;
   --color-5: #090f11;
@@ -101,6 +102,7 @@
     --color-darkmode-font: #e6faff;
 
     --color-bg-light: #121c1f;
+    --mobile-menu-bg: #121c1f;
 
     --color-0: #ffffff;
     --color-5: #eef5f6;
