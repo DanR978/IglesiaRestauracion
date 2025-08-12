@@ -66,7 +66,7 @@ function renderCard(ev){
         ${tag}
         <h3 class="c-rail__title-sm">${ev.title}</h3>
         <p class="c-rail__meta">
-          <span>• ${fmtDate(ev.date)}</span><br>${ev.time ? ` • <span>${ev.time}</span><br>`:""}${ev.location ? ` • <span>${ev.location}</span>`:""}
+          <span>${fmtDate(ev.date)}</span><br>${ev.time ? ` <span>${ev.time}</span><br>`:""}${ev.location ? ` <span>${ev.location}</span>`:""}
         </p>
         ${cta}
       </div>
