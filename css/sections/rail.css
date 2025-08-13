@@ -36,30 +36,29 @@
 /* header & tabs */
 .c-rail__header {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 6rem;
+    margin-bottom: 2rem;
 }
 
 .c-rail__title {
-    margin: 0;
+    margin-block: 0;
     font-family: var(--font-base);
-    font-weight: var(--fw-extrabold, 800);
-    font-size: var(--fs-xl);
+    font-weight: var(--fw-extrabold);
+    font-size: var(--fs-lg);
     color: var(--color-black)
 }
 
 .c-rail__tabs {
     display: flex;
     gap: .5rem;
-    flex-wrap: wrap
 }
 
 .c-rail__tab {
     appearance: none;
     border: none;
-    background: transparent;
+    background-color: transparent;
     color: var(--color-black);
     padding: .5rem .85rem;
     border-radius: 999px;
@@ -74,7 +73,7 @@
 }
 
 .c-rail__tab.is-active {
-    background: var(--color-75);
+    background-color: var(--color-75);
 }
 
 /* rails */
@@ -128,7 +127,7 @@
     height: 36px;
     border: none;
     border-radius: 999px;
-    /* background: var(--rail-surface); */
+    /* background-color: var(--rail-surface); */
     color: var(--color-95);
     cursor: pointer;
     font-size: 18px;
@@ -179,11 +178,11 @@
     overflow: auto;
     padding-block: calc(var(--rail-pad)*1.6);
     padding-inline: var(--rail-pad);
-    padding-left:  var(--edge-pad-left,  var(--rail-pad));
+    padding-left: var(--edge-pad-left, var(--rail-pad));
     padding-right: var(--edge-pad-right, var(--rail-pad));
     /* set by JS */
     border-radius: var(--rail-radius);
-    background: var(--trnasparent);
+    background-color: var(--trnasparent);
     cursor: grab;
     overscroll-behavior-inline: contain;
     -webkit-tap-highlight-color: transparent;
@@ -234,7 +233,7 @@
 
 .c-rail__media {
     flex: 0 0 44%;
-    background: #000;
+    background-color: var(--transparent);
     overflow: hidden
 }
 
@@ -259,11 +258,11 @@
     font-size: var(--fs-xxs);
     padding: .25rem .55rem;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .18)
+    background-color: rgba(255, 255, 255, .18)
 }
 
 .c-rail__title-sm {
-    margin: 0;
+    /* margin: 0; */
     font-family: var(--font-base);
     font-weight: var(--fw-extrabold);
     line-height: 1.15;
@@ -300,4 +299,55 @@
     color: var(--color-black);
     transform: translateY(-2px);
     transition: transform .4s ease, background-color .4s ease;
+}
+
+.c-rail__remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background-color: #ef4444;
+    color: #fff;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, .25);
+}
+
+.c-rail__remove:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+/* center the add button under the rail */
+.c-rail__actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+
+@media (max-width: 480px) {
+    .c-rail__title {
+        font-size: var(--fs-lg);
+    }
+
+    .c-rail__tab {
+        font-size: var(--fs-sm);
+        padding: .4rem .7rem;
+    }
+
+    .c-rail__header {
+        gap: 1rem;
+    }
+}
+
+body:not(.is-admin) .c-rail__remove,
+body:not(.is-admin) .js-rail-add {
+    display: none !important;
 }

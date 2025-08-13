@@ -1,0 +1,55 @@
+<div id="loginModal" class="login-modal" aria-hidden="true" data-backdrop>
+  <div class="login-dialog" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <button type="button" class="login-close" aria-label="Cerrar" data-close>×</button>
+
+    <div class="login-container" id="loginContainer">
+      <!-- SIGN IN -->
+      <div class="login-pane login-pane--sign-in">
+        <form class="login-form" id="loginForm" action="#" autocomplete="on" novalidate>
+          <h1 id="loginTitle" class="login-title">Iniciar sesión</h1>
+          <p class="login-muted">Usa tu cuenta para continuar</p>
+
+          <input id="loginEmail" class="login-input" name="email" type="email"
+                 placeholder="E-mail" autocomplete="email" required>
+          <input id="loginPassword" class="login-input" name="password" type="password"
+                 placeholder="Contraseña" autocomplete="current-password" required>
+
+          <a href="#" class="login-link" aria-disabled="true">¿Olvidaste tu contraseña?</a>
+
+          <div class="login-actions">
+            <button class="ird-btn ird-btn--donate" id="loginSubmit" type="submit">Entrar</button>
+          </div>
+
+          <div class="login-msg" id="loginMsg" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+
+      <!--
+      SIGN UP (commented out for now)
+      <div class="login-pane login-pane--sign-up">
+        <form class="login-form" action="#" autocomplete="on" novalidate>
+          <h1 class="login-title">Crear cuenta</h1>
+          <p class="login-muted">o usa tu correo para registrarte</p>
+          <input class="login-input" type="text" placeholder="Nombre" />
+          <input class="login-input" type="email" placeholder="Email" />
+          <input class="login-input" type="password" placeholder="Contraseña" />
+          <button class="login-btn" type="submit">Registrarme</button>
+        </form>
+      </div>
+
+      <div class="login-overlay" aria-hidden="true">
+        <div class="login-overlay__panel login-overlay__panel--left">
+          <h2 class="login-title">¡Bienvenido de nuevo!</h2>
+          <p>Para mantenerte conectado, inicia sesión con tu información personal.</p>
+          <button class="login-btn login-btn--ghost" id="loginGoSignIn" type="button">Iniciar sesión</button>
+        </div>
+        <div class="login-overlay__panel login-overlay__panel--right">
+          <h2 class="login-title">¡Hola!</h2>
+          <p>Ingresa tus datos y comienza el camino con nosotros.</p>
+          <button class="login-btn login-btn--ghost" id="loginGoSignUp" type="button">Crear cuenta</button>
+        </div>
+      </div>
+      -->
+    </div>
+  </div>
+</div>

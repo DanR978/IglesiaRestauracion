@@ -77,6 +77,23 @@
               0 0 120px -10px var(--color-secondary);
 }
 
+.ird-btn--add {
+  text-decoration: none;
+  color: var(--color-white);
+  background-color: var(--color-add);
+  box-shadow: 0 5px 20px rgba(114, 187, 114, 0.5),
+              0 4px 10px rgba(114, 187, 114, 0.5),
+              0 0 100px -10px var(--color-add);
+}
+.ird-btn--add:hover {
+  text-decoration: none;
+  color: var(--color-white);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 28px rgba(114, 187, 114, 0.25),
+              0 10px 10px rgba(114, 187, 114, 0.22),
+              0 0 120px -10px var(--color-add);
+}
+
 /* === Outline Modifier (Base) === */
 .ird-btn--outline {
   background-color: transparent;

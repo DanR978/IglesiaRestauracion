@@ -1,0 +1,216 @@
+/* === Backdrop =========================================================== */
+.ev-backdrop {
+    position: fixed;
+    inset: 0;
+    padding: 20px;
+    /* breathing room around dialog */
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, .55);
+    z-index: var(--z-max, 10000);
+    opacity: 0;
+    transition: opacity .2s ease;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(1px);
+    /* subtle polish (ignored if unsupported) */
+}
+
+.ev-backdrop.show {
+    opacity: 1;
+}
+
+/* Prevent page scrolling while modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* === Dialog ============================================================= */
+.ev-modal {
+    width: min(92vw, 720px);
+    max-height: calc(100dvh - 48px);
+    /* never taller than viewport */
+    overflow: auto;
+    /* modal scrolls internally */
+    border-radius: 16px;
+    background: var(--color-dark, #0b1220);
+    color: var(--color-white, #e5e7eb);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .45);
+    padding: 20px;
+    transform: translateY(6px);
+    transition: transform .2s ease;
+}
+
+.ev-backdrop.show .ev-modal {
+    transform: translateY(0);
+}
+
+/* Smooth inertial scrolling on iOS */
+.ev-modal::-webkit-scrollbar {
+    width: 10px;
+}
+
+.ev-modal::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, .15);
+    border-radius: 10px;
+}
+
+.ev-modal::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Reduced-motion users: skip fancy bits */
+@media (prefers-reduced-motion: reduce) {
+    .ev-backdrop {
+        transition: none;
+    }
+
+    .ev-modal {
+        transition: none;
+        transform: none;
+    }
+}
+
+/* Title */
+.ev-modal__title {
+    margin: 0 0 10px;
+    font-weight: 800;
+    font-size: 1.25rem;
+}
+
+/* === Form grid ========================================================== */
+.ev-form {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 16px;
+}
+
+.ev-form .form-group {
+    display: grid;
+    gap: 6px;
+    grid-column: span 1;
+}
+
+.ev-form .form-group label {
+    font-weight: 600;
+    color: var(--color-white, #e5e7eb);
+}
+
+/* full-width helpers */
+.ev-form .form-group--full {
+    grid-column: 1 / -1;
+}
+
+.ev-form>.form-group:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+}
+
+.ev-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+/* Smaller screens: single column */
+@media (max-width: 400px) {
+    .ev-form {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Inputs follow your dark theme */
+input, textarea, select {
+    color-scheme: dark;
+}
+
+/* Date input: keep text visible & tint calendar icon (WebKit/Blink) */
+.login-input[type="date"]::-webkit-datetime-edit {
+    color: inherit;
+}
+
+.login-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(35%) sepia(60%) saturate(600%) hue-rotate(140deg) brightness(95%) contrast(95%);
+}
+
+/* Keyboard focus for elements inside modal */
+.ev-modal :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-65, #4e8897) 70%, white);
+    outline-offset: 2px;
+    border-radius: 6px;
+}
+
+/* === Dropzone =========================================================== */
+/* NOTE: rgba(var(--color-black), .25) won’t work unless --color-black is "r,g,b".
+   We provide a safe fallback + color-mix for when RGB custom prop exists. */
+.ev-dropzone {
+    border: 1px dashed rgba(0, 0, 0, .25);
+    border: 1px dashed color-mix(in srgb, var(--color-black, #000) 25%, transparent);
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: var(--transparent, transparent);
+    outline: none;
+    min-height: 56px;
+}
+
+.ev-dropzone.is-hovered {
+    background: rgba(255, 255, 255, .06);
+}
+
+.ev-dropzone.is-dim {
+    opacity: .6;
+}
+
+.ev-dropzone__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: #eef2f7;
+    color: #222;
+}
+
+.ev-browse {
+    background: none;
+    border: 0;
+    color: var(--color-65, #4e8897);
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font: inherit;
+}
+
+/* === Preview ============================================================ */
+.ev-preview {
+    display: none;
+    margin-top: 10px;
+    position: relative;
+}
+
+.ev-preview.is-visible {
+    display: block;
+}
+
+.ev-preview__img {
+    width: 100%;
+    height: auto;
+    max-height: min(55vh, 520px);
+    /* cap the image so dialog never explodes */
+    object-fit: cover;
+    border-radius: 12px;
+    display: block;
+}
+
+.ev-preview__remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 6px 10px;
+    border-radius: 10px;
+}

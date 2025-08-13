@@ -451,6 +451,7 @@ body.no-scroll {
 .icon-btn:hover {
   transform: translateY(-3px);
   color: var(--color-white);
+  cursor: pointer ;
   box-shadow: 0 14px 28px rgba(217, 140, 89, 0.25),
               0 10px 10px rgba(217, 140, 89, 0.22),
               0 0 120px -10px var(--color-secondary);
