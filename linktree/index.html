@@ -1,38 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Essentials -->
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iglesia Restauración Divina - Enlaces</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="robots" content="index, follow">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- SEO -->
+  <title>Enlaces | Iglesia Restauración Divina</title>
+  <meta name="description"
+        content="Todos nuestros enlaces en un solo lugar: Sitio web, Facebook, TikTok, YouTube e Instagram. Abre dentro de la app en redes sociales.">
+  <meta name="keywords"
+        content="iglesia en Lexington KY, iglesia cristiana Lexington, Restauración Divina, iglesia evangélica, Jesús, comunidad cristiana, adoración, salvación, iglesia latina en Kentucky, iglesia hispana, iglesia pentecostal, enlaces, linktree">
+  <meta name="author" content="Iglesia Restauración Divina">
+  <meta name="google-site-verification" content="9Ggof1MzUF_y5AMkQwUIHV3WxHoQ-c7EHa_3lsJlBZE">
+
+  <!-- Favicon -->
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+
+  <!-- Share Preview (use the links page as canonical) -->
+  <link rel="canonical" href="https://www.irdlex.org/links">
+  <meta property="og:site_name" content="Iglesia Restauración Divina">
+  <meta property="og:title" content="Enlaces — Iglesia Restauración Divina">
+  <meta property="og:url" content="https://www.irdlex.org/links">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Accede rápido a nuestro Sitio Web, Facebook, TikTok, YouTube e Instagram.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Enlaces — Iglesia Restauración Divina">
+  <meta name="twitter:description" content="Todos nuestros enlaces en un solo lugar.">
+  <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/churchLogo_coloredBG.png">
+
+  <!-- Base URL for relative paths -->
+  <base href="/">
+
+  <!-- Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" href="/css\pages\linktree.css">
-  <link rel="stylesheet" href="/css\animations.css">
+
+  <!-- Your site styles (optional if you want global styles) -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Minimal inline animation fallback (in case external CSS is cached/blocked) -->
+  <style>
+    :root{ --stagger-step:140ms; --fade-ease:cubic-bezier(.22,.61,.36,1); }
+    .fade-in{ opacity:0; transform:translateY(14px); animation:fadeInUp .55s var(--fade-ease) forwards; }
+    @keyframes fadeInUp{ to{ opacity:1; transform:translateY(0); } }
+    @media (prefers-reduced-motion: reduce){ .fade-in{ animation:none; opacity:1; transform:none; } }
+  </style>
+
+  <!-- Structured Data (kept, but url points to this page) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Church",
+    "name": "Iglesia Restauración Divina",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "2601 Clays Mill Rd",
+      "addressLocality": "Lexington",
+      "addressRegion": "KY",
+      "postalCode": "40503"
+    },
+    "telephone": "+1 859 270 8521",
+    "url": "https://www.irdlex.org/links",
+    "sameAs": [
+      "https://www.facebook.com/iglesia.restauracion2016/",
+      "https://www.instagram.com/iglesiarestauracion.divina",
+      "https://www.tiktok.com/@iglesia.restaurac91",
+      "https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw"
+    ]
+  }
+  </script>
+
+  <!-- Optional dev guard + main -->
+  <script src="/js/dev/preview-guard.js"></script>
+  <script type="module" src="/js/main.js"></script>
 </head>
+
 <body>
+  <main class="lt">
+    <div class="linktree-container fade-in">
+      <h1 class="lt-title">Iglesia Restauración Divina</h1>
 
-  <div class="linktree-container fade-in">
-    <h1>Iglesia Restauración Divina</h1>
-    <div class="links">
-      <a href="https://www.irdlex.org" target="_blank" class="btn fade-in" aria-label="Website" >
-        <i class="fas fa-globe"></i>Sitio Web
-      </a>
-      <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" class="btn fade-in" aria-label="Facebook">
-        <i class="fab fa-facebook-f"></i> Facebook
-      </a>
-      <a href="https://www.tiktok.com/@iglesia.restaurac91" target="_blank" class="btn fade-in" aria-label="TikTok">
-        <i class="fab fa-tiktok"></i> TikTok
-      </a>
-      <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" class="btn fade-in" aria-label="YouTube">
-        <i class="fab fa-youtube"></i> YouTube
-      </a>
-      <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" class="btn fade-in" aria-label="Instagram">
-        <i class="fab fa-instagram"></i> Instagram
-      </a>
-      <div class="spacer"></div>
-      <h1 class="connect fade-in"> CONECTATE</h1>
+      <div class="links">
+        <a href="https://www.irdlex.org" target="_blank" rel="noopener noreferrer"
+           class="btn fade-in" aria-label="Website">
+          <i class="fas fa-globe"></i> Sitio Web
+        </a>
+
+        <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" rel="noopener noreferrer"
+           class="btn fade-in" aria-label="Facebook">
+          <i class="fab fa-facebook-f"></i> Facebook
+        </a>
+
+        <a href="https://www.tiktok.com/@iglesia.restaurac91" target="_blank" rel="noopener noreferrer"
+           class="btn fade-in" aria-label="TikTok">
+          <i class="fab fa-tiktok"></i> TikTok
+        </a>
+
+        <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" rel="noopener noreferrer"
+           class="btn fade-in" aria-label="YouTube">
+          <i class="fab fa-youtube"></i> YouTube
+        </a>
+
+        <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" rel="noopener noreferrer"
+           class="btn fade-in" aria-label="Instagram">
+          <i class="fab fa-instagram"></i> Instagram
+        </a>
+
+        <div class="spacer"></div>
+        <h2 class="lt-connect fade-in">CONÉCTATE</h2>
+      </div>
     </div>
-  </div>
+  </main>
 
+  <script type="module" src="/js/main.js"></script>
 </body>
-<script type="module" src="/js/main.js"></script>
+
 </html>

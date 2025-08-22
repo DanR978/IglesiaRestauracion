@@ -38,3 +38,8 @@
    ANIMATIONS
 ================================ */
 @import url('./animations.css');
+
+/* ================================
+   PAGES STYLES
+================================ */
+@import url("./pages/linktree.css");

@@ -1,66 +1,65 @@
-@import url("../variables/colors.css");
-@import url("../variables/typography.css");
-
-:root{
-  --stagger-step: 340ms;                 /* time between each item */
-  --fade-ease: cubic-bezier(.22,.61,.36,1);
+/* Local custom props scoped to this page only */
+.lt {
+  --stagger-step: 340ms;
+  --fade-ease: cubic-bezier(.22, .61, .36, 1);
 }
-/* Basic reset */
-* { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  font-family: Arial, sans-serif;
-  background: url("https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/images/linktree.png") no-repeat center center fixed;
-  background-size: cover;
+/* Page background + layout wrapper */
+.lt {
+  position: relative;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
   padding: 30px 15px;
-  position: relative;
+  background: url("https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/images/linktree.png") no-repeat center center fixed;
+  background-size: cover;
 }
 
-/* Optional: dark overlay for better readability */
-body::before {
+/* Dark overlay for readability */
+.lt::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.55);  /* adjust transparency */
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   z-index: 0;
 }
 
 /* Container */
-.linktree-container {
+.lt .linktree-container {
   max-width: 420px;
   width: 100%;
   text-align: center;
   position: relative;
-  z-index: 1;   /* keeps content above overlay */
+  z-index: 1;
+  /* above overlay */
 }
 
-/* Logo */
-.logo {
+/* Optional logo (kept here if you add it later) */
+.lt .logo {
   width: 100px;
   border-radius: 50%;
   margin-bottom: 15px;
-  border: 3px solid #fff;
+  border: 3px solid var(--color-white);
 }
 
-/* Title */
-h1 {
+/* Titles */
+.lt .lt-title {
+  margin: 2rem 0 0.5rem;
   font-size: var(--fs-2xl);
-  margin-bottom: 8px;
   font-family: var(--font-Signika);
   color: var(--color-white);
 }
 
-.connect {
-    font-size: var(--fs-2xl);
-    color: var(--color-white);
+.lt .lt-connect {
+  font-size: var(--fs-2xl);
+  font-family: var(--font-Signika);
+  color: var(--color-white);
+  margin: 0;
 }
 
-/* Links */
-.links {
+/* Links layout */
+.lt .links {
   display: flex;
   flex-direction: column;
   gap: 2rem;
@@ -69,91 +68,121 @@ h1 {
   max-height: 100%;
 }
 
-.btn {
+/* Buttons */
+.lt .btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background-color: var(--color-dark);  /* slightly transparent */
+  background-color: var(--color-dark);
   color: var(--color-white);
   text-decoration: none;
   padding: 14px;
   border-radius: 10px;
   font-weight: bold;
-  transition: transform 0.2s, background-color 0.3s;
+  transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
   width: 100%;
-  max-width: minmax(100%, 350px);
+  max-width: 350px;
+  /* fixed; replaced invalid minmax() usage */
+  margin: 0 auto;
+  /* center within column */
   font-family: var(--font-Signika);
 }
 
 /* Icon size */
-.btn i {
+.lt .btn i {
   font-size: 1.2rem;
 }
 
+/* Mobile title sizing */
 @media (max-width: 480px) {
-  .connect {
+  .lt .lt-connect {
     font-size: var(--fs-3xl);
-    font-family: var(--font-Signika);
   }
 }
 
-.btn[aria-label="Facebook"]:hover {
+/* Platform hover styles */
+.lt .btn[aria-label="Facebook"]:hover {
   background: #1877F2;
   box-shadow: 0 4px 10px rgba(24, 119, 242, 0.4);
   transform: translateY(3px);
   transition: background-color 0.7s, transform 0.5s, box-shadow 0.4s;
 }
-.btn[aria-label="TikTok"]:hover {
+
+.lt .btn[aria-label="TikTok"]:hover {
   background: linear-gradient(to right, #69C9D0, #EE1D52);
   box-shadow: 0 4px 10px rgba(238, 29, 82, 0.4);
   transform: translateY(3px);
   transition: background-color 0.7s, transform 0.5s, box-shadow 0.4s;
 }
 
-.btn[aria-label="YouTube"]:hover {
+.lt .btn[aria-label="YouTube"]:hover {
   background: #FF0000;
   box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4);
   transform: translateY(3px);
   transition: background-color 0.7s, transform 0.5s, box-shadow 0.4s;
 }
 
-.btn[aria-label="Instagram"]:hover {
+.lt .btn[aria-label="Instagram"]:hover {
   background: linear-gradient(to right, #833ab4, #fd1d1d, #fcb045);
   box-shadow: 0 4px 10px rgba(253, 29, 29, 0.4);
   transform: translateY(3px);
   transition: background-color 0.7s, transform 0.5s, box-shadow 0.4s;
 }
 
-.btn[aria-label="Website"]:hover {
+.lt .btn[aria-label="Website"]:hover {
   background: linear-gradient(to right, #2a6e4d, #34a853);
   box-shadow: 0 4px 10px rgba(15, 157, 88, 0.4);
   transform: translateY(3px);
   transition: background-color 0.7s, transform 0.5s, box-shadow 0.4s;
 }
 
-.fade-in{
+/* Animations */
+.lt .fade-in {
   opacity: 0;
-  /* transform: translateY(14px); */
+  transform: translateY(14px);
   animation: fadeInUp .55s var(--fade-ease) forwards;
 }
 
-/* cascade the buttons in order */
-.links > .btn:nth-of-type(1) { animation-delay: calc(var(--stagger-step) * 1); }
-.links > .btn:nth-of-type(2) { animation-delay: calc(var(--stagger-step) * 2); }
-.links > .btn:nth-of-type(3) { animation-delay: calc(var(--stagger-step) * 3); }
-.links > .btn:nth-of-type(4) { animation-delay: calc(var(--stagger-step) * 4); }
-.links > .btn:nth-of-type(5) { animation-delay: calc(var(--stagger-step) * 5); }
-
-/* then the CONNECTATE header after the buttons */
-.connect.fade-in { animation-delay: calc(var(--stagger-step) * 6); }
-
-/* keyframes */
-@keyframes fadeInUp{
-  to { opacity: 1; transform: translateY(0); }
+/* Cascading order */
+.lt .links>.btn:nth-of-type(1) {
+  animation-delay: calc(var(--stagger-step) * 1);
 }
 
-/* respect reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .fade-in{ animation: none; opacity: 1; transform: none; }
+.lt .links>.btn:nth-of-type(2) {
+  animation-delay: calc(var(--stagger-step) * 2);
+}
+
+.lt .links>.btn:nth-of-type(3) {
+  animation-delay: calc(var(--stagger-step) * 3);
+}
+
+.lt .links>.btn:nth-of-type(4) {
+  animation-delay: calc(var(--stagger-step) * 4);
+}
+
+.lt .links>.btn:nth-of-type(5) {
+  animation-delay: calc(var(--stagger-step) * 5);
+}
+
+/* CONNECTATE comes after buttons */
+.lt .lt-connect.fade-in {
+  animation-delay: calc(var(--stagger-step) * 6);
+}
+
+/* Keyframes (global by spec, but harmless) */
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .lt .fade-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
