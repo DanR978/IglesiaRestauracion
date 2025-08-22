@@ -11,16 +11,6 @@
     return true;
   };
 
-  // Re-exec <script> tags inside injected HTML (optional but safer if your
-  // header/rail/footer contain scripts). If you don't need this, you can drop it.
-  const reexecuteScripts = (root) => {
-    root.querySelectorAll("script").forEach((s) => {
-      const ns = document.createElement("script");
-      for (const a of s.attributes) ns.setAttribute(a.name, a.value);
-      ns.textContent = s.textContent;
-      s.replaceWith(ns);
-    });
-  };
 
   // run UI init only once globally
   let uiInitDone = false;
@@ -47,7 +37,6 @@
 
     // Use a fragment so we can re-exec scripts
     const frag = document.createRange().createContextualFragment(html);
-    reexecuteScripts(frag);
 
     host.replaceChildren(frag);
     console.log(`Loaded ${file} into #${id}`);
