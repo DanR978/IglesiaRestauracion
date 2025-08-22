@@ -5,11 +5,11 @@
   background-color: var(--color-dark);
 }
 
-.footer-dark h3 {
-  margin-top:0;
-  margin-bottom:12px;
-  font-weight:bold;
-  font-size: clamp(1.4rem, 2vw + 0.6rem, 1.75rem);
+.footer__subheading  {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-2xl);
   padding: var(--pd-auto);
 }
 
@@ -152,11 +152,11 @@
 
 .footer-grid {
   display: grid;
-  gap: var(--gap-lg);
-  padding: var(--pd-lg);
+  gap: var(--size-xl);
+  padding: var(--pd-md);
   justify-content: center;
   align-items: start;
-  max-width: 1200px;
+  max-width: 70%;
   margin: 0 auto;
 }
 
@@ -214,5 +214,19 @@
 
   .footer-section.glass-effect {
     grid-column: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer__subheading {
+    font-size: var(--fs-xl);
+  }
+
+  .left-group {
+    margin-left: 1rem;
+  }
+
+  .footer-section.iglesia {
+    margin: 1rem;
   }
 }

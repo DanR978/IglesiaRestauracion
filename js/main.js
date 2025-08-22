@@ -1,3 +1,4 @@
+const PASSIVE = { passive: true };
 // /js/main.js  (ES module)
 import IRDns from './core/ird.js';
 import * as Toast from './lib/toast.js';
@@ -53,7 +54,7 @@ document.addEventListener('header:ready', () => {
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 // 1) Configure your Supabase project (Project Settings → API)
-//    ⚠️ Use the *anon* public key here (not the service role key).
+//    Use the *anon* public key here (not the service role key).
 const SUPABASE_URL = "https://snqwxgyhfiinouewxgiy.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo";
 

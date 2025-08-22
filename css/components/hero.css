@@ -22,23 +22,22 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 1.2rem;
 }
 
-.hero-content h2 {
+.hero-content .hero-kicker {
   font-size: var(--fs-xs);
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   margin-bottom: 10px;
   color: var(--color-white);
 }
 
-.hero-content h1 {
+.hero-content .hero-title {
   font-size: var(--fs-xl);
   font-weight: var(--fw-bold);
   color: var(--color-white);
   line-height: 1.2;
-  white-space: nowrap;  
-  overflow: hidden;     
-  text-overflow: ellipsis;     
-  max-width: 90vw;          
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90vw;
 }

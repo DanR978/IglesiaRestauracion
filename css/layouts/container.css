@@ -21,7 +21,9 @@
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  /* width: clamp(330px, 60vw, 800px); */
+  margin: var(--mg-sm);
+  width: minmax(100%, 500px);
+  max-width: 100%;
 }
 
 .temp-default {
@@ -58,7 +60,7 @@
   text-align: center;
 }
 
-.service-description {
+.service-address {
   font-size: var(--fs-xs);
   color: var(--color-white);
   font-family: var(--font-Helvetica-Neue);
@@ -72,11 +74,11 @@
   justify-content: center;
   align-items: center;
 }
-.content h5 {
+.service-time {
   color: var(--color-white);
   font-family: var(--font-DM-Sans);
   font-weight: var(--fw-semibold);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   letter-spacing: 1px;
   text-align: center;
 }
