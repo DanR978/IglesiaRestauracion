@@ -127,22 +127,22 @@ sb.channel("events-changes")
 setInterval(refreshRailFromSupabase, 120000);
 
 // Quick helper to insert an event into Supabase
-async function quickAddEvent() {
-  try {
-    const { error } = await sb.from("events").insert({
-      title: "Devocional",
-      tag: "Adoración/Convivio",
-      location: "2601 Clays Mill Rd",
-      image_url: "https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/events-images/devocional.png",
-      starts_at: new Date("2025-09-06T10:00:00").toISOString() // Aug 30, 2025 at 7:00 PM
-    });
-    if (error) throw error;
-    console.log("✅ Event added successfully");
-    await refreshRailFromSupabase?.(); // refresh your UI
-  } catch (err) {
-    console.error("❌ Failed to add event:", err.message);
-  }
-}
+// async function quickAddEvent() {
+//   try {
+//     const { error } = await sb.from("events").insert({
+//       title: "Devocional",
+//       tag: "Adoración/Convivio",
+//       location: "2601 Clays Mill Rd",
+//       image_url: "https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/events-images/devocional.png",
+//       starts_at: new Date("2025-09-06T10:00:00").toISOString() // Aug 30, 2025 at 7:00 PM
+//     });
+//     if (error) throw error;
+//     console.log("✅ Event added successfully");
+//     await refreshRailFromSupabase?.(); // refresh your UI
+//   } catch (err) {
+//     console.error("❌ Failed to add event:", err.message);
+//   }
+// }
 
 // call this in the console for a quick insert:
-window.quickAddEvent = quickAddEvent;
+// window.quickAddEvent = quickAddEvent;

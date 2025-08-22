@@ -1,18 +1,21 @@
 // /js/include.js  (ES module)
-// Robust, idempotent partial loader with explicit readiness events.
-// NO login modal logic in this version.
+// Deterministic, sequential partial loader with reliable readiness events.
 
 (() => {
-  // --- small helpers ---------------------------------------------------------
-  const once = (obj, key) => {
-    if (!obj) return false;
-    if (obj.dataset?.[key]) return false;
-    if (obj.dataset) obj.dataset[key] = "1";
+  // ---------- tiny helpers ----------
+  const once = (node, key) => {
+    if (!node) return false;
+    if (node.dataset?.[key]) return false;
+    if (node.dataset) node.dataset[key] = "1";
     return true;
   };
+  const nextFrame = () => new Promise(r => requestAnimationFrame(r));
+  const emitReady = async (name, el) => { await nextFrame(); document.dispatchEvent(new CustomEvent(name, { detail: { el } })); };
 
+  // No script re-exec (partials must be markup-only)
+  const reexecuteScripts = () => {};
 
-  // run UI init only once globally
+  // Optional UI init (idempotent)
   let uiInitDone = false;
   const initUIOnce = async () => {
     if (uiInitDone) return;
@@ -20,123 +23,115 @@
       const ui = await import("/js/app/ui.js");
       ui.initAnimations?.();
       uiInitDone = true;
-    } catch {
-      /* optional UI module */
-    }
+    } catch {}
   };
 
-  // --- core include -----------------------------------------------------------
-  const include = async (id, file) => {
+  // Ensure rail module is present exactly once
+  const ensureRail = (() => {
+    let p;
+    return () => (p ??= (async () => {
+      if (!window.Rail?.init) {
+        const mod = await import("/js/components/rail.js");
+        if (!window.Rail) window.Rail = mod.default || mod;
+      }
+    })());
+  })();
+
+  // ---------- core include ----------
+  async function include(id, file, lifecycle) {
     const host = document.getElementById(id);
     if (!host) return;
 
+    // Avoid double-including the same host if something recalls include()
+    if (!once(host, "included")) return;
+
+    // Fetch + inject
     const res = await fetch(file, { cache: "no-store" });
     if (!res.ok) throw new Error(`Failed to fetch ${file}`);
-
     const html = await res.text();
-
-    // Use a fragment so we can re-exec scripts
     const frag = document.createRange().createContextualFragment(html);
-
+    reexecuteScripts(frag);
     host.replaceChildren(frag);
-    console.log(`Loaded ${file} into #${id}`);
+    // console.log(`Loaded ${file} into #${id}`);
 
-    // Per-partial post-load logic (idempotent)
-    switch (id) {
-      case "header": {
-        // hero image swap (if present)
-        const heroURL = host.getAttribute("data-hero");
-        const heroImg = host.querySelector(".hero");
-        if (heroImg && heroURL) heroImg.src = heroURL;
+    // Run per-part lifecycle hook (awaited)
+    if (typeof lifecycle === "function") {
+      await lifecycle(host);
+    }
+  }
 
-        await initUIOnce();
+  // ---------- lifecycles ----------
+  async function onHeader(host) {
+    const heroURL = host.getAttribute("data-hero");
+    const heroImg = host.querySelector(".hero");
+    if (heroImg && heroURL) heroImg.src = heroURL;
 
-        // Emit readiness so burger wiring can happen after injection
-        document.dispatchEvent(new CustomEvent("header:ready", { detail: { el: host } }));
-        break;
-      }
+    await initUIOnce();
+    await emitReady("header:ready", host);
+  }
 
-      case "events-rail": {
-        if (!once(host, "railInited")) break;
+  async function onRail(host) {
+    if (!once(host, "railInited")) return;
 
-        try {
-          // Ensure module present
-          if (!window.Rail?.init) {
-            const mod = await import("/js/components/rail.js");
-            // allow either default or named export to populate window.Rail
-            if (!window.Rail) window.Rail = mod.default || mod;
-          }
+    await ensureRail();
 
-          // Try inline JSON
-          const inline = host.querySelector("#events-data");
-          if (inline) {
-            try {
-              const data = JSON.parse(inline.textContent.trim());
-              if (Array.isArray(data) && data.length) {
-                window.Rail?.setEvents?.(data);
-                console.log(`[rail] Loaded ${data.length} events from inline JSON`);
-              } else {
-                console.warn("[rail] #events-data was empty or not an array");
-              }
-            } catch (e) {
-              console.error("[rail] Invalid JSON in #events-data", e);
-            }
-          }
-
-          await window.Rail?.init?.(host); // init rail for this section only
-          await initUIOnce();
-
-          document.dispatchEvent(new CustomEvent("rail:ready", { detail: { el: host } }));
-        } catch (e) {
-          console.error("[rail] init failed", e);
+    // If inline JSON exists, seed it
+    const inline = host.querySelector("#events-data");
+    if (inline) {
+      try {
+        const data = JSON.parse(inline.textContent.trim());
+        if (Array.isArray(data) && data.length) {
+          window.Rail?.setEvents?.(data);
+          // console.log(`[rail] seeded ${data.length} events from inline JSON`);
         }
-        break;
-      }
-
-      case "contact-form": {
-        await initUIOnce();
-
-        const form = host.querySelector('form[action*="formsubmit.co"]');
-        if (form && once(form, "ajaxWired")) {
-          try {
-            const forms = await import("/js/lib/forms.js");
-            forms.attachAjaxToForm(form);
-            document.dispatchEvent(new CustomEvent("contact:ready", { detail: { el: host, form } }));
-          } catch (e) {
-            console.error("[include] Failed to load forms.js", e);
-          }
-        }
-        break;
-      }
-
-      case "footer": {
-        await initUIOnce();
-        try {
-          const ui = await import("/js/app/ui.js");
-          ui.setCurrentYear?.();
-        } catch { /* optional */ }
-        document.dispatchEvent(new CustomEvent("footer:ready", { detail: { el: host } }));
-        break;
+      } catch (e) {
+        console.error("[rail] invalid #events-data JSON", e);
       }
     }
-  };
 
-  // --- boot sequence ----------------------------------------------------------
+    await window.Rail?.init?.(host);
+    await initUIOnce();
+    await emitReady("rail:ready", host);
+  }
+
+  async function onContactForm(host) {
+    await initUIOnce();
+    const form = host.querySelector('form[action*="formsubmit.co"]');
+    if (form && once(form, "ajaxWired")) {
+      try {
+        const forms = await import("/js/lib/forms.js");
+        forms.attachAjaxToForm(form);
+        await emitReady("contact:ready", host);
+      } catch (e) {
+        console.error("[include] Failed to load forms.js", e);
+      }
+    } else {
+      await emitReady("contact:ready", host);
+    }
+  }
+
+  async function onFooter(host) {
+    await initUIOnce();
+    try {
+      const ui = await import("/js/app/ui.js");
+      ui.setCurrentYear?.();
+    } catch {}
+    await emitReady("footer:ready", host);
+  }
+
+  // ---------- boot: strict sequence ----------
   document.addEventListener("DOMContentLoaded", async () => {
     try {
-      const tasks = [
-        include("header",       "/src/header.html"),
-        include("events-rail",  "/src/rail.html"),
-        include("contact-form", "/src/contact-form.html"),
-        include("footer",       "/src/footer.html"),
-        // login-modal intentionally removed
-      ];
+      // Load in deterministic order so dependents never race
+      await include("header",       "/src/header.html",       onHeader);
+      await include("events-rail",  "/src/rail.html",         onRail);
+      await include("contact-form", "/src/contact-form.html", onContactForm);
+      await include("footer",       "/src/footer.html",       onFooter);
 
-      await Promise.all(tasks);
-
-      // All includes are now in the DOM; emit a global ready signal.
+      // Give layout one extra frame, then signal global ready
+      await nextFrame();
       document.dispatchEvent(new Event("includes:ready"));
-      console.log("[include] all includes ready");
+      // console.log("[include] all includes ready");
     } catch (err) {
       console.error("[include] boot error:", err);
     }
