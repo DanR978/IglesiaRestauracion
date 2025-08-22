@@ -1,0 +1,213 @@
+/* ====== Tunable timing variables (non-color) ====== */
+:root {
+  --toast-enter-ms: 1000ms;
+  --toast-exit-ms: 1000ms;
+  --toast-ease-in: cubic-bezier(.22, .61, .36, 1);
+  --toast-ease-out: cubic-bezier(.4, 0, .2, 1);
+  --toast-enter-delay: 150ms;
+  /* delay before the slide-in starts */
+  --toast-exit-delay-auto: 1000ms;
+  /* pause before auto slide-out */
+
+  /* width controls */
+  --toast-minw: 300px;
+  --toast-maxw: 500px;
+  /* change to make it wider/narrower */
+  --toast-w: max-content;
+  /* or a fixed value like 360px */
+}
+
+/* Root (bottom-right on desktop, centered on mobile) */
+#toast-root {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  display: grid;
+  gap: 10px;
+  z-index: var(--z-max);
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  #toast-root {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+  }
+
+  .toast__msg {
+    font-size: var(--fs-lg);
+  }
+}
+
+/* Card base (neutral defaults) */
+.toast {
+  pointer-events: auto;
+  background-color: var(--color-white);
+  /* neutral = white */
+  color: var(--color-black);
+  /* neutral text */
+  border-radius: 12px;
+  padding: 12px 14px 12px 16px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .25), 0 2px 8px rgba(0, 0, 0, .18);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+
+  /* width */
+  width: var(--toast-w);
+  min-width: var(--toast-minw);
+  max-width: min(92vw, var(--toast-maxw));
+}
+
+/* Status backgrounds */
+.toast.ok {
+  background-color: #33d17a;
+  color: var(--color-white);
+}
+
+/* green bg, white content */
+.toast.err {
+  background-color: #ff5c5c;
+  color: var(--color-white);
+}
+
+/* red bg, white content */
+
+/* (Optional) drop accent stripe if you had one previously */
+.toast.ok, .toast.err {
+  border-left: 0;
+}
+
+/* Message text follows currentColor */
+.toast__msg {
+  margin: 0;
+  font-size: var(--fs-md);
+  color: currentColor;
+}
+
+/* Close button (SVG X) */
+.toast__close {
+  all: unset;
+  cursor: pointer;
+  line-height: 0;
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+}
+
+.toast__close:focus {
+  outline: none;
+}
+
+/* X icon inherits currentColor */
+.toast__icon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  /* <-- key: matches text color */
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease, background-color 0.2s ease;
+}
+
+/* Hover / Active — lighter overlay per status */
+.toast.ok .toast__close:hover,
+.toast.ok .toast__close:active {
+  background-color: rgba(51, 209, 122, 0.15);
+}
+
+.toast.err .toast__close:hover,
+.toast.err .toast__close:active {
+  background-color: rgba(255, 92, 92, 0.15);
+}
+
+.toast:not(.ok):not(.err) .toast__close:hover,
+.toast:not(.ok):not(.err) .toast__close:active {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Enter / Exit (keyframes + delays via vars) */
+.toast.show {
+  animation: slideInFromRightEdge var(--toast-enter-ms) var(--toast-ease-in) both;
+}
+
+.toast.hide {
+  animation: slideOutToRightEdge var(--toast-exit-ms) var(--toast-ease-out) both;
+}
+
+/* Only auto-dismiss should wait before sliding out */
+.toast.delayed-hide {
+  animation-delay: var(--toast-exit-delay-auto);
+}
+
+/* Optional: delay before entering (pacing) */
+.toast.delayed-enter {
+  animation-delay: var(--toast-enter-delay);
+}
+
+/* Desktop/tablet: slide from RIGHT edge */
+@keyframes slideInFromRightEdge {
+  from {
+    transform: translateX(calc(100% + 16px));
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutToRightEdge {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(calc(100% + 16px));
+    opacity: 0;
+  }
+}
+
+/* Mobile: when root is centered, slide from BOTTOM edge instead */
+@media (max-width: 768px) {
+  .toast.show {
+    animation: slideInFromBottomEdge var(--toast-enter-ms) var(--toast-ease-in) both;
+  }
+
+  .toast.hide {
+    animation: slideOutToBottomEdge var(--toast-exit-ms) var(--toast-ease-out) both;
+  }
+
+  @keyframes slideInFromBottomEdge {
+    from {
+      transform: translateY(calc(100% + 16px));
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutToBottomEdge {
+    from {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    to {
+      transform: translateY(calc(100% + 16px));
+      opacity: 0;
+    }
+  }
+}

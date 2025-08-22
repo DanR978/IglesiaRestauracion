@@ -319,7 +319,16 @@ body.no-scroll {
     flex-direction: column;
     gap: 0;
     width: 100%;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: stretch;
+    top: 50%;
+  }
+
+  /* optional: keep the closed state visually centered */
+  #mainNav.open {
+    padding-top: 30vh;
+    min-height: 100dvh;
+    overflow: auto;
   }
 
   .menu-item {

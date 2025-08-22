@@ -1,5 +1,5 @@
 import { showToast } from './toast.js';
-import { runCheckboxCaptchaModal } from './captcha.js';
+import { runCodeCaptchaModal } from './captcha.js';   // <-- updated name
 import { isValidEmail, isValidUSPhone, isValidName, normalizeUSPhone } from './validators.js';
 
 export function setupMessageCounter(form, { minChars = 20, defaultMax = 300 } = {}) {
@@ -29,7 +29,12 @@ export function attachAjaxToForm(form) {
   form.setAttribute("novalidate", "");
 
   let cap = form.querySelector('input[name="_captcha"]');
-  if (!cap) { cap = document.createElement("input"); cap.type = "hidden"; cap.name = "_captcha"; form.appendChild(cap); }
+  if (!cap) { 
+    cap = document.createElement("input"); 
+    cap.type = "hidden"; 
+    cap.name = "_captcha"; 
+    form.appendChild(cap); 
+  }
   cap.value = "false";
 
   if (!form.querySelector('input[name="_honey"]')) {
@@ -55,16 +60,17 @@ export function attachAjaxToForm(form) {
     const name  = nameEl?.value || "";
     const msg   = msgEl?.value || "";
 
-    if (!isValidName(name))  { showToast("Por favor ingresa un nombre válido (mínimo 3 letras).", { ok:false }); busy=false; return; }
-    if (!isValidUSPhone(phone)) { showToast("El teléfono debe ser un número válido de EE. UU. (10 dígitos).", { ok:false }); busy=false; return; }
-    if (!isValidEmail(email)) { showToast("Por favor ingresa un correo electronico válido.", { ok:false }); busy=false; return; }
+    if (!isValidName(name))  { showToast("Nombre Invalido (minimo 3 Letras).", { ok:false }); busy=false; return; }
+    if (!isValidUSPhone(phone)) { showToast("Teléfono invalido.", { ok:false }); busy=false; return; }
+    if (!isValidEmail(email)) { showToast("E-mail inválido.", { ok:false }); busy=false; return; }
     if (msg.trim().length < MIN_MSG_CHARS) { showToast(`El mensaje debe tener al menos ${MIN_MSG_CHARS} caracteres.`, { ok:false }); busy=false; return; }
 
     const normalizedPhone = normalizeUSPhone(phone);
     if (!normalizedPhone) { showToast("El teléfono no es válido.", { ok:false }); busy=false; return; }
     if (phoneEl) phoneEl.value = normalizedPhone;
 
-    const human = await runCheckboxCaptchaModal();
+    // --- updated: use new captcha modal ---
+    const human = await runCodeCaptchaModal();
     if (!human) { showToast("Verificación cancelada.", { ok:false }); busy=false; return; }
 
     const ajaxUrl = form.action.replace("https://formsubmit.co/", "https://formsubmit.co/ajax/");

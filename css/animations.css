@@ -9,35 +9,122 @@
   animation-range: entry 5% cover 100vh;
 }
 
-.autoRotate { /* continuous rotation */
+.autoRotate {
+  /* continuous rotation */
   animation: AutoRotateAnimation 40s infinite linear;
 }
 
 /* Generic trigger classes (JS can toggle .visible) */
-.fade-in { opacity: 0; animation: fadeIn 1.2s ease-out forwards; }
-.animate-fade-in { opacity: 0; transition: opacity 1s ease-out; }
-.animate-fade-in.visible { opacity: 1; }
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 1.2s ease-out forwards;
+}
 
-.animate-fade-up { opacity: 0; animation: fadeUp 0.6s ease-out both; animation-timeline: view(); animation-range: entry 10% cover 25%; }
+.animate-fade-in {
+  opacity: 0;
+  transition: opacity 1s ease-out;
+}
 
-.animate-reveal-image { opacity: 0; transition: opacity 1.5s ease-out; }
-.animate-reveal-image.visible { animation: imageReveal 1.5s ease-out both; opacity: 1; }
+.animate-fade-in.visible {
+  opacity: 1;
+}
 
-.animate-reveal-text { opacity: 0; transform: translateY(90px); transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out; }
-.animate-reveal-text.visible { transform: translateY(0); opacity: 1; }
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.6s ease-out both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 25%;
+}
+
+.animate-reveal-image {
+  opacity: 0;
+  transition: opacity 1.5s ease-out;
+}
+
+.animate-reveal-image.visible {
+  animation: imageReveal 1.5s ease-out both;
+  opacity: 1;
+}
+
+.animate-reveal-text {
+  opacity: 0;
+  transform: translateY(90px);
+  transition: transform 0.4s ease-in-out, opacity 0.4s ease-in-out;
+}
+
+.animate-reveal-text.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
 
 /* Slide utilities (class toggles) */
-.animate-slide-in-right { opacity: 0; transform: translateX(50px); transition: transform 2s ease-out, opacity 2s ease-out; }
-.animate-slide-in-right.visible { opacity: 1; transform: translateX(0); }
+.animate-slide-in-right {
+  opacity: 0;
+  transform: translateX(50px);
+  transition: transform 2s ease-out, opacity 2s ease-out;
+}
+
+.animate-slide-in-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
 
 /* Fixed: left slide-in now uses the left keyframes (name matches direction) */
-.animate-slide-in-left { opacity: 0; animation: slideInFromLeft 2s ease-out both; }
+.animate-slide-in-left {
+  opacity: 0;
+  animation: slideInFromLeft 2s ease-out both;
+}
 
 /* Optional generic spin utilities you can reuse anywhere */
-.animate-spin-in { animation: spinIn 600ms cubic-bezier(.2,.8,.2,1) both; }
-.animate-spin-out { animation: spinOut 450ms cubic-bezier(.4,0,.2,1) both; }
+.animate-spin-in {
+  animation: spinIn 600ms cubic-bezier(.2, .8, .2, 1) both;
+}
 
-.animate-fade-out { animation: fadeOut 250ms ease-in both; }
+.animate-spin-out {
+  animation: spinOut 450ms cubic-bezier(.4, 0, .2, 1) both;
+}
+
+.animate-fade-out {
+  animation: fadeOut 250ms ease-in both;
+}
+
+/*****************************
+ * PAGE / MENU TRANSITIONS
+ *****************************/
+.menu-page.slide-in {
+  animation: slideInFromRight 0.4s forwards;
+}
+
+.menu-page.slide-out {
+  animation: slideOutToRight 0.4s forwards;
+}
+
+.menu-page.slide-in-back {
+  animation: slideInFromLeft 0.4s forwards;
+}
+
+.menu-page.slide-out-back {
+  animation: slideOutToLeft 0.4s forwards;
+}
+
+.cap-backdrop.show {
+  animation: fadeIn 0.5s cubic-bezier(.4, 0, .2, 1) both;
+}
+
+.cap-backdrop.hide {
+  animation: fadeOut 0.5s cubic-bezier(.4, 0, .2, 1) both;
+}
+
+.cap-backdrop.hide .cap-modal {
+  animation: fadeOut 3s cubic-bezier(.4, 0, .2, 1) both;
+}
+
+
+
+
+
+
+
 
 /*****************************
  * KEYFRAMES LIBRARY
@@ -45,33 +132,86 @@
 
 /* Fades */
 @keyframes fadeIn {
-  from { opacity: 0; } to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
+
 @keyframes fadeOut {
-  from { opacity: 1; } to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 /* Move + reveal */
-@keyframes fadeUp {            /* (kept a single version; removed duplicate) */
-  from { opacity: 0; transform: translateY(10px) scale(0.5); }
-  to   { opacity: 1; transform: translateY(0)    scale(1); }
+@keyframes fadeUp {
+
+  /* (kept a single version; removed duplicate) */
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.5);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes slideInFromRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
+
 @keyframes slideOutToRight {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(100%); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
+
 @keyframes slideInFromLeft {
-  from { transform: translateX(-100%); opacity: 0; }
-  to   { transform: translateX(0);     opacity: 1; }
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
+
 @keyframes slideOutToLeft {
-  from { transform: translateX(0);     opacity: 1; }
-  to   { transform: translateX(-100%); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
 }
 
 /* Image + text special reveals */
@@ -82,6 +222,7 @@
     scale: .95;
     translate: 0 4rem;
   }
+
   to {
     filter: none;
     opacity: 1;
@@ -89,50 +230,54 @@
     translate: 0 0;
   }
 }
+
 @keyframes text-appear {
-  from { opacity: 0; transform: translateY(100px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Spins + rotation */
 @keyframes AutoRotateAnimation {
-  from { transform: rotate(0deg); } to { transform: rotate(360deg); }
-}
-@keyframes spinIn {   /* NEW */
-  0%   { opacity: 0; transform: scale(.9) rotate(-720deg); }
-  100% { opacity: 1; transform: scale(1)  rotate(0deg); }
-}
-@keyframes spinOut {  /* NEW */
-  0%   { opacity: 1; transform: scale(1)  rotate(0deg); }
-  100% { opacity: 0; transform: scale(.9) rotate(720deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/*****************************
- * PAGE / MENU TRANSITIONS
- *****************************/
-.menu-page.slide-in      { animation: slideInFromRight 0.4s forwards; }
-.menu-page.slide-out     { animation: slideOutToRight  0.4s forwards; }
-.menu-page.slide-in-back { animation: slideInFromLeft  0.4s forwards; }
-.menu-page.slide-out-back{ animation: slideOutToLeft   0.4s forwards; }
+@keyframes spinIn {
 
+  /* NEW */
+  0% {
+    opacity: 0;
+    transform: scale(.9) rotate(-720deg);
+  }
 
-/* Toast exit */
-.toast.hide {
-  animation: slideOutToLeft 1s cubic-bezier(.4,0,.2,1) both;
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 }
 
-.toast.show {
-  animation: slideInFromLeft 850ms cubic-bezier(.4,0,.2,1) both;
-}
+@keyframes spinOut {
 
-.cap-backdrop.show {
-  animation: fadeIn 0.5s cubic-bezier(.4,0,.2,1) both;
-}
+  /* NEW */
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
 
-.cap-backdrop.hide {
-  animation: fadeOut 0.5s cubic-bezier(.4,0,.2,1) both;
-}
-
-.cap-backdrop.hide .cap-modal {
-  animation: fadeOut 3s cubic-bezier(.4,0,.2,1) both;
+  100% {
+    opacity: 0;
+    transform: scale(.9) rotate(720deg);
+  }
 }

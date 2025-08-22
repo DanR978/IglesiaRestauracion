@@ -1,0 +1,180 @@
+/* Backdrop & modal (you already have these; keep them) */
+.cap-backdrop {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, .55);
+    z-index: var(--z-max, 9999);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity .2s ease;
+}
+
+.cap-backdrop.show {
+    opacity: 1;
+}
+
+.cap-modal {
+    width: min(88vw, 520px);
+    min-width: var(--min-div-size, 280px);
+    background: var(--color-dark, #0b1220);
+    color: var(--color-white, #e5e7eb);
+    border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .45);
+    padding: var(--pd-md, 20px);
+    transform: translateY(6px);
+    transition: transform .2s ease;
+}
+
+.cap-backdrop.show .cap-modal {
+    transform: translateY(0);
+}
+
+@media (prefers-color-scheme: light) {
+    .cap-modal {
+        background: #fff;
+        color: #111827;
+    }
+}
+
+.cap-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--size-lg, 18px);
+    font-size: var(--fs-lg, 1rem);
+}
+
+.cap-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+.cap-close {
+    background: transparent;
+    border: 0;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: inherit;
+}
+
+/* ——— Captcha card, styled like your sample ——— */
+.cap-container {
+    position: relative;
+    max-width: 320px;
+    width: 100%;
+    margin-inline: auto;
+    border-radius: 12px;
+    color: #111827;
+}
+
+@media (prefers-color-scheme: dark) {
+    .cap-container {
+        --cap-bg: #0f172a;
+        color: #e5e7eb;
+    }
+}
+
+.cap-hdr {
+    color: inherit;
+    margin-bottom: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.cap-field {
+    position: relative;
+    height: 45px;
+    margin-top: 12px;
+    width: 100%;
+}
+
+.cap-display input,
+.cap-input input {
+    height: 100%;
+    width: 100%;
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, .12);
+    border-radius: 8px;
+    padding: 0 15px;
+    background: transparent;
+    color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+    .cap-display input, .cap-input input {
+        border-color: rgba(255, 255, 255, .16);
+    }
+}
+
+.cap-code {
+  display: flex;
+  justify-content: space-between;
+  font-family: monospace;
+  font-size: clamp(13px, 4vw, 18px);
+  letter-spacing: 0;
+  text-align: center;
+}
+
+
+.cap-refresh {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    background: #826afb;
+    height: 30px;
+    width: 30px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+    margin-left: 1rem;
+}
+
+.cap-refresh:active {
+    transform: translateY(-50%) scale(0.98);
+}
+
+.cap-input input:focus {
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .08);
+}
+
+.cap-msg {
+    font-size: 14px;
+    margin: 12px 0 0;
+    display: none;
+}
+
+.cap-msg.active {
+    display: block;
+}
+
+.cap-msg.ok {
+    color: #16a34a;
+}
+
+.cap-msg.err {
+    color: #ef4444;
+}
+
+.cap-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.ird-btn[disabled] {
+    opacity: .6;
+    pointer-events: none;
+}
+
+.ird-btn.enabled {
+    opacity: 1;
+}
