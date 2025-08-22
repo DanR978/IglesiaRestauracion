@@ -1,4 +1,3 @@
-// Passive-by-default for scroll-blocking events
 (function () {
   let supportsPassive = false;
   try {
@@ -6,17 +5,13 @@
     window.addEventListener('test-passive', null, opts);
     window.removeEventListener('test-passive', null, opts);
   } catch (_) {}
-
   if (!supportsPassive) return;
 
   const orig = EventTarget.prototype.addEventListener;
-  const SCROLL_BLOCKING = new Set(['touchstart', 'touchmove', 'wheel']); // add 'scroll' if you want
-
+  const SCROLL_BLOCKING = new Set(['touchstart','touchmove','wheel']);
   EventTarget.prototype.addEventListener = function (type, listener, options) {
-    const needsPassive =
-      SCROLL_BLOCKING.has(String(type).toLowerCase()) &&
-      !(options && typeof options === 'object' && 'passive' in options);
-
+    const needsPassive = SCROLL_BLOCKING.has(String(type).toLowerCase())
+      && !(options && typeof options === 'object' && 'passive' in options);
     if (needsPassive) {
       if (options == null) options = { passive: true };
       else if (typeof options === 'boolean') options = { capture: options, passive: true };
@@ -25,6 +20,8 @@
     return orig.call(this, type, listener, options);
   };
 })();
+
+
 // /js/main.js  (ES module)
 import IRDns from './core/ird.js';
 import * as Toast from './lib/toast.js';
