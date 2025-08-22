@@ -1,8 +1,7 @@
 // /js/include.js  (ES module)
-// Deterministic, sequential partial loader with reliable readiness events.
+// Deterministic includes with retry + verification, no script re-exec.
 
 (() => {
-  // ---------- tiny helpers ----------
   const once = (node, key) => {
     if (!node) return false;
     if (node.dataset?.[key]) return false;
@@ -10,12 +9,12 @@
     return true;
   };
   const nextFrame = () => new Promise(r => requestAnimationFrame(r));
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
   const emitReady = async (name, el) => { await nextFrame(); document.dispatchEvent(new CustomEvent(name, { detail: { el } })); };
 
-  // No script re-exec (partials must be markup-only)
+  // 🔒 never re-run scripts from partials
   const reexecuteScripts = () => {};
 
-  // Optional UI init (idempotent)
   let uiInitDone = false;
   const initUIOnce = async () => {
     if (uiInitDone) return;
@@ -26,7 +25,6 @@
     } catch {}
   };
 
-  // Ensure rail module is present exactly once
   const ensureRail = (() => {
     let p;
     return () => (p ??= (async () => {
@@ -37,24 +35,47 @@
     })());
   })();
 
-  // ---------- core include ----------
-  async function include(id, file, lifecycle) {
+  async function fetchHTML(url, tries = 3) {
+    let lastErr;
+    for (let i = 0; i < tries; i++) {
+      try {
+        const res = await fetch(url, { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.text();
+      } catch (e) {
+        lastErr = e;
+        await sleep(120 * (i + 1)); // tiny backoff
+      }
+    }
+    throw lastErr || new Error(`Failed to fetch ${url}`);
+  }
+
+  async function include(id, file, verify, lifecycle) {
     const host = document.getElementById(id);
     if (!host) return;
 
-    // Avoid double-including the same host if something recalls include()
+    // avoid double include if something calls twice
     if (!once(host, "included")) return;
 
-    // Fetch + inject
-    const res = await fetch(file, { cache: "no-store" });
-    if (!res.ok) throw new Error(`Failed to fetch ${file}`);
-    const html = await res.text();
+    const html = await fetchHTML(file, 3);
+
     const frag = document.createRange().createContextualFragment(html);
     reexecuteScripts(frag);
     host.replaceChildren(frag);
-    // console.log(`Loaded ${file} into #${id}`);
 
-    // Run per-part lifecycle hook (awaited)
+    // verify critical element(s) exist; retry inject if needed
+    if (typeof verify === "function") {
+      let ok = verify(host);
+      let attempts = 0;
+      while (!ok && attempts < 2) { // at most 2 re-attempts
+        await sleep(100);
+        host.replaceChildren(document.createRange().createContextualFragment(html));
+        ok = verify(host);
+        attempts++;
+      }
+      if (!ok) console.warn(`[include] verification failed for #${id} (${file})`);
+    }
+
     if (typeof lifecycle === "function") {
       await lifecycle(host);
     }
@@ -72,17 +93,15 @@
 
   async function onRail(host) {
     if (!once(host, "railInited")) return;
-
     await ensureRail();
 
-    // If inline JSON exists, seed it
+    // optional seed from inline JSON
     const inline = host.querySelector("#events-data");
     if (inline) {
       try {
         const data = JSON.parse(inline.textContent.trim());
         if (Array.isArray(data) && data.length) {
           window.Rail?.setEvents?.(data);
-          // console.log(`[rail] seeded ${data.length} events from inline JSON`);
         }
       } catch (e) {
         console.error("[rail] invalid #events-data JSON", e);
@@ -101,13 +120,11 @@
       try {
         const forms = await import("/js/lib/forms.js");
         forms.attachAjaxToForm(form);
-        await emitReady("contact:ready", host);
       } catch (e) {
         console.error("[include] Failed to load forms.js", e);
       }
-    } else {
-      await emitReady("contact:ready", host);
     }
+    await emitReady("contact:ready", host);
   }
 
   async function onFooter(host) {
@@ -122,16 +139,40 @@
   // ---------- boot: strict sequence ----------
   document.addEventListener("DOMContentLoaded", async () => {
     try {
-      // Load in deterministic order so dependents never race
-      await include("header",       "/src/header.html",       onHeader);
-      await include("events-rail",  "/src/rail.html",         onRail);
-      await include("contact-form", "/src/contact-form.html", onContactForm);
-      await include("footer",       "/src/footer.html",       onFooter);
+      // header
+      await include(
+        "header",
+        "/src/header.html",
+        (host) => !!host.querySelector("nav, header, .hero"),
+        onHeader
+      );
 
-      // Give layout one extra frame, then signal global ready
+      // rail
+      await include(
+        "events-rail",
+        "/src/rail.html",
+        (host) => !!host.querySelector(".c-rail__track"),
+        onRail
+      );
+
+      // contact
+      await include(
+        "contact-form",
+        "/src/contact-form.html",
+        (host) => !!host.querySelector('form[action*="formsubmit.co"]') || host.childElementCount > 0,
+        onContactForm
+      );
+
+      // footer
+      await include(
+        "footer",
+        "/src/footer.html",
+        (host) => host.textContent.trim().length > 0,
+        onFooter
+      );
+
       await nextFrame();
       document.dispatchEvent(new Event("includes:ready"));
-      // console.log("[include] all includes ready");
     } catch (err) {
       console.error("[include] boot error:", err);
     }

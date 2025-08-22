@@ -46,12 +46,6 @@ document.addEventListener('header:ready', () => {
   setupBurgerMenu?.();
 });
 
-// Fallback: if this page doesn’t use include.js, still wire after DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  // If include.js also fires, wirePageOnce is idempotent.
-  wirePageOnce();
-});
-
 
 // ============================================================================
 // SUPABASE → RAIL bridge (auto-load + realtime updates)
