@@ -7,6 +7,10 @@
   min-width: var(--min-div-size);
 }
 
+.rg-pd {
+  padding: var(--pd-sm);
+}
+
 .wrapper--footer {
   margin: var(--mg-md);
   border-radius: 10px;

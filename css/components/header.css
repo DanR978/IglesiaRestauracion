@@ -65,6 +65,7 @@
   text-decoration: none;
   font-size: var(--size-sm);
   z-index: var(--z-menu);
+  transition: color 1.5s ease;
 }
 
 .logo:hover {
@@ -72,7 +73,10 @@
   color: var(--color-white);
 }
 
-.nav-container:has(.burger.open) .logo { color: var(--color-black); }
+.nav-container:has(.burger.open) .logo {
+  color: var(--color-black);
+  transition: color 1.5s ease;
+}
 
 /* Menu Styles */
 .nav {
@@ -128,15 +132,6 @@
   background: transparent;
   pointer-events: auto;
 }
-
-/* Show submenu when hovering or focusing */
-/* .menu-item.has-submenu:hover .submenu,
-.menu-item.has-submenu:focus-within .submenu {
-  display: block;
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-} */
 
 /* === SUBMENU === */
 .submenu {
@@ -277,7 +272,7 @@ body.no-scroll {
     background-color: var(--color-black);
   }
 
-  .burger.open ~ .logo,
+  .burger.open~.logo,
   .logo.open {
     color: var(--color-black);
   }
@@ -427,6 +422,7 @@ body.no-scroll {
     pointer-events: auto;
   }
 }
+
 .menu-donate {
   display: flex;
   flex-direction: row;
@@ -453,17 +449,17 @@ body.no-scroll {
   text-decoration: none;
   transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
   box-shadow: 0 5px 20px rgba(217, 140, 89, 0.5),
-              0 4px 10px rgba(217, 140, 89, 0.5),
-              0 0 100px -10px var(--color-secondary);
+    0 4px 10px rgba(217, 140, 89, 0.5),
+    0 0 100px -10px var(--color-secondary);
 }
 
 .icon-btn:hover {
   transform: translateY(-3px);
   color: var(--color-white);
-  cursor: pointer ;
+  cursor: pointer;
   box-shadow: 0 14px 28px rgba(217, 140, 89, 0.25),
-              0 10px 10px rgba(217, 140, 89, 0.22),
-              0 0 120px -10px var(--color-secondary);
+    0 10px 10px rgba(217, 140, 89, 0.22),
+    0 0 120px -10px var(--color-secondary);
 }
 
 .icon-btn:focus-visible {
