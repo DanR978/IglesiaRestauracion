@@ -21,6 +21,8 @@
   margin-bottom: var(--mg-sm);
   border-radius: 6px;
   overflow: hidden;
+  border: none;
+  outline: none;
 }
 
 .accordion-faq__question {

@@ -30,13 +30,21 @@ body {
   background-color: var(--color-info);
 }
 
-a[href^=tel] {
-text-decoration:inherit;
-color: inherit;
-}
-a[href^=mailto] {
+a[href^="tel"],
+a[href^="mailto"] {
   text-decoration: inherit;
   color: inherit;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+a[href^="tel"]:hover,
+a[href^="mailto"]:hover,
+a[href^="tel"]:focus-visible,
+a[href^="mailto"]:focus-visible {
+  color: var(--color-secondary);        
+  text-decoration: underline;       
+  text-decoration-color: var(--color-primary);
+  text-decoration: none;
 }
 
 
@@ -82,3 +90,9 @@ strong {
 }
 
 :where(h1,h2,h3,h4,h5,h6){ margin-block: 0; }
+
+button:focus,
+button:active {
+  border: none;
+  outline: none;
+}

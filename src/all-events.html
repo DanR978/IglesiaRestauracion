@@ -1,9 +1,18 @@
-<section class="events l-container" aria-labelledby="events-title-all" data-events>
+<section class="events l-container"
+         aria-labelledby="events-title-all"
+         data-events
+         data-month-accordion>
   <div class="events__header">
     <h2 id="events-title-all" class="events__title">Próximos eventos</h2>
   </div>
 
+  <!-- This placeholder grid is used on the MAIN page; here it will be hidden. -->
   <div class="events__grid" id="events-grid" role="list"></div>
+
+  <!-- Accordion host (renderer fills this on the full page) -->
+  <section class="section--accordion-faq" data-months>
+    <div class="accordion-faq__wrapper"></div>
+  </section>
 
   <div class="events__empty" hidden>
     <p>No hay eventos próximos por ahora. ¡Vuelve pronto!</p>

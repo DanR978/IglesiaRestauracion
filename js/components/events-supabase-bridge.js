@@ -23,7 +23,6 @@ function toRailEvent(row) {
     date,                     // rail.js expects YYYY-MM-DD (string)
     time,                     // "7:00 PM"
     location: row.location || "",
-    tag:      row.tag || "",
     image:    row.image_url || ""   // rail.js expects 'image'
   };
 }
