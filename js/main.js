@@ -1,20 +1,29 @@
+// js/main.js  (ES module)
+
+// ---------------------------------------------------------------------------
+// 1) Make scroll-blocking listeners passive by default (perf shim)
+// ---------------------------------------------------------------------------
 (function () {
   let supportsPassive = false;
   try {
-    const opts = Object.defineProperty({}, 'passive', { get() { supportsPassive = true; } });
-    window.addEventListener('test-passive', null, opts);
-    window.removeEventListener('test-passive', null, opts);
+    const opts = Object.defineProperty({}, "passive", {
+      get() { supportsPassive = true; }
+    });
+    window.addEventListener("test-passive", null, opts);
+    window.removeEventListener("test-passive", null, opts);
   } catch (_) {}
   if (!supportsPassive) return;
 
   const orig = EventTarget.prototype.addEventListener;
-  const SCROLL_BLOCKING = new Set(['touchstart','touchmove','wheel']);
+  const SCROLL_BLOCKING = new Set(["touchstart", "touchmove", "wheel"]);
   EventTarget.prototype.addEventListener = function (type, listener, options) {
-    const needsPassive = SCROLL_BLOCKING.has(String(type).toLowerCase())
-      && !(options && typeof options === 'object' && 'passive' in options);
+    const needsPassive =
+      SCROLL_BLOCKING.has(String(type).toLowerCase()) &&
+      !(options && typeof options === "object" && "passive" in options);
+
     if (needsPassive) {
       if (options == null) options = { passive: true };
-      else if (typeof options === 'boolean') options = { capture: options, passive: true };
+      else if (typeof options === "boolean") options = { capture: options, passive: true };
       else options = { ...options, passive: true };
     }
     return orig.call(this, type, listener, options);
@@ -22,12 +31,14 @@
 })();
 
 
-// /js/main.js  (ES module)
-import IRDns from './core/ird.js';
-import * as Toast from './lib/toast.js';
-import * as Captcha from './lib/captcha.js';
-import * as Validators from './lib/validators.js';
-import * as Forms from './lib/forms.js';
+// ---------------------------------------------------------------------------
+// 2) App imports + IRD namespace (unchanged)
+// ---------------------------------------------------------------------------
+import IRDns from "./core/ird.js";
+import * as Toast from "./lib/toast.js";
+import * as Captcha from "./lib/captcha.js";
+import * as Validators from "./lib/validators.js";
+import * as Forms from "./lib/forms.js";
 
 import {
   loadExternalScripts,
@@ -36,17 +47,20 @@ import {
   setupFAQAccordion,
   loadRandomVerse,
   initAnimations,
-  setupDirectionsButton
-} from './app/ui.js';
+  setupDirectionsButton,
+} from "./app/ui.js";
 
-// ---- expose namespace for legacy/partials
+// Expose namespace for legacy/partials
 const IRD = (window.IRD ||= (IRDns ?? {}));
 IRD.Toast = Toast;
 IRD.Captcha = Captcha;
 IRD.Validators = Validators;
 IRD.Forms = Forms;
 
-// ---- idempotent page wiring
+
+// ---------------------------------------------------------------------------
+// 3) Idempotent page wiring
+// ---------------------------------------------------------------------------
 let wired = false;
 function wirePageOnce() {
   if (wired) return;
@@ -63,83 +77,95 @@ function wirePageOnce() {
   IRD.Forms?.initContactFormWiring?.();
 }
 
-// ---- events: wait for includes, then wire. burger after header only
-document.addEventListener('includes:ready', wirePageOnce);
-document.addEventListener('header:ready', () => {
-  // header is in the DOM now; listeners won't be nuked by innerHTML
+// Wait for includes to finish before wiring
+document.addEventListener("includes:ready", wirePageOnce);
+
+// Burger menu after header is injected so listeners survive innerHTML swaps
+document.addEventListener("header:ready", () => {
   setupBurgerMenu?.();
 });
 
 
-// ============================================================================
-// SUPABASE → RAIL bridge (auto-load + realtime updates)
-// ============================================================================
+// ---------------------------------------------------------------------------
+// 4) SUPABASE → EVENTS bridge (auto-load + realtime updates)
+// ---------------------------------------------------------------------------
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-// 1) Configure your Supabase project (Project Settings → API)
-//    Use the *anon* public key here (not the service role key).
+// Configure your Supabase project (Project Settings → API). Use the anon key.
 const SUPABASE_URL = "https://snqwxgyhfiinouewxgiy.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo";
 
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// 2) Map a Supabase row to your rail.js expected shape
-//    rail.js expects: { title, date:"YYYY-MM-DD", time:"7:00 PM", location, tag, image, id? }
-function toRailEvent(row) {
+// Map DB row -> renderer shape expected by /js/app/events.js
+function toEvent(row) {
   const d = row?.starts_at ? new Date(row.starts_at) : null;
 
-  // YYYY-MM-DD for rail.js parsing
+  // Local YYYY-MM-DD (renderer uses this for sorting/filtering)
   const date = d
-    ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+    ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+        d.getDate()
+      ).padStart(2, "0")}`
     : "";
 
-  // “7:00 PM” local time string
+  // Local “7:00 PM”
   const time = d
     ? d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
     : "";
 
   return {
-    id:       row.id,
-    title:    row.title || "",
-    date,                    // rail uses this to sort/filter
-    time,                    // displayed under title
+    id: row.id,
+    title: row.title || "",
+    date,
+    time,
     location: row.location || "",
-    tag:      row.tag || "",
-    image:    row.image_url || ""  // rail expects `image`
+    tag: row.tag || "",
+    image: row.image_url || "",
+    // url: row.url || "" // include only if you actually store URLs
   };
 }
 
-// 3) Fetch events and feed the rail
-async function refreshRailFromSupabase() {
+async function refreshEvents() {
   try {
+    // Keep only upcoming: start-of-today (local) → ISO for timestamptz compare
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+
     const { data, error } = await sb
       .from("events")
       .select("*")
+      .gte("starts_at", start.toISOString())
       .order("starts_at", { ascending: true });
 
     if (error) {
-      console.error("[rail] supabase fetch error:", error);
+      console.error("[events] supabase fetch error:", error);
+      window.Rail?.setEvents?.([]);     // render empty state
       return;
     }
 
-    const mapped = (data || []).map(toRailEvent);
-    // hand data to your existing rail renderer
+    const mapped = (data || []).map(toEvent);
+    console.info("[events] rows:", data?.length ?? 0, "mapped:", mapped.length);
+
+    // Hand data to the renderer (it will render into all [data-events] sections)
     window.Rail?.setEvents?.(mapped);
   } catch (err) {
-    console.error("[rail] refresh error:", err);
+    console.error("[events] refresh error:", err);
   }
 }
 
-// 4) Run initial load AFTER the rail partial is injected by include.js
-document.addEventListener("rail:ready", refreshRailFromSupabase);
+// Run initial load AFTER the events markup is injected/initialized by include.js
+// NOTE: new signal is "events:ready" (not "rail:ready")
+document.addEventListener("events:ready", refreshEvents);
 
-// 5) Realtime updates (Dashboard → Database → Replication → Realtime → enable table `events`)
-sb.channel("events-changes")
-  .on("postgres_changes", { event: "*", schema: "public", table: "events" }, () => {
-    // any insert/update/delete → refetch + re-render
-    refreshRailFromSupabase();
-  })
-  .subscribe();
+// Realtime updates (enable Realtime for `public.events` in Supabase Studio)
+try {
+  sb.channel("events-changes")
+    .on("postgres_changes", { event: "*", schema: "public", table: "events" }, refreshEvents)
+    .subscribe();
+} catch (e) {
+  console.warn("[events] realtime subscribe skipped:", e);
+}
 
-// 6) Optional: cheap polling fallback every 2 minutes
-setInterval(refreshRailFromSupabase, 120000);
+// Simple polling fallback every 2 minutes
+setInterval(refreshEvents, 120000);

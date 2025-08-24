@@ -1,5 +1,5 @@
 // /js/rail-supabase-bridge.js
-import { createEventFetcher } from "/js/event-fetcher.js";
+import { createEventFetcher } from "js/components/events-fetcher.js";
 
 // ⬅️ put your real values here
 const EF = createEventFetcher({
@@ -35,7 +35,7 @@ async function refreshRailFromSupabase() {
 }
 
 // Run once the rail markup is injected by include.js
-document.addEventListener("rail:ready", refreshRailFromSupabase);
+document.addEventListener("events:ready", refreshRailFromSupabase);
 
 // Realtime (enable it for the `events` table in Supabase → Database → Replication → Realtime)
 EF.subscribeRealtime(refreshRailFromSupabase);

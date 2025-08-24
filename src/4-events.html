@@ -1,5 +1,5 @@
 <!-- /src/rail.html -->
-<section class="l-container" aria-labelledby="events-title">
+<!-- <section class="l-container" aria-labelledby="events-title">
   <div class="c-rail__header">
     <h2 id="events-title" class="c-rail__title animate-fade-in" data-threshold="1">Eventos</h2>
 
@@ -9,10 +9,10 @@
       <button class="c-rail__tab js-rail-tab animate-fade-in" data-threshold="1" type="button"
         data-target="#rail-past">Pasados</button>
     </nav>
-  </div>
+  </div> -->
 
   <!-- Próximos -->
-  <div id="rail-upcoming" class="c-rail is-active animate-fade-in" data-threshold="1" data-rail="events"
+  <!-- <div id="rail-upcoming" class="c-rail is-active animate-fade-in" data-threshold="1" data-rail="events"
     data-filter="upcoming" aria-label="Próximos eventos">
     <div class="c-rail__controls">
       <button class="c-rail__btn js-rail-prev" type="button"
@@ -21,10 +21,10 @@
         aria-label="Siguiente">›</button>
     </div>
     <div class="c-rail__track js-rail-track" tabindex="0" role="list"></div>
-  </div>
+  </div> -->
 
   <!-- Pasados -->
-  <div id="rail-past" class="c-rail animate-fade-in" data-threshold="1" data-rail="events" data-filter="past"
+  <!-- <div id="rail-past" class="c-rail animate-fade-in" data-threshold="1" data-rail="events" data-filter="past"
     aria-label="Eventos pasados">
     <div class="c-rail__controls">
       <button class="c-rail__btn js-rail-prev" type="button"
@@ -33,5 +33,25 @@
         aria-label="Siguiente">›</button>
     </div>
     <div class="c-rail__track js-rail-track animate-fade-in" data-threshold="1" tabindex="0" role="list"></div>
+  </div>
+</section> -->
+
+
+
+<!-- NEW EVENTS -->
+
+<!-- /src/rail.html -->
+
+<!-- Events (Upcoming-only) -->
+<section class="events l-container" aria-labelledby="events-title-home" data-events data-limit="4">
+  <div class="events__header">
+    <h2 id="events-title-home" class="events__title">Proximos Eventos</h2>
+    <a class="ird-btn ird-btn--teal" href="eventos">Más eventos</a>
+  </div>
+
+  <div class="events__grid" id="events-grid" role="list"></div>
+
+  <div class="events__empty" hidden>
+    <p>No hay eventos próximos por ahora. ¡Vuelve pronto!</p>
   </div>
 </section>

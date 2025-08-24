@@ -27,12 +27,11 @@
 @import url('./components/hero.css');
 @import url('./components/mission.css');
 @import url('./components/versiculo.css');
-@import url('./sections/rail.css');
+@import url('./sections/events.css');
 @import url('./sections/section--accordion-faq.css');
 @import url('./components/contact-form.css');
 @import url('./components/captcha.css');
 @import url('./components/toast.css');
-@import url('./components/event-modal.css');
 
 /* ================================
    ANIMATIONS

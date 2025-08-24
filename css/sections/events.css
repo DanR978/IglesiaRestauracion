@@ -1,0 +1,139 @@
+/* ===== Events Block (Upcoming) ===== */
+:root {
+    --ev-gap: clamp(1rem, 2vw, 1.6rem);
+    --ev-radius: 16px;
+    --ev-shadow: 0 8px 26px rgba(0, 0, 0, .10);
+    --ev-shadow-hover: 0 12px 32px rgba(0, 0, 0, .14);
+    --card-min: 220px;
+    --max-cols: 4;
+}
+
+/* Container (reuse your layout class name) */
+.l-container {
+    max-width: 100%;
+    margin-inline: auto;
+    padding: 1rem;
+}
+
+/* Header */
+.events__header {
+    text-align: center;
+    margin: 2.2rem 0 1.25rem;
+}
+
+.events__title {
+    margin-bottom: 2rem;
+    font-weight: 800;
+    font-size: clamp(1.6rem, 1.1vw + 1.3rem, 2.25rem);
+    color: var(--color-black);
+}
+
+/* Grid: auto-fit up to 4; always centered */
+.events__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+    gap: var(--ev-gap);
+    padding: 0;
+    overflow: visible;
+    max-width: calc((var(--max-cols) * var(--card-min)) + ((var(--max-cols) - 1) * var(--ev-gap)));
+    margin-inline: auto;
+    margin-top: 3rem;
+    align-items: stretch;
+    justify-items: stretch;
+    margin-bottom: 5rem;
+}
+
+/* Mobile: 1 column */
+@media (max-width: 768px) {
+    .events__grid {
+        grid-template-columns: 1fr;
+        max-width: 560px;
+        /* optional for nicer measure */
+    }
+}
+
+/* Card */
+.event {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    border-radius: var(--ev-radius);
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: var(--ev-shadow);
+    height: 100%;
+    transition: transform .18s ease, box-shadow .18s ease;
+    outline: none;
+    border: none;
+}
+
+.event:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ev-shadow-hover);
+    transition: transform .5s ease, box-shadow .18s ease;
+}
+
+/* Media (top image) */
+.event__media {
+    aspect-ratio: 16 / 9;
+    background-color: #eef2f5;
+}
+
+.event__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Body */
+.event__body {
+    background: linear-gradient(145deg, var(--rail-g1), var(--color-primary), var(--color-dark));
+    padding: 1rem 1rem 1.1rem;
+    display: grid;
+    gap: .7rem;
+}
+
+/* Tag chip (optional) */
+.event__tag {
+    justify-self: start;
+    font-size: .72rem;
+    line-height: 1;
+    padding: .35rem .6rem;
+    border-radius: 999px;
+    background-color: #ffffffcc;
+    color: #1f2937;
+}
+
+/* Title */
+.event__title {
+    margin: 0;
+    font-weight: 800;
+    font-size: clamp(1rem, .9vw + .7rem, 1.15rem);
+    line-height: 1.25;
+    color: var(--color-white);
+}
+
+/* Meta rows (calendar + location) */
+.event__row {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    font-size: .95rem;
+    color: var(--color-white);
+}
+
+.event__row svg {
+    width: 18px;
+    height: 18px;
+    opacity: .85;
+    flex: 0 0 18px;
+    stroke: var(--color-white);
+}
+
+/* Whole-card link (if you pass a URL) */
+.event__link {
+    position: absolute;
+    inset: 0;
+    text-indent: -9999px;
+}
