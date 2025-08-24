@@ -97,6 +97,7 @@
 
 .menu-item {
   position: relative;
+  color: var(--color-white);
 }
 
 .menu a,
@@ -215,11 +216,15 @@ body.no-scroll {
   width: 100%;
   text-decoration: none;
   font-size: var(--fs-md);
-  font-weight: var(--fw-bold);
+  font-weight: var(--fw-bold) !important;
   border: none;
   color: var(--color-white);
   text-align: left;
   cursor: pointer;
+}
+
+.accordion-toggle:hover {
+  color: var(--color-secondary);
 }
 
 .accordion-toggle svg {
