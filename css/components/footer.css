@@ -201,6 +201,8 @@
 
   .footer-section.contact-card {
     margin-inline: auto;
+    margin-bottom: 4rem;
+    margin-top: 2rem;
   }
 
   .footer-dark {
@@ -255,7 +257,6 @@
 
   .footer-section.contact-card {
     grid-column: 2;
-    /* row 2, col 2 */
     margin: 0;
     max-width: none;
   }
