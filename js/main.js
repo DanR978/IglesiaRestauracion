@@ -120,7 +120,6 @@ function toEvent(row) {
     date,
     time,
     location: row.location || "",
-    tag: row.tag || "",
     image: row.image_url || "",
     // url: row.url || "" // include only if you actually store URLs
   };
