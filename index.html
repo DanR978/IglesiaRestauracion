@@ -70,9 +70,27 @@
         "url": "https://www.irdlex.org"
       }
     </script>
+    <script>
+      (function () {
+        var h = document.querySelector('#header');
+        if (!h) return;
+        var url = h.getAttribute('data-hero');
+        if (!url) return;
 
-    <script src="/js/dev/preview-guard.js"></script>
-    <script type="module" src="/js/main.js"></script>
+        // Preload hero
+        var l = document.createElement('link');
+        l.rel = 'preload';
+        l.as = 'image';
+        l.href = url;
+        document.head.appendChild(l);
+
+        // Also hint "paint me first"
+        var p = document.createElement('link');
+        p.rel = 'preconnect';
+        p.href = new URL(url, location.href).origin;
+        document.head.appendChild(p);
+      })();
+    </script>
 
   </head>
 

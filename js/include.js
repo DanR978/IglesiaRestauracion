@@ -1,5 +1,6 @@
 // /js/include.js  (ES module)
 // Deterministic includes with retry + verification, no script re-exec.
+// Adds: hero space reservation + hero preload/eager + initial scroll pin.
 
 (() => {
   // --------- helpers ---------
@@ -14,6 +15,17 @@
   const emitReady = async (name, el) => { await nextFrame(); document.dispatchEvent(new CustomEvent(name, { detail: { el } })); };
 
   const reexecuteScripts = () => {}; // never re-run scripts from fragments
+
+  // --- NEW: tame scroll restoration on initial load (not on hash/anchors)
+  const pinScrollTopOnce = (() => {
+    let done = false;
+    return () => {
+      if (done) return;
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      if (!location.hash) window.scrollTo(0, 0);
+      done = true;
+    };
+  })();
 
   let uiInitDone = false;
   const initUIOnce = async () => {
@@ -30,7 +42,6 @@
     const tried = [];
     const tryHref = async (href) => {
       tried.push(href);
-      // already present?
       const has = [...document.querySelectorAll('link[rel="stylesheet"]')].some(l => {
         try { return new URL(l.href, location.href).pathname === new URL(href, location.href).pathname; } catch { return false; }
       });
@@ -46,7 +57,6 @@
       });
     };
 
-    // Put your real path first
     const candidates = [
       "/css/sections/events.css",
       "/css/events.css",
@@ -72,7 +82,6 @@
     return () => (p ??= (async () => {
       if (window.Rail?.setEvents) return;
 
-      // Put your real path first
       const candidates = [
         "/js/app/events.js",
         "/js/events.js",
@@ -93,9 +102,7 @@
             console.info("[events] renderer loaded:", src);
             return;
           }
-        } catch {
-          // keep trying
-        }
+        } catch { /* keep trying */ }
       }
       console.warn("[events] renderer not found. Tried:", tried.join(", "));
     })());
@@ -120,7 +127,6 @@
   async function include(id, file, verify, lifecycle) {
     const host = document.getElementById(id);
     if (!host) return; // mount not on this page
-
     if (!once(host, "included")) return;
 
     const html = await fetchHTML(file, 3);
@@ -146,10 +152,45 @@
   }
 
   // --------- lifecycles ---------
+
+  // NEW: preload the hero image ASAP (before we fetch header fragment)
+  function preloadHeroFromDataset(headerMount) {
+    if (!headerMount) return;
+    const url = headerMount.getAttribute("data-hero");
+    if (!url) return;
+
+    // Reserve space immediately to avoid layout shifts even before CSS arrives
+    if (!headerMount.style.minHeight) headerMount.style.minHeight = "100svh";
+
+    // Preconnect + preload hero image
+    try {
+      const origin = new URL(url, location.href).origin;
+      const preconnect = document.createElement("link");
+      preconnect.rel = "preconnect";
+      preconnect.href = origin;
+      document.head.appendChild(preconnect);
+    } catch {}
+
+    const preload = document.createElement("link");
+    preload.rel = "preload";
+    preload.as = "image";
+    preload.href = url;
+    document.head.appendChild(preload);
+  }
+
   async function onHeader(host) {
     const heroURL = host.getAttribute("data-hero");
     const heroImg = host.querySelector(".hero");
-    if (heroImg && heroURL) heroImg.src = heroURL;
+
+    // Fill the reserved area
+    if (!host.style.minHeight) host.style.minHeight = "100svh";
+
+    // Set the hero immediately and make it eager
+    if (heroImg && heroURL) {
+      heroImg.loading = "eager";
+      heroImg.setAttribute("fetchpriority", "high");
+      heroImg.src = heroURL;
+    }
 
     await initUIOnce();
     await emitReady("header:ready", host);
@@ -206,6 +247,12 @@
   // --------- boot ---------
   document.addEventListener("DOMContentLoaded", async () => {
     try {
+      // NEW: avoid browser restoring scroll before we mount header
+      pinScrollTopOnce();
+
+      // NEW: preload hero from #header[data-hero] before fetching header fragment
+      preloadHeroFromDataset(document.getElementById("header"));
+
       // Header
       await include("header", "/src/header.html",
         (host) => !!host.querySelector("nav, header, .hero"),
@@ -238,8 +285,14 @@
         onFooter
       );
 
+      // NEW: ensure we start at the top after everything is mounted
+      requestAnimationFrame(() => { if (!location.hash) window.scrollTo(0, 0); });
+
       await nextFrame();
       document.dispatchEvent(new Event("includes:ready"));
+
+      // Optional: if you gate smooth scrolling with .ready
+      document.documentElement.classList.add("ready");
     } catch (err) {
       console.error("[include] boot error:", err);
     }

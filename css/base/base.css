@@ -1,14 +1,25 @@
-*, :before, :after {
+*,
+:before,
+:after {
   box-sizing: border-box;
   border: 0 solid #e5e7eb;
 }
+
+#header { 
+  min-height: 100svh; 
+}
+
 html {
-    scroll-behavior: smooth;
+  scroll-behavior: auto;
+}
+
+html.ready {
+  scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
-  font-family: 'General Sans', sans-serif;
+  font-family: "General Sans", sans-serif;
 }
 
 ::-webkit-scrollbar {
@@ -22,7 +33,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background-color: var(--color-dark);
   border-radius: 20px;
-  border: 6px solid transparent;
+  border: 5px solid transparent;
   background-clip: content-box;
 }
 
@@ -41,42 +52,41 @@ a[href^="tel"]:hover,
 a[href^="mailto"]:hover,
 a[href^="tel"]:focus-visible,
 a[href^="mailto"]:focus-visible {
-  color: var(--color-secondary);        
-  text-decoration: underline;       
+  color: var(--color-secondary);
+  text-decoration: underline;
   text-decoration-color: var(--color-primary);
   text-decoration: none;
 }
-
 
 img,
 picture,
 video,
 canvas,
-svg{
-    display: block;
-    max-width: 100%;
-    user-select: none;
+svg {
+  display: block;
+  max-width: 100%;
+  user-select: none;
 }
 
 button {
-    display: inline-block;
-    padding: 0;
-    border: none;
-    background: none;
-    cursor: pointer;
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 }
 
 a {
-    color: var(--color-50);
+  color: var(--color-50);
 }
 
 strong {
-    color: var(--color-secondary);
-    font-weight: var(--fw-bold) !important;
+  color: var(--color-secondary);
+  font-weight: var(--fw-bold) !important;
 }
 
 .section {
-    padding: var(--spacing-5xl) 0;  
+  padding: var(--spacing-5xl) 0;
 }
 
 .email-link {
@@ -89,7 +99,9 @@ strong {
   color: inherit;
 }
 
-:where(h1,h2,h3,h4,h5,h6){ margin-block: 0; }
+:where(h1, h2, h3, h4, h5, h6) {
+  margin-block: 0;
+}
 
 button:focus,
 button:active {

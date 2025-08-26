@@ -1,8 +1,9 @@
 .header-grid {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
-  height: 93vh;
-  position: relative;
+  height: auto;              
 }
 
 .header-container {
