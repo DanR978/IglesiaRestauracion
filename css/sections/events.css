@@ -46,7 +46,7 @@
 /* iPad Air & similar: 2 columns */
 @media (max-width: 1180px) {
     .events__grid {
-        grid-template-columns: repeat(2, minmax(var(--card-min), 1fr));
+        grid-template-columns: repeat(2, minmax(var(--card-min), 300px));
         max-width: calc((2 * var(--card-min)) + (1 * var(--ev-gap)));
     }
 }

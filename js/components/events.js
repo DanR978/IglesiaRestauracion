@@ -42,7 +42,8 @@
   function makeCard(ev) {
     const title = ev.title || 'Evento';
     const el = document.createElement('article');
-    el.className = 'event';
+    el.className = 'event animate-fade-in';
+    el.setAttribute('data-threshold', '1');
     el.setAttribute('role','listitem');
     el.innerHTML = `
       <div class="event__media">
@@ -93,11 +94,13 @@
     events.forEach(ev => frag.appendChild(makeCard(ev)));
     grid.appendChild(frag);
     panel.appendChild(grid);
+    if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
 
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));
       panel.classList.toggle('open', !expanded);
+      if (!expanded && window.initAnimations) requestAnimationFrame(() => window.initAnimations());
     });
 
     item.appendChild(btn);
@@ -113,6 +116,7 @@
     const frag = document.createDocumentFragment();
     list.forEach(ev => frag.appendChild(makeCard(ev)));
     container.appendChild(frag);
+    if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
   }
 
   // Month accordion (full events)

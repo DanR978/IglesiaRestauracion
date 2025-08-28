@@ -22,7 +22,7 @@
 
 .animate-fade-in {
   opacity: 0;
-  transition: opacity 1s ease-out;
+  transition: opacity 1s ease-out, transform 0.3s, box-shadow 0.3s;
 }
 
 .animate-fade-in.visible {

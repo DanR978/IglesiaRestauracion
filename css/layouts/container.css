@@ -82,7 +82,7 @@
   color: var(--color-white);
   font-family: var(--font-DM-Sans);
   font-weight: var(--fw-semibold);
-  font-size: var(--fs-md);
+  font-size: var(--size-lg);
   letter-spacing: 1px;
   text-align: center;
 }
@@ -90,7 +90,7 @@
   color: var(--color-white);
   font-family: var(--font-DM-Sans);
   font-weight: var(--fw-extralight);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   letter-spacing: 1px;
   text-align: center;
 }

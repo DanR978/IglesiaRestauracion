@@ -107,16 +107,27 @@ export function loadRandomVerse() {
 }
 
 export function initAnimations() {
-  const observer = new IntersectionObserver((entries, obs) => {
+  const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add("visible");
-        obs.unobserve(entry.target);
+        observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.4 });
-  document.querySelectorAll('[class*="animate-"]').forEach(el => observer.observe(el));
+
+  const observeTargets = () => {
+    document.querySelectorAll('[class*="animate-"]:not(.visible)').forEach(el => observer.observe(el));
+  };
+
+  // initial pass
+  observeTargets();
+
+  // also watch DOM for new animate-* nodes
+  const mo = new MutationObserver(observeTargets);
+  mo.observe(document.body, { childList: true, subtree: true });
 }
+
 
 export function setupDirectionsButton({
   buttonId = "getDirections",

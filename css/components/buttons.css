@@ -11,14 +11,14 @@
   display: inline-flex;
   padding: 0.9em 1em;
   font-weight: var(--fw-medium);
-  font-size: clamp(0.63rem, 0.4rem + 0.74vw, 0.88rem);
+  font-size: var(--size-base);
   text-decoration: none;
   text-align: center;
   justify-content: center;
   align-items: center;
   color: var(--color-white);
   border-radius: var(--radius-md);
-  transition: all 0.3s;
+  transition: color 0.3s, transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
   width: clamp(7.8rem, 25vw, 12rem);
   transform: translateY(0);
   border: none;
@@ -121,7 +121,7 @@
 }
 
 .ird-btn--outline.ird-btn--white-empty {
-  color: var(--color-primary);
+  color: var(--transparent);
   background-color: var(--color-white);
   border: none;
 }
@@ -181,6 +181,10 @@
   .ird-btn--donate  {
     font-size: var(--size-md);
     width: 50%;
+  }
+
+  .ird-btn {
+    font-size: var(--size-xs);
   }
 }
 
