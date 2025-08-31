@@ -16,9 +16,16 @@
 }
 
 /* Header */
-.events__header {
+.event__header {
     text-align: center;
     margin: 2.2rem 0 1.25rem;
+}
+
+.event__header h2 {
+    color: var(--color-black);
+    font-size: var(--size-3xl);
+    font-weight: var(--fw-extrabold);
+    margin-bottom: 1rem;
 }
 
 /* Grid: fixed steps → 4 (desktop), 2 (tablet), 1 (mobile) */

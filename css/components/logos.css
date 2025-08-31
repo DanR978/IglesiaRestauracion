@@ -5,3 +5,9 @@
 .church-logo-svg-white {
     color: var(--color-white);
 }
+
+@media (prefers-color-scheme: dark) {
+    .church-logo-svg-dark {
+        color: var(--color-25);
+    }
+}
