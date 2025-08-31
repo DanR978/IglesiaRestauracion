@@ -118,8 +118,7 @@
     const title = ev.title || 'Evento';
 
     const el = document.createElement('article');
-    el.className = 'event animate-fade-in';
-    el.setAttribute('data-threshold', '1');
+    el.className = 'event';
     el.setAttribute('role', 'listitem');
 
     // Details page: prefer ev.url; fallback to local page by id (if present)

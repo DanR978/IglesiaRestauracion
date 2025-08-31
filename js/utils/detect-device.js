@@ -1,19 +1,24 @@
-// /js/utils/detect-device.js
+// /js/utils/detect-device.js (hardened but same API)
 
-// Guard for SSR or very old browsers
-const UA = (typeof navigator !== 'undefined' && (navigator.userAgent || navigator.vendor || '')) || '';
+function getUA() {
+  if (typeof navigator === 'undefined') return '';
+  // Some browsers stick device hints in vendor; include both.
+  return (navigator.userAgent || navigator.vendor || '');
+}
 
-/** True on iPhone/iPad/iPod and iPadOS (which sometimes reports as "Mac"). */
+/** iOS + iPadOS (which can report as "Mac" with touch) */
 export function isIOS() {
-  const iOS = /iPad|iPhone|iPod/i.test(UA);
-  const iPadOS = typeof navigator !== 'undefined'
+  const ua = getUA();
+  const iOS = /iPad|iPhone|iPod/i.test(ua);
+  const iPadOS13Plus = (typeof navigator !== 'undefined'
     && navigator.platform === 'MacIntel'
-    && navigator.maxTouchPoints > 1;
-  return iOS || iPadOS;
+    && navigator.maxTouchPoints > 1);
+  return iOS || iPadOS13Plus;
 }
 
 export function isAndroid() {
-  return /Android/i.test(UA);
+  const ua = getUA();
+  return /Android/i.test(ua);
 }
 
 export function isDesktop() {
