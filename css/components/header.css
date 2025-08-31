@@ -384,7 +384,7 @@ body.no-scroll {
     margin: 0;
     padding: 0;
     list-style: none;
-    background-color: var(--color-dark) !important;
+    background-color: var(--transparent);
     transform: scaleY(0);
     transform-origin: top;
     transition: transform .32s cubic-bezier(.62, .13, .42, .96);
@@ -395,6 +395,7 @@ body.no-scroll {
     border-radius: 0px;
     max-height: 0;
     box-shadow: none;
+    border: none;
   }
 
   .menu-item.open .submenu {
