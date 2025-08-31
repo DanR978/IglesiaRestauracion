@@ -209,7 +209,7 @@
 /* hover / focus / active */
 .event__addcal:hover{
   background-color: var(--color-white);
-  color: var(--color-black);
+  color: var(--transparent);
   text-decoration: none;
 }
 
