@@ -135,18 +135,23 @@
   pointer-events: auto;
 }
 
-/* === SUBMENU === */
+
 .submenu {
   position: absolute;
   top: calc(100% + 0.75rem);
   left: 0;
-  background-color: var(--color-bg-light) !important;
   border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   padding: 0.5rem 0;
   display: block;
   z-index: var(--z-menu);
   min-width: 220px;
+  background: rgba(57, 69, 72, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-white);
+  box-shadow: var(--container-shadow);
+  max-width: 100%;
   opacity: 0;
   transform: translateY(10px);
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -163,7 +168,7 @@
   width: calc(100% - 1rem);
   box-sizing: border-box;
   padding: 0.75rem 1.5rem;
-  color: white;
+  color: var(--color-white);
   text-decoration: none;
   font-weight: 600;
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -184,7 +189,7 @@ body.no-scroll {
 .menu-item>a {
   position: relative;
   display: inline-block;
-  color: white;
+  color: var(--color-white);
   text-decoration: none;
   font-weight: bold;
   padding: 1rem;
@@ -379,7 +384,7 @@ body.no-scroll {
     margin: 0;
     padding: 0;
     list-style: none;
-    background-color: var(--mobile-menu-bg) !important;
+    background-color: var(--color-dark) !important;
     transform: scaleY(0);
     transform-origin: top;
     transition: transform .32s cubic-bezier(.62, .13, .42, .96);

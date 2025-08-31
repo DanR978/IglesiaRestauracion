@@ -173,7 +173,7 @@
   padding: .55rem .95rem;
   border-radius: 999px;
   border: 1.5px solid var(--color-white);
-  background: transparent;
+  background-color: var(--transparent);
   color: var(--color-white);
   font-weight: var(--fw-semibold);
   font-size: var(--size-xs);
@@ -189,16 +189,9 @@
   will-change: transform;
 }
 
-/* calendar glyph via mask, inherits currentColor */
-
 /* hover / focus / active */
-.event__addcal:hover{
+.event__addcal:hover {
   background-color: var(--color-white);
-  color: var(--transparent);
+  color: #000;
   text-decoration: none;
-}
-
-/* reduced motion */
-@media (prefers-reduced-motion: reduce){
-  .event__addcal{ transition: none; }
 }
