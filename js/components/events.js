@@ -1,10 +1,16 @@
 // /js/events.js — dual-mode renderer (main grid OR month accordion)
 (() => {
+  'use strict';
+
   /* ---------------------------------------------
-   * DOM helpers
+   * Small utils
    * ------------------------------------------- */
-  const getSections = () =>
-    Array.from(document.querySelectorAll('[data-events]'));
+  const $all = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const el = (tag, cls) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    return n;
+  };
 
   /* ---------------------------------------------
    * Inline icons (SVGs)
@@ -25,12 +31,11 @@
   /* ---------------------------------------------
    * Date helpers
    * ------------------------------------------- */
+  const pad = (n) => String(n).padStart(2, '0');
+
   const todayKey = () => {
     const d = new Date();
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
   };
 
   const isUpcoming = (ev) => (ev?.date || '') >= todayKey();
@@ -41,72 +46,74 @@
     return y && m ? `${y}-${m}` : '';
   };
 
-  // Month label in ES (uppercase) for accordion headers
+  // ES uppercase month for accordion headers
   const monthLabel = (key) => {
     const [y, m] = key.split('-').map(Number);
     const dt = new Date(y, (m || 1) - 1, 1);
     return dt.toLocaleDateString('es', { month: 'long' }).toUpperCase();
   };
 
-  // "September 6, 2025" style
+  // "September 6, 2025"
   const fmtDate = (dateStr) => {
     try {
       const [y, m, d] = (dateStr || '').split('-').map(Number);
       const dt = new Date(y, m - 1, d);
       return dt.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
+        month: 'long', day: 'numeric', year: 'numeric'
       });
-    } catch {
-      return dateStr || '';
-    }
+    } catch { return dateStr || ''; }
   };
 
   /* ---------------------------------------------
-   * Calendar helpers (Google)
+   * Time parsing + calendar URL fallback (Google)
    * ------------------------------------------- */
-  const pad = (n) => String(n).padStart(2, '0');
+  function toLocalDate(dateStr, timeStr) {
+    if (!timeStr) return new Date(`${dateStr} 09:00`);
+    const clean = String(timeStr).replace(/\s+/g, ' ').trim();
+    // Accepts "7pm", "7 PM", "7:00 PM", "19:00"
+    return new Date(`${dateStr} ${clean}`);
+  }
 
-  // ev.date = "YYYY-MM-DD", ev.time can be "7:00 PM" or "7:00 PM – 8:00 PM"
+  // ev.time: "7:00 PM – 8:30 PM" | "19:00-20:30" | omit => all-day
   function parseCardTimes(ev) {
     const base = ev.date || '';
-    const toDate = (t) => (t ? new Date(`${base} ${t}`) : null);
+    if (!base) return { allDay: true, start: null, end: null };
 
     if (!ev.time) {
-      const start = new Date(`${base} 9:00 AM`);
-      const end = new Date(start.getTime() + 60 * 60 * 1000);
-      return { start, end };
+      const start = new Date(`${base}T00:00:00`);
+      const end = new Date(start.getTime() + 24*60*60*1000);
+      return { allDay: true, start, end };
     }
-
-    const [t1, t2] = ev.time.split(/–|-/).map((s) => s.trim());
-    const start = toDate(t1);
-    const end = t2 ? toDate(t2) : new Date(start.getTime() + 60 * 60 * 1000);
-    return { start, end };
+    const parts = ev.time.split(/–|—|-|to/i).map(s => s.trim());
+    const t1 = parts[0];
+    const t2 = parts[1];
+    const start = toLocalDate(base, t1);
+    const end = t2 ? toLocalDate(base, t2) : new Date(start.getTime() + 60*60*1000);
+    return { allDay: false, start, end };
   }
 
-  function fmtUTC(d) {
-    return (
-      d.getUTCFullYear() +
-      pad(d.getUTCMonth() + 1) +
-      pad(d.getUTCDate()) +
-      'T' +
-      pad(d.getUTCHours()) +
-      pad(d.getUTCMinutes()) +
-      pad(d.getUTCSeconds()) +
-      'Z'
-    );
-  }
+  const fmtUTC = (d) => (
+    d.getUTCFullYear() + pad(d.getUTCMonth()+1) + pad(d.getUTCDate()) +
+    'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z'
+  );
 
+  const fmtDateCompact = (d) => (
+    d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate())
+  );
+
+  // Minimal Google Calendar link (used as no-JS fallback)
   function buildGoogleCalUrl(ev) {
-    const { start, end } = parseCardTimes(ev);
-    const dates = `${fmtUTC(start)}/${fmtUTC(end)}`;
+    const { allDay, start, end } = parseCardTimes(ev);
+    const dates = allDay
+      ? `${fmtDateCompact(start)}/${fmtDateCompact(end)}`
+      : `${fmtUTC(start)}/${fmtUTC(end)}`;
     const params = new URLSearchParams({
       action: 'TEMPLATE',
       text: ev.title || 'Evento',
       dates,
       details: ev.description || '',
       location: ev.location || ''
+      // we could add ctz here if you set ev.tz
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
@@ -116,24 +123,18 @@
    * ------------------------------------------- */
   function makeCard(ev) {
     const title = ev.title || 'Evento';
+    const article = el('article', 'event');
+    article.setAttribute('role', 'listitem');
 
-    const el = document.createElement('article');
-    el.className = 'event';
-    el.setAttribute('role', 'listitem');
-
-    // Details page: prefer ev.url; fallback to local page by id (if present)
     const detailsHref = ev.url
       ? ev.url
-      : ev.id
-      ? `/evento.html?id=${encodeURIComponent(ev.id)}`
-      : null;
+      : (ev.id ? `/evento.html?id=${encodeURIComponent(ev.id)}` : null);
 
-    const addCalHref = buildGoogleCalUrl(ev);
+    // Build no-JS fallback Google link
+    const fallbackHref = buildGoogleCalUrl(ev);
 
-    el.innerHTML = `
-      <a class="event__linkwrap" ${
-        detailsHref ? `href="${detailsHref}"` : ''
-      } aria-label="${title}">
+    article.innerHTML = `
+      <a class="event__linkwrap" ${detailsHref ? `href="${detailsHref}"` : ''} aria-label="${title}">
         <div class="event__media">
           <img src="${ev.image || ''}" alt="${title}">
         </div>
@@ -144,48 +145,70 @@
           ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${ev.location}</span></div>` : ''}
           <div class="event__actions">
             <a class="event__addcal"
-              href="${addCalHref}"
-              target="_blank" rel="noopener noreferrer">
+               href="${fallbackHref}"
+               rel="noopener noreferrer">
               Agregar al calendario
             </a>
-      </div>
+          </div>
         </div>
       </a>
     `;
 
     // Make entire card clickable (don’t hijack the calendar button)
     if (detailsHref) {
-      el.tabIndex = 0;
+      article.tabIndex = 0;
 
-      el.addEventListener('click', (e) => {
+      article.addEventListener('click', (e) => {
         if (e.target.closest('.event__addcal')) return;
-        const a = el.querySelector('.event__linkwrap[href]');
+        const a = article.querySelector('.event__linkwrap[href]');
         if (a) a.click();
       });
 
-      el.addEventListener('keydown', (e) => {
+      article.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
-          const a = el.querySelector('.event__linkwrap[href]');
+          const a = article.querySelector('.event__linkwrap[href]');
           if (a) a.click();
         }
       });
     } else {
-      el.style.cursor = 'default';
+      article.style.cursor = 'default';
     }
 
-    return el;
+    // Intercept calendar click: iOS -> .ics (CalendarUtils), others -> Google
+    const addBtn = article.querySelector('.event__addcal');
+    addBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const CU = window.CalendarUtils;
+      if (CU && typeof CU.handleCalendarClick === 'function') {
+        CU.handleCalendarClick({
+          id: ev.id,
+          title: ev.title,
+          date: ev.date,
+          time: ev.time,
+          location: ev.location,
+          description: ev.description,
+          url: ev.url,
+          tz: ev.tz
+        });
+      } else {
+        // Fallback if utils missing: navigate to Google in same tab
+        window.location.href = fallbackHref;
+      }
+    });
+
+    return article;
   }
 
   /* ---------------------------------------------
    * Accordion (month buckets)
    * ------------------------------------------- */
   function makeMonthAccordionItem(key, events, isFirst) {
-    const item = document.createElement('div');
-    item.className = 'accordion-faq__item';
+    const item = el('div', 'accordion-faq__item');
 
-    const btn = document.createElement('button');
+    const btn = el('button', 'accordion-faq__question');
     btn.type = 'button';
-    btn.className = 'accordion-faq__question';
     btn.setAttribute('aria-expanded', String(!!isFirst));
     btn.innerHTML = `
       <span>${monthLabel(key)}</span>
@@ -199,12 +222,10 @@
       </span>
     `;
 
-    const panel = document.createElement('div');
-    panel.className = 'accordion-faq__answer';
+    const panel = el('div', 'accordion-faq__answer');
     if (isFirst) panel.classList.add('open');
 
-    const grid = document.createElement('div');
-    grid.className = 'events__grid events__grid--accordion'; // left-aligns accordion grids
+    const grid = el('div', 'events__grid events__grid--accordion');
     grid.setAttribute('role', 'list');
 
     const frag = document.createDocumentFragment();
@@ -212,15 +233,12 @@
     grid.appendChild(frag);
     panel.appendChild(grid);
 
-    if (window.initAnimations) {
-      requestAnimationFrame(() => window.initAnimations());
-    }
+    if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
 
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));
       panel.classList.toggle('open', !expanded);
-
       if (!expanded && window.initAnimations) {
         requestAnimationFrame(() => window.initAnimations());
       }
@@ -236,7 +254,6 @@
    * ------------------------------------------- */
   function renderSimpleGrid(container, list) {
     if (!container) return;
-
     container.hidden = false;
     container.innerHTML = '';
 
@@ -244,9 +261,7 @@
     list.forEach((ev) => frag.appendChild(makeCard(ev)));
     container.appendChild(frag);
 
-    if (window.initAnimations) {
-      requestAnimationFrame(() => window.initAnimations());
-    }
+    if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
   }
 
   function renderMonthAccordion(section, list) {
@@ -254,29 +269,23 @@
     const placeholder = section.querySelector('.events__grid, #events-grid');
     if (placeholder) placeholder.hidden = true;
 
-    // Find or create host for accordion
+    // Find/create host
     let hostWrapper = section.querySelector('[data-months] .accordion-faq__wrapper');
     if (!hostWrapper) {
-      const shell = document.createElement('section');
-      shell.className = 'section--accordion-faq';
+      const shell = el('section', 'section--accordion-faq');
       shell.setAttribute('data-months', '');
-
-      hostWrapper = document.createElement('div');
-      hostWrapper.className = 'accordion-faq__wrapper';
+      hostWrapper = el('div', 'accordion-faq__wrapper');
       shell.appendChild(hostWrapper);
 
       const header = section.querySelector('.events__header');
-      if (header && header.nextSibling) {
-        section.insertBefore(shell, header.nextSibling);
-      } else {
-        section.appendChild(shell);
-      }
+      if (header && header.nextSibling) section.insertBefore(shell, header.nextSibling);
+      else section.appendChild(shell);
     }
 
-    // Clear previous render (idempotent)
+    // Clear previous
     hostWrapper.innerHTML = '';
 
-    // Group by month
+    // Group by YYYY-MM
     const buckets = new Map();
     for (const ev of list) {
       const k = monthKey(ev.date || '');
@@ -285,7 +294,7 @@
       buckets.get(k).push(ev);
     }
 
-    // Render items
+    // Render months in ascending order
     const frag = document.createDocumentFragment();
     [...buckets.keys()].sort().forEach((k, i) => {
       frag.appendChild(makeMonthAccordionItem(k, buckets.get(k), i === 0));
@@ -324,10 +333,14 @@
   /* ---------------------------------------------
    * Public API
    * ------------------------------------------- */
+  function getSections() { return $all('[data-events]'); }
+
   window.Rail = Object.assign(window.Rail || {}, {
     setEvents(allEvents = []) {
       getSections().forEach((sec) => renderInto(sec, allEvents));
     },
-    init() {}
+    init() {
+      // no-op hook for symmetry if you need to do one-time wiring later
+    }
   });
 })();
