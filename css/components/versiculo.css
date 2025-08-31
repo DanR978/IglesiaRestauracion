@@ -30,10 +30,6 @@
   font-size: 2rem;
 }
 
-.logo-svg {
-  color: var(--color-dark);
-}
-
 @media (max-width: 768px) {
   .versiculo p {
     font-size: var(--fs-lg);

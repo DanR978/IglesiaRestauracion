@@ -10,14 +10,14 @@
 }
 
 .contact-info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: var(--transparent);
-    padding: 2rem;
-    box-shadow: none;
-    width: minmax(300px, 400px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--transparent);
+  padding: 2rem;
+  box-shadow: none;
+  width: minmax(300px, 400px);
 }
 
 .contact-info__title {
@@ -126,22 +126,21 @@ textarea {
   }
 
   .disclaimer {
-  width: 200px;
-  font-size: var(--fs-xs);
-}
+    width: 200px;
+    font-size: var(--fs-xs);
+  }
 
   label {
     font-size: var(--fs-lg);
-}
+  }
 
-.contact-info__title{
-  font-size: var(--fs-3xl);
-}
+  .contact-info__title {
+    font-size: var(--fs-3xl);
+  }
 
-.contact-info__subtitle {
-  font-size: var(--fs-md);
-}
-
+  .contact-info__subtitle {
+    font-size: var(--fs-md);
+  }
 }
 
 @media (max-width: 768px) {
@@ -149,10 +148,9 @@ textarea {
     grid-column: span 1;
   }
   .disclaimer {
-  width: 280px;
-  font-size: var(--fs-xs);
-}
-
+    width: 280px;
+    font-size: var(--fs-xs);
+  }
 }
 
 .contact-svg {
@@ -170,14 +168,29 @@ textarea {
   height: 15rem;
 }
 
-#star1, #star2, #star3, #star4, #star5, #star6 {
+#star1,
+#star2,
+#star3,
+#star4,
+#star5,
+#star6 {
   animation: blink 1s ease-in-out infinite;
 }
-#star2 { animation-delay: 100ms; }
-#star3 { animation-delay: 500ms; }
-#star4 { animation-delay: 700ms; }
-#star5 { animation-delay: 300ms; }
-#star6 { animation-delay: 200ms }
+#star2 {
+  animation-delay: 100ms;
+}
+#star3 {
+  animation-delay: 500ms;
+}
+#star4 {
+  animation-delay: 700ms;
+}
+#star5 {
+  animation-delay: 300ms;
+}
+#star6 {
+  animation-delay: 200ms;
+}
 
 @keyframes float {
   0% {
@@ -196,9 +209,59 @@ textarea {
     opacity: 0;
   }
   50% {
-    opacity: .5;
+    opacity: 0.5;
   }
   100% {
     opacity: 1;
   }
+}
+
+
+.u-float-group {
+  position: relative;
+}
+
+/* hide native placeholder text so label acts as the placeholder */
+.u-float-group input::placeholder,
+.u-float-group textarea::placeholder {
+  color: transparent;
+}
+
+/* the label sits centered vertically inside the field by default */
+.u-float-label {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 0 0.35rem;
+  background: var(--u-label-bg);
+  color: rgb(173, 173, 173);
+  font-size: var(--size-sm);
+  line-height: 1;
+  pointer-events: none;
+  transition: top 0.18s ease, left 0.18s ease, transform 0.18s ease,
+    color 0.18s ease, font-weight 0.18s ease, padding 0.18s ease;
+  z-index: var(--z-base);
+}
+
+/* center the floated label on the top border when focused or filled */
+.u-float-group :is(input, textarea):focus + .u-float-label,
+.u-float-group :is(input, textarea):not(:placeholder-shown) + .u-float-label,
+.u-float-group :is(input, textarea):-webkit-autofill + .u-float-label {
+  top: 0;
+  left: 10%;
+  transform: translate(-50%, -50%) scale(0.72);
+  color: var(--color-black);
+  font-weight: 600;
+}
+
+/* textarea tweak: keep the default label centered vertically within taller field */
+.u-float-group textarea + .u-float-label {
+  top: 1.9rem; /* approx center of 4-row textarea; adjust if you change rows/padding */
+  transform: translateY(-50%);
+}
+
+/* keep your existing borders/opacity; just ensure label sits over the border cleanly */
+.u-float-group .u-float-label {
+  background: var(--color-bg-light);
 }

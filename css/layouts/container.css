@@ -81,19 +81,19 @@
 .service-time {
   color: var(--color-white);
   font-family: var(--font-DM-Sans);
-  font-weight: var(--fw-semibold);
-  font-size: var(--size-lg);
+  font-weight: var(--fw-regular);
+  font-size: var(--size-base);
   letter-spacing: 1px;
   text-align: center;
 }
-.content p {
+/* .content p {
   color: var(--color-white);
   font-family: var(--font-DM-Sans);
   font-weight: var(--fw-extralight);
   font-size: var(--fs-md);
   letter-spacing: 1px;
   text-align: center;
-}
+} */
 
 .info-container {
   display: flex;
@@ -376,4 +376,8 @@
 
   .Five  { order: 6; } /* Servir content */
   .Six   { order: 5; } /* Servir image */
+
+  .service-subheading {
+    font-size: var(--size-2xl);
+  }
 }

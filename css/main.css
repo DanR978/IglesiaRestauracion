@@ -21,6 +21,7 @@
 /* ================================
    COMPONENTS
 ================================ */
+@import url('./components/logos.css');
 @import url('./components/buttons.css');
 @import url('./components/footer.css');
 @import url('./components/header.css');

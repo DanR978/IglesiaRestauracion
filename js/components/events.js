@@ -1,68 +1,187 @@
 // /js/events.js — dual-mode renderer (main grid OR month accordion)
 (() => {
-  const getSections = () => Array.from(document.querySelectorAll('[data-events]'));
+  /* ---------------------------------------------
+   * DOM helpers
+   * ------------------------------------------- */
+  const getSections = () =>
+    Array.from(document.querySelectorAll('[data-events]'));
 
-  // Inline icons (for cards)
-  const ICON_CAL = `<svg aria-hidden="true" viewBox="0 0 448 512"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H64c-35.3 0-64 28.7-64 64v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64h-40V24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H152V24zM48 192h352v256c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192z"/></svg>`;
-  const ICON_CLOCK = `<svg aria-hidden="true" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm12-328h-24c-6.6 0-12 5.4-12 12v116c0 4.2 2.2 8.1 5.8 10.3l88 52c5.7 3.4 13.1 1.6 16.5-4.1l12-20c3.4-5.7 1.6-13.1-4.1-16.5l-82.2-48.6V140c0-6.6-5.4-12-12-12z"/></svg>`;
-  const ICON_LOC = `<svg aria-hidden="true" viewBox="0 0 384 512"><path fill="currentColor" d="M168 0C75.1 0 0 75.1 0 168c0 87.7 141.7 293.9 160.8 321.2c3 4.3 8 6.8 13.2 6.8s10.2-2.5 13.2-6.8C182.3 461.9 324 255.7 324 168C324 75.1 248.9 0 156 0h12zM168 256a88 88 0 1 1 0-176 88 88 0 1 1 0 176z"/></svg>`;
+  /* ---------------------------------------------
+   * Inline icons (SVGs)
+   * ------------------------------------------- */
+  const ICON_CAL = `
+    <svg aria-hidden="true" viewBox="0 0 448 512">
+      <path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H64c-35.3 0-64 28.7-64 64v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64h-40V24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H152V24zM48 192h352v256c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192z"/>
+    </svg>`;
+  const ICON_CLOCK = `
+    <svg aria-hidden="true" viewBox="0 0 512 512">
+      <path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm12-328h-24c-6.6 0-12 5.4-12 12v116c0 4.2 2.2 8.1 5.8 10.3l88 52c5.7 3.4 13.1 1.6 16.5-4.1l12-20c3.4-5.7 1.6-13.1-4.1-16.5l-82.2-48.6V140c0-6.6-5.4-12-12-12z"/>
+    </svg>`;
+  const ICON_LOC = `
+    <svg aria-hidden="true" viewBox="0 0 384 512">
+      <path fill="currentColor" d="M168 0C75.1 0 0 75.1 0 168c0 87.7 141.7 293.9 160.8 321.2c3 4.3 8 6.8 13.2 6.8s10.2-2.5 13.2-6.8C182.3 461.9 324 255.7 324 168C324 75.1 248.9 0 156 0h12zM168 256a88 88 0 1 1 0-176 88 88 0 1 1 0 176z"/>
+    </svg>`;
 
-  // Date helpers
+  /* ---------------------------------------------
+   * Date helpers
+   * ------------------------------------------- */
   const todayKey = () => {
     const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   };
-  const isUpcoming = ev => (ev?.date || '') >= todayKey();
-  const byDateAsc  = (a,b) => (a.date > b.date) - (a.date < b.date);
 
-  // Month helpers
-  const monthKey = (dateStr) => {
-    const [y,m] = (dateStr || '').split('-');
-    return (y && m) ? `${y}-${m}` : '';
+  const isUpcoming = (ev) => (ev?.date || '') >= todayKey();
+  const byDateAsc = (a, b) => (a.date > b.date) - (a.date < b.date);
+
+  const monthKey = (dateStr = '') => {
+    const [y, m] = dateStr.split('-');
+    return y && m ? `${y}-${m}` : '';
   };
-  // UPPERCASE Spanish month name only (used in accordion headers)
+
+  // Month label in ES (uppercase) for accordion headers
   const monthLabel = (key) => {
-    const [y,m] = key.split('-').map(Number);
-    const dt = new Date(y, (m||1)-1, 1);
+    const [y, m] = key.split('-').map(Number);
+    const dt = new Date(y, (m || 1) - 1, 1);
     return dt.toLocaleDateString('es', { month: 'long' }).toUpperCase();
   };
 
-  // Single, shared date formatter everywhere → "September 6, 2025"
+  // "September 6, 2025" style
   const fmtDate = (dateStr) => {
     try {
-      const [y,m,d] = (dateStr || '').split('-').map(Number);
+      const [y, m, d] = (dateStr || '').split('-').map(Number);
       const dt = new Date(y, m - 1, d);
-      return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      return dt.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
     } catch {
       return dateStr || '';
     }
   };
 
-  // Card
+  /* ---------------------------------------------
+   * Calendar helpers (Google)
+   * ------------------------------------------- */
+  const pad = (n) => String(n).padStart(2, '0');
+
+  // ev.date = "YYYY-MM-DD", ev.time can be "7:00 PM" or "7:00 PM – 8:00 PM"
+  function parseCardTimes(ev) {
+    const base = ev.date || '';
+    const toDate = (t) => (t ? new Date(`${base} ${t}`) : null);
+
+    if (!ev.time) {
+      const start = new Date(`${base} 9:00 AM`);
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+      return { start, end };
+    }
+
+    const [t1, t2] = ev.time.split(/–|-/).map((s) => s.trim());
+    const start = toDate(t1);
+    const end = t2 ? toDate(t2) : new Date(start.getTime() + 60 * 60 * 1000);
+    return { start, end };
+  }
+
+  function fmtUTC(d) {
+    return (
+      d.getUTCFullYear() +
+      pad(d.getUTCMonth() + 1) +
+      pad(d.getUTCDate()) +
+      'T' +
+      pad(d.getUTCHours()) +
+      pad(d.getUTCMinutes()) +
+      pad(d.getUTCSeconds()) +
+      'Z'
+    );
+  }
+
+  function buildGoogleCalUrl(ev) {
+    const { start, end } = parseCardTimes(ev);
+    const dates = `${fmtUTC(start)}/${fmtUTC(end)}`;
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: ev.title || 'Evento',
+      dates,
+      details: ev.description || '',
+      location: ev.location || ''
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
+  /* ---------------------------------------------
+   * Card factory
+   * ------------------------------------------- */
   function makeCard(ev) {
     const title = ev.title || 'Evento';
+
     const el = document.createElement('article');
     el.className = 'event animate-fade-in';
     el.setAttribute('data-threshold', '1');
-    el.setAttribute('role','listitem');
+    el.setAttribute('role', 'listitem');
+
+    // Details page: prefer ev.url; fallback to local page by id (if present)
+    const detailsHref = ev.url
+      ? ev.url
+      : ev.id
+      ? `/evento.html?id=${encodeURIComponent(ev.id)}`
+      : null;
+
+    const addCalHref = buildGoogleCalUrl(ev);
+
     el.innerHTML = `
-      <div class="event__media">
-        <img src="${ev.image || ''}" alt="${title}">
+      <a class="event__linkwrap" ${
+        detailsHref ? `href="${detailsHref}"` : ''
+      } aria-label="${title}">
+        <div class="event__media">
+          <img src="${ev.image || ''}" alt="${title}">
+        </div>
+        <div class="event__body">
+          <h3 class="event__title">${title}</h3>
+          <div class="event__row">${ICON_CAL}<span>${fmtDate(ev.date)}</span></div>
+          ${ev.time ? `<div class="event__row">${ICON_CLOCK}<span>${ev.time}</span></div>` : ''}
+          ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${ev.location}</span></div>` : ''}
+          <div class="event__actions">
+            <a class="event__addcal"
+              href="${addCalHref}"
+              target="_blank" rel="noopener noreferrer">
+              Agregar al calendario
+            </a>
       </div>
-      <div class="event__body">
-        <h3 class="event__title">${title}</h3>
-        <div class="event__row">${ICON_CAL}<span>${fmtDate(ev.date)}</span></div>
-        ${ev.time ? `<div class="event__row">${ICON_CLOCK}<span>${ev.time}</span></div>` : ''}
-        ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${ev.location}</span></div>` : ''}
-      </div>
-      ${ev.url ? `<a class="event__link" href="${ev.url}" target="_blank" rel="noopener noreferrer">Leer más</a>` : ''}
+        </div>
+      </a>
     `;
+
+    // Make entire card clickable (don’t hijack the calendar button)
+    if (detailsHref) {
+      el.tabIndex = 0;
+
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.event__addcal')) return;
+        const a = el.querySelector('.event__linkwrap[href]');
+        if (a) a.click();
+      });
+
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          const a = el.querySelector('.event__linkwrap[href]');
+          if (a) a.click();
+        }
+      });
+    } else {
+      el.style.cursor = 'default';
+    }
+
     return el;
   }
 
-  // Accordion item (re-uses your section--accordion-faq.css). Only first starts open.
+  /* ---------------------------------------------
+   * Accordion (month buckets)
+   * ------------------------------------------- */
   function makeMonthAccordionItem(key, events, isFirst) {
-    const item  = document.createElement('div');
+    const item = document.createElement('div');
     item.className = 'accordion-faq__item';
 
     const btn = document.createElement('button');
@@ -86,21 +205,26 @@
     if (isFirst) panel.classList.add('open');
 
     const grid = document.createElement('div');
-    // Extra class makes accordion grids left-aligned without touching main grid
-    grid.className = 'events__grid events__grid--accordion';
+    grid.className = 'events__grid events__grid--accordion'; // left-aligns accordion grids
     grid.setAttribute('role', 'list');
 
     const frag = document.createDocumentFragment();
-    events.forEach(ev => frag.appendChild(makeCard(ev)));
+    events.forEach((ev) => frag.appendChild(makeCard(ev)));
     grid.appendChild(frag);
     panel.appendChild(grid);
-    if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
+
+    if (window.initAnimations) {
+      requestAnimationFrame(() => window.initAnimations());
+    }
 
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));
       panel.classList.toggle('open', !expanded);
-      if (!expanded && window.initAnimations) requestAnimationFrame(() => window.initAnimations());
+
+      if (!expanded && window.initAnimations) {
+        requestAnimationFrame(() => window.initAnimations());
+      }
     });
 
     item.appendChild(btn);
@@ -108,18 +232,24 @@
     return item;
   }
 
-  // Simple grid (main page)
+  /* ---------------------------------------------
+   * Renderers
+   * ------------------------------------------- */
   function renderSimpleGrid(container, list) {
     if (!container) return;
+
     container.hidden = false;
     container.innerHTML = '';
+
     const frag = document.createDocumentFragment();
-    list.forEach(ev => frag.appendChild(makeCard(ev)));
+    list.forEach((ev) => frag.appendChild(makeCard(ev)));
     container.appendChild(frag);
-    if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
+
+    if (window.initAnimations) {
+      requestAnimationFrame(() => window.initAnimations());
+    }
   }
 
-  // Month accordion (full events)
   function renderMonthAccordion(section, list) {
     // Hide placeholder grid if present
     const placeholder = section.querySelector('.events__grid, #events-grid');
@@ -130,20 +260,24 @@
     if (!hostWrapper) {
       const shell = document.createElement('section');
       shell.className = 'section--accordion-faq';
-      shell.setAttribute('data-months','');
+      shell.setAttribute('data-months', '');
+
       hostWrapper = document.createElement('div');
       hostWrapper.className = 'accordion-faq__wrapper';
       shell.appendChild(hostWrapper);
 
       const header = section.querySelector('.events__header');
-      if (header && header.nextSibling) section.insertBefore(shell, header.nextSibling);
-      else section.appendChild(shell);
+      if (header && header.nextSibling) {
+        section.insertBefore(shell, header.nextSibling);
+      } else {
+        section.appendChild(shell);
+      }
     }
 
     // Clear previous render (idempotent)
     hostWrapper.innerHTML = '';
 
-    // Group by month, render items
+    // Group by month
     const buckets = new Map();
     for (const ev of list) {
       const k = monthKey(ev.date || '');
@@ -152,6 +286,7 @@
       buckets.get(k).push(ev);
     }
 
+    // Render items
     const frag = document.createDocumentFragment();
     [...buckets.keys()].sort().forEach((k, i) => {
       frag.appendChild(makeMonthAccordionItem(k, buckets.get(k), i === 0));
@@ -159,7 +294,7 @@
     hostWrapper.appendChild(frag);
   }
 
-  function renderInto(section, allEvents){
+  function renderInto(section, allEvents) {
     const monthMode = section.hasAttribute('data-month-accordion');
     const grid = section.querySelector('.events__grid, #events-grid');
     const empty = section.querySelector('.events__empty');
@@ -172,20 +307,28 @@
 
     if (!list.length) {
       if (empty) empty.hidden = false;
-      if (grid) { grid.hidden = false; grid.innerHTML = ''; }
+      if (grid) {
+        grid.hidden = false;
+        grid.innerHTML = '';
+      }
       const hostWrapper = section.querySelector('[data-months] .accordion-faq__wrapper');
       if (hostWrapper) hostWrapper.innerHTML = '';
       return;
     }
+
     if (empty) empty.hidden = true;
 
     if (monthMode) renderMonthAccordion(section, list);
     else renderSimpleGrid(grid, list);
   }
 
-  // Public API (called by your Supabase bridges)
+  /* ---------------------------------------------
+   * Public API
+   * ------------------------------------------- */
   window.Rail = Object.assign(window.Rail || {}, {
-    setEvents(allEvents = []) { getSections().forEach(sec => renderInto(sec, allEvents)); },
+    setEvents(allEvents = []) {
+      getSections().forEach((sec) => renderInto(sec, allEvents));
+    },
     init() {}
   });
 })();

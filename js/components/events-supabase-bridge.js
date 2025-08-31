@@ -1,13 +1,11 @@
 // /js/rail-supabase-bridge.js
 import { createEventFetcher } from "js/components/events-fetcher.js";
 
-// ⬅️ put your real values here
 const EF = createEventFetcher({
   url:  "https://snqwxgyhfiinouewxgiy.supabase.co",
   anon: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo"
 });
 
-// Supabase row -> rail.js event shape
 function toRailEvent(row) {
   // expects row.starts_at (timestamptz) and row.image_url
   const d = new Date(row.starts_at);
@@ -20,10 +18,10 @@ function toRailEvent(row) {
   return {
     id:       row.id,
     title:    row.title,
-    date,                     // rail.js expects YYYY-MM-DD (string)
-    time,                     // "7:00 PM"
+    date,                     
+    time,                   
     location: row.location || "",
-    image:    row.image_url || ""   // rail.js expects 'image'
+    image:    row.image_url || ""  
   };
 }
 
