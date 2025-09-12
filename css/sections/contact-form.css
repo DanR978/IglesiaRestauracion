@@ -234,7 +234,6 @@ textarea {
   top: 50%;
   transform: translateY(-50%);
   padding: 0 0.35rem;
-  background: var(--u-label-bg);
   color: rgb(173, 173, 173);
   font-size: var(--size-sm);
   line-height: 1;
@@ -263,5 +262,11 @@ textarea {
 
 /* keep your existing borders/opacity; just ensure label sits over the border cleanly */
 .u-float-group .u-float-label {
-  background: var(--color-bg-light);
+  background: white;
+}
+
+@media (prefers-color-scheme: dark) {
+  .u-float-group .u-float-label {
+    background: var(--color-bg-light);
+  }
 }
