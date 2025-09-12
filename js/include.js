@@ -58,13 +58,7 @@
     };
 
     const candidates = [
-      "/css/sections/events.css",
-      "/css/events.css",
-      "/styles/events.css",
-      "/assets/css/events.css",
-      "/assets/events.css",
-      "./css/sections/events.css",
-      "./css/events.css",
+      "./css/sections/events.css"
     ];
 
     for (const href of candidates) {
@@ -83,12 +77,7 @@
       if (window.Rail?.setEvents) return;
 
       const candidates = [
-        "/js/app/events.js",
-        "/js/events.js",
-        "/js/components/events.js",
-        "/assets/js/events.js",
-        "./js/app/events.js",
-        "./js/events.js",
+        "/js/components/events.js"
       ];
 
       const tried = [];

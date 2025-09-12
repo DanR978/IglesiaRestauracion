@@ -1,0 +1,98 @@
+/* =========================================================
+   CONTAINERS
+   --------------------------------------------------------- */
+.wrapper,
+.wrapper--footer {
+  max-width: 100%;
+  min-width: var(--min-div-size);
+  margin: var(--mg-md);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--container-shadow);
+}
+
+/* simple padding helper */
+.rg-pd { padding: var(--pd-sm); }
+
+/* Section container used on dark bands */
+.info-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--min-div-size);
+  width: 100%;
+  background-color: var(--color-dark);
+}
+
+/* =========================================================
+   FLEX LAYOUT HELPERS
+   (keeps your old names as aliases)
+   --------------------------------------------------------- */
+.row-default,
+.temp-default {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.row-default {
+  margin: var(--mg-sm);
+  width: minmax(100%, 500px);
+  max-width: 100%;
+}
+
+/* wider row used for the “info” band */
+.temp-default {
+  width: clamp(330px, 60vw, 800px);
+  margin: 5rem 0;
+}
+
+.column-default {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pd-md);
+}
+
+/* =========================================================
+   MEDIA / IMAGES
+   --------------------------------------------------------- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgb(0 0 0 / .2);
+  z-index: 1;
+}
+
+.img-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(300px, 40vw, 800px);
+  height: clamp(300px, 30vh, 800px);
+  margin: clamp(var(--mg-xs), 4vw, var(--mg-lg)) var(--mg-sm);
+  border-radius: 10px;
+  overflow: hidden;
+  object-fit: cover;
+}
+
+.map { width: 100%; height: 100%; }
+
+/* =========================================================
+   RESPONSIVE (small)
+   --------------------------------------------------------- */
+@media (max-width: var(--bp-xs)) {
+  .wrapper,
+  .wrapper--footer { margin: var(--mg-sm); }
+
+  header { height: 50vh; }
+
+  .info-container { flex-direction: column; }
+}

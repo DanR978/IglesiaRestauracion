@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin | IRD</title>
+
+  <!-- (Optional) your global CSS -->
+  <link rel="stylesheet" href="../css/style.css" />
+
+  <!-- Admin-only styles -->
+  <link rel="stylesheet" href="./admin.css" />
+</head>
+<body>
+  <!-- Top Nav -->
+  <header class="admin-navbar">
+    <a class="brand" href="/">IGLESIA RESTAURACIÓN DIVINA</a>
+
+    <nav class="admin-nav">
+      <ul class="admin-menu">
+        <li class="has-submenu">
+          <button class="menu-btn" aria-haspopup="true" aria-expanded="false">
+            Page manager
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="submenu">
+            <li><a href="#events" data-section="events">Agregar eventos</a></li>
+            <!-- more sections later -->
+          </ul>
+        </li>
+      </ul>
+      <div class="nav-right">
+        <span id="auth-user" class="muted"></span>
+        <button id="btn-logout" class="ird-btn ird-btn--white-fill ird-btn--outline" hidden>Salir</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+    <!-- LOGIN PANEL -->
+    <section id="auth-panel" class="card">
+      <h2>Iniciar sesión</h2>
+      <p class="muted">Solo administradores.</p>
+
+      <form id="login-form" class="grid">
+        <label>
+          <span>Email</span>
+          <input type="email" id="login-email" required autocomplete="username" />
+        </label>
+        <label>
+          <span>Contraseña</span>
+          <input type="password" id="login-password" required autocomplete="current-password" />
+        </label>
+        <button type="submit" class="ird-btn ird-btn--teal">Entrar</button>
+        <p id="login-msg" class="msg"></p>
+      </form>
+    </section>
+
+    <!-- EVENTS MANAGER -->
+    <section id="events-panel" class="card" hidden>
+      <h2>Agregar evento</h2>
+      <div class="two-col">
+        <form id="event-form" class="stack">
+          <label>
+            <span>Título</span>
+            <input type="text" id="ev-title" placeholder="Servicio de Adoración" required />
+          </label>
+
+          <div class="grid-2">
+            <label>
+              <span>Fecha</span>
+              <input type="date" id="ev-date" required />
+            </label>
+            <label>
+              <span>Hora</span>
+              <input type="time" id="ev-time" required />
+            </label>
+          </div>
+
+          <label>
+            <span>Ubicación</span>
+            <input type="text" id="ev-location" placeholder="2601 Clays Mill Road | Lexington, KY" required />
+          </label>
+
+          <label>
+            <span>Descripción</span>
+            <textarea id="ev-desc" rows="4" placeholder="Breve detalle del evento..."></textarea>
+          </label>
+
+          <label>
+            <span>Imagen (URL)</span>
+            <input type="url" id="ev-image" placeholder="https://..." />
+          </label>
+
+          <div class="actions">
+            <button id="btn-save" class="ird-btn ird-btn--orange" type="submit">Guardar evento</button>
+            <span id="save-msg" class="msg"></span>
+          </div>
+        </form>
+
+        <!-- LIVE PREVIEW -->
+        <aside class="preview">
+          <h3>Vista previa</h3>
+          <article class="event-card">
+            <img id="pv-image" alt="Imagen del evento" />
+            <div class="event-card__body">
+              <h4 id="pv-title">Título del Evento</h4>
+              <p class="event-card__meta">
+                <span id="pv-date">Fecha</span> · <span id="pv-time">Hora</span>
+              </p>
+              <p class="event-card__location" id="pv-location">Ubicación</p>
+              <p class="event-card__desc" id="pv-desc">Descripción breve aparecerá aquí…</p>
+            </div>
+          </article>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="admin-footer muted">
+    Panel de administración · I.R.D.
+  </footer>
+
+  <!-- If you want Supabase auth + DB, include its client -->
+  <script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

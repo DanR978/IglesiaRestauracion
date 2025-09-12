@@ -1,0 +1,84 @@
+
+/* =========================================================
+   ZIGZAG (SPLIT) SECTION
+   --------------------------------------------------------- */
+.wrapper--zigzag-grid {
+  max-width: 100%;
+  margin: var(--mg-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem 2.5rem;
+  padding: 1rem;
+}
+
+.zigzag-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.img-cover-container {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: var(--image-shadow);
+}
+
+.zigzag-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  font-family: var(--font-Signika);
+  background-color: var(--transparent);
+  border: 0;
+  justify-content: center;
+}
+
+.zigzag-row { display: flex; flex-direction: row; }
+
+.zigzag-card h1 {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: 2px;
+  color: var(--color-black);
+}
+
+.zigzag-card h5 {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--color-black);
+}
+
+.zigzag-card p {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-light);
+  color: var(--color-black);
+}
+
+/* Mobile: stack; image first; tweak sizes */
+@media (max-width: 768px) {
+  .wrapper--zigzag-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: var(--mg-xs);
+    padding: var(--pd-md);
+  }
+
+  .zigzag-image { margin-top: 2rem; }
+  .zigzag-card p { font-size: var(--fs-xl); }
+
+  /* reorder helpers used in your markup */
+  .One  { order: 2; } /* Salvación content */
+  .Two  { order: 1; } /* Salvación image  */
+  .Three{ order: 3; } /* Bautismo image   */
+  .Four { order: 4; } /* Bautismo content */
+  .Five { order: 6; } /* Servir content   */
+  .Six  { order: 5; } /* Servir image     */
+
+  .service-subheading { font-size: var(--size-2xl); }
+}

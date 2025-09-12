@@ -164,7 +164,7 @@ textarea {
   animation: float 2s ease-in-out infinite;
 }
 
-#envsvg {
+.contact-svg svg {
   height: 15rem;
 }
 
