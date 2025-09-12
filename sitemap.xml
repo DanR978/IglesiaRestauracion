@@ -37,4 +37,18 @@
     <priority>0.8</priority>
   </url>
 
+  <url>
+    <loc>https://www.irdlex.org/donacion</loc>
+    <lastmod>2025-08-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://www.irdlex.org/eventos</loc>
+    <lastmod>2025-08-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
