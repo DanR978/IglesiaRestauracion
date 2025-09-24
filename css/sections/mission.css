@@ -36,11 +36,14 @@
 }
 
 .mission-title {
-  font-size: var(--fs-xl);
-  font-weight: var(--fw-bold);
-  padding-top: var(--pd-sm);
-  padding-bottom: var(--pd-md);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
   color: var(--color-black);
+  font-size: var(--fs-4xl);
+  font-family: var(--font-lexend);
+  font-weight: var(--fw-extrabold);
+  height: 150px;
 }
 
 .mission-description {
@@ -64,3 +67,4 @@
 .crown-thorns.img {
   filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(5);
 }
+
