@@ -152,7 +152,6 @@
 .event__linkwrap{
   display: grid;              /* preserves the card’s grid layout */
   text-decoration: none;      /* no underline on children */
-  gap: 0.5rem;
 }
 
 .event__linkwrap:hover {

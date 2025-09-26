@@ -40,10 +40,12 @@
   justify-content: flex-start;
   align-items: center;
   color: var(--color-black);
-  font-size: var(--fs-4xl);
+  font-size: var(--fs-3xl);
   font-family: var(--font-lexend);
   font-weight: var(--fw-extrabold);
   height: 150px;
+  letter-spacing: -1px;
+  text-transform: uppercase;
 }
 
 .mission-description {
@@ -68,3 +70,8 @@
   filter: brightness(0.2) sepia(1) hue-rotate(180deg) saturate(5);
 }
 
+@media (min-width: 768px) {
+  .mission-title {
+    font-size: var(--fs-4xl);
+  }
+}

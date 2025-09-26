@@ -80,7 +80,7 @@
     const fallbackHref = buildGoogleCalUrl(ev);
 
     article.innerHTML = `
-      <a class="event__linkwrap" ${detailsHref ? `href="${detailsHref}"` : ''} aria-label="${title}">
+      <div class="event__linkwrap" aria-label="${title}">
         <div class="event__media">
           <img src="${ev.image || ''}" alt="${title}">
         </div>

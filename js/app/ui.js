@@ -58,6 +58,73 @@ export function setupBurgerMenu() {
   });
 }
 
+export function setupStickyNav({
+  bgOn = 110,           // add .scrolled when > 110px
+  bgOff = 80,           // remove .scrolled when < 80px (hysteresis)
+  hideOnScroll = true,
+  slideThreshold = 10   // start slide logic after a tiny nudge
+} = {}) {
+  const nav = document.querySelector('.nav-container');
+  if (!nav) return;
+
+  let lastY = window.scrollY;
+  let ticking = false;
+  let bgIsOn = false;
+
+  // Background class with hysteresis (no CSS set via JS)
+  const updateBg = (y) => {
+    if (!bgIsOn && y > bgOn) {
+      bgIsOn = true;
+      nav.classList.add('scrolled');
+    } else if (bgIsOn && y < bgOff) {
+      bgIsOn = false;
+      nav.classList.remove('scrolled');
+    }
+  };
+
+  // Smooth hide/show on scroll direction
+  const onScroll = () => {
+    const y = window.scrollY;
+
+    updateBg(y);
+
+    if (hideOnScroll && y > slideThreshold) {
+      if (y > lastY && y > slideThreshold + 100) {
+        nav.classList.add('nav-hidden');      // scrolling down → hide
+      } else if (y < lastY) {
+        nav.classList.remove('nav-hidden');   // scrolling up → show
+      }
+    } else {
+      nav.classList.remove('nav-hidden');     // near top → show
+    }
+
+    lastY = y;
+    ticking = false;
+  };
+
+  const tick = () => {
+    if (!ticking) {
+      requestAnimationFrame(onScroll);
+      ticking = true;
+    }
+  };
+
+  // Initial state
+  updateBg(window.scrollY);
+
+  window.addEventListener('scroll', tick, { passive: true });
+
+  // Keep things sane on resize
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      nav.classList.remove('nav-hidden');
+      updateBg(window.scrollY);
+    }, 200);
+  });
+}
+
 export function setupFAQAccordion() {
   const buttons = document.querySelectorAll('.accordion-faq__question');
   buttons.forEach(button => {
@@ -127,7 +194,6 @@ export function initAnimations() {
   const mo = new MutationObserver(observeTargets);
   mo.observe(document.body, { childList: true, subtree: true });
 }
-
 
 export function setupDirectionsButton({
   buttonId = "getDirections",

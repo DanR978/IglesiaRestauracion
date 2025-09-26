@@ -1,10 +1,10 @@
 (function () {
   const PHRASES = [
     "Cree en Jesús",
-    "Arrepiéntete del pecado",
+    "Arrepiéntete de tu pecado",
     "Recibe nueva vida",
     "Toma tu cruz",
-    "Síguelo"
+    "Enamorate de el y síguelo"
   ];
 
   // Get real fade duration from your CSS (.animate-fade-in transition)

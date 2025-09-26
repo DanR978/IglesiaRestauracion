@@ -1,12 +1,12 @@
 .header-grid {
-  position: absolute;
+  position: relative;
   inset: 0;
   display: grid;
   place-items: center;
-  height: auto;              
+  height: 100vh;              
 }
 
-.header-container {
+/* .header-container {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -19,8 +19,7 @@
   bottom: 0;
   flex-basis: 400px;
   flex-shrink: 0;
-
-}
+} */
 
 .header-container a {
   text-decoration: none;
@@ -47,17 +46,45 @@
 }
 
 .nav-container {
+  position: fixed;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: var(--pd-md);
-  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   z-index: var(--z-menu);
+  background-color: var(--transparent);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateY(0);
   text-decoration: none;
   max-width: 100vw;
+}
+
+.nav-container.scrolled {
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: saturate(1.1) blur(80px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
+  opacity: 0.2;
+}
+
+.nav-container.scrolled::before { 
+  opacity: .95; 
+}
+
+.nav-container.nav-hidden {
+  transform: translateY(-100%);
+}
+
+.nav-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .75s ease;
 }
 
 .logo {

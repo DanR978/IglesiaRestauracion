@@ -44,6 +44,7 @@ import {
   loadExternalScripts,
   setCurrentYear,
   setupBurgerMenu,
+  setupStickyNav,
   setupFAQAccordion,
   loadRandomVerse,
   initAnimations,
@@ -82,6 +83,7 @@ document.addEventListener("includes:ready", wirePageOnce);
 
 // Burger menu after header is injected so listeners survive innerHTML swaps
 document.addEventListener("header:ready", () => {
+  setupStickyNav?.({ sentinelSelector: '.hero', scrollThreshold: 100, hideOnScroll: true });
   setupBurgerMenu?.();
 });
 

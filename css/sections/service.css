@@ -9,12 +9,13 @@
 }
 
 .service-subheading {
-  font-family: var(--font-DM-Sans);
-  font-weight: var(--fw-semibold);
+  font-family: var(--font-lexend);
+  font-weight: var(--fw-bold);
   font-size: var(--fs-xl);
   color: var(--color-white);
   padding-bottom: var(--pd-xs);
   text-align: center;
+  text-transform: uppercase;
 }
 
 .service-address {
@@ -34,10 +35,9 @@
 }
 
 .service-time {
-  font-family: var(--font-DM-Sans);
-  font-weight: var(--fw-regular);
+  font-family: var(--font-lexend);
+  font-weight: var(--fw-semibold);
   font-size: var(--size-base);
-  letter-spacing: 1px;
   color: var(--color-white);
   text-align: center;
 }
