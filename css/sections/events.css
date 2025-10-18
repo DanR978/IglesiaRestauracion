@@ -194,3 +194,12 @@
   color: #000;
   text-decoration: none;
 }
+
+.events__empty {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-black);
+    font-size: var(--size-2xl);
+    font-weight: var(--fw-bold);
+}
