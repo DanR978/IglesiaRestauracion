@@ -160,37 +160,34 @@
                   <p class="service-time">Servicio a las 2:00 PM (ET)</p>
                 </div>
               </div>
-                <div class="live-embed">
-                  <iframe
-                    src="https://www.youtube.com/embed/live_stream?channel=UCIrKtgR89PjeEJMHPDuomQw"
-                    title="YouTube Live"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowfullscreen
-                    loading="lazy"
-                  ></iframe>
+              <div class="live-embed" id="liveEmbed">
+                <iframe
+                  id="liveIframe"
+                  title="YouTube Live"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowfullscreen
+                  loading="lazy"
+                ></iframe>
+              </div>
+
+              <a
+                href="https://www.youtube.com/@Lex.IglesiaRestauracionDivina"
+                target="_blank"
+                rel="noopener"
+                class="live-placeholder-link"
+                id="livePlaceholderLink"
+              >
+                <div class="placeholder live-placeholder" id="livePlaceholder">
+                  <img
+                    src="/resources/media/images/lives.png"
+                    alt="Transmisión en vivo próximamente"
+                  >
                 </div>
+              </a>
             </div>
           </div>
         </div>
       </section>
-
-      <!-- <section class="column-container"> 
-        <div class="info-container wrapper" style="background-color: var(--color-primary);">
-          <div class="live-card">
-            <h3 class="service-subheading">Próxima Predica</h3>
-            <p class="service-address">Domingos alas 3:00 PM (ET)</p>
-            <div class="live-embed">
-              <iframe
-                src="https://www.youtube.com/embed/live_stream?channel=UCIrKtgR89PjeEJMHPDuomQw&autoplay=0&rel=0&modestbranding=1"
-                title="YouTube Live"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen
-                loading="lazy"
-              ></iframe>
-            </div>
-          </div>
-        </div>
-      </section> -->
 
       <section class="column-container">
         <div class="info-container" style="background-color: transparent;">
@@ -241,6 +238,7 @@
 
     <script type="module" src="/js/main.js"></script>
     <script type="module" src="js/components/missionSlideShow.js"></script>
+    <script type="module" src="/js/components/live-embed.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>
     <script type="module" src="/js/include.js"></script>
   </body>
