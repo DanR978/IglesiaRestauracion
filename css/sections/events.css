@@ -1,171 +1,185 @@
 /* ===== Events Block (Upcoming) ===== */
 :root {
-    --ev-gap: 2rem;
-    --ev-radius: 16px;
-    --ev-shadow: 0 8px 26px rgba(0, 0, 0, .10);
-    --card-min: 260px;
-    --max-cols: 4;
+  --ev-gap: 2rem;
+  --ev-radius: 16px;
+  --ev-shadow: 0 8px 26px rgba(0, 0, 0, .10);
+  --card-min: 260px;
+  --max-cols: 4;
+
+  /* NEW: a predictable card max width */
+  --card-max: 340px;
 }
 
 /* Container (reuse your layout class name) */
 .l-container {
-    max-width: 100%;
-    margin-inline: auto;
-    min-width: var(--min-div-size);
-    margin: var(--mg-md);
+  max-width: 100%;
+  margin-inline: auto;
+  min-width: var(--min-div-size);
+  margin: var(--mg-md);
 }
 
 /* Header */
 .event__header {
-    text-align: center;
-    margin: 2.2rem 0 1.25rem;
+  text-align: center;
+  margin: 2.2rem 0 1.25rem;
 }
 
 .event__header h2 {
-    color: var(--color-black);
-    font-size: var(--size-3xl);
-    font-weight: var(--fw-extrabold);
-    margin-bottom: 1rem;
+  color: var(--color-black);
+  font-size: var(--size-3xl);
+  font-weight: var(--fw-extrabold);
+  margin-bottom: 1rem;
 }
 
-/* Grid: fixed steps → 4 (desktop), 2 (tablet), 1 (mobile) */
-.events__grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(var(--card-min), 1fr)); /* desktop: up to 4 */
-    gap: var(--ev-gap);
-    padding: 0;
-    overflow: visible;
-    max-width: calc((var(--max-cols) * var(--card-min)) + ((var(--max-cols) - 1) * var(--ev-gap)));
-    margin-inline: auto;
-    margin-top: 3rem;
-    align-items: stretch;
-    justify-items: stretch;
-    justify-content: center;
-    margin-bottom: 5rem;
+/* =========================================================
+   EVENTS LAYOUT (REWRITTEN FOR ALWAYS-CENTERED BEHAVIOR)
+   ========================================================= */
+
+/* Flex-wrap centers 1 card and also centers groups of cards,
+   regardless of container width or parent layout quirks. */
+.l-container .events__grid {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: var(--ev-gap);
+
+  /* The actual fix */
+  justify-content: center !important;
+  align-items: stretch;
+
+  /* Remove any “list” spacing if this is a UL/OL */
+  padding: 0;
+  margin: 3rem auto 5rem auto;
+  list-style: none;
+
+  /* Keep content from becoming ridiculously wide */
+  max-width: calc((var(--max-cols) * var(--card-max)) + ((var(--max-cols) - 1) * var(--ev-gap)));
+  width: 100%;
 }
 
-/* iPad Air & similar: 2 columns */
+/* Tablet: allow ~2 cards per row, still centered */
 @media (max-width: 1180px) {
-    .events__grid {
-        grid-template-columns: repeat(2, minmax(var(--card-min), 300px));
-        max-width: calc((2 * var(--card-min)) + (1 * var(--ev-gap)));
-    }
+  .l-container .events__grid {
+    max-width: calc((2 * var(--card-max)) + (1 * var(--ev-gap)));
+  }
 }
 
-/* Mobile: 1 column */
+/* Mobile: one centered card per row */
 @media (max-width: 768px) {
-    .events__grid {
-        grid-template-columns: 1fr;
-        max-width: 460px;
-    }
+  .l-container .events__grid {
+    max-width: 460px;
+  }
 }
 
 /* Card */
-.event {
-    position: relative;
-    display: grid;
-    grid-template-rows: auto 1fr;
-    border-radius: var(--ev-radius);
-    overflow: hidden;
-    box-shadow: var(--ev-shadow);
-    height: 100%;
-    transition: transform .18s ease, box-shadow .18s ease;
-    outline: none;
-    border: none;
+.l-container .event {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: var(--ev-radius);
+  overflow: hidden;
+  box-shadow: var(--ev-shadow);
+  height: 100%;
+  transition: transform .18s ease, box-shadow .18s ease;
+  outline: none;
+  border: none;
+
+  /* The flex item sizing that keeps things centered */
+  flex: 0 1 var(--card-max);
+  width: min(100%, var(--card-max));
 }
 
+/* Hover stays the same */
 .event:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--dark-theme-shadow);
-    transition: transform .5s ease, box-shadow .18s ease;
-    text-decoration: none;
+  transform: translateY(-10px);
+  box-shadow: var(--dark-theme-shadow);
+  transition: transform .5s ease, box-shadow .18s ease;
+  text-decoration: none;
 }
 
 /* Media (top image) */
 .event__media {
-    aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 9;
 }
 
 .event__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* Body */
 .event__body {
-    background: linear-gradient(145deg, var(--rail-g1), var(--color-primary), var(--color-dark));
-    padding: 1rem 1rem 1.1rem;
-    display: grid;
-    gap: .7rem;
+  background: linear-gradient(145deg, var(--rail-g1), var(--color-primary), var(--color-dark));
+  padding: 1rem 1rem 1.1rem;
+  display: grid;
+  gap: .7rem;
 }
 
 /* Tag chip (optional) */
 .event__tag {
-    justify-self: start;
-    font-size: .72rem;
-    line-height: 1;
-    padding: .35rem .6rem;
-    border-radius: 999px;
-    color: #1f2937;
+  justify-self: start;
+  font-size: .72rem;
+  line-height: 1;
+  padding: .35rem .6rem;
+  border-radius: 999px;
+  color: #1f2937;
 }
 
 /* Title */
 .event__title {
-    margin-bottom: 0.5rem;
-    font-weight: var(--fw-bold);
-    font-size: var(--size-base);
-    color: var(--color-white);
+  margin-bottom: 0.5rem;
+  font-weight: var(--fw-bold);
+  font-size: var(--size-base);
+  color: var(--color-white);
 }
 
 /* Meta rows (calendar + location) */
 .event__row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: var(--size-xs);
-    color: var(--color-white);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--size-xs);
+  color: var(--color-white);
 }
 
 .event__row:hover {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .event__row svg {
-    width: 18px;
-    height: 18px;
-    opacity: .85;
-    flex: 0 0 18px;
-    stroke: var(--color-white);
+  width: 18px;
+  height: 18px;
+  opacity: .85;
+  flex: 0 0 18px;
+  stroke: var(--color-white);
 }
 
 /* Whole-card link (if you pass a URL) */
 .event__link {
-    position: absolute;
-    inset: 0;
-    text-indent: -9999px;
+  position: absolute;
+  inset: 0;
+  text-indent: -9999px;
 }
 
-
 /* make the card anchor behave like a block and inherit colors */
-.event__linkwrap{
-  display: grid;              /* preserves the card’s grid layout */
-  text-decoration: none;      /* no underline on children */
+.event__linkwrap {
+  display: grid;
+  text-decoration: none;
 }
 
 .event__linkwrap:hover {
-    text-decoration: none;
+  text-decoration: none;
 }
 
-/* actions row + calendar button (already added earlier) */
-.event__actions{
+/* actions row + calendar button */
+.event__actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
 }
 
-.event__addcal{
+.event__addcal {
   display: inline-flex;
   align-items: center;
   gap: .5rem;
@@ -188,7 +202,6 @@
   will-change: transform;
 }
 
-/* hover / focus / active */
 .event__addcal:hover {
   background-color: var(--color-white);
   color: #000;
@@ -196,13 +209,13 @@
 }
 
 .events__empty {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--color-black);
-    font-size: var(--size-xl);
-    font-weight: var(--fw-bold);
-    text-align: center;
-    max-width: 350px;
-    margin: 4rem auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-black);
+  font-size: var(--size-xl);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  max-width: 350px;
+  margin: 4rem auto;
 }
