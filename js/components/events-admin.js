@@ -1,8 +1,8 @@
 import { createEventFetcher } from "../components/events-fetcher.js";
 
 const EF = createEventFetcher({
-  url:  "https://snqwxgyhfiinouewxgiy.supabase.co",
-  anon: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo"
+  url:  import.meta.env.VITE_SUPABASE_URL,
+  anon: import.meta.env.VITE_SUPABASE_ANON_KEY
 });
 
 const $ = (s, r=document) => r.querySelector(s);

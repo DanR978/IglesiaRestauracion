@@ -1,8 +1,7 @@
 // js/app/components/live-embed.js
 (function () {
-  // TODO: put your real API key here
-  const CHANNEL_ID = 'UCIrKtgR89PjeEJMHPDuomQw';
-  const API_KEY = 'AIzaSyBvV3Gq4sDsX-H32e_mBv30XM3BPccZTGA';
+  const CHANNEL_ID = import.meta.env.VITE_YOUTUBE_CHANNEL_ID;
+  const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
   function showIframe(videoId) {
     const liveEmbed = document.getElementById('liveEmbed');
