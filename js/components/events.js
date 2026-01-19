@@ -74,63 +74,31 @@
   function makeCard(ev) {
     const title = ev.title || 'Evento';
     const article = el('article', 'event');
-    article.setAttribute('role','listitem');
-
-    const detailsHref = ev.url ? ev.url : (ev.id ? `/evento.html?id=${encodeURIComponent(ev.id)}` : null);
-    const fallbackHref = buildGoogleCalUrl(ev);
+    article.setAttribute('role', 'listitem');
 
     article.innerHTML = `
       <div class="event__linkwrap" aria-label="${title}">
         <div class="event__media">
           <img src="${ev.image || ''}" alt="${title}">
         </div>
+
         <div class="event__body">
           <h3 class="event__title">${title}</h3>
+
           <div class="event__row">${ICON_CAL}<span>${fmtDate(ev.date)}</span></div>
           ${ev.time ? `<div class="event__row">${ICON_CLOCK}<span>${ev.time}</span></div>` : ''}
           ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${ev.location}</span></div>` : ''}
-          <div class="event__actions">
-            <a class="event__addcal" href="${fallbackHref}" rel="noopener noreferrer">Agregar al calendario</a>
-          </div>
         </div>
-      </a>
+      </div>
     `;
 
-    // Make card clickable but don’t hijack the calendar button
-    if (detailsHref) {
-      article.tabIndex = 0;
-      article.addEventListener('click', (e) => {
-        if (e.target.closest('.event__addcal')) return;
-        const a = article.querySelector('.event__linkwrap[href]');
-        if (a) a.click();
-      });
-      article.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          const a = article.querySelector('.event__linkwrap[href]');
-          if (a) a.click();
-        }
-      });
-    } else {
-      article.style.cursor = 'default';
-    }
-
-    // Calendar handling: try iOS .ics util, else Google fallback
-    const addBtn = article.querySelector('.event__addcal');
-    addBtn.addEventListener('click', (e) => {
-      e.preventDefault(); e.stopPropagation();
-      const CU = window.CalendarUtils;
-      if (CU && typeof CU.handleCalendarClick === 'function') {
-        CU.handleCalendarClick({
-          id: ev.id, title: ev.title, date: ev.date, time: ev.time,
-          location: ev.location, description: ev.description, url: ev.url, tz: ev.tz
-        });
-      } else {
-        window.location.href = fallbackHref;
-      }
-    });
+    /* Explicitly ensure it's not interactive */
+    article.style.cursor = 'default';
 
     return article;
   }
+
+
 
   /* ========== month accordion ========== */
   function makeMonthAccordionItem(ymKey, events, startOpen = false) { // start closed by default

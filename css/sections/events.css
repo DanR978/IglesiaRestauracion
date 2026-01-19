@@ -3,11 +3,17 @@
   --ev-gap: 2rem;
   --ev-radius: 16px;
   --ev-shadow: 0 8px 26px rgba(0, 0, 0, .10);
-  --card-min: 260px;
+
+  /* layout targets */
   --max-cols: 4;
 
-  /* NEW: a predictable card max width */
-  --card-max: 340px;
+  /* NEW: card sizing tuned for “2-up at <= 450px, 1-up at <= 350px” */
+  --card-min: 100px;
+  --card-max: 300px;
+
+  /* NEW: compact sizes used at small widths */
+  --card-max-sm: 180px;  /* 2-up around 450px */
+  --card-max-xs: 250px;  /* 1-up <= 350px */
 }
 
 /* Container (reuse your layout class name) */
@@ -26,52 +32,99 @@
 
 .event__header h2 {
   color: var(--color-black);
-  font-size: var(--size-3xl);
+  font-size: var(--fs-3xl);
   font-weight: var(--fw-extrabold);
   margin-bottom: 1rem;
 }
 
 /* =========================================================
-   EVENTS LAYOUT (REWRITTEN FOR ALWAYS-CENTERED BEHAVIOR)
+   EVENTS LAYOUT (ALWAYS-CENTERED + RESPONSIVE “2-UP MIN”)
    ========================================================= */
 
-/* Flex-wrap centers 1 card and also centers groups of cards,
-   regardless of container width or parent layout quirks. */
-.l-container .events__grid {
+/* Base: centered flex-wrap layout */
+.events.l-container .events__grid {
   display: flex !important;
   flex-wrap: wrap;
-  gap: var(--ev-gap);
+  gap: var(--size-base);
 
-  /* The actual fix */
   justify-content: center !important;
   align-items: stretch;
 
-  /* Remove any “list” spacing if this is a UL/OL */
   padding: 0;
   margin: 3rem auto 5rem auto;
   list-style: none;
 
-  /* Keep content from becoming ridiculously wide */
   max-width: calc((var(--max-cols) * var(--card-max)) + ((var(--max-cols) - 1) * var(--ev-gap)));
   width: 100%;
 }
 
-/* Tablet: allow ~2 cards per row, still centered */
+/* Tablet: keep centered, comfortable 2-up max width */
 @media (max-width: 1180px) {
-  .l-container .events__grid {
+  .events.l-container .events__grid {
     max-width: calc((2 * var(--card-max)) + (1 * var(--ev-gap)));
   }
 }
 
-/* Mobile: one centered card per row */
-@media (max-width: 768px) {
-  .l-container .events__grid {
-    max-width: 460px;
+/* ===== HOME (4-events) RESPONSIVE RULES =====
+   Goal:
+   - <= 450px: ALWAYS try to fit 2 cards per row (2-up)
+   - <= 350px: switch to 1 per row (vertical)
+   - Text shrinks proportionally using your clamp variables
+*/
+@media (max-width: 480px) {
+  /* Tighten spacing so 2-up is realistic */
+  .events[aria-labelledby="events-title-home"] {
+    --card-max: var(--card-max-sm);
+  }
+
+  /* Force the grid to behave like 2-up by capping overall width to 2 cards */
+  .events[aria-labelledby="events-title-home"] .events__grid {
+    max-width: calc((2 * var(--card-max)) + (1 * var(--ev-gap)));
+    margin-bottom: var(--mg-lg);
+  }
+
+  /* Shrink typography + padding to keep aspect ratio clean */
+  .events[aria-labelledby="events-title-home"] .event__body {
+    padding: var(--size-xs);
+    gap: var(--mg-xxs);
+  }
+
+  .events[aria-labelledby="events-title-home"] .event__title {
+    font-size: var(--size-sm);
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+  }
+
+  .events[aria-labelledby="events-title-home"] .event__row {
+    font-size: var(--fs-xs);
+    line-height: 2.3;
+    gap: 0.35rem;
+  }
+
+  .events[aria-labelledby="events-title-home"] .event__row svg {
+    width: 14px;
+    height: 14px;
+    flex: 0 0 14px;
   }
 }
 
-/* Card */
-.l-container .event {
+/* <= 350px: go vertical (1-up) */
+@media (max-width: 350px) {
+  .events[aria-labelledby="events-title-home"] {
+    --ev-gap: var(--mg-xs);
+    --card-max: var(--card-max-xs);
+  }
+
+  .events[aria-labelledby="events-title-home"] .events__grid {
+    max-width: var(--card-max);
+  }
+}
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.events.l-container .event {
   position: relative;
   display: grid;
   grid-template-rows: auto 1fr;
@@ -83,9 +136,9 @@
   outline: none;
   border: none;
 
-  /* The flex item sizing that keeps things centered */
   flex: 0 1 var(--card-max);
   width: min(100%, var(--card-max));
+  max-width: var(--card-max);
 }
 
 /* Hover stays the same */
@@ -119,7 +172,7 @@
 /* Tag chip (optional) */
 .event__tag {
   justify-self: start;
-  font-size: .72rem;
+  font-size: var(--fs-xxs);
   line-height: 1;
   padding: .35rem .6rem;
   border-radius: 999px;
@@ -130,7 +183,7 @@
 .event__title {
   margin-bottom: 0.5rem;
   font-weight: var(--fw-bold);
-  font-size: var(--size-base);
+  font-size: var(--fs-base);
   color: var(--color-white);
 }
 
@@ -139,7 +192,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: var(--size-xs);
+  font-size: var(--fs-xs);
   color: var(--color-white);
 }
 
@@ -172,7 +225,7 @@
   text-decoration: none;
 }
 
-/* actions row + calendar button */
+/* actions row + calendar button (kept as-is; safe even if you removed it in JS) */
 .event__actions {
   display: flex;
   flex-wrap: wrap;
@@ -189,7 +242,7 @@
   background-color: var(--transparent);
   color: var(--color-white);
   font-weight: var(--fw-semibold);
-  font-size: var(--size-xs);
+  font-size: var(--fs-xs);
   line-height: 1;
   text-decoration: none;
   cursor: pointer;
@@ -213,9 +266,58 @@
   justify-content: center;
   align-items: center;
   color: var(--color-black);
-  font-size: var(--size-xl);
+  font-size: var(--fs-xl);
   font-weight: var(--fw-bold);
   text-align: center;
   max-width: 350px;
   margin: 4rem auto;
+}
+
+/* ==============================
+   ALL-EVENTS ONLY OVERRIDES
+   (smaller cards + months wrap)
+   ============================== */
+
+/* months should wrap side-by-side on the all-events page */
+.events[data-month-accordion] .accordion-faq__wrapper {
+  display: grid;
+  gap: var(--mg-md);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  justify-content: center;
+  align-items: start;
+}
+
+.events[data-month-accordion] .accordion-faq__item {
+  margin-bottom: 0;
+  width: 100%;
+}
+
+/* smaller event cards only on the all-events page */
+.events[data-month-accordion] {
+  --card-max: 200px;
+  --ev-gap: var(--mg-sm);
+}
+
+.events[data-month-accordion] .event__media {
+  aspect-ratio: 16 / 10;
+}
+
+.events[data-month-accordion] .event__body {
+  padding: var(--pd-xs);
+  gap: var(--mg-xxs);
+}
+
+.events[data-month-accordion] .event__title {
+  font-size: var(--fs-sm);
+  line-height: 1.2;
+}
+
+.events[data-month-accordion] .event__row {
+  font-size: var(--fs-xxs);
+  line-height: 1.8;
+}
+
+.events[data-month-accordion] .event__addcal {
+  font-size: var(--fs-xxs);
+  padding: 0.45rem 0.8rem;
 }
