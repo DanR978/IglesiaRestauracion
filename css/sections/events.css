@@ -58,13 +58,6 @@
   width: 100%;
 }
 
-/* Tablet: keep centered, comfortable 2-up max width */
-@media (max-width: 1180px) {
-  .events.l-container .events__grid {
-    max-width: calc((2 * var(--card-max)) + (1 * var(--ev-gap)));
-  }
-}
-
 /* ===== HOME (4-events) RESPONSIVE RULES =====
    Goal:
    - <= 450px: ALWAYS try to fit 2 cards per row (2-up)
