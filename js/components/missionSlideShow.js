@@ -7,7 +7,6 @@
     "Enamorate de el y síguelo"
   ];
 
-  // Get real fade duration from your CSS (.animate-fade-in transition)
   function getFadeMs(el) {
     const cs = getComputedStyle(el);
     const props = cs.transitionProperty.split(",").map(s => s.trim());
@@ -22,23 +21,19 @@
 
   const h2 = span.closest(".mission-title");
 
-  // Tighter timings (feel free to tweak)
-  let FADE = 0;   // will read from CSS
-  const HOLD = 2000;  // time fully visible
-  const GAP  = 50;   // small pause before next word
+  let FADE = 0;
+  const HOLD = 2000
+  const GAP  = 50; 
 
   let i = 0, started = false;
 
   function cycle() {
     span.textContent = PHRASES[i];
 
-    // fade in using your .animate-fade-in + .visible
-    // double-rAF prevents first-frame snapping
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         span.classList.add("visible");
 
-        // after it's visible for FADE+HOLD, fade out then next
         setTimeout(() => {
           span.classList.remove("visible");
           setTimeout(() => {
@@ -53,13 +48,11 @@
   function start() {
     if (started) return;
     started = true;
-    // Ensure the base class is there and read fade duration
     span.classList.add("animate-fade-in");
     FADE = Math.max(getFadeMs(span), 16);
     cycle();
   }
 
-  // Start when the H2 becomes visible via your IO, or fallback quickly
   if (!h2 || h2.classList.contains("visible")) {
     start();
   } else {
@@ -69,6 +62,6 @@
       }
     });
     mo.observe(h2, { attributes: true, attributeFilter: ["class"] });
-    setTimeout(start, 800); // fallback if IO never fires
+    setTimeout(start, 800);
   }
 })();

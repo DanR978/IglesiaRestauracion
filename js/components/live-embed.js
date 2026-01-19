@@ -1,6 +1,5 @@
 // js/app/components/live-embed.js
 (function () {
-  // TODO: put your real API key here
   const CHANNEL_ID = 'UCIrKtgR89PjeEJMHPDuomQw';
   const API_KEY = 'AIzaSyBvV3Gq4sDsX-H32e_mBv30XM3BPccZTGA';
 
@@ -11,10 +10,7 @@
 
     if (!liveEmbed || !iframe) return;
 
-    // Set embed URL for that video (live or scheduled)
     iframe.src = `https://www.youtube.com/embed/${videoId}`;
-
-    // Show iframe, hide placeholder
     liveEmbed.style.display = 'block';
     if (placeholderLink) {
       placeholderLink.style.display = 'none';
@@ -57,25 +53,19 @@
 
     if (!liveEmbed || !iframe || !placeholder) return;
 
-    // Start with placeholder
     showPlaceholder();
 
-    // 1) Try to find an active live stream
     fetchVideoByEventType('live')
       .then((liveVideoId) => {
         if (liveVideoId) {
-          // Active live stream
           showIframe(liveVideoId);
           return;
         }
 
-        // 2) If no live, try to find a scheduled (upcoming) live
         return fetchVideoByEventType('upcoming').then((upcomingVideoId) => {
           if (upcomingVideoId) {
-            // Scheduled live – YouTube will show the countdown page
             showIframe(upcomingVideoId);
           } else {
-            // Nothing scheduled/live -> keep placeholder
             showPlaceholder();
           }
         });

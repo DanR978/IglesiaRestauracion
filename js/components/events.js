@@ -1,14 +1,14 @@
 // /js/events.js — dual-mode renderer (simple grid OR month accordion)
-// Usage: window.Rail.setEvents([{ id, title, date:'YYYY-MM-DD', time?, location?, image?, url?, description? }])
+// Usage: window.Rail.setEvents([{ id, title, date:'YYYY-MM-DD', time?, location?, image?, url?, description?, starts_at? }])
 (() => {
   'use strict';
 
-  /* ========== tiny helpers ========== */
   const $all = (sel, root = document) => Array.from(root.querySelectorAll(sel));
   const el = (tag, cls) => { const n = document.createElement(tag); if (cls) n.className = cls; return n; };
   const pad = (n) => String(n).padStart(2, '0');
 
-  /* ========== inline icons (no external deps) ========== */
+  const TZ = 'America/New_York';
+
   const ICON_CAL = `
     <svg aria-hidden="true" viewBox="0 0 448 512"><path fill="currentColor"
     d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H64c-35.3 0-64 28.7-64 64v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64h-40V24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H152V24zM48 192h352v256c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192z"/></svg>`;
@@ -20,48 +20,121 @@
     d="M168 0C75.1 0 0 75.1 0 168c0 87.7 141.7 293.9 160.8 321.2c3 4.3 8 6.8 13.2 6.8s10.2-2.5 13.2-6.8C182.3 461.9 324 255.7 324 168C324 75.1 248.9 0 156 0h12zM168 256a88 88 0 1 1 0-176 88 88 0 1 1 0 176z"/></svg>`;
 
   /* ========== date helpers ========== */
-  const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+  const todayKey = () => {
+    // YYYY-MM-DD in Lexington timezone, stable for all viewers
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: TZ,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+    const get = (t) => parts.find(p => p.type === t)?.value;
+    return `${get('year')}-${get('month')}-${get('day')}`;
+  };
+
   const isUpcoming = (ev) => (ev?.date || '') >= todayKey();
   const byDateAsc = (a, b) => (a.date > b.date) - (a.date < b.date);
   const monthKey = (dateStr = '') => { const [y, m] = dateStr.split('-'); return (y && m) ? `${y}-${m}` : ''; };
-  const monthLabel = (ym) => { const [y, m] = ym.split('-').map(Number); return new Date(y, (m||1)-1, 1).toLocaleDateString('es', { month: 'long' }).toUpperCase(); };
+  const monthLabel = (ym) => {
+    const [y, m] = ym.split('-').map(Number);
+    return new Date(y, (m || 1) - 1, 1).toLocaleDateString('es', { month: 'long' }).toUpperCase();
+  };
 
   const fmtDate = (dateStr) => {
     try {
-      const [y,m,d] = (dateStr||'').split('-').map(Number);
-      return new Date(y, m-1, d).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+      const [y, m, d] = (dateStr || '').split('-').map(Number);
+      return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     } catch { return dateStr || ''; }
   };
 
   /* ========== time parsing & calendar link (Google) ========== */
-  const fmtUTC = (d) => d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+pad(d.getUTCSeconds())+'Z';
-  const fmtDateCompact = (d) => d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());
+  const fmtUTC = (d) => d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + 'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+  const fmtDateCompact = (d) => d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
 
-  const toLocalDate = (dateStr, timeStr) => {
-    if (!timeStr) return new Date(`${dateStr} 09:00`);
-    const clean = String(timeStr).replace(/\s+/g,' ').trim();
-    return new Date(`${dateStr} ${clean}`); // accepts 7pm / 7:00 PM / 19:00
-  };
+  function zonedLocalToDate(dateStr, timeStr, timeZone = TZ) {
+    const [Y, M, D] = (dateStr || '').split('-').map(Number);
+    if (!Y || !M || !D) return new Date(NaN);
+
+    let hh = 9, mm = 0; // default 09:00 if missing
+    if (timeStr) {
+      const clean = String(timeStr).replace(/\s+/g, ' ').trim().toUpperCase();
+      // Accept: "7pm", "7:00 PM", "19:00", "07:00PM"
+      const m12 = clean.match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)$/);
+      const m24 = clean.match(/^(\d{1,2})(?::(\d{2}))$/);
+
+      if (m12) {
+        hh = Number(m12[1]); mm = Number(m12[2] || '0');
+        const ap = m12[3];
+        if (ap === 'PM' && hh !== 12) hh += 12;
+        if (ap === 'AM' && hh === 12) hh = 0;
+      } else if (m24) {
+        hh = Number(m24[1]); mm = Number(m24[2] || '0');
+      }
+    }
+
+    let guess = new Date(Date.UTC(Y, M - 1, D, hh, mm, 0));
+
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    }).formatToParts(guess);
+
+    const get = (t) => Number(parts.find(p => p.type === t)?.value);
+    const y2 = get('year'), mo2 = get('month'), d2 = get('day'), h2 = get('hour'), mi2 = get('minute');
+
+    const desiredMinutes = (((Y * 13 + M) * 32 + D) * 24 + hh) * 60 + mm;
+    const gotMinutes = (((y2 * 13 + mo2) * 32 + d2) * 24 + h2) * 60 + mi2;
+    const diffMin = desiredMinutes - gotMinutes;
+
+    guess = new Date(guess.getTime() + diffMin * 60000);
+    return guess;
+  }
 
   function parseCardTimes(ev) {
-    const base = ev.date || '';
-    if (!base) return { allDay:true, start:null, end:null };
-    if (!ev.time) {
-      const start = new Date(`${base}T00:00:00`);
-      const end = new Date(start.getTime() + 86400000);
-      return { allDay:true, start, end };
+    if (ev?.starts_at) {
+      const start = new Date(ev.starts_at);
+      if (!isFinite(start)) return { allDay: true, start: null, end: null };
+
+      if (!ev.time) {
+        const base = ev.date || '';
+        if (base) {
+          const s = zonedLocalToDate(base, '12:00 AM', TZ);
+          const e = new Date(s.getTime() + 86400000);
+          return { allDay: true, start: s, end: e };
+        }
+        const end = new Date(start.getTime() + 86400000);
+        return { allDay: true, start, end };
+      }
+
+      const [t1, t2] = ev.time.split(/–|—|-|to/i).map(s => s.trim());
+      const base = ev.date || '';
+      const start2 = base ? zonedLocalToDate(base, t1, TZ) : start;
+      const end2 = (base && t2) ? zonedLocalToDate(base, t2, TZ) : new Date(start2.getTime() + 3600000);
+      return { allDay: false, start: start2, end: end2 };
     }
-    const [t1, t2] = ev.time.split(/–|—|-|to/i).map(s=>s.trim());
-    const start = toLocalDate(base, t1);
-    const end = t2 ? toLocalDate(base, t2) : new Date(start.getTime() + 3600000);
-    return { allDay:false, start, end };
+
+    const base = ev.date || '';
+    if (!base) return { allDay: true, start: null, end: null };
+
+    if (!ev.time) {
+      const start = zonedLocalToDate(base, '12:00 AM', TZ);
+      const end = new Date(start.getTime() + 86400000);
+      return { allDay: true, start, end };
+    }
+
+    const [t1, t2] = ev.time.split(/–|—|-|to/i).map(s => s.trim());
+    const start = zonedLocalToDate(base, t1, TZ);
+    const end = t2 ? zonedLocalToDate(base, t2, TZ) : new Date(start.getTime() + 3600000);
+    return { allDay: false, start, end };
   }
 
   function buildGoogleCalUrl(ev) {
     const { allDay, start, end } = parseCardTimes(ev);
+    if (!start || !end) return '#';
     const dates = allDay ? `${fmtDateCompact(start)}/${fmtDateCompact(end)}` : `${fmtUTC(start)}/${fmtUTC(end)}`;
     const qs = new URLSearchParams({
-      action:'TEMPLATE',
+      action: 'TEMPLATE',
       text: ev.title || 'Evento',
       dates,
       details: ev.description || '',
@@ -70,7 +143,6 @@
     return `https://calendar.google.com/calendar/render?${qs.toString()}`;
   }
 
-  /* ========== card factory ========== */
   function makeCard(ev) {
     const title = ev.title || 'Evento';
     const article = el('article', 'event');
@@ -92,16 +164,12 @@
       </div>
     `;
 
-    /* Explicitly ensure it's not interactive */
     article.style.cursor = 'default';
 
     return article;
   }
 
-
-
-  /* ========== month accordion ========== */
-  function makeMonthAccordionItem(ymKey, events, startOpen = false) { // start closed by default
+  function makeMonthAccordionItem(ymKey, events, startOpen = false) {
     const item = el('div', 'accordion-faq__item');
 
     const btn = el('button', 'accordion-faq__question');
@@ -120,12 +188,10 @@
     `;
 
     const panel = el('div', 'accordion-faq__answer');
-    if (startOpen) panel.classList.add('open'); // CLOSED by default
+    if (startOpen) panel.classList.add('open');
 
-    // grid inside the month panel
     const grid = el('div', 'events__grid events__grid--accordion');
-    grid.setAttribute('role','list');
-    // Left-align inside grid (works with CSS Grid)
+    grid.setAttribute('role', 'list');
     grid.style.justifyContent = 'start';
     grid.style.alignContent = 'start';
 
@@ -148,13 +214,11 @@
     return item;
   }
 
-  /* ========== renderers ========== */
   function renderSimpleGrid(container, list) {
     if (!container) return;
     container.hidden = false;
     container.innerHTML = '';
 
-    // ensure left/start alignment even if CSS defaults change
     container.style.justifyContent = 'start';
     container.style.alignContent = 'start';
 
@@ -169,11 +233,11 @@
     const placeholder = section.querySelector('.events__grid, #events-grid');
     if (placeholder) placeholder.hidden = true;
 
-    // host wrapper
+
     let hostWrapper = section.querySelector('[data-months] .accordion-faq__wrapper');
     if (!hostWrapper) {
       const shell = el('section', 'section--accordion-faq');
-      shell.setAttribute('data-months','');
+      shell.setAttribute('data-months', '');
       hostWrapper = el('div', 'accordion-faq__wrapper');
       shell.appendChild(hostWrapper);
 
@@ -182,7 +246,6 @@
       else section.appendChild(shell);
     }
 
-    // left-aligned vertical list of months
     hostWrapper.style.display = 'flex';
     hostWrapper.style.flexDirection = 'column';
     hostWrapper.style.alignItems = 'center';
@@ -190,7 +253,6 @@
 
     hostWrapper.innerHTML = '';
 
-    // group by YYYY-MM then render (all CLOSED)
     const buckets = new Map();
     for (const ev of list) {
       const k = monthKey(ev.date || '');
@@ -200,7 +262,7 @@
 
     const frag = document.createDocumentFragment();
     [...buckets.keys()].sort().forEach(k => {
-      frag.appendChild(makeMonthAccordionItem(k, buckets.get(k), false)); // false => closed
+      frag.appendChild(makeMonthAccordionItem(k, buckets.get(k), false));
     });
     hostWrapper.appendChild(frag);
   }
@@ -230,7 +292,6 @@
     else renderSimpleGrid(grid, list);
   }
 
-  /* ========== public API ========== */
   const getSections = () => $all('[data-events]');
 
   window.Rail = Object.assign(window.Rail || {}, {
@@ -238,8 +299,8 @@
       getSections().forEach(sec => renderInto(sec, allEvents));
     },
     init(section) {
-      // optional hook if you need to initialize specific container(s)
       if (section) renderInto(section, []);
-    }
+    },
+    buildGoogleCalUrl
   });
 })();
