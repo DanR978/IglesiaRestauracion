@@ -148,8 +148,14 @@
     const article = el('article', 'event');
     article.setAttribute('role', 'listitem');
 
+    // Link to event detail page if event has an ID
+    const hasLink = !!ev.id;
+    const tag = hasLink ? 'a' : 'div';
+    const href = hasLink ? `/eventos/evento.html?id=${ev.id}` : '';
+    const hrefAttr = hasLink ? `href="${href}"` : '';
+
     article.innerHTML = `
-      <div class="event__linkwrap" aria-label="${title}">
+      <${tag} class="event__linkwrap" ${hrefAttr} aria-label="${title}">
         <div class="event__media">
           <img src="${ev.image || ''}" alt="${title}">
         </div>
@@ -161,10 +167,10 @@
           ${ev.time ? `<div class="event__row">${ICON_CLOCK}<span>${ev.time}</span></div>` : ''}
           ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${ev.location}</span></div>` : ''}
         </div>
-      </div>
+      </${tag}>
     `;
 
-    article.style.cursor = 'default';
+    article.style.cursor = hasLink ? 'pointer' : 'default';
 
     return article;
   }

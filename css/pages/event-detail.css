@@ -1,0 +1,258 @@
+/* =========================================================
+   EVENT DETAIL PAGE
+   Self-contained styles — does not modify existing CSS
+   ========================================================= */
+
+/* ── Hide default hero elements on this page ── */
+.page-event-detail #header {
+  min-height: 0 !important;
+  height: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.page-event-detail #header .header-grid {
+  height: auto;
+}
+
+.page-event-detail #header .hero,
+.page-event-detail #header .overlay,
+.page-event-detail .hero-content {
+  display: none !important;
+}
+
+/* ── Hero banner ── */
+.ed-hero {
+  position: relative;
+  width: 100%;
+  height: 35vh;
+  min-height: 220px;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+.ed-hero__img-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.ed-hero__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ed-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.05) 40%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* ── Status (loading / error) ── */
+.ed-status {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: var(--color-black);
+}
+
+.ed-status h2 {
+  font-size: var(--fs-2xl);
+  margin-bottom: 0.75rem;
+}
+
+.ed-status p {
+  font-size: var(--fs-md);
+  color: var(--color-muted);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Content wrapper ── */
+#event-content {
+  max-width: 720px;
+  margin: 0 30px;
+  padding: 0 1.5rem 3rem;
+}
+
+/* ── Title block ── */
+.ed-title-block {
+  padding: 2.5rem 0 1.5rem;
+}
+
+.ed-tag:not(:empty) {
+  display: inline-block;
+  padding: 0.25rem 0.85rem;
+  background: var(--color-secondary);
+  color: #fff;
+  border-radius: var(--radius-full, 999px);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.ed-title {
+  font-family: var(--font-base);
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 800;
+  color: var(--color-black);
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+}
+
+/* ── Info section ── */
+.ed-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  align-items: flex-start;
+  padding-bottom: 2rem;
+}
+
+.ed-info__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.ed-info__row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: var(--fs-base, 1rem);
+  color: var(--color-black);
+  font-family: var(--font-base);
+}
+
+.ed-info__row svg {
+  flex: 0 0 18px;
+  color: var(--color-primary);
+}
+
+.ed-info__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  padding: 1.5rem 0 2rem;
+}
+
+/* ── Divider ── */
+.ed-divider {
+  border: none;
+  height: 1px;
+  background: var(--color-black);
+  opacity: 0.08;
+  margin: 0 0 2rem;
+}
+
+/* ── Content sections ── */
+.ed-section {
+  padding-bottom: 2rem;
+}
+
+.ed-section__heading {
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+}
+
+.ed-section__body {
+  font-size: var(--fs-base, 1rem);
+  font-family: var(--font-base);
+  font-weight: 400;
+  color: var(--color-black);
+  line-height: 1.75;
+}
+
+.ed-section__body p {
+  margin-bottom: 0.75rem;
+}
+
+.ed-section__body p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Organizer card ── */
+.ed-organizer-card {
+  background: var(--color-primary);
+  padding: 1.5rem;
+  border-radius: 12px;
+}
+
+.ed-organizer-card .ed-section__heading {
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 0.4rem;
+}
+
+.ed-organizer__name {
+  font-size: var(--fs-lg, 1.125rem);
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 0.5rem;
+}
+
+.ed-organizer__email-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ed-organizer__email-row svg {
+  flex: 0 0 16px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.ed-organizer__email {
+  font-size: var(--fs-sm, 0.875rem);
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+}
+
+.ed-organizer__email:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* ── Mobile tweaks ── */
+@media (max-width: 600px) {
+  .ed-hero {
+    height: 28vh;
+    min-height: 180px;
+  }
+
+  #event-content {
+    padding: 0 1rem 2rem;
+  }
+
+  .ed-title-block {
+    padding: 1.5rem 0 1rem;
+  }
+
+  .ed-info {
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .ed-info__actions {
+    width: 100%;
+  }
+
+  .ed-info__actions .ird-btn {
+    flex: 1;
+  }
+}

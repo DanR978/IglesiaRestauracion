@@ -1,0 +1,42 @@
+# .github/workflows/deploy.yml
+# Deploys the static site to GitHub Pages when you push to main.
+#
+# SETUP (one-time):
+# 1. Go to your repo → Settings → Pages
+# 2. Under "Build and deployment", change Source to "GitHub Actions"
+# 3. Push this file to .github/workflows/deploy.yml
+# 4. Done — every push to main auto-deploys.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # allows manual deploy from GitHub UI
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .  # deploy the entire repo as-is (static site, no build step)
+
+      - uses: actions/deploy-pages@v4
+        id: deployment

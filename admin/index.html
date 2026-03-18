@@ -1,128 +1,436 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin | IRD</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin — Iglesia Restauración Divina</title>
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body{background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base);min-height:100vh}
+    .admin-header{background:var(--color-dark);color:var(--color-white);padding:var(--pd-sm) var(--pd-md);display:flex;justify-content:space-between;align-items:center}
+    .admin-header h1{font-size:var(--fs-md);font-weight:var(--fw-bold)}
+    .admin-body{max-width:960px;margin:0 auto;padding:var(--pd-md)}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:var(--btn-pd-y) var(--btn-pd-x);border:none;border-radius:var(--radius-md);font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;transition:opacity .2s,transform .1s;text-decoration:none;font-family:var(--font-base)}
+    .btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
+    .btn-primary{background:var(--color-primary);color:#fff}
+    .btn-secondary{background:var(--color-secondary);color:#fff}
+    .btn-danger{background:#c0392b;color:#fff}
+    .btn-ghost{background:transparent;color:var(--color-muted);border:1px solid var(--color-muted)}
+    .btn-sm{padding:.3rem .6rem;font-size:var(--fs-xxs)}
+    .btn-logout{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);font-size:var(--fs-xs);padding:.3rem .8rem}
+    .card{background:var(--color-bg-light);border:1px solid var(--gray-60);border-radius:var(--radius-md);padding:var(--pd-sm);margin-bottom:var(--mg-sm)}
+    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:var(--pd-md)}
+    .login-card{width:100%;max-width:380px;background:var(--color-bg-light);border:1px solid var(--gray-60);border-radius:var(--radius-md);padding:var(--pd-lg) var(--pd-md);text-align:center}
+    .login-card h1{font-size:var(--fs-xl);margin-bottom:var(--mg-xxs)}
+    .login-card p{font-size:var(--fs-sm);color:var(--color-muted);margin-bottom:var(--mg-md)}
+    .fg{margin-bottom:var(--mg-sm)}
+    .fg label{display:block;font-size:var(--fs-xxs);font-weight:var(--fw-semibold);margin-bottom:var(--mg-xxs);color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px}
+    .fg input,.fg textarea,.fg select{width:100%;padding:var(--pd-xs);border:1px solid var(--gray-60);border-radius:var(--radius-sm);font-size:var(--fs-sm);background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base)}
+    .fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(52,90,101,.15)}
+    .fg textarea{resize:vertical;min-height:100px}
+    .fg-locked textarea,.fg-locked input:not([type="datetime-local"]){opacity:.6;background:var(--gray-30);cursor:not-allowed}
+    .fg-locked-note{font-size:var(--fs-xxs);color:var(--color-primary);font-weight:var(--fw-semibold);margin-top:var(--mg-xxs)}
+    .fr{display:grid;grid-template-columns:1fr 1fr;gap:var(--mg-sm)}
+    @media(max-width:600px){.fr{grid-template-columns:1fr}}
+    .fa{display:flex;gap:var(--mg-sm);margin-top:var(--mg-md);flex-wrap:wrap}
+    .tabs{display:flex;gap:0;margin-bottom:var(--mg-sm);border-bottom:2px solid var(--gray-60)}
+    .tab{padding:var(--pd-xs) var(--pd-sm);font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;color:var(--color-muted);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--font-base)}
+    .tab:hover{color:var(--color-black)}.tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
+    .tab-count{font-size:var(--fs-xxs);background:var(--gray-60);color:var(--color-muted);padding:.1rem .45rem;border-radius:10px;margin-left:.3rem;font-weight:var(--fw-bold)}
+    .tab.active .tab-count{background:var(--color-primary);color:#fff}
+    .filter-bar{display:flex;gap:var(--mg-xs);margin-bottom:var(--mg-sm);flex-wrap:wrap}
+    .filter-bar input,.filter-bar select{padding:var(--pd-xs);border:1px solid var(--gray-60);border-radius:var(--radius-sm);font-size:var(--fs-sm);background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base)}
+    .filter-bar input{flex:1;min-width:140px}.filter-bar select{min-width:120px}
+    .filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--color-primary)}
 
-  <!-- (Optional) your global CSS -->
-  <link rel="stylesheet" href="../css/style.css" />
+    /* Tag multi-select */
+    .tag-picker{position:relative}
+    .tag-picker-btn{width:100%;padding:var(--pd-xs);border:1px solid var(--gray-60);border-radius:var(--radius-sm);font-size:var(--fs-sm);background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base);text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:38px}
+    .tag-picker-btn:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(52,90,101,.15)}
+    .tag-picker-btn.disabled{opacity:.6;background:var(--gray-30);cursor:not-allowed;pointer-events:none}
+    .tag-picker-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--color-bg-light);border:1px solid var(--gray-60);border-radius:var(--radius-sm);margin-top:2px;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,.1);display:none;max-height:220px;overflow-y:auto}
+    .tag-picker-dropdown.open{display:block}
+    .tag-option{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;cursor:pointer;font-size:var(--fs-sm);transition:background .15s}
+    .tag-option:hover{background:rgba(52,90,101,.06)}
+    .tag-option input[type="checkbox"]{width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer;flex-shrink:0}
+    .tag-option.disabled{opacity:.4;pointer-events:none}
+    .tag-option-custom{border-top:1px solid var(--gray-60);padding:.5rem .75rem}
+    .tag-option-custom input{width:100%;padding:.35rem .5rem;border:1px solid var(--gray-60);border-radius:4px;font-size:var(--fs-xs);font-family:var(--font-base)}
+    .tag-pills{display:flex;gap:.3rem;flex-wrap:wrap}
+    .tag-pill{font-size:var(--fs-xxs);background:rgba(52,90,101,.1);color:var(--color-primary);padding:.15rem .5rem;border-radius:12px;font-weight:var(--fw-semibold)}
 
-  <!-- Admin-only styles -->
-  <link rel="stylesheet" href="./admin.css" />
+    /* Location override */
+    .loc-wrap{display:flex;gap:var(--mg-xxs);align-items:flex-start}
+    .loc-wrap input{flex:1}
+    .loc-override-btn{padding:.45rem .65rem;border:1px solid var(--gray-60);border-radius:var(--radius-sm);background:var(--color-bg-light);cursor:pointer;font-size:var(--fs-xxs);font-weight:var(--fw-semibold);color:var(--color-primary);white-space:nowrap;font-family:var(--font-base);transition:all .2s;margin-top:0}
+    .loc-override-btn:hover{background:var(--color-primary);color:#fff}
+    .loc-override-btn.active{background:var(--color-primary);color:#fff}
+
+    .img-picker{display:grid;grid-template-columns:1fr 1fr;gap:var(--mg-xs);margin-top:var(--mg-xxs)}
+    .img-picker-option{border:2px dashed var(--gray-60);border-radius:var(--radius-sm);padding:var(--pd-sm);text-align:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden}
+    .img-picker-option:hover{border-color:var(--color-primary)}.img-picker-option.active{border-color:var(--color-primary);border-style:solid}
+    .img-picker-option svg{display:block;margin:0 auto var(--mg-xxs)}.img-picker-option .label{font-size:var(--fs-xs);font-weight:var(--fw-semibold)}.img-picker-option .sublabel{font-size:var(--fs-xxs);color:var(--color-muted);margin-top:.15rem}
+    .img-picker-option input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
+    .img-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:var(--mg-xxs);margin-top:var(--mg-xs);max-height:220px;overflow-y:auto}
+    .img-gallery-item{position:relative;aspect-ratio:1;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;border:2px solid transparent}.img-gallery-item:hover{transform:scale(1.02)}.img-gallery-item.selected{border-color:var(--color-secondary);box-shadow:0 0 0 2px var(--color-secondary)}.img-gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
+    .img-gallery-empty,.img-gallery-loading{grid-column:1/-1;text-align:center;padding:var(--pd-md);color:var(--color-muted);font-size:var(--fs-sm)}
+    .img-preview-wrap{margin-top:var(--mg-xs);position:relative;display:inline-block}.img-preview{max-width:100%;max-height:160px;border-radius:var(--radius-sm);display:block}.img-actions{position:absolute;top:6px;right:6px;display:flex;gap:4px}
+    .img-action-btn{width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}.img-action-btn.delete{background:rgba(192,57,43,.85);color:#fff}.img-action-btn.delete:hover{background:#c0392b}.img-action-btn svg{width:13px;height:13px}
+
+    .month-group{margin-bottom:var(--mg-md)}.month-label{font-size:var(--fs-xxs);font-weight:var(--fw-bold);text-transform:uppercase;letter-spacing:1px;color:var(--color-black);padding:var(--mg-xxs) 0;border-bottom:1px solid var(--gray-60);margin-bottom:var(--mg-xxs)}
+    .event-row{display:grid;grid-template-columns:56px 1fr auto;gap:var(--mg-xs);padding:var(--mg-xs) 0;border-bottom:1px solid var(--gray-80);align-items:center}.event-row:last-child{border-bottom:none}.event-row-img{width:56px;height:40px;border-radius:var(--radius-sm);object-fit:cover;background:var(--gray-60)}.event-row-info{min-width:0;overflow:hidden}.event-row-title{font-weight:var(--fw-semibold);font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.event-row-date{font-size:var(--fs-xxs);color:var(--color-muted)}.event-row-actions{display:flex;gap:.3rem}.event-row-tag{display:inline;font-size:var(--fs-xxs);font-weight:var(--fw-semibold);padding:.1rem .4rem;border-radius:20px;background:rgba(52,90,101,.1);color:var(--color-black);margin-left:.3rem}
+    .btn-icon{width:25px;height:25px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:none;cursor:pointer;transition:transform .15s,opacity .15s;-webkit-tap-highlight-color:transparent}.btn-icon:hover{opacity:.75}.btn-icon:active{transform:scale(.88);opacity:.6}
+    .btn-icon svg{width:12px;height:12px;display:block}
+    .btn-icon-edit{background:rgba(0,122,255,.12);color:#67a0dc}
+    .btn-icon-delete{background:rgba(255,59,48,.12);color:#c56d68}
+    @media(prefers-color-scheme:dark){.btn-icon-edit{background:rgba(10,132,255,.2);color:#0A84FF}.btn-icon-delete{background:rgba(255,69,58,.2);color:#FF453A}}
+    .btn-text-label{display:inline}
+    @media(max-width:1024px){.event-row-actions .btn-sm{display:none}.event-row-actions .btn-icon{display:inline-flex}}
+    @media(min-width:1025px){.event-row-actions .btn-icon{display:none}.event-row-actions .btn-sm{display:inline-flex}}
+    .empty-state{text-align:center;padding:var(--pd-lg) var(--pd-sm);color:var(--color-muted);font-size:var(--fs-md)}
+    @media(max-width:500px){.event-row{grid-template-columns:44px 1fr auto;gap:var(--mg-xxs)}.event-row-img{width:44px;height:32px}.event-row-title{font-size:var(--fs-xs)}}
+    .bulk-dates{display:flex;flex-direction:column;gap:var(--mg-xxs);margin-top:var(--mg-xxs)}.bulk-date-row{display:flex;gap:var(--mg-xxs);align-items:center}.bulk-date-row input{flex:1}.bulk-date-remove{width:26px;height:26px;border-radius:50%;border:1px solid var(--gray-60);background:var(--color-bg-light);color:var(--color-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}.bulk-date-remove:hover{background:#c0392b;color:#fff;border-color:#c0392b}
+    .bulk-add-date{font-size:var(--fs-sm);color:var(--color-primary);cursor:pointer;font-weight:var(--fw-semibold);padding:var(--mg-xxs) 0;background:none;border:none;font-family:var(--font-base)}.bulk-add-date:hover{text-decoration:underline}.bulk-summary{font-size:var(--fs-xxs);color:var(--color-muted);margin-top:var(--mg-xxs)}
+    .title-custom{display:none}.title-custom.show{display:block}.preset-badge{font-size:var(--fs-xxs);color:var(--color-primary);font-weight:var(--fw-semibold);margin-top:var(--mg-xxs)}
+    .toast-container{position:fixed;top:1rem;right:1rem;z-index:9999}.toast{padding:var(--pd-xs) var(--pd-sm);border-radius:var(--radius-md);margin-bottom:var(--mg-xxs);font-size:var(--fs-sm);font-weight:var(--fw-medium);color:#fff;animation:slideIn .3s ease;max-width:320px}.toast-success{background:var(--color-add)}.toast-error{background:#c0392b}
+    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:var(--pd-md)}.modal{background:var(--color-bg-light);border-radius:var(--radius-md);padding:var(--pd-md);max-width:420px;width:100%}.modal h3{margin-bottom:var(--mg-xs);font-size:var(--fs-lg)}.modal p{font-size:var(--fs-sm);color:var(--color-muted);margin-bottom:var(--mg-md)}.modal-actions{display:flex;gap:var(--mg-xs);justify-content:flex-end;flex-wrap:wrap}
+    .hidden{display:none!important}.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--mg-sm);flex-wrap:wrap;gap:var(--mg-xs)}.toolbar h2{font-size:var(--fs-lg);font-weight:var(--fw-bold)}
+    .loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+  </style>
 </head>
 <body>
-  <!-- Top Nav -->
-  <header class="admin-navbar">
-    <a class="brand" href="/">IGLESIA RESTAURACIÓN DIVINA</a>
+<div class="toast-container" id="toasts"></div>
 
-    <nav class="admin-nav">
-      <ul class="admin-menu">
-        <li class="has-submenu">
-          <button class="menu-btn" aria-haspopup="true" aria-expanded="false">
-            Page manager
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <ul class="submenu">
-            <li><a href="#events" data-section="events">Agregar eventos</a></li>
-            <!-- more sections later -->
-          </ul>
-        </li>
-      </ul>
-      <div class="nav-right">
-        <span id="auth-user" class="muted"></span>
-        <button id="btn-logout" class="ird-btn ird-btn--white-fill ird-btn--outline" hidden>Salir</button>
-      </div>
-    </nav>
-  </header>
+<div id="login-screen" class="login-wrap"><div class="login-card"><h1>Admin Panel</h1><p>Iglesia Restauración Divina</p><div class="fg"><label>Email</label><input type="email" id="login-email" placeholder="admin@irdlex.org" autocomplete="email"></div><div class="fg"><label>Contraseña</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div><button class="btn btn-primary" style="width:100%;margin-top:var(--mg-xs)" id="login-btn">Entrar</button><p id="login-error" style="color:#c0392b;margin-top:var(--mg-xs);font-size:var(--fs-xs)"></p></div></div>
 
-  <main class="admin-main">
-    <!-- LOGIN PANEL -->
-    <section id="auth-panel" class="card">
-      <h2>Iniciar sesión</h2>
-      <p class="muted">Solo administradores.</p>
+<div id="admin-screen" class="hidden">
+  <div class="admin-header"><h1>Administración de Eventos</h1><button class="btn btn-logout" id="logout-btn">Cerrar sesión</button></div>
+  <div class="admin-body">
+    <div id="view-list">
+      <div class="toolbar"><h2>Eventos</h2><div style="display:flex;gap:var(--mg-xxs)"><button class="btn btn-secondary" id="bulk-event-btn">+ Bulk</button><button class="btn btn-primary" id="add-event-btn">+ Nuevo</button></div></div>
+      <div class="tabs"><button class="tab active" data-tab="upcoming">Próximos <span class="tab-count" id="count-upcoming">0</span></button><button class="tab" data-tab="past">Pasados <span class="tab-count" id="count-past">0</span></button></div>
+      <div class="filter-bar"><input type="text" id="filter-search" placeholder="Buscar por título..."><select id="filter-tag"><option value="">Todas las categorías</option></select></div>
+      <div class="card"><div id="events-list"><div class="empty-state">Cargando...</div></div></div>
+    </div>
 
-      <form id="login-form" class="grid">
-        <label>
-          <span>Email</span>
-          <input type="email" id="login-email" required autocomplete="username" />
-        </label>
-        <label>
-          <span>Contraseña</span>
-          <input type="password" id="login-password" required autocomplete="current-password" />
-        </label>
-        <button type="submit" class="ird-btn ird-btn--teal">Entrar</button>
-        <p id="login-msg" class="msg"></p>
-      </form>
-    </section>
+    <!-- SINGLE FORM -->
+    <div id="view-form" class="hidden">
+      <div class="toolbar"><h2 id="form-title">Nuevo Evento</h2><button class="btn btn-ghost btn-sm" id="form-cancel-btn">← Regresar</button></div>
+      <div class="card"><form id="event-form" novalidate>
+        <input type="hidden" id="f-id">
+        <div class="fg"><label>Tipo de evento *</label><select id="f-type-select"></select><input type="text" id="f-title-custom" class="title-custom" placeholder="Nombre personalizado" style="margin-top:var(--mg-xxs)"><p class="preset-badge hidden" id="f-preset-badge"></p></div>
+        <div class="fr">
+          <div class="fg"><label>Categoría (máx 2)</label><div id="f-tag-picker"></div><input type="hidden" id="f-tag"></div>
+          <div class="fg"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="f-location" value="2601 Clays Mill Road" readonly><button type="button" class="loc-override-btn" id="f-loc-override">Cambiar</button></div></div>
+        </div>
+        <div class="fr"><div class="fg"><label>Inicio *</label><input type="datetime-local" id="f-starts" required></div><div class="fg"><label>Fin</label><input type="datetime-local" id="f-ends"></div></div>
+        <div class="fg" id="f-desc-group"><label>Descripción</label><textarea id="f-description" rows="5" placeholder="Describe el evento..."></textarea></div>
+        <div class="fr"><div class="fg"><label>Organizador</label><input type="text" id="f-org-name" placeholder="ej. Pastor Juan"></div><div class="fg"><label>Email organizador</label><input type="email" id="f-org-email" placeholder="ej. juan@irdlex.org"></div></div>
+        <div class="fg" id="img-section"></div>
+        <div class="fa"><button type="submit" class="btn btn-primary" id="form-submit-btn">Guardar Evento</button><button type="button" class="btn btn-ghost" id="form-cancel-btn-2">Cancelar</button></div>
+      </form></div>
+    </div>
 
-    <!-- EVENTS MANAGER -->
-    <section id="events-panel" class="card" hidden>
-      <h2>Agregar evento</h2>
-      <div class="two-col">
-        <form id="event-form" class="stack">
-          <label>
-            <span>Título</span>
-            <input type="text" id="ev-title" placeholder="Servicio de Adoración" required />
-          </label>
+    <!-- BULK FORM -->
+    <div id="view-bulk" class="hidden">
+      <div class="toolbar"><h2>Crear en bulk</h2><button class="btn btn-ghost btn-sm" id="bulk-cancel-btn">← Regresar</button></div>
+      <div class="card"><p style="font-size:var(--fs-xs);color:var(--color-muted);margin-bottom:var(--mg-sm)">Selecciona el tipo, agrega fechas, y se crearán todos los eventos.</p><form id="bulk-form" novalidate>
+        <div class="fg"><label>Tipo de evento *</label><select id="b-type-select"></select><input type="text" id="b-title-custom" class="title-custom" placeholder="Nombre personalizado" style="margin-top:var(--mg-xxs)"><p class="preset-badge hidden" id="b-preset-badge"></p></div>
+        <div class="fr">
+          <div class="fg"><label>Categoría (máx 2)</label><div id="b-tag-picker"></div><input type="hidden" id="b-tag"></div>
+          <div class="fg"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="b-location" value="2601 Clays Mill Road" readonly><button type="button" class="loc-override-btn" id="b-loc-override">Cambiar</button></div></div>
+        </div>
+        <div class="fr"><div class="fg"><label>Hora inicio *</label><input type="time" id="b-time-start" required></div><div class="fg"><label>Hora fin</label><input type="time" id="b-time-end"></div></div>
+        <div class="fg" id="b-desc-group"><label>Descripción</label><textarea id="b-description" rows="4" placeholder="Describe el evento..."></textarea></div>
+        <div class="fr"><div class="fg"><label>Organizador</label><input type="text" id="b-org-name"></div><div class="fg"><label>Email organizador</label><input type="email" id="b-org-email"></div></div>
+        <div class="fg" id="bulk-img-section"></div>
+        <div class="fg"><label>Fechas *</label><div class="bulk-dates" id="bulk-dates"></div><button type="button" class="bulk-add-date" id="bulk-add-date-btn">+ Agregar fecha</button><div class="bulk-summary" id="bulk-summary"></div></div>
+        <div class="fa"><button type="submit" class="btn btn-secondary" id="bulk-submit-btn">Crear eventos</button><button type="button" class="btn btn-ghost" id="bulk-cancel-btn-2">Cancelar</button></div>
+      </form></div>
+    </div>
+  </div>
+</div>
 
-          <div class="grid-2">
-            <label>
-              <span>Fecha</span>
-              <input type="date" id="ev-date" required />
-            </label>
-            <label>
-              <span>Hora</span>
-              <input type="time" id="ev-time" required />
-            </label>
-          </div>
+<div id="delete-modal" class="modal-overlay hidden"><div class="modal"><h3>¿Eliminar evento?</h3><p>El evento <strong id="delete-name"></strong> será eliminado.</p><div class="modal-actions"><button class="btn btn-ghost" id="delete-cancel">Cancelar</button><button class="btn btn-danger" id="delete-confirm">Eliminar</button></div></div></div>
+<div id="img-delete-modal" class="modal-overlay hidden"><div class="modal"><h3>¿Qué deseas hacer?</h3><p>Quitar del evento o eliminar del almacén.</p><div class="modal-actions"><button class="btn btn-ghost" id="img-delete-cancel">Cancelar</button><button class="btn btn-primary" id="img-delete-remove">Solo quitar</button><button class="btn btn-danger" id="img-delete-permanent">Eliminar del almacén</button></div></div></div>
 
-          <label>
-            <span>Ubicación</span>
-            <input type="text" id="ev-location" placeholder="2601 Clays Mill Road | Lexington, KY" required />
-          </label>
+<script type="module">
+import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+const SUPABASE_URL="https://snqwxgyhfiinouewxgiy.supabase.co";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo";
+const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const IMG_BASE=`${SUPABASE_URL}/storage/v1/object/public/event-images/`;
+const DEFAULT_LOC="2601 Clays Mill Road";
 
-          <label>
-            <span>Descripción</span>
-            <textarea id="ev-desc" rows="4" placeholder="Breve detalle del evento..."></textarea>
-          </label>
+const TAG_OPTIONS=["Servicio","Convivio","Celebración","Evangelismo","Ministerio","Oración","Adoración","Jóvenes","Niños"];
 
-          <label>
-            <span>Imagen (URL)</span>
-            <input type="url" id="ev-image" placeholder="https://..." />
-          </label>
+const PRESETS=[
+  {title:"Noche de Caballeros",tags:["Servicio","Convivio"],image:"caballeros.png",desc:"Una noche de compañerismo entre hombres de fe. Tiempo de oración, estudio bíblico, comida y edificación mutua. Ven a crecer espiritualmente junto a tus hermanos en Cristo."},
+  {title:"Noche de Damas",tags:["Servicio","Convivio"],image:"damas.png",desc:"Una noche especial para las mujeres de la iglesia. Alabanza, oración, comunión y un tiempo de fortalecimiento espiritual entre hermanas en Cristo. Habrá comida y compañerismo."},
+  {title:"Vigilia",tags:["Servicio","Oración"],image:"vigilia.png",desc:"Una noche especial de oración, adoración y comunión. Ven a buscar la presencia de Dios junto a tus hermanos en Cristo. Habrá café, comida, servicio de alabanza y un tiempo inolvidable de fe y compañerismo. ¡Te esperamos!"},
+  {title:"Devocional",tags:["Servicio","Oración"],image:"devocional.png",desc:"Un tiempo dedicado a la reflexión bíblica, oración y crecimiento espiritual. Acompáñanos para profundizar en la Palabra de Dios y fortalecer tu fe en comunidad."},
+  {title:"Noche de Jóvenes",tags:["Servicio","Convivio"],image:"",desc:"Una noche de comunión y compañerismo entre jóvenes que comparten la misma fe. Nos reunimos para conocer a Jesús un poco más a través de Su Palabra, compartir comida juntos y disfrutar de juegos y actividades. ¡Ven a conectar con tu generación en Cristo!"},
+  {title:"Día de las Madres",tags:["Celebración","Servicio"],image:"madres.png",desc:"Un servicio especial para honrar y celebrar a las madres de nuestra comunidad. Alabanza, palabra, y un reconocimiento lleno de amor para las mujeres que Dios ha puesto en nuestras vidas."},
+  {title:"Día del Padre",tags:["Celebración","Servicio"],image:"padre.png",desc:"Celebramos a los padres de nuestra iglesia con un servicio especial lleno de gratitud. Alabanza, palabra de Dios y un homenaje a los hombres que guían a sus familias en fe."},
+  {title:"Día del Niño",tags:["Celebración","Niños"],image:"nino.png",desc:"Una celebración dedicada a los más pequeños de la iglesia. Juegos, actividades, comida y un mensaje especial para que los niños conozcan el amor de Jesús. ¡Trae a toda la familia!"},
+  {title:"Thanksgiving",tags:["Celebración","Convivio"],image:"thanksgivings.png",desc:"Un servicio de acción de gracias para agradecer a Dios por sus bendiciones. Compartimos una cena especial, alabanza y testimonios de gratitud como familia de fe."},
+  {title:"Comida Navideña",tags:["Celebración","Convivio"],image:"cenanavidena.png",desc:"Celebramos el nacimiento de nuestro Salvador con una cena navideña. Comida, villancicos, alabanza y compañerismo para cerrar el año dando gloria a Dios."},
+  {title:"Campaña Evangelística",tags:["Evangelismo","Servicio"],image:"campanaEvangelistica.png",desc:"Una serie de servicios enfocados en compartir las buenas nuevas de Cristo con nuestra comunidad. Predicación de la Palabra, alabanza, testimonios y un llamado a la salvación."},
+];
 
-          <div class="actions">
-            <button id="btn-save" class="ird-btn ird-btn--orange" type="submit">Guardar evento</button>
-            <span id="save-msg" class="msg"></span>
-          </div>
-        </form>
+function toast(msg,type="success"){const el=document.createElement("div");el.className=`toast toast-${type}`;el.textContent=msg;$("toasts").appendChild(el);setTimeout(()=>el.remove(),3500);}
 
-        <!-- LIVE PREVIEW -->
-        <aside class="preview">
-          <h3>Vista previa</h3>
-          <article class="event-card">
-            <img id="pv-image" alt="Imagen del evento" />
-            <div class="event-card__body">
-              <h4 id="pv-title">Título del Evento</h4>
-              <p class="event-card__meta">
-                <span id="pv-date">Fecha</span> · <span id="pv-time">Hora</span>
-              </p>
-              <p class="event-card__location" id="pv-location">Ubicación</p>
-              <p class="event-card__desc" id="pv-desc">Descripción breve aparecerá aquí…</p>
-            </div>
-          </article>
-        </aside>
-      </div>
-    </section>
-  </main>
+// ── TAG PICKER (multi-select checkboxes, max 2) ─────────
+function mountTagPicker(containerId, hiddenId) {
+  const container = $(containerId);
+  const btn = document.createElement("button");
+  btn.type = "button"; btn.className = "tag-picker-btn"; btn.id = `${hiddenId}-picker-btn`;
+  btn.innerHTML = '<span class="tag-pills" id="'+hiddenId+'-pills"><span style="color:var(--color-muted)">Seleccionar...</span></span><span style="font-size:10px">▼</span>';
+  container.appendChild(btn);
 
-  <footer class="admin-footer muted">
-    Panel de administración · I.R.D.
-  </footer>
+  const dd = document.createElement("div");
+  dd.className = "tag-picker-dropdown"; dd.id = `${hiddenId}-dropdown`;
 
-  <!-- If you want Supabase auth + DB, include its client -->
-  <script type="module" src="https://esm.sh/@supabase/supabase-js@2"></script>
-  <script type="module" src="./admin.js"></script>
+  TAG_OPTIONS.forEach(tag => {
+    const opt = document.createElement("label");
+    opt.className = "tag-option";
+    opt.innerHTML = `<input type="checkbox" value="${tag}"><span>${tag}</span>`;
+    dd.appendChild(opt);
+  });
+
+  // Custom option
+  const customWrap = document.createElement("div");
+  customWrap.className = "tag-option-custom";
+  customWrap.innerHTML = `<input type="text" placeholder="Categoría personalizada..." id="${hiddenId}-custom-input">`;
+  dd.appendChild(customWrap);
+
+  container.appendChild(dd);
+  container.classList.add("tag-picker");
+
+  const update = () => {
+    const checks = [...dd.querySelectorAll('input[type="checkbox"]:checked')].map(c => c.value);
+    const customVal = $(`${hiddenId}-custom-input`).value.trim();
+    if (customVal && checks.length < 2) checks.push(customVal);
+    $(hiddenId).value = checks.join("/");
+    const pills = $(`${hiddenId}-pills`);
+    if (checks.length) {
+      pills.innerHTML = checks.map(t => `<span class="tag-pill">${t}</span>`).join("");
+    } else {
+      pills.innerHTML = '<span style="color:var(--color-muted)">Seleccionar...</span>';
+    }
+    // Disable unchecked if 2 selected
+    dd.querySelectorAll('.tag-option').forEach(opt => {
+      const cb = opt.querySelector('input[type="checkbox"]');
+      if (cb && !cb.checked && checks.length >= 2) opt.classList.add("disabled");
+      else if (cb) opt.classList.remove("disabled");
+    });
+  };
+
+  dd.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener("change", update));
+  $(`${hiddenId}-custom-input`).addEventListener("input", update);
+
+  btn.addEventListener("click", e => { e.stopPropagation(); dd.classList.toggle("open"); });
+  document.addEventListener("click", e => { if (!container.contains(e.target)) dd.classList.remove("open"); });
+
+  return { update, setTags(tags) {
+    dd.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = tags.includes(cb.value); });
+    $(`${hiddenId}-custom-input`).value = "";
+    // Check if any tag not in options
+    const customs = tags.filter(t => !TAG_OPTIONS.includes(t));
+    if (customs.length) $(`${hiddenId}-custom-input`).value = customs[0];
+    update();
+  }, setDisabled(disabled) {
+    const b = $(`${hiddenId}-picker-btn`);
+    if (disabled) b.classList.add("disabled"); else b.classList.remove("disabled");
+  }};
+}
+
+// ── LOCATION OVERRIDE ────────────────────────────────────
+function wireLocOverride(inputId, btnId) {
+  const input = $(inputId), btn = $(btnId);
+  btn.addEventListener("click", () => {
+    if (input.readOnly) { input.readOnly = false; input.value = ""; input.focus(); btn.textContent = "Restaurar"; btn.classList.add("active"); }
+    else { input.readOnly = true; input.value = DEFAULT_LOC; btn.textContent = "Cambiar"; btn.classList.remove("active"); }
+  });
+}
+
+function resetLoc(inputId, btnId) {
+  $(inputId).value = DEFAULT_LOC; $(inputId).readOnly = true;
+  $(btnId).textContent = "Cambiar"; $(btnId).classList.remove("active");
+}
+
+// ── TYPE SELECT + PRESET LOCK ────────────────────────────
+function populateTypeSelect(selId) {
+  const s = $(selId);
+  s.innerHTML = '<option value="">— Seleccionar —</option>';
+  PRESETS.forEach((p, i) => { const o = document.createElement("option"); o.value = i; o.textContent = p.title; s.appendChild(o); });
+  const c = document.createElement("option"); c.value = "__custom__"; c.textContent = "Otro / Personalizado"; s.appendChild(c);
+}
+
+function wireTypeSelect(selId, customId, badgeId, tagPicker, descId, descGroupId, imgUrlId, previewId, previewWrapId) {
+  $(selId).addEventListener("change", () => {
+    const val = $(selId).value;
+    const isPreset = val !== "" && val !== "__custom__";
+    const isCustom = val === "__custom__";
+
+    // Custom title input
+    if (isCustom) { $(customId).classList.add("show"); $(customId).value = ""; $(customId).focus(); }
+    else $(customId).classList.remove("show");
+
+    // Badge
+    if (isPreset) { $(badgeId).textContent = `✓ Preset: ${PRESETS[Number(val)].title}`; $(badgeId).classList.remove("hidden"); }
+    else $(badgeId).classList.add("hidden");
+
+    if (isPreset) {
+      const p = PRESETS[Number(val)];
+      tagPicker.setTags(p.tags); tagPicker.setDisabled(true);
+      $(descId).value = p.desc; $(descId).readOnly = true; $(descGroupId).classList.add("fg-locked");
+      let note = $(descGroupId).querySelector(".fg-locked-note");
+      if (!note) { note = document.createElement("p"); note.className = "fg-locked-note"; $(descGroupId).appendChild(note); }
+      note.textContent = "Auto-completado por preset.";
+      if (p.image) { const url = IMG_BASE + p.image; $(imgUrlId).value = url; if ($(previewId)) { $(previewId).src = url; $(previewWrapId).classList.remove("hidden"); } }
+    } else {
+      tagPicker.setTags([]); tagPicker.setDisabled(false);
+      $(descId).value = ""; $(descId).readOnly = false; $(descGroupId).classList.remove("fg-locked");
+      const note = $(descGroupId).querySelector(".fg-locked-note"); if (note) note.remove();
+    }
+  });
+}
+
+function getTitle(selId, customId) {
+  const v = $(selId).value;
+  if (v === "__custom__") return $(customId).value.trim();
+  if (v === "") return "";
+  return PRESETS[Number(v)]?.title || "";
+}
+
+// ── IMAGE PICKER ─────────────────────────────────────────
+function mountImagePicker(container,prefix){container.innerHTML=`<label>Imagen del evento</label><div class="img-picker"><div class="img-picker-option" id="${prefix}-pick-upload"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg><div class="label">Subir nueva</div><div class="sublabel">JPG, PNG, WebP</div><input type="file" accept="image/*" id="${prefix}-image"></div><div class="img-picker-option" id="${prefix}-pick-existing"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div class="label">Usar existente</div><div class="sublabel">Del almacén</div></div></div><div class="img-gallery hidden" id="${prefix}-gallery"></div><div class="img-preview-wrap hidden" id="${prefix}-preview-wrap"><img class="img-preview" id="${prefix}-preview" alt="Preview"><div class="img-actions"><button type="button" class="img-action-btn delete" id="${prefix}-delete-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/></svg></button></div></div><input type="hidden" id="${prefix}-image-url"><p style="font-size:var(--fs-xxs);color:var(--color-muted);margin-top:var(--mg-xxs)" id="${prefix}-status"></p>`;$(`${prefix}-pick-existing`).addEventListener("click",()=>toggleGallery(prefix));$(`${prefix}-image`).addEventListener("change",e=>handleUpload(e,prefix));$(`${prefix}-delete-btn`).addEventListener("click",()=>{activeImgPrefix=prefix;$("img-delete-modal").classList.remove("hidden");});}
+let galleryImages=null;
+async function loadGalleryImages(prefix){const g=$(`${prefix}-gallery`);g.innerHTML='<div class="img-gallery-loading">Cargando...</div>';const{data,error}=await sb.storage.from("event-images").list("",{limit:200,sortBy:{column:"created_at",order:"desc"}});if(error||!data){g.innerHTML='<div class="img-gallery-empty">Error.</div>';return;}const imgs=data.filter(f=>/\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));galleryImages=imgs;if(!imgs.length){g.innerHTML='<div class="img-gallery-empty">No hay imágenes.</div>';return;}g.innerHTML=imgs.map(img=>{const{data:u}=sb.storage.from("event-images").getPublicUrl(img.name);return`<div class="img-gallery-item" data-url="${u.publicUrl}" data-name="${img.name}"><img src="${u.publicUrl}" alt="${img.name}" loading="lazy"></div>`;}).join("");g.querySelectorAll(".img-gallery-item").forEach(el=>el.addEventListener("click",()=>{g.querySelectorAll(".selected").forEach(i=>i.classList.remove("selected"));el.classList.add("selected");$(`${prefix}-image-url`).value=el.dataset.url;$(`${prefix}-preview`).src=el.dataset.url;$(`${prefix}-preview-wrap`).classList.remove("hidden");$(`${prefix}-status`).textContent="Seleccionada ✓";}));}
+function toggleGallery(prefix){const g=$(`${prefix}-gallery`);if(g.classList.contains("hidden")){g.classList.remove("hidden");$(`${prefix}-pick-existing`).classList.add("active");$(`${prefix}-pick-upload`).classList.remove("active");if(!galleryImages)loadGalleryImages(prefix);else if(!g.children.length)loadGalleryImages(prefix);}else{g.classList.add("hidden");$(`${prefix}-pick-existing`).classList.remove("active");}}
+async function handleUpload(e,prefix){const file=e.target.files?.[0];if(!file)return;$(`${prefix}-pick-upload`).classList.add("active");$(`${prefix}-pick-existing`).classList.remove("active");$(`${prefix}-gallery`).classList.add("hidden");$(`${prefix}-preview`).src=URL.createObjectURL(file);$(`${prefix}-preview-wrap`).classList.remove("hidden");$(`${prefix}-status`).textContent="Subiendo...";const fn=`${Date.now()}-${Math.random().toString(36).slice(2,8)}.${file.name.split(".").pop()}`;const{error}=await sb.storage.from("event-images").upload(fn,file,{cacheControl:"3600",upsert:false});if(error){$(`${prefix}-status`).textContent="Error.";return;}const{data:u}=sb.storage.from("event-images").getPublicUrl(fn);$(`${prefix}-image-url`).value=u.publicUrl;$(`${prefix}-status`).textContent="Subida ✓";galleryImages=null;}
+function clearImg(prefix){$(`${prefix}-image-url`).value="";$(`${prefix}-preview`).src="";$(`${prefix}-preview-wrap`).classList.add("hidden");$(`${prefix}-status`).textContent="";const fi=$(`${prefix}-image`);if(fi)fi.value="";const g=$(`${prefix}-gallery`);if(g)g.querySelectorAll(".selected").forEach(i=>i.classList.remove("selected"));$(`${prefix}-pick-upload`)?.classList.remove("active");$(`${prefix}-pick-existing`)?.classList.remove("active");}
+let activeImgPrefix=null;
+$("img-delete-cancel").addEventListener("click",()=>$("img-delete-modal").classList.add("hidden"));
+$("img-delete-remove").addEventListener("click",()=>{if(activeImgPrefix)clearImg(activeImgPrefix);$("img-delete-modal").classList.add("hidden");toast("Imagen quitada");});
+$("img-delete-permanent").addEventListener("click",async()=>{const p=activeImgPrefix;const url=$(`${p}-image-url`)?.value;$("img-delete-modal").classList.add("hidden");if(url){const fn=url.split("/").pop();if(fn){const{error}=await sb.storage.from("event-images").remove([fn]);if(error)toast("Error: "+error.message,"error");else{toast("Eliminada del almacén");galleryImages=null;}}}clearImg(p);});
+$("img-delete-modal").addEventListener("click",e=>{if(e.target===$("img-delete-modal"))$("img-delete-modal").classList.add("hidden");});
+
+// ── AUTH ──────────────────────────────────────────────────
+let fTagPicker, bTagPicker;
+async function checkSession(){const{data:{session}}=await sb.auth.getSession();if(session)showDashboard();else showLogin();}
+function showLogin(){$("login-screen").classList.remove("hidden");$("admin-screen").classList.add("hidden");}
+function showDashboard(){
+  $("login-screen").classList.add("hidden");$("admin-screen").classList.remove("hidden");
+  mountImagePicker($("img-section"),"f");mountImagePicker($("bulk-img-section"),"b");
+  populateTypeSelect("f-type-select");populateTypeSelect("b-type-select");
+  fTagPicker=mountTagPicker("f-tag-picker","f-tag");bTagPicker=mountTagPicker("b-tag-picker","b-tag");
+  wireTypeSelect("f-type-select","f-title-custom","f-preset-badge",fTagPicker,"f-description","f-desc-group","f-image-url","f-preview","f-preview-wrap");
+  wireTypeSelect("b-type-select","b-title-custom","b-preset-badge",bTagPicker,"b-description","b-desc-group","b-image-url","b-preview","b-preview-wrap");
+  wireLocOverride("f-location","f-loc-override");wireLocOverride("b-location","b-loc-override");
+  loadEvents();
+}
+$("login-btn").addEventListener("click",async()=>{const e=$("login-email").value.trim(),p=$("login-password").value;$("login-error").textContent="";if(!e||!p){$("login-error").textContent="Ingresa email y contraseña.";return;}const{error}=await sb.auth.signInWithPassword({email:e,password:p});if(error){$("login-error").textContent="Login incorrecto.";return;}showDashboard();});
+$("login-password").addEventListener("keydown",e=>{if(e.key==="Enter")$("login-btn").click();});
+$("logout-btn").addEventListener("click",async()=>{await sb.auth.signOut();showLogin();toast("Sesión cerrada");});
+
+// ── TABS + FILTER ────────────────────────────────────────
+let activeTab="upcoming";
+document.querySelectorAll(".tab").forEach(tab=>{tab.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));tab.classList.add("active");activeTab=tab.dataset.tab;renderEventList();});});
+$("filter-search").addEventListener("input",renderEventList);$("filter-tag").addEventListener("change",renderEventList);
+
+// ── EVENTS CRUD ──────────────────────────────────────────
+let allEvents=[],deletingId=null;
+async function loadEvents(){$("events-list").innerHTML='<div class="empty-state">Cargando...</div>';const{data,error}=await sb.from("events").select("*").order("starts_at",{ascending:true});if(error){$("events-list").innerHTML='<div class="empty-state">Error.</div>';return;}allEvents=data||[];populateFilterTag();renderEventList();}
+function populateFilterTag(){const tags=[...new Set(allEvents.flatMap(e=>(e.tag||"").split("/").map(t=>t.trim())).filter(Boolean))].sort();const s=$("filter-tag");const v=s.value;s.innerHTML='<option value="">Todas</option>'+tags.map(t=>`<option value="${t}">${t}</option>`).join("");s.value=v;}
+function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString("es",{weekday:"short",month:"short",day:"numeric"})+" · "+d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true});}catch{return"—";}}
+function monthKey(iso){try{const d=new Date(iso);return`${d.getFullYear()}-${String(d.getMonth()).padStart(2,"0")}`;}catch{return"?";}}
+function monthLabel(k){const[y,m]=k.split("-").map(Number);return`${MONTHS[m]} ${y}`;}
+function renderEventList(){
+  const now=new Date();const search=$("filter-search").value.trim().toLowerCase();const tagF=$("filter-tag").value;
+  let list=allEvents;if(search)list=list.filter(e=>(e.title||"").toLowerCase().includes(search));
+  if(tagF)list=list.filter(e=>(e.tag||"").split("/").map(t=>t.trim()).includes(tagF));
+  const up=list.filter(e=>new Date(e.starts_at)>=now).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
+  const past=list.filter(e=>new Date(e.starts_at)<now).sort((a,b)=>new Date(b.starts_at)-new Date(a.starts_at));
+  $("count-upcoming").textContent=up.length;$("count-past").textContent=past.length;
+  const show=activeTab==="upcoming"?up:past;
+  if(!show.length){$("events-list").innerHTML=`<div class="empty-state">${search||tagF?"Sin resultados.":activeTab==="upcoming"?"No hay eventos próximos.":"No hay eventos pasados."}</div>`;return;}
+  const groups=new Map();for(const ev of show){const mk=monthKey(ev.starts_at);if(!groups.has(mk))groups.set(mk,[]);groups.get(mk).push(ev);}
+  let html="";for(const[mk,evs]of groups){html+=`<div class="month-group"><div class="month-label">${monthLabel(mk)}</div>`;for(const ev of evs){const img=ev.image_url||"";const tag=ev.tag?`<span class="event-row-tag">${ev.tag}</span>`:"";html+=`<div class="event-row">${img?`<img class="event-row-img" src="${img}" alt="">`:`<div class="event-row-img"></div>`}<div class="event-row-info"><div class="event-row-title">${ev.title||"—"}${tag}</div><div class="event-row-date">${fmtDate(ev.starts_at)}</div></div><div class="event-row-actions"><button class="btn btn-ghost btn-sm" onclick="window._editEvent('${ev.id}')">Editar</button><button class="btn btn-danger btn-sm" onclick="window._deleteEvent('${ev.id}','${(ev.title||"").replace(/'/g,"\\'")}')">Eliminar</button><button class="btn-icon btn-icon-edit" onclick="window._editEvent('${ev.id}')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon btn-icon-delete" onclick="window._deleteEvent('${ev.id}','${(ev.title||"").replace(/'/g,"\\'")}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div></div>`;}html+=`</div>`;}
+  $("events-list").innerHTML=html;
+}
+
+// ── SINGLE FORM ──────────────────────────────────────────
+function showForm(ev=null){
+  $("view-list").classList.add("hidden");$("view-bulk").classList.add("hidden");$("view-form").classList.remove("hidden");
+  $("form-title").textContent=ev?"Editar Evento":"Nuevo Evento";$("f-id").value=ev?.id||"";
+  $("f-org-name").value=ev?.organizer_name||"";$("f-org-email").value=ev?.organizer_email||"";
+  clearImg("f");$("f-image-url").value=ev?.image_url||"";
+  resetLoc("f-location","f-loc-override");
+  if(ev?.location&&ev.location!==DEFAULT_LOC){$("f-location").value=ev.location;$("f-location").readOnly=false;$("f-loc-override").textContent="Restaurar";$("f-loc-override").classList.add("active");}
+
+  const sel=$("f-type-select");const custom=$("f-title-custom");
+  if(ev?.title){const idx=PRESETS.findIndex(p=>p.title===ev.title);if(idx>=0){sel.value=String(idx);custom.classList.remove("show");}else{sel.value="__custom__";custom.classList.add("show");custom.value=ev.title;}}else{sel.value="";custom.classList.remove("show");}
+  sel.dispatchEvent(new Event("change"));
+
+  // Override preset fills for edit
+  if(ev){
+    if(ev.tag){const tags=ev.tag.split("/").map(t=>t.trim());fTagPicker.setTags(tags);}
+    if(ev.description)$("f-description").value=ev.description;
+  }
+
+  if(ev?.starts_at)$("f-starts").value=toLocalDT(ev.starts_at);else $("f-starts").value="";
+  if(ev?.ends_at)$("f-ends").value=toLocalDT(ev.ends_at);else $("f-ends").value="";
+  if(ev?.image_url){$("f-image-url").value=ev.image_url;$("f-preview").src=ev.image_url;$("f-preview-wrap").classList.remove("hidden");}
+  $("f-type-select").focus();
+}
+function hideForm(){$("view-form").classList.add("hidden");$("view-list").classList.remove("hidden");$("event-form").reset();clearImg("f");$("f-desc-group").classList.remove("fg-locked");const n=$("f-desc-group").querySelector(".fg-locked-note");if(n)n.remove();$("f-description").readOnly=false;$("f-title-custom").classList.remove("show");$("f-preset-badge").classList.add("hidden");fTagPicker.setTags([]);fTagPicker.setDisabled(false);resetLoc("f-location","f-loc-override");}
+function toLocalDT(iso){try{const d=new Date(iso),p=n=>String(n).padStart(2,"0");return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}catch{return"";}}
+$("add-event-btn").addEventListener("click",()=>showForm());$("form-cancel-btn").addEventListener("click",hideForm);$("form-cancel-btn-2").addEventListener("click",hideForm);
+
+$("event-form").addEventListener("submit",async e=>{
+  e.preventDefault();const title=getTitle("f-type-select","f-title-custom");
+  if(!title){toast("Selecciona o escribe un título","error");return;}
+  const starts=$("f-starts").value;if(!starts){toast("Fecha obligatoria","error");return;}
+  const payload={title,tag:$("f-tag").value||null,location:$("f-location").value.trim()||null,starts_at:new Date(starts).toISOString(),ends_at:$("f-ends").value?new Date($("f-ends").value).toISOString():null,description:$("f-description").value.trim()||null,organizer_name:$("f-org-name").value.trim()||null,organizer_email:$("f-org-email").value.trim()||null,image_url:$("f-image-url").value||null};
+  const btn=$("form-submit-btn");btn.disabled=true;btn.innerHTML='<span class="loading-spinner"></span>';
+  const id=$("f-id").value;let error;if(id)({error}=await sb.from("events").update(payload).eq("id",id));else({error}=await sb.from("events").insert(payload));
+  btn.disabled=false;btn.textContent="Guardar Evento";if(error){toast("Error: "+error.message,"error");return;}toast(id?"Actualizado":"Creado");hideForm();loadEvents();
+});
+
+// ── BULK ─────────────────────────────────────────────────
+function showBulk(){$("view-list").classList.add("hidden");$("view-form").classList.add("hidden");$("view-bulk").classList.remove("hidden");$("bulk-form").reset();clearImg("b");$("bulk-dates").innerHTML="";addBulkDate();addBulkDate();updateBulkSummary();$("b-type-select").value="";$("b-title-custom").classList.remove("show");$("b-preset-badge").classList.add("hidden");$("b-desc-group").classList.remove("fg-locked");$("b-description").readOnly=false;const n=$("b-desc-group").querySelector(".fg-locked-note");if(n)n.remove();bTagPicker.setTags([]);bTagPicker.setDisabled(false);resetLoc("b-location","b-loc-override");$("b-type-select").focus();}
+function hideBulk(){$("view-bulk").classList.add("hidden");$("view-list").classList.remove("hidden");}
+function addBulkDate(){const c=$("bulk-dates");const r=document.createElement("div");r.className="bulk-date-row";r.innerHTML=`<input type="date" required><button type="button" class="bulk-date-remove">✕</button>`;r.querySelector(".bulk-date-remove").addEventListener("click",()=>{if(c.children.length>1){r.remove();updateBulkSummary();}});r.querySelector("input").addEventListener("change",updateBulkSummary);c.appendChild(r);updateBulkSummary();}
+function updateBulkSummary(){const n=[...$("bulk-dates").querySelectorAll("input[type=date]")].map(i=>i.value).filter(Boolean).length;$("bulk-summary").textContent=n?`${n} evento${n>1?"s":""} serán creados`:"";}
+$("bulk-event-btn").addEventListener("click",showBulk);$("bulk-cancel-btn").addEventListener("click",hideBulk);$("bulk-cancel-btn-2").addEventListener("click",hideBulk);$("bulk-add-date-btn").addEventListener("click",addBulkDate);
+
+$("bulk-form").addEventListener("submit",async e=>{
+  e.preventDefault();const title=getTitle("b-type-select","b-title-custom");
+  if(!title){toast("Selecciona un título","error");return;}const ts=$("b-time-start").value;if(!ts){toast("Hora obligatoria","error");return;}
+  const dates=[...$("bulk-dates").querySelectorAll("input[type=date]")].map(i=>i.value).filter(Boolean);if(!dates.length){toast("Agrega fechas","error");return;}
+  const te=$("b-time-end").value;
+  const base={tag:$("b-tag").value||null,location:$("b-location").value.trim()||null,description:$("b-description").value.trim()||null,organizer_name:$("b-org-name").value.trim()||null,organizer_email:$("b-org-email").value.trim()||null,image_url:$("b-image-url").value||null};
+  const events=dates.map(d=>({...base,title,starts_at:new Date(`${d}T${ts}`).toISOString(),ends_at:te?new Date(`${d}T${te}`).toISOString():null}));
+  const btn=$("bulk-submit-btn");btn.disabled=true;btn.innerHTML=`<span class="loading-spinner"></span> Creando ${events.length}...`;
+  const{error}=await sb.from("events").insert(events);btn.disabled=false;btn.textContent="Crear eventos";
+  if(error){toast("Error: "+error.message,"error");return;}toast(`${events.length} eventos creados`);hideBulk();loadEvents();
+});
+
+// ── EDIT & DELETE ────────────────────────────────────────
+window._editEvent=id=>{const ev=allEvents.find(e=>e.id===id);if(ev)showForm(ev);};
+window._deleteEvent=(id,title)=>{deletingId=id;$("delete-name").textContent=title;$("delete-modal").classList.remove("hidden");};
+$("delete-cancel").addEventListener("click",()=>{$("delete-modal").classList.add("hidden");deletingId=null;});
+$("delete-confirm").addEventListener("click",async()=>{if(!deletingId)return;const{error}=await sb.from("events").delete().eq("id",deletingId);$("delete-modal").classList.add("hidden");if(error){toast("Error: "+error.message,"error");return;}toast("Eliminado");deletingId=null;loadEvents();});
+$("delete-modal").addEventListener("click",e=>{if(e.target===$("delete-modal")){$("delete-modal").classList.add("hidden");deletingId=null;}});
+
+checkSession();
+</script>
 </body>
 </html>
