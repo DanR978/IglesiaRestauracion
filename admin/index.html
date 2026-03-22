@@ -3,434 +3,1715 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="robots" content="noindex, nofollow">
   <title>Admin — Iglesia Restauración Divina</title>
-  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    body{background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base);min-height:100vh}
-    .admin-header{background:var(--color-dark);color:var(--color-white);padding:var(--pd-sm) var(--pd-md);display:flex;justify-content:space-between;align-items:center}
-    .admin-header h1{font-size:var(--fs-md);font-weight:var(--fw-bold)}
-    .admin-body{max-width:960px;margin:0 auto;padding:var(--pd-md)}
-    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:var(--btn-pd-y) var(--btn-pd-x);border:none;border-radius:var(--radius-md);font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;transition:opacity .2s,transform .1s;text-decoration:none;font-family:var(--font-base)}
-    .btn:hover{opacity:.85}.btn:active{transform:scale(.97)}
-    .btn-primary{background:var(--color-primary);color:#fff}
-    .btn-secondary{background:var(--color-secondary);color:#fff}
-    .btn-danger{background:#c0392b;color:#fff}
-    .btn-ghost{background:transparent;color:var(--color-muted);border:1px solid var(--color-muted)}
-    .btn-sm{padding:.3rem .6rem;font-size:var(--fs-xxs)}
-    .btn-logout{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.3);font-size:var(--fs-xs);padding:.3rem .8rem}
-    .card{background:var(--color-bg-light);border:1px solid var(--gray-60);border-radius:var(--radius-md);padding:var(--pd-sm);margin-bottom:var(--mg-sm)}
-    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:var(--pd-md)}
-    .login-card{width:100%;max-width:380px;background:var(--color-bg-light);border:1px solid var(--gray-60);border-radius:var(--radius-md);padding:var(--pd-lg) var(--pd-md);text-align:center}
-    .login-card h1{font-size:var(--fs-xl);margin-bottom:var(--mg-xxs)}
-    .login-card p{font-size:var(--fs-sm);color:var(--color-muted);margin-bottom:var(--mg-md)}
-    .fg{margin-bottom:var(--mg-sm)}
-    .fg label{display:block;font-size:var(--fs-xxs);font-weight:var(--fw-semibold);margin-bottom:var(--mg-xxs);color:var(--color-muted);text-transform:uppercase;letter-spacing:.5px}
-    .fg input,.fg textarea,.fg select{width:100%;padding:var(--pd-xs);border:1px solid var(--gray-60);border-radius:var(--radius-sm);font-size:var(--fs-sm);background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base)}
-    .fg input:focus,.fg textarea:focus,.fg select:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(52,90,101,.15)}
-    .fg textarea{resize:vertical;min-height:100px}
-    .fg-locked textarea,.fg-locked input:not([type="datetime-local"]){opacity:.6;background:var(--gray-30);cursor:not-allowed}
-    .fg-locked-note{font-size:var(--fs-xxs);color:var(--color-primary);font-weight:var(--fw-semibold);margin-top:var(--mg-xxs)}
-    .fr{display:grid;grid-template-columns:1fr 1fr;gap:var(--mg-sm)}
-    @media(max-width:600px){.fr{grid-template-columns:1fr}}
-    .fa{display:flex;gap:var(--mg-sm);margin-top:var(--mg-md);flex-wrap:wrap}
-    .tabs{display:flex;gap:0;margin-bottom:var(--mg-sm);border-bottom:2px solid var(--gray-60)}
-    .tab{padding:var(--pd-xs) var(--pd-sm);font-size:var(--fs-sm);font-weight:var(--fw-semibold);cursor:pointer;color:var(--color-muted);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--font-base)}
-    .tab:hover{color:var(--color-black)}.tab.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
-    .tab-count{font-size:var(--fs-xxs);background:var(--gray-60);color:var(--color-muted);padding:.1rem .45rem;border-radius:10px;margin-left:.3rem;font-weight:var(--fw-bold)}
-    .tab.active .tab-count{background:var(--color-primary);color:#fff}
-    .filter-bar{display:flex;gap:var(--mg-xs);margin-bottom:var(--mg-sm);flex-wrap:wrap}
-    .filter-bar input,.filter-bar select{padding:var(--pd-xs);border:1px solid var(--gray-60);border-radius:var(--radius-sm);font-size:var(--fs-sm);background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base)}
-    .filter-bar input{flex:1;min-width:140px}.filter-bar select{min-width:120px}
-    .filter-bar input:focus,.filter-bar select:focus{outline:none;border-color:var(--color-primary)}
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --primary:#345a65; --primary-d:#233c43; --accent:#d98c59;
+      --danger:#dc2626; --success:#16a34a; --warn:#d97706;
+      --bg:#f4f6f7; --card:#ffffff; --border:#e0e0e0;
+      --text:#1a2d32; --muted:#6b7280; --radius:10px;
+      --cat-servicio:#e0f0ef; --cat-servicio-t:#1e6b61;
+      --cat-estudio:#e3eaf8; --cat-estudio-t:#2a4a9e;
+      --cat-oracion:#ede8f5; --cat-oracion-t:#5c3d9c;
+      --cat-evangelizacion:#fef0e0; --cat-evangelizacion-t:#a05a10;
+      --cat-especial:#fde8ea; --cat-especial-t:#b02030;
+      --cat-otro:#f0f0f0; --cat-otro-t:#555;
+    }
+    body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
 
-    /* Tag multi-select */
-    .tag-picker{position:relative}
-    .tag-picker-btn{width:100%;padding:var(--pd-xs);border:1px solid var(--gray-60);border-radius:var(--radius-sm);font-size:var(--fs-sm);background:var(--color-bg-light);color:var(--color-black);font-family:var(--font-base);text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:38px}
-    .tag-picker-btn:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(52,90,101,.15)}
-    .tag-picker-btn.disabled{opacity:.6;background:var(--gray-30);cursor:not-allowed;pointer-events:none}
-    .tag-picker-dropdown{position:absolute;top:100%;left:0;right:0;background:var(--color-bg-light);border:1px solid var(--gray-60);border-radius:var(--radius-sm);margin-top:2px;z-index:20;box-shadow:0 4px 12px rgba(0,0,0,.1);display:none;max-height:220px;overflow-y:auto}
-    .tag-picker-dropdown.open{display:block}
-    .tag-option{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;cursor:pointer;font-size:var(--fs-sm);transition:background .15s}
-    .tag-option:hover{background:rgba(52,90,101,.06)}
-    .tag-option input[type="checkbox"]{width:16px;height:16px;accent-color:var(--color-primary);cursor:pointer;flex-shrink:0}
-    .tag-option.disabled{opacity:.4;pointer-events:none}
-    .tag-option-custom{border-top:1px solid var(--gray-60);padding:.5rem .75rem}
-    .tag-option-custom input{width:100%;padding:.35rem .5rem;border:1px solid var(--gray-60);border-radius:4px;font-size:var(--fs-xs);font-family:var(--font-base)}
-    .tag-pills{display:flex;gap:.3rem;flex-wrap:wrap}
-    .tag-pill{font-size:var(--fs-xxs);background:rgba(52,90,101,.1);color:var(--color-primary);padding:.15rem .5rem;border-radius:12px;font-weight:var(--fw-semibold)}
+    /* AUTH */
+    #authScreen { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .auth-card { background:var(--card); border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,.12); padding:2.5rem 2rem; width:100%; max-width:380px; }
+    .auth-card__logo { text-align:center; margin-bottom:1.5rem; }
+    .auth-card__logo h1 { font-size:1.1rem; font-weight:700; color:var(--primary); line-height:1.3; }
+    .auth-card__logo p { font-size:.8rem; color:var(--muted); margin-top:2px; }
+    .auth-card h2 { font-size:1.4rem; font-weight:700; margin-bottom:1.5rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:.8rem; font-weight:600; color:var(--muted); margin-bottom:.35rem; text-transform:uppercase; letter-spacing:.04em; }
+    .form-group input,.form-group select,.form-group textarea { width:100%; padding:.65rem .85rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.95rem; font-family:inherit; transition:border-color .15s; background:#fff; color:var(--text); }
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus { outline:none; border-color:var(--primary); }
+    .form-group textarea { resize:vertical; min-height:80px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.4rem; padding:.65rem 1.25rem; border-radius:var(--radius); border:none; cursor:pointer; font-size:.9rem; font-weight:600; font-family:inherit; transition:opacity .15s,transform .1s; }
+    .btn:active { transform:scale(.97); }
+    .btn:disabled { opacity:.5; cursor:not-allowed; }
+    .btn--primary { background:var(--primary); color:#fff; }
+    .btn--primary:hover { opacity:.88; }
+    .btn--danger  { background:var(--danger);  color:#fff; }
+    .btn--ghost   { background:transparent; color:var(--muted); border:1.5px solid var(--border); }
+    .btn--ghost:hover { border-color:var(--primary); color:var(--primary); }
+    .btn--full { width:100%; }
+    .auth-error { background:#fde8ea; color:#b02030; border-radius:8px; padding:.6rem .9rem; font-size:.85rem; margin-bottom:1rem; display:none; }
 
+    /* APP */
+    #app { display:none; min-height:100vh; }
+    .topbar { background:var(--primary); color:#fff; padding:0 1.5rem; height:56px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+    .topbar__title { font-size:1rem; font-weight:700; }
+    .topbar__title span { font-weight:400; opacity:.75; margin-left:.5rem; font-size:.85rem; }
+    .topbar__right { display:flex; align-items:center; gap:.75rem; }
+    .topbar__user { font-size:.8rem; opacity:.85; background:rgba(255,255,255,.15); padding:4px 10px; border-radius:99px; }
+    .topbar__logout { background:rgba(255,255,255,.15); border:none; color:#fff; cursor:pointer; border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:.9rem; transition:background .15s; }
+    .topbar__logout:hover { background:rgba(255,255,255,.28); }
+
+    /* TABS */
+    .tabs { display:flex; background:var(--card); border-bottom:1.5px solid var(--border); padding:0 1.5rem; gap:0; overflow-x:auto; }
+    .tab-btn { padding:.85rem 1.1rem; background:none; border:none; border-bottom:2.5px solid transparent; font-size:.88rem; font-weight:600; color:var(--muted); cursor:pointer; transition:color .15s,border-color .15s; display:flex; align-items:center; gap:.4rem; white-space:nowrap; font-family:inherit; }
+    .tab-btn.active { color:var(--primary); border-bottom-color:var(--primary); }
+    .tab-btn[data-admin-only] { display:none; }
+    body.is-admin .tab-btn[data-admin-only] { display:flex; }
+    .tab-panel { display:none; padding:1.5rem; }
+    .tab-panel.active { display:block; }
+    /* section dividers inside upcoming */
+    .section-divider { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--primary); padding:.55rem 0 .4rem; border-bottom:2px solid var(--border); margin:1.25rem 0 .5rem; display:flex; align-items:center; gap:.5rem; }
+    .section-divider i { font-size:.8rem; opacity:.7; }
+    .month-group-label { font-size:.95rem; font-weight:700; color:var(--text); padding:.6rem .25rem .3rem; margin-top:.75rem; border-bottom:2px solid var(--border); margin-bottom:.3rem; }
+    /* Full-width table */
+    .events-table { width:100%; border-collapse:collapse; }
+    /* Admin calendar grid */
+    .adm-cal-wrap { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+    .adm-cal-nav { display:flex; justify-content:space-between; align-items:center; padding:.75rem 1rem; border-bottom:1px solid var(--border); }
+    .adm-cal-nav h3 { font-size:1rem; font-weight:700; }
+    .adm-cal-nav-btn { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.9rem; color:var(--muted); transition:all .15s; }
+    .adm-cal-nav-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .adm-cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); border-bottom:1px solid var(--border); }
+    .adm-cal-wd { text-align:center; font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; padding:.45rem 0; background:var(--bg); }
+    .adm-cal-days { display:grid; grid-template-columns:repeat(7,1fr); }
+    /* ── ADMIN CALENDAR ── */
+    .adm-cal-wrap { border-radius:var(--radius); overflow:hidden; border:1px solid var(--border); }
+    .adm-cal-nav  { display:flex; justify-content:space-between; align-items:center; padding:.85rem 1.1rem; border-bottom:1px solid var(--border); background:var(--card); }
+    .adm-cal-nav h3 { font-size:1.05rem; font-weight:700; }
+    .adm-cal-nav-btn { width:36px; height:36px; border-radius:10px; border:1.5px solid var(--border); background:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; color:var(--muted); transition:all .15s; }
+    .adm-cal-nav-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .adm-cal-weekdays { display:grid; grid-template-columns:repeat(7,1fr); background:var(--bg); border-bottom:1px solid var(--border); }
+    .adm-cal-wd { text-align:center; font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; padding:.5rem 0; }
+    .adm-cal-days { display:grid; grid-template-columns:repeat(7,1fr); background:var(--card); }
+    /* cells */
+    .adm-cal-cell { min-height:90px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); padding:5px 4px; position:relative; cursor:default; }
+    .adm-cal-cell:nth-child(7n) { border-right:none; }
+    .adm-cal-cell--empty  { background:var(--bg); pointer-events:none; }
+    .adm-cal-cell--past   { background:#f9f9f9; }
+    .adm-cal-cell--past   .adm-cal-num { color:#ccc; }
+    .adm-cal-cell--past   .adm-cal-ev  { opacity:.4; }
+    .adm-cal-cell--today  { background:#eff6ff; }
+    .adm-cal-cell--today  .adm-cal-num { background:var(--primary); color:#fff; border-radius:50%; }
+    .adm-cal-num { font-size:.78rem; font-weight:600; color:var(--muted); margin-bottom:4px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; }
+    /* ── DESKTOP: pill chips with hover actions ── */
+    .adm-cal-ev { font-size:.65rem; font-weight:600; padding:2px 5px; border-radius:4px; margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; position:relative; display:flex; align-items:center; gap:2px; line-height:1.4; }
+    .adm-cal-ev--servicio       { background:#e0f0ef; color:#1e6b61; }
+    .adm-cal-ev--estudio        { background:#e3eaf8; color:#2a4a9e; }
+    .adm-cal-ev--oracion        { background:#ede8f5; color:#5c3d9c; }
+    .adm-cal-ev--evangelizacion { background:#fef0e0; color:#a05a10; }
+    .adm-cal-ev--especial       { background:#fde8ea; color:#b02030; }
+    .adm-cal-ev--otro           { background:#f0f0f0; color:#555;    }
+    .adm-cal-ev--cancelled      { opacity:.45; text-decoration:line-through; }
+    .adm-cal-ev__label { flex:1; overflow:hidden; text-overflow:ellipsis; }
+    /* action buttons — hidden by default, shown on hover (desktop) */
+    .adm-cal-ev__actions { display:none; flex-direction:row; gap:2px; flex-shrink:0; }
+    .adm-cal-ev:hover .adm-cal-ev__actions { display:flex; }
+    .adm-cal-ev__btn { width:15px; height:15px; border-radius:3px; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.55rem; padding:0; line-height:1; transition:filter .1s; }
+    .adm-cal-ev__btn--edit   { background:rgba(59,130,246,.2);  color:#3b82f6; }
+    .adm-cal-ev__btn--cancel { background:rgba(245,158,11,.2);  color:#d97706; }
+    .adm-cal-ev__btn--delete { background:rgba(220,38,38,.2);   color:#dc2626; }
+    .adm-cal-ev__btn--undo   { background:rgba(22,163,74,.2);   color:#16a34a; }
+    .adm-cal-ev__btn:hover   { filter:brightness(.8); }
+    .adm-cal-more { font-size:.6rem; color:var(--primary); padding:1px 3px; cursor:pointer; font-weight:600; }
+    /* ── MOBILE: dots only, tap cell opens sheet ── */
+    @media(max-width:640px){
+      .adm-cal-cell { min-height:52px; padding:4px 3px; cursor:pointer; }
+      .adm-cal-cell:active { background:rgba(52,90,101,.07); }
+      .adm-cal-num { font-size:.75rem; margin-bottom:3px; }
+      /* hide pills, show dots */
+      .adm-cal-ev  { display:none !important; }
+      .adm-cal-more { display:none; }
+      .adm-cal-dots { display:flex; flex-wrap:wrap; gap:2px; }
+    }
+    @media(min-width:641px){
+      .adm-cal-dots { display:none; }
+    }
+    .adm-cal-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .adm-cal-dot--servicio       { background:#1e6b61; }
+    .adm-cal-dot--estudio        { background:#2a4a9e; }
+    .adm-cal-dot--oracion        { background:#5c3d9c; }
+    .adm-cal-dot--evangelizacion { background:#a05a10; }
+    .adm-cal-dot--especial       { background:#b02030; }
+    .adm-cal-dot--otro           { background:#888;    }
+    /* ── DAY SHEET (mobile bottom drawer) ── */
+    .day-sheet-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(2px); z-index:300; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .day-sheet-backdrop.open { opacity:1; pointer-events:all; }
+    .day-sheet { position:fixed; bottom:0; left:0; right:0; background:#fff; border-radius:18px 18px 0 0; padding:1rem 1.1rem 2rem; max-height:80vh; overflow-y:auto; transform:translateY(100%); transition:transform .25s cubic-bezier(.22,1,.36,1); box-shadow:0 -8px 32px rgba(0,0,0,.15); }
+    .day-sheet-backdrop.open .day-sheet { transform:translateY(0); }
+    .day-sheet__handle { width:40px; height:4px; background:#d0d0d0; border-radius:2px; margin:0 auto .9rem; }
+    .day-sheet__date { font-size:.95rem; font-weight:700; margin-bottom:.85rem; color:var(--text); }
+    .day-sheet__ev { display:flex; align-items:center; gap:.65rem; padding:.6rem 0; border-bottom:1px solid #f0f0f0; }
+    .day-sheet__ev:last-child { border-bottom:none; }
+    .day-sheet__ev-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .day-sheet__ev-info { flex:1; min-width:0; }
+    .day-sheet__ev-title { font-weight:600; font-size:.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .day-sheet__ev-time  { font-size:.73rem; color:var(--muted); margin-top:1px; }
+    .day-sheet__ev-actions { display:flex; gap:.3rem; flex-shrink:0; }
+    .day-sheet__ev.cancelled .day-sheet__ev-title { text-decoration:line-through; color:var(--muted); opacity:.6; }
+
+    .filter-bar { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin-bottom:1rem; }
+    .filter-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.42rem .85rem; border:1.5px solid var(--border); border-radius:var(--radius); background:#fff; cursor:pointer; font-size:.83rem; font-weight:600; color:var(--muted); font-family:inherit; transition:all .15s; position:relative; }
+    .filter-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .filter-btn.active { border-color:var(--primary); color:var(--primary); background:rgba(52,90,101,.06); }
+    .filter-btn__badge { background:var(--primary); color:#fff; border-radius:99px; font-size:.62rem; font-weight:700; padding:1px 5px; margin-left:2px; min-width:16px; text-align:center; }
+    .filter-panel { background:#fff; border:1.5px solid var(--border); border-radius:var(--radius); padding:.85rem 1rem; margin-bottom:1rem; display:none; box-shadow:0 4px 16px rgba(0,0,0,.08); }
+    .filter-panel.open { display:block; }
+    .filter-panel__title { font-size:.7rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:.6rem; }
+    .filter-checks { display:flex; flex-wrap:wrap; gap:.4rem .85rem; }
+    .filter-check { display:flex; align-items:center; gap:.4rem; cursor:pointer; font-size:.85rem; user-select:none; padding:.2rem 0; }
+    .filter-check input[type=checkbox] { width:15px; height:15px; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
+    .filter-check__dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+    .filter-clear { font-size:.78rem; color:var(--primary); cursor:pointer; font-weight:600; background:none; border:none; font-family:inherit; padding:.2rem .4rem; border-radius:4px; }
+    .filter-clear:hover { background:rgba(52,90,101,.08); }
+    .action-bar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:.75rem; }
+    .action-bar h2 { font-size:1.1rem; font-weight:700; }
+
+    /* TABLE (Próximos / Pasados) */
+    .events-table { width:100%; border-collapse:collapse; }
+    .events-table th { text-align:left; font-size:.75rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; padding:.5rem .75rem; border-bottom:2px solid var(--border); background:var(--bg); }
+    .events-table td { padding:.75rem; border-bottom:1px solid var(--border); vertical-align:middle; font-size:.9rem; }
+    .events-table tr:hover td { background:var(--bg); }
+    .events-table tr.row--past td { opacity:.6; }
+    .events-table tr.row--past .event-title { text-decoration:line-through; }
+    .events-table tr.row--cancelled .event-title { text-decoration:line-through; color:var(--muted); }
+    .event-title { font-weight:600; }
+
+    /* CALENDARIO — card list, no columns */
+    .cal-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:.75rem; }
+    .cal-toolbar h2 { font-size:1.1rem; font-weight:700; }
+    .cal-cards { display:flex; flex-direction:column; gap:0; }
+    .cal-card { background:var(--card); border-bottom:1px solid var(--border); padding:.8rem 1rem; display:flex; align-items:center; gap:.85rem; }
+    .cal-card:first-child { border-radius:var(--radius) var(--radius) 0 0; }
+    .cal-card:last-child  { border-bottom:none; border-radius:0 0 var(--radius) var(--radius); }
+    .cal-card:only-child  { border-radius:var(--radius); }
+    .cal-card.row--cancelled .cal-card__title { text-decoration:line-through; color:var(--muted); }
+    .cal-card__info { flex:1; min-width:0; }
+    .cal-card__title { font-weight:600; font-size:.9rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cal-card__meta { font-size:.75rem; color:var(--muted); margin-top:3px; display:flex; flex-wrap:wrap; gap:.3rem .6rem; align-items:center; }
+    .cal-card__actions { display:flex; gap:.35rem; flex-shrink:0; }
+    .cal-month-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--primary); padding:.6rem 0 .35rem; border-bottom:1px solid var(--border); margin-bottom:.4rem; }
+    .cal-month-group { margin-bottom:.75rem; }
+    .cal-card-wrap { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+
+    /* Smart preset panel */
+    .smart-panel { display:none; background:var(--card); border:1.5px solid var(--primary); border-radius:var(--radius); padding:1.1rem; margin-bottom:1rem; }
+    .smart-panel.open { display:block; }
+    .smart-panel-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.85rem; }
+    .smart-panel-header h3 { font-size:1rem; font-weight:700; }
+    .smart-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:.4rem; margin-bottom:.75rem; }
+    .preset-card { border:1.5px solid var(--border); border-radius:8px; padding:.55rem .8rem; cursor:pointer; transition:border-color .15s,background .15s; }
+    .preset-card:hover { border-color:var(--primary); background:rgba(52,90,101,.04); }
+    .preset-card.selected { border-color:var(--primary); background:rgba(52,90,101,.08); }
+    .preset-card__title { font-weight:600; font-size:.82rem; }
+    .preset-card__sub { font-size:.7rem; color:var(--muted); margin-top:2px; }
+    .preview-pills { display:flex; flex-wrap:wrap; gap:.3rem; margin-top:.45rem; max-height:80px; overflow-y:auto; }
+    .preview-pill { font-size:.68rem; background:rgba(52,90,101,.1); color:var(--primary); padding:2px 7px; border-radius:99px; font-weight:600; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+
+    /* BADGES */
+    .cat-badge { display:inline-block; font-size:.7rem; font-weight:700; padding:2px 8px; border-radius:99px; text-transform:uppercase; letter-spacing:.04em; }
+    .cat--servicio       { background:var(--cat-servicio);       color:var(--cat-servicio-t); }
+    .cat--estudio        { background:var(--cat-estudio);        color:var(--cat-estudio-t); }
+    .cat--oracion        { background:var(--cat-oracion);        color:var(--cat-oracion-t); }
+    .cat--evangelizacion { background:var(--cat-evangelizacion); color:var(--cat-evangelizacion-t); }
+    .cat--especial       { background:var(--cat-especial);       color:var(--cat-especial-t); }
+    .cat--otro           { background:var(--cat-otro);           color:var(--cat-otro-t); }
+    .status-badge { display:inline-flex; align-items:center; gap:.3rem; font-size:.75rem; font-weight:600; padding:2px 8px; border-radius:99px; }
+    .status--upcoming  { background:#dcfce7; color:#166534; }
+    .status--past      { background:#f3f4f6; color:#6b7280; }
+    .status--cancelled { background:#fde8ea; color:#b02030; }
+
+    .row-actions { display:flex; gap:.4rem; align-items:center; }
+    .icon-btn { width:32px; height:32px; border-radius:8px; border:1.5px solid var(--border); background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.85rem; color:var(--muted); transition:all .15s; }
+    .icon-btn:hover { border-color:var(--primary); color:var(--primary); }
+    .icon-btn.warn:hover    { border-color:var(--warn);    color:var(--warn); }
+    .icon-btn.success:hover { border-color:var(--success); color:var(--success); }
+    .icon-btn.danger:hover  { border-color:var(--danger);  color:var(--danger); }
+
+    .empty-state { text-align:center; padding:3rem 1rem; color:var(--muted); }
+    .empty-state i { font-size:2rem; margin-bottom:.75rem; opacity:.4; display:block; }
+    .empty-state p { font-size:.9rem; }
+    .loading { text-align:center; padding:2rem; color:var(--muted); font-size:.9rem; }
+
+    /* MINISTRY CARDS */
+    .card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem; }
+    .ministry-card { background:var(--card); border-radius:var(--radius); border:1.5px solid var(--border); padding:1.1rem 1.25rem; display:flex; align-items:center; gap:.85rem; }
+    .ministry-card__dot  { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+    .ministry-card__name { font-weight:700; font-size:.95rem; }
+    .ministry-card__id   { font-size:.7rem; color:var(--muted); margin-top:2px; font-family:monospace; }
+
+    /* USER LIST */
+    .user-list { display:flex; flex-direction:column; gap:.75rem; }
+    .user-row { background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius); padding:.85rem 1rem; display:flex; align-items:center; gap:.85rem; }
+    .user-row__avatar { width:38px; height:38px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem; flex-shrink:0; }
+    .user-row__info { flex:1; }
+    .user-row__name { font-weight:600; font-size:.92rem; }
+    .user-row__meta { font-size:.78rem; color:var(--muted); }
+    .role-badge { font-size:.72rem; font-weight:700; padding:2px 9px; border-radius:99px; text-transform:uppercase; letter-spacing:.04em; }
+    .role--admin    { background:#fef0e0; color:#a05a10; }
+    .role--ministry { background:#e3eaf8; color:#2a4a9e; }
+
+    /* MODAL */
+    .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(3px); z-index:200; display:flex; align-items:center; justify-content:center; padding:1rem; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .modal-backdrop.open { opacity:1; pointer-events:all; }
+    .modal { background:var(--card); border-radius:16px; width:100%; max-width:500px; max-height:90vh; overflow-y:auto; padding:1.75rem; transform:translateY(16px) scale(.97); transition:transform .22s cubic-bezier(.22,1,.36,1); box-shadow:0 16px 48px rgba(0,0,0,.18); }
+    .modal-backdrop.open .modal { transform:translateY(0) scale(1); }
+    .modal__header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+    .modal__title { font-size:1.2rem; font-weight:700; }
+    .modal__close { width:30px; height:30px; border-radius:50%; background:var(--bg); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:.9rem; }
+    .modal__close:hover { background:var(--border); }
+    .modal__footer { display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border); }
+
+    /* TOAST */
+    #toast { position:fixed; bottom:1.5rem; right:1.5rem; z-index:9999; display:flex; flex-direction:column; gap:.5rem; }
+    .toast-item { padding:.75rem 1.1rem; border-radius:10px; font-size:.88rem; font-weight:600; color:#fff; box-shadow:0 4px 12px rgba(0,0,0,.15); animation:slideIn .25s ease; display:flex; align-items:center; gap:.5rem; }
+    .toast-item--success { background:var(--success); }
+    .toast-item--error   { background:var(--danger);  }
+    .toast-item--info    { background:var(--primary); }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+    .confirm-msg { color:var(--muted); font-size:.9rem; margin-top:.5rem; }
+
+    /* ── FULL-PAGE FORM VIEWS ── */
+    .view-panel { display:none; }
+    .view-panel.active { display:block; }
+    .form-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:1.25rem; margin-bottom:1rem; }
+    .toolbar-back { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:.75rem; }
+    .toolbar-back h2 { font-size:1.1rem; font-weight:700; }
+    .btn--secondary { background:var(--accent); color:#fff; }
+    .btn--secondary:hover { opacity:.88; }
+    .preset-note { font-size:.72rem; color:var(--primary); font-weight:600; margin-top:.25rem; display:none; }
+    .preset-note.show { display:block; }
+    .title-custom { display:none; margin-top:.4rem; }
+    .title-custom.show { display:block; }
+    /* Tag picker */
+    .tag-picker { position:relative; }
+    .tag-picker-btn { width:100%; padding:.65rem .85rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.95rem; font-family:inherit; background:#fff; color:var(--text); text-align:left; cursor:pointer; display:flex; justify-content:space-between; align-items:center; min-height:44px; transition:border-color .15s; }
+    .tag-picker-btn:focus { outline:none; border-color:var(--primary); }
+    .tag-picker-btn.disabled { opacity:.55; background:#f5f5f5; cursor:not-allowed; pointer-events:none; }
+    .tag-dropdown { position:absolute; top:100%; left:0; right:0; background:#fff; border:1.5px solid var(--border); border-radius:var(--radius); margin-top:2px; z-index:50; box-shadow:0 4px 16px rgba(0,0,0,.1); display:none; max-height:220px; overflow-y:auto; }
+    .tag-dropdown.open { display:block; }
+    .tag-opt { display:flex; align-items:center; gap:.5rem; padding:.45rem .85rem; cursor:pointer; font-size:.9rem; }
+    .tag-opt:hover { background:rgba(52,90,101,.05); }
+    .tag-opt input[type=checkbox] { width:15px; height:15px; accent-color:var(--primary); cursor:pointer; flex-shrink:0; }
+    .tag-opt.disabled { opacity:.35; pointer-events:none; }
+    .tag-custom-wrap { border-top:1px solid var(--border); padding:.4rem .85rem; }
+    .tag-custom-wrap input { width:100%; padding:.3rem .5rem; border:1px solid var(--border); border-radius:6px; font-size:.82rem; font-family:inherit; }
+    .tag-pills { display:flex; gap:.3rem; flex-wrap:wrap; }
+    .tag-pill { font-size:.68rem; background:rgba(52,90,101,.1); color:var(--primary); padding:.15rem .5rem; border-radius:99px; font-weight:600; }
     /* Location override */
-    .loc-wrap{display:flex;gap:var(--mg-xxs);align-items:flex-start}
-    .loc-wrap input{flex:1}
-    .loc-override-btn{padding:.45rem .65rem;border:1px solid var(--gray-60);border-radius:var(--radius-sm);background:var(--color-bg-light);cursor:pointer;font-size:var(--fs-xxs);font-weight:var(--fw-semibold);color:var(--color-primary);white-space:nowrap;font-family:var(--font-base);transition:all .2s;margin-top:0}
-    .loc-override-btn:hover{background:var(--color-primary);color:#fff}
-    .loc-override-btn.active{background:var(--color-primary);color:#fff}
-
-    .img-picker{display:grid;grid-template-columns:1fr 1fr;gap:var(--mg-xs);margin-top:var(--mg-xxs)}
-    .img-picker-option{border:2px dashed var(--gray-60);border-radius:var(--radius-sm);padding:var(--pd-sm);text-align:center;cursor:pointer;transition:border-color .2s;position:relative;overflow:hidden}
-    .img-picker-option:hover{border-color:var(--color-primary)}.img-picker-option.active{border-color:var(--color-primary);border-style:solid}
-    .img-picker-option svg{display:block;margin:0 auto var(--mg-xxs)}.img-picker-option .label{font-size:var(--fs-xs);font-weight:var(--fw-semibold)}.img-picker-option .sublabel{font-size:var(--fs-xxs);color:var(--color-muted);margin-top:.15rem}
-    .img-picker-option input[type="file"]{position:absolute;inset:0;opacity:0;cursor:pointer}
-    .img-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:var(--mg-xxs);margin-top:var(--mg-xs);max-height:220px;overflow-y:auto}
-    .img-gallery-item{position:relative;aspect-ratio:1;border-radius:var(--radius-sm);overflow:hidden;cursor:pointer;border:2px solid transparent}.img-gallery-item:hover{transform:scale(1.02)}.img-gallery-item.selected{border-color:var(--color-secondary);box-shadow:0 0 0 2px var(--color-secondary)}.img-gallery-item img{width:100%;height:100%;object-fit:cover;display:block}
-    .img-gallery-empty,.img-gallery-loading{grid-column:1/-1;text-align:center;padding:var(--pd-md);color:var(--color-muted);font-size:var(--fs-sm)}
-    .img-preview-wrap{margin-top:var(--mg-xs);position:relative;display:inline-block}.img-preview{max-width:100%;max-height:160px;border-radius:var(--radius-sm);display:block}.img-actions{position:absolute;top:6px;right:6px;display:flex;gap:4px}
-    .img-action-btn{width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}.img-action-btn.delete{background:rgba(192,57,43,.85);color:#fff}.img-action-btn.delete:hover{background:#c0392b}.img-action-btn svg{width:13px;height:13px}
-
-    .month-group{margin-bottom:var(--mg-md)}.month-label{font-size:var(--fs-xxs);font-weight:var(--fw-bold);text-transform:uppercase;letter-spacing:1px;color:var(--color-black);padding:var(--mg-xxs) 0;border-bottom:1px solid var(--gray-60);margin-bottom:var(--mg-xxs)}
-    .event-row{display:grid;grid-template-columns:56px 1fr auto;gap:var(--mg-xs);padding:var(--mg-xs) 0;border-bottom:1px solid var(--gray-80);align-items:center}.event-row:last-child{border-bottom:none}.event-row-img{width:56px;height:40px;border-radius:var(--radius-sm);object-fit:cover;background:var(--gray-60)}.event-row-info{min-width:0;overflow:hidden}.event-row-title{font-weight:var(--fw-semibold);font-size:var(--fs-sm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.event-row-date{font-size:var(--fs-xxs);color:var(--color-muted)}.event-row-actions{display:flex;gap:.3rem}.event-row-tag{display:inline;font-size:var(--fs-xxs);font-weight:var(--fw-semibold);padding:.1rem .4rem;border-radius:20px;background:rgba(52,90,101,.1);color:var(--color-black);margin-left:.3rem}
-    .btn-icon{width:25px;height:25px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;border:none;cursor:pointer;transition:transform .15s,opacity .15s;-webkit-tap-highlight-color:transparent}.btn-icon:hover{opacity:.75}.btn-icon:active{transform:scale(.88);opacity:.6}
-    .btn-icon svg{width:12px;height:12px;display:block}
-    .btn-icon-edit{background:rgba(0,122,255,.12);color:#67a0dc}
-    .btn-icon-delete{background:rgba(255,59,48,.12);color:#c56d68}
-    @media(prefers-color-scheme:dark){.btn-icon-edit{background:rgba(10,132,255,.2);color:#0A84FF}.btn-icon-delete{background:rgba(255,69,58,.2);color:#FF453A}}
-    .btn-text-label{display:inline}
-    @media(max-width:1024px){.event-row-actions .btn-sm{display:none}.event-row-actions .btn-icon{display:inline-flex}}
-    @media(min-width:1025px){.event-row-actions .btn-icon{display:none}.event-row-actions .btn-sm{display:inline-flex}}
-    .empty-state{text-align:center;padding:var(--pd-lg) var(--pd-sm);color:var(--color-muted);font-size:var(--fs-md)}
-    @media(max-width:500px){.event-row{grid-template-columns:44px 1fr auto;gap:var(--mg-xxs)}.event-row-img{width:44px;height:32px}.event-row-title{font-size:var(--fs-xs)}}
-    .bulk-dates{display:flex;flex-direction:column;gap:var(--mg-xxs);margin-top:var(--mg-xxs)}.bulk-date-row{display:flex;gap:var(--mg-xxs);align-items:center}.bulk-date-row input{flex:1}.bulk-date-remove{width:26px;height:26px;border-radius:50%;border:1px solid var(--gray-60);background:var(--color-bg-light);color:var(--color-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px}.bulk-date-remove:hover{background:#c0392b;color:#fff;border-color:#c0392b}
-    .bulk-add-date{font-size:var(--fs-sm);color:var(--color-primary);cursor:pointer;font-weight:var(--fw-semibold);padding:var(--mg-xxs) 0;background:none;border:none;font-family:var(--font-base)}.bulk-add-date:hover{text-decoration:underline}.bulk-summary{font-size:var(--fs-xxs);color:var(--color-muted);margin-top:var(--mg-xxs)}
-    .title-custom{display:none}.title-custom.show{display:block}.preset-badge{font-size:var(--fs-xxs);color:var(--color-primary);font-weight:var(--fw-semibold);margin-top:var(--mg-xxs)}
-    .toast-container{position:fixed;top:1rem;right:1rem;z-index:9999}.toast{padding:var(--pd-xs) var(--pd-sm);border-radius:var(--radius-md);margin-bottom:var(--mg-xxs);font-size:var(--fs-sm);font-weight:var(--fw-medium);color:#fff;animation:slideIn .3s ease;max-width:320px}.toast-success{background:var(--color-add)}.toast-error{background:#c0392b}
-    @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:var(--pd-md)}.modal{background:var(--color-bg-light);border-radius:var(--radius-md);padding:var(--pd-md);max-width:420px;width:100%}.modal h3{margin-bottom:var(--mg-xs);font-size:var(--fs-lg)}.modal p{font-size:var(--fs-sm);color:var(--color-muted);margin-bottom:var(--mg-md)}.modal-actions{display:flex;gap:var(--mg-xs);justify-content:flex-end;flex-wrap:wrap}
-    .hidden{display:none!important}.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--mg-sm);flex-wrap:wrap;gap:var(--mg-xs)}.toolbar h2{font-size:var(--fs-lg);font-weight:var(--fw-bold)}
-    .loading-spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .loc-wrap { display:flex; gap:.4rem; align-items:flex-start; }
+    .loc-wrap input { flex:1; }
+    .loc-btn { padding:.6rem .7rem; border:1.5px solid var(--border); border-radius:var(--radius); background:#fff; cursor:pointer; font-size:.72rem; font-weight:600; color:var(--primary); white-space:nowrap; font-family:inherit; transition:all .15s; }
+    .loc-btn:hover, .loc-btn.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+    /* Image picker */
+    .img-grid { display:grid; grid-template-columns:1fr 1fr; gap:.6rem; margin-top:.3rem; }
+    .img-opt { border:2px dashed var(--border); border-radius:var(--radius); padding:.85rem; text-align:center; cursor:pointer; transition:border-color .15s; position:relative; overflow:hidden; }
+    .img-opt:hover, .img-opt.active { border-color:var(--primary); border-style:solid; }
+    .img-opt input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+    .img-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(72px,1fr)); gap:.4rem; margin-top:.5rem; max-height:200px; overflow-y:auto; }
+    .img-gal-item { aspect-ratio:1; border-radius:6px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:transform .12s; }
+    .img-gal-item:hover { transform:scale(1.04); }
+    .img-gal-item.selected { border-color:var(--accent); box-shadow:0 0 0 2px var(--accent); }
+    .img-gal-item img { width:100%; height:100%; object-fit:cover; display:block; }
+    .img-preview-wrap { margin-top:.5rem; position:relative; display:inline-block; }
+    .img-preview { max-width:100%; max-height:140px; border-radius:8px; display:block; }
+    .img-del-btn { position:absolute; top:5px; right:5px; width:24px; height:24px; border-radius:50%; background:rgba(220,38,38,.85); color:#fff; border:none; cursor:pointer; font-size:.7rem; display:flex; align-items:center; justify-content:center; }
+    .img-del-btn:hover { background:var(--danger); }
+    /* Bulk dates */
+    .bulk-dates { display:flex; flex-direction:column; gap:.4rem; margin-top:.4rem; }
+    .bulk-date-row { display:flex; gap:.4rem; align-items:center; }
+    .bulk-date-row input { flex:1; }
+    .bulk-date-remove { width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:#fff; color:var(--muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+    .bulk-date-remove:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
+    .bulk-add-btn { font-size:.85rem; color:var(--primary); cursor:pointer; font-weight:600; padding:.25rem 0; background:none; border:none; font-family:inherit; }
+    .bulk-add-btn:hover { text-decoration:underline; }
+    .bulk-summary { font-size:.72rem; color:var(--muted); margin-top:.3rem; }
+    /* Mobile card view for events table */
+    @media(max-width:640px){
+      .topbar { padding:0 1rem; }
+      .tab-panel { padding:1rem; }
+      .tabs { padding:0 1rem; }
+      .form-row { grid-template-columns:1fr; }
+      .events-table, .events-table thead, .events-table tbody,
+      .events-table th, .events-table td, .events-table tr { display:block !important; }
+      .events-table thead { display:none !important; }
+      .events-table tr {
+        background:var(--card); border:1.5px solid var(--border);
+        border-radius:var(--radius); margin-bottom:.65rem;
+        padding:.75rem; position:relative;
+      }
+      .events-table tr:hover td { background:transparent; }
+      .events-table tr.row--past { opacity:.65; }
+      .events-table td { padding:0 0 .2rem; border:none; font-size:.88rem; }
+      .events-table td:first-child { padding-bottom:.4rem; border-bottom:1px solid var(--border); margin-bottom:.35rem; }
+      .events-table td:nth-child(2), .events-table td:nth-child(3) { display:inline !important; color:var(--muted); font-size:.78rem; }
+      .events-table td:nth-child(2)::after { content:' · '; }
+      .events-table td:nth-child(4) { margin-top:.25rem; }
+      /* ministry col stays visible */
+      .events-table td:last-child { position:absolute; top:.65rem; right:.65rem; padding:0; }
+      .row-actions { gap:.3rem; }
+      .icon-btn { width:28px; height:28px; font-size:.78rem; }
+    }
   </style>
 </head>
 <body>
-<div class="toast-container" id="toasts"></div>
 
-<div id="login-screen" class="login-wrap"><div class="login-card"><h1>Admin Panel</h1><p>Iglesia Restauración Divina</p><div class="fg"><label>Email</label><input type="email" id="login-email" placeholder="admin@irdlex.org" autocomplete="email"></div><div class="fg"><label>Contraseña</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div><button class="btn btn-primary" style="width:100%;margin-top:var(--mg-xs)" id="login-btn">Entrar</button><p id="login-error" style="color:#c0392b;margin-top:var(--mg-xs);font-size:var(--fs-xs)"></p></div></div>
+<!-- AUTH -->
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-card__logo">
+      <h1>Iglesia Restauración Divina</h1>
+      <p>Panel de Administración</p>
+    </div>
+    <h2>Iniciar sesión</h2>
+    <div class="auth-error" id="authError"></div>
+    <div class="form-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="correo@ejemplo.com" autocomplete="email"></div>
+    <div class="form-group"><label>Contraseña</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
+    <button class="btn btn--primary btn--full" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+  </div>
+</div>
 
-<div id="admin-screen" class="hidden">
-  <div class="admin-header"><h1>Administración de Eventos</h1><button class="btn btn-logout" id="logout-btn">Cerrar sesión</button></div>
-  <div class="admin-body">
-    <div id="view-list">
-      <div class="toolbar"><h2>Eventos</h2><div style="display:flex;gap:var(--mg-xxs)"><button class="btn btn-secondary" id="bulk-event-btn">+ Bulk</button><button class="btn btn-primary" id="add-event-btn">+ Nuevo</button></div></div>
-      <div class="tabs"><button class="tab active" data-tab="upcoming">Próximos <span class="tab-count" id="count-upcoming">0</span></button><button class="tab" data-tab="past">Pasados <span class="tab-count" id="count-past">0</span></button></div>
-      <div class="filter-bar"><input type="text" id="filter-search" placeholder="Buscar por título..."><select id="filter-tag"><option value="">Todas las categorías</option></select></div>
-      <div class="card"><div id="events-list"><div class="empty-state">Cargando...</div></div></div>
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar__title">IRD Admin <span id="topbarMinistry"></span></div>
+    <div class="topbar__right">
+      <span class="topbar__user" id="topbarUser"></span>
+      <button class="topbar__logout" id="logoutBtn" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
+    <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Pasados</button>
+    <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> Calendario</button>
+    <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> Ministerios</button>
+    <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
+  </div>
+
+  <!-- PRÓXIMOS -->
+  <div class="tab-panel active" id="tab-upcoming">
+    <!-- VIEW: list -->
+    <div class="view-panel active" id="view-list">
+      <div class="action-bar">
+        <h2>Próximos Eventos</h2>
+        <div style="display:flex;gap:.45rem">
+          <button class="btn btn--secondary" id="bulkEventBtn"><i class="fas fa-layer-group"></i> + Bulk</button>
+          <button class="btn btn--primary" id="newEventBtn"><i class="fas fa-plus"></i> + Nuevo</button>
+        </div>
+      </div>
+      <div class="filter-bar admin-only" id="filterBarWrap" style="display:none">
+        <button class="filter-btn" id="filterToggleBtn">
+          <i class="fas fa-sliders-h"></i> Filtrar por ministerio
+          <span class="filter-btn__badge hidden" id="filterBadge">0</span>
+        </button>
+      </div>
+      <div class="filter-panel admin-only" id="filterPanel" style="display:none">
+        <div class="filter-panel__title">Filtrar por ministerio</div>
+        <div class="filter-checks" id="filterChecks"></div>
+      </div>
+      <div id="upcomingList"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
     </div>
 
-    <!-- SINGLE FORM -->
-    <div id="view-form" class="hidden">
-      <div class="toolbar"><h2 id="form-title">Nuevo Evento</h2><button class="btn btn-ghost btn-sm" id="form-cancel-btn">← Regresar</button></div>
-      <div class="card"><form id="event-form" novalidate>
-        <input type="hidden" id="f-id">
-        <div class="fg"><label>Tipo de evento *</label><select id="f-type-select"></select><input type="text" id="f-title-custom" class="title-custom" placeholder="Nombre personalizado" style="margin-top:var(--mg-xxs)"><p class="preset-badge hidden" id="f-preset-badge"></p></div>
-        <div class="fr">
-          <div class="fg"><label>Categoría (máx 2)</label><div id="f-tag-picker"></div><input type="hidden" id="f-tag"></div>
-          <div class="fg"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="f-location" value="2601 Clays Mill Road" readonly><button type="button" class="loc-override-btn" id="f-loc-override">Cambiar</button></div></div>
+    <!-- VIEW: single event form -->
+    <div class="view-panel" id="view-form">
+      <div class="toolbar-back">
+        <h2 id="formTitle">Nuevo Evento</h2>
+        <button class="btn btn--ghost" id="formBack">← Regresar</button>
+      </div>
+      <div class="form-card">
+        <input type="hidden" id="fId">
+        <div class="form-group">
+          <label>Tipo de evento *</label>
+          <select id="fType"></select>
+          <input type="text" id="fTitleCustom" class="title-custom" placeholder="Nombre personalizado">
+          <p class="preset-note" id="fPresetNote"></p>
         </div>
-        <div class="fr"><div class="fg"><label>Inicio *</label><input type="datetime-local" id="f-starts" required></div><div class="fg"><label>Fin</label><input type="datetime-local" id="f-ends"></div></div>
-        <div class="fg" id="f-desc-group"><label>Descripción</label><textarea id="f-description" rows="5" placeholder="Describe el evento..."></textarea></div>
-        <div class="fr"><div class="fg"><label>Organizador</label><input type="text" id="f-org-name" placeholder="ej. Pastor Juan"></div><div class="fg"><label>Email organizador</label><input type="email" id="f-org-email" placeholder="ej. juan@irdlex.org"></div></div>
-        <div class="fg" id="img-section"></div>
-        <div class="fa"><button type="submit" class="btn btn-primary" id="form-submit-btn">Guardar Evento</button><button type="button" class="btn btn-ghost" id="form-cancel-btn-2">Cancelar</button></div>
-      </form></div>
+        <div class="form-row">
+          <div class="form-group"><label>Categoría (máx 2)</label><div id="fTagPicker"></div><input type="hidden" id="fTag"></div>
+          <div class="form-group"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="fLoc" value="2601 Clays Mill Road" readonly><button type="button" class="loc-btn" id="fLocBtn">Cambiar</button></div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Inicio *</label><input type="datetime-local" id="fStarts" required></div>
+          <div class="form-group"><label>Fin</label><input type="datetime-local" id="fEnds"></div>
+        </div>
+        <div class="form-group" id="fDescGroup"><label>Descripción</label><textarea id="fDesc" rows="4" placeholder="Describe el evento..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Organizador</label><input type="text" id="fOrgName" placeholder="ej. Pastor Juan"></div>
+          <div class="form-group"><label>Email organizador</label><input type="email" id="fOrgEmail" placeholder="juan@irdlex.org"></div>
+        </div>
+        <div class="form-group"><label>Imagen</label><div id="fImgSection"></div></div>
+        <div class="auth-error" id="fError"></div>
+        <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
+          <button class="btn btn--primary" id="fSaveBtn"><i class="fas fa-save"></i> Guardar Evento</button>
+          <button class="btn btn--ghost" id="formCancel">Cancelar</button>
+        </div>
+      </div>
     </div>
 
-    <!-- BULK FORM -->
-    <div id="view-bulk" class="hidden">
-      <div class="toolbar"><h2>Crear en bulk</h2><button class="btn btn-ghost btn-sm" id="bulk-cancel-btn">← Regresar</button></div>
-      <div class="card"><p style="font-size:var(--fs-xs);color:var(--color-muted);margin-bottom:var(--mg-sm)">Selecciona el tipo, agrega fechas, y se crearán todos los eventos.</p><form id="bulk-form" novalidate>
-        <div class="fg"><label>Tipo de evento *</label><select id="b-type-select"></select><input type="text" id="b-title-custom" class="title-custom" placeholder="Nombre personalizado" style="margin-top:var(--mg-xxs)"><p class="preset-badge hidden" id="b-preset-badge"></p></div>
-        <div class="fr">
-          <div class="fg"><label>Categoría (máx 2)</label><div id="b-tag-picker"></div><input type="hidden" id="b-tag"></div>
-          <div class="fg"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="b-location" value="2601 Clays Mill Road" readonly><button type="button" class="loc-override-btn" id="b-loc-override">Cambiar</button></div></div>
+    <!-- VIEW: bulk form -->
+    <div class="view-panel" id="view-bulk">
+      <div class="toolbar-back">
+        <h2>Crear en Bulk</h2>
+        <button class="btn btn--ghost" id="bulkBack">← Regresar</button>
+      </div>
+      <div class="form-card">
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem">Selecciona el tipo de evento, agrega fechas y se crearán todos de una vez.</p>
+        <div class="form-group">
+          <label>Tipo de evento *</label>
+          <select id="bType"></select>
+          <input type="text" id="bTitleCustom" class="title-custom" placeholder="Nombre personalizado">
+          <p class="preset-note" id="bPresetNote"></p>
         </div>
-        <div class="fr"><div class="fg"><label>Hora inicio *</label><input type="time" id="b-time-start" required></div><div class="fg"><label>Hora fin</label><input type="time" id="b-time-end"></div></div>
-        <div class="fg" id="b-desc-group"><label>Descripción</label><textarea id="b-description" rows="4" placeholder="Describe el evento..."></textarea></div>
-        <div class="fr"><div class="fg"><label>Organizador</label><input type="text" id="b-org-name"></div><div class="fg"><label>Email organizador</label><input type="email" id="b-org-email"></div></div>
-        <div class="fg" id="bulk-img-section"></div>
-        <div class="fg"><label>Fechas *</label><div class="bulk-dates" id="bulk-dates"></div><button type="button" class="bulk-add-date" id="bulk-add-date-btn">+ Agregar fecha</button><div class="bulk-summary" id="bulk-summary"></div></div>
-        <div class="fa"><button type="submit" class="btn btn-secondary" id="bulk-submit-btn">Crear eventos</button><button type="button" class="btn btn-ghost" id="bulk-cancel-btn-2">Cancelar</button></div>
-      </form></div>
+        <div class="form-row">
+          <div class="form-group"><label>Categoría (máx 2)</label><div id="bTagPicker"></div><input type="hidden" id="bTag"></div>
+          <div class="form-group"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="bLoc" value="2601 Clays Mill Road" readonly><button type="button" class="loc-btn" id="bLocBtn">Cambiar</button></div></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Hora inicio *</label><input type="time" id="bTimeStart" required></div>
+          <div class="form-group"><label>Hora fin</label><input type="time" id="bTimeEnd"></div>
+        </div>
+        <div class="form-group" id="bDescGroup"><label>Descripción</label><textarea id="bDesc" rows="3" placeholder="Describe el evento..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Organizador</label><input type="text" id="bOrgName"></div>
+          <div class="form-group"><label>Email organizador</label><input type="email" id="bOrgEmail"></div>
+        </div>
+        <div class="form-group"><label>Imagen</label><div id="bImgSection"></div></div>
+        <div class="form-group">
+          <label>Fechas *</label>
+          <div class="bulk-dates" id="bulkDates"></div>
+          <button type="button" class="bulk-add-btn" id="bulkAddDate">+ Agregar fecha</button>
+          <div class="bulk-summary" id="bulkSummary"></div>
+        </div>
+        <div class="auth-error" id="bError"></div>
+        <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
+          <button class="btn btn--secondary" id="bSaveBtn"><i class="fas fa-layer-group"></i> Crear eventos</button>
+          <button class="btn btn--ghost" id="bulkCancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASADOS -->
+  <div class="tab-panel" id="tab-past">
+    <div class="action-bar"><h2>Eventos Pasados</h2></div>
+    <div id="pastList"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+  </div>
+
+  <!-- CALENDARIO -->
+  <div class="tab-panel" id="tab-calendario">
+    <div class="cal-toolbar">
+      <h2>Calendario de Actividades</h2>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn--ghost" style="font-size:.85rem;padding:.55rem 1rem" id="calSmartBtn"><i class="fas fa-magic"></i> Presets</button>
+        <button class="btn btn--primary" id="calAddBtn"><i class="fas fa-plus"></i> Agregar</button>
+      </div>
+    </div>
+    <!-- Same ministry filter for calendar — shares the same selectedMinistries state -->
+    <div class="filter-bar admin-only" id="calFilterBarWrap" style="display:none">
+      <button class="filter-btn" id="calFilterToggleBtn">
+        <i class="fas fa-sliders-h"></i> Filtrar por ministerio
+        <span class="filter-btn__badge hidden" id="calFilterBadge">0</span>
+      </button>
+    </div>
+    <div class="filter-panel admin-only" id="calFilterPanel" style="display:none">
+      <div class="filter-panel__title">Filtrar por ministerio</div>
+      <div class="filter-checks" id="calFilterChecks"></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);margin:.75rem 0 1rem">
+      Haz clic en cualquier evento para editarlo. Pasa el cursor para ver las opciones de editar, cancelar y eliminar.
+    </p>
+    <!-- Admin calendar grid -->
+    <div class="adm-cal-wrap" style="margin-bottom:1rem">
+      <div class="adm-cal-nav">
+        <button class="adm-cal-nav-btn" id="admCalPrev">&#8592;</button>
+        <h3 id="admCalLabel"></h3>
+        <button class="adm-cal-nav-btn" id="admCalNext">&#8594;</button>
+      </div>
+      <div class="adm-cal-weekdays" id="admCalWeekdays"></div>
+      <div class="adm-cal-days" id="admCalDays"></div>
+    </div>
+
+    <!-- Smart preset panel -->
+    <div class="smart-panel" id="smartPanel">
+      <div class="smart-panel-header">
+        <h3>Llenar mes con preset</h3>
+        <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartClose">✕ Cerrar</button>
+      </div>
+      <div class="form-row" style="margin-bottom:.75rem">
+        <div class="form-group" style="margin:0"><label>Mes</label>
+          <select id="smartMonth">
+            <option value="0">Enero</option><option value="1">Febrero</option><option value="2">Marzo</option>
+            <option value="3">Abril</option><option value="4">Mayo</option><option value="5">Junio</option>
+            <option value="6">Julio</option><option value="7">Agosto</option><option value="8">Septiembre</option>
+            <option value="9">Octubre</option><option value="10">Noviembre</option><option value="11">Diciembre</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0"><label>Año</label><input type="number" id="smartYear" min="2024" max="2035" value="2026"></div>
+      </div>
+      <p style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem">Selecciona un preset:</p>
+      <div class="smart-grid" id="presetGrid"></div>
+      <div id="smartPreview" style="display:none">
+        <p style="font-size:.78rem;font-weight:600;margin-bottom:.35rem">Vista previa — <span id="smartCount">0</span> eventos a crear:</p>
+        <div class="preview-pills" id="previewPills"></div>
+        <div style="display:flex;gap:.5rem;margin-top:.65rem">
+          <button class="btn btn--primary" style="font-size:.85rem" id="smartCreate"><i class="fas fa-check"></i> Crear todos</button>
+          <button class="btn btn--ghost" style="font-size:.85rem" id="smartClear">Limpiar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MINISTERIOS -->
+  <div class="tab-panel" id="tab-ministries">
+    <div class="action-bar"><h2>Ministerios</h2></div>
+    <div id="ministriesList" class="card-grid"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+  </div>
+
+  <!-- USUARIOS -->
+  <div class="tab-panel" id="tab-users">
+    <div class="action-bar">
+      <h2>Cuentas de Acceso</h2>
+      <button class="btn btn--primary" id="addUserBtn"><i class="fas fa-user-plus"></i> Crear Usuario</button>
+    </div>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1.25rem">Crea cuentas para cada ministerio. Solo ellos verán y podrán editar sus eventos.</p>
+    <div id="usersList" class="user-list"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+  </div>
+</div>
+
+<!-- EVENT MODAL (calendar_events) -->
+<div class="modal-backdrop" id="eventModal">
+  <div class="modal">
+    <div class="modal__header">
+      <div class="modal__title" id="eventModalTitle">Agregar Evento</div>
+      <button class="modal__close" id="eventModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Título *</label><input type="text" id="evTitle" placeholder="Nombre del evento"></div>
+      <div class="form-group"><label>Categoría</label>
+        <select id="evCategory">
+          <option value="servicio">Servicio</option><option value="estudio">Estudio Bíblico</option>
+          <option value="oracion">Oración</option><option value="evangelizacion">Evangelización</option>
+          <option value="especial">Especial</option><option value="otro">Otro</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha *</label><input type="date" id="evDate"></div>
+      <div class="form-group"><label>Hora</label><input type="time" id="evTime"></div>
+    </div>
+    <div class="form-group"><label>Lugar</label><input type="text" id="evLocation" placeholder="2601 Clays Mill Rd"></div>
+    <div class="form-group"><label>Descripción</label><textarea id="evDescription" placeholder="Detalles del evento..."></textarea></div>
+    <div class="form-group admin-only" style="display:none"><label>Ministerio</label><select id="evMinistry"></select></div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:400;letter-spacing:0;cursor:pointer">
+        <input type="checkbox" id="evCancelled" style="width:auto;accent-color:var(--primary)"> Marcar como cancelado
+      </label>
+    </div>
+    <div class="auth-error" id="eventModalError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="eventModalCancel">Cancelar</button>
+      <button class="btn btn--primary" id="eventModalSave"><i class="fas fa-save"></i> Guardar</button>
     </div>
   </div>
 </div>
 
-<div id="delete-modal" class="modal-overlay hidden"><div class="modal"><h3>¿Eliminar evento?</h3><p>El evento <strong id="delete-name"></strong> será eliminado.</p><div class="modal-actions"><button class="btn btn-ghost" id="delete-cancel">Cancelar</button><button class="btn btn-danger" id="delete-confirm">Eliminar</button></div></div></div>
-<div id="img-delete-modal" class="modal-overlay hidden"><div class="modal"><h3>¿Qué deseas hacer?</h3><p>Quitar del evento o eliminar del almacén.</p><div class="modal-actions"><button class="btn btn-ghost" id="img-delete-cancel">Cancelar</button><button class="btn btn-primary" id="img-delete-remove">Solo quitar</button><button class="btn btn-danger" id="img-delete-permanent">Eliminar del almacén</button></div></div></div>
+<!-- USER MODAL -->
+<div class="modal-backdrop" id="userModal">
+  <div class="modal">
+    <div class="modal__header">
+      <div class="modal__title">Crear Usuario</div>
+      <button class="modal__close" id="userModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group"><label>Nombre</label><input type="text" id="uName" placeholder="Ej: Ministerio Caballeros"></div>
+    <div class="form-group"><label>Correo electrónico</label><input type="email" id="uEmail" placeholder="caballeros@irdlex.org"></div>
+    <div class="form-group"><label>Contraseña</label><input type="password" id="uPassword" placeholder="Mínimo 8 caracteres"></div>
+    <div class="form-group"><label>Rol</label>
+      <select id="uRole"><option value="ministry">Ministerio (solo sus eventos)</option><option value="admin">Administrador (todo)</option></select>
+    </div>
+    <div class="form-group"><label>Ministerio asignado</label><select id="uMinistry"></select></div>
+    <div class="auth-error" id="userModalError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="userModalCancel">Cancelar</button>
+      <button class="btn btn--primary" id="userModalSave"><i class="fas fa-user-plus"></i> Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM MODAL -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal" style="max-width:360px">
+    <div class="modal__header">
+      <div class="modal__title" id="confirmTitle">¿Estás seguro?</div>
+      <button class="modal__close" id="confirmClose"><i class="fas fa-times"></i></button>
+    </div>
+    <p class="confirm-msg" id="confirmMsg"></p>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="confirmNo">No, cancelar</button>
+      <button class="btn btn--danger" id="confirmYes">Sí, continuar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Day sheet (mobile calendar tap) -->
+<div class="day-sheet-backdrop" id="daySheetBackdrop">
+  <div class="day-sheet">
+    <div class="day-sheet__handle"></div>
+    <div class="day-sheet__date" id="daySheetDate"></div>
+    <div id="daySheetEvents"></div>
+  </div>
+</div>
 
 <script type="module">
-import{createClient}from"https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-const SUPABASE_URL="https://snqwxgyhfiinouewxgiy.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo";
-const sb=createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const $=id=>document.getElementById(id);
-const MONTHS=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-const IMG_BASE=`${SUPABASE_URL}/storage/v1/object/public/event-images/`;
-const DEFAULT_LOC="2601 Clays Mill Road";
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const TAG_OPTIONS=["Servicio","Convivio","Celebración","Evangelismo","Ministerio","Oración","Adoración","Jóvenes","Niños"];
+const SUPABASE_URL      = 'https://snqwxgyhfiinouewxgiy.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo';
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth:{ persistSession:true, autoRefreshToken:true } });
 
-const PRESETS=[
-  {title:"Noche de Caballeros",tags:["Servicio","Convivio"],image:"caballeros.png",desc:"Una noche de compañerismo entre hombres de fe. Tiempo de oración, estudio bíblico, comida y edificación mutua. Ven a crecer espiritualmente junto a tus hermanos en Cristo."},
-  {title:"Noche de Damas",tags:["Servicio","Convivio"],image:"damas.png",desc:"Una noche especial para las mujeres de la iglesia. Alabanza, oración, comunión y un tiempo de fortalecimiento espiritual entre hermanas en Cristo. Habrá comida y compañerismo."},
-  {title:"Vigilia",tags:["Servicio","Oración"],image:"vigilia.png",desc:"Una noche especial de oración, adoración y comunión. Ven a buscar la presencia de Dios junto a tus hermanos en Cristo. Habrá café, comida, servicio de alabanza y un tiempo inolvidable de fe y compañerismo. ¡Te esperamos!"},
-  {title:"Devocional",tags:["Servicio","Oración"],image:"devocional.png",desc:"Un tiempo dedicado a la reflexión bíblica, oración y crecimiento espiritual. Acompáñanos para profundizar en la Palabra de Dios y fortalecer tu fe en comunidad."},
-  {title:"Noche de Jóvenes",tags:["Servicio","Convivio"],image:"",desc:"Una noche de comunión y compañerismo entre jóvenes que comparten la misma fe. Nos reunimos para conocer a Jesús un poco más a través de Su Palabra, compartir comida juntos y disfrutar de juegos y actividades. ¡Ven a conectar con tu generación en Cristo!"},
-  {title:"Día de las Madres",tags:["Celebración","Servicio"],image:"madres.png",desc:"Un servicio especial para honrar y celebrar a las madres de nuestra comunidad. Alabanza, palabra, y un reconocimiento lleno de amor para las mujeres que Dios ha puesto en nuestras vidas."},
-  {title:"Día del Padre",tags:["Celebración","Servicio"],image:"padre.png",desc:"Celebramos a los padres de nuestra iglesia con un servicio especial lleno de gratitud. Alabanza, palabra de Dios y un homenaje a los hombres que guían a sus familias en fe."},
-  {title:"Día del Niño",tags:["Celebración","Niños"],image:"nino.png",desc:"Una celebración dedicada a los más pequeños de la iglesia. Juegos, actividades, comida y un mensaje especial para que los niños conozcan el amor de Jesús. ¡Trae a toda la familia!"},
-  {title:"Thanksgiving",tags:["Celebración","Convivio"],image:"thanksgivings.png",desc:"Un servicio de acción de gracias para agradecer a Dios por sus bendiciones. Compartimos una cena especial, alabanza y testimonios de gratitud como familia de fe."},
-  {title:"Comida Navideña",tags:["Celebración","Convivio"],image:"cenanavidena.png",desc:"Celebramos el nacimiento de nuestro Salvador con una cena navideña. Comida, villancicos, alabanza y compañerismo para cerrar el año dando gloria a Dios."},
-  {title:"Campaña Evangelística",tags:["Evangelismo","Servicio"],image:"campanaEvangelistica.png",desc:"Una serie de servicios enfocados en compartir las buenas nuevas de Cristo con nuestra comunidad. Predicación de la Palabra, alabanza, testimonios y un llamado a la salvación."},
-];
+let currentUser=null, currentProfile=null, ministries=[], editingEventId=null, confirmResolve=null;
+let _upcomingSpecial=[], _upcomingRegular=[], _pastSpecial=[], _pastRegular=[];
+const isAdmin  = () => currentProfile?.role === 'admin';
+const pad2     = n => String(n).padStart(2,'0');
+const todayISO = () => { const t=new Date(); return `${t.getFullYear()}-${pad2(t.getMonth()+1)}-${pad2(t.getDate())}`; };
+const MONTHS   = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-function toast(msg,type="success"){const el=document.createElement("div");el.className=`toast toast-${type}`;el.textContent=msg;$("toasts").appendChild(el);setTimeout(()=>el.remove(),3500);}
+/* TOAST */
+function toast(msg,type='info'){
+  const el=document.createElement('div'); el.className=`toast-item toast-item--${type}`;
+  const icon=type==='success'?'check-circle':type==='error'?'exclamation-circle':'info-circle';
+  el.innerHTML=`<i class="fas fa-${icon}"></i> ${msg}`;
+  document.getElementById('toast').appendChild(el); setTimeout(()=>el.remove(),4000);
+}
 
-// ── TAG PICKER (multi-select checkboxes, max 2) ─────────
-function mountTagPicker(containerId, hiddenId) {
-  const container = $(containerId);
-  const btn = document.createElement("button");
-  btn.type = "button"; btn.className = "tag-picker-btn"; btn.id = `${hiddenId}-picker-btn`;
-  btn.innerHTML = '<span class="tag-pills" id="'+hiddenId+'-pills"><span style="color:var(--color-muted)">Seleccionar...</span></span><span style="font-size:10px">▼</span>';
-  container.appendChild(btn);
-
-  const dd = document.createElement("div");
-  dd.className = "tag-picker-dropdown"; dd.id = `${hiddenId}-dropdown`;
-
-  TAG_OPTIONS.forEach(tag => {
-    const opt = document.createElement("label");
-    opt.className = "tag-option";
-    opt.innerHTML = `<input type="checkbox" value="${tag}"><span>${tag}</span>`;
-    dd.appendChild(opt);
+/* CONFIRM */
+function confirm(title,msg){
+  return new Promise(r=>{
+    confirmResolve=r;
+    document.getElementById('confirmTitle').textContent=title;
+    document.getElementById('confirmMsg').textContent=msg;
+    openModal('confirmModal');
   });
+}
+document.getElementById('confirmYes').addEventListener('click', ()=>{closeModal('confirmModal');confirmResolve?.(true);});
+document.getElementById('confirmNo').addEventListener('click',  ()=>{closeModal('confirmModal');confirmResolve?.(false);});
+document.getElementById('confirmClose').addEventListener('click',()=>{closeModal('confirmModal');confirmResolve?.(false);});
 
-  // Custom option
-  const customWrap = document.createElement("div");
-  customWrap.className = "tag-option-custom";
-  customWrap.innerHTML = `<input type="text" placeholder="Categoría personalizada..." id="${hiddenId}-custom-input">`;
-  dd.appendChild(customWrap);
+/* MODALS */
+function openModal(id)  { document.getElementById(id).classList.add('open');    document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
 
-  container.appendChild(dd);
-  container.classList.add("tag-picker");
+/* AUTH */
+async function tryLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPassword').value;
+  const errEl=document.getElementById('authError'), btn=document.getElementById('loginBtn');
+  errEl.style.display='none'; btn.disabled=true;
+  btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Entrando...';
+  try {
+    const{data,error}=await sb.auth.signInWithPassword({email,password});
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Entrar';
+    if(error){errEl.textContent=`Error: ${error.message}`;errEl.style.display='';return;}
+    await bootApp(data.user);
+  } catch(e){
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-sign-in-alt"></i> Entrar';
+    errEl.textContent=`Error inesperado: ${e.message}`; errEl.style.display='';
+  }
+}
+document.getElementById('loginBtn').addEventListener('click',tryLogin);
+document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+document.getElementById('logoutBtn').addEventListener('click',async()=>{await sb.auth.signOut();window.location.reload();});
 
-  const update = () => {
-    const checks = [...dd.querySelectorAll('input[type="checkbox"]:checked')].map(c => c.value);
-    const customVal = $(`${hiddenId}-custom-input`).value.trim();
-    if (customVal && checks.length < 2) checks.push(customVal);
-    $(hiddenId).value = checks.join("/");
-    const pills = $(`${hiddenId}-pills`);
-    if (checks.length) {
-      pills.innerHTML = checks.map(t => `<span class="tag-pill">${t}</span>`).join("");
-    } else {
-      pills.innerHTML = '<span style="color:var(--color-muted)">Seleccionar...</span>';
+/* BOOT */
+async function bootApp(user){
+  currentUser=user;
+  const{data:profile,error:profileErr}=await sb.from('profiles').select('*,ministries(name,color)').eq('id',user.id).single();
+  if(profileErr) console.error('[admin] Profile load FAILED:',profileErr.message);
+  currentProfile=profile||{role:'ministry',display_name:user.email,ministry_id:null};
+  document.getElementById('topbarUser').textContent=currentProfile.display_name||user.email;
+  if(isAdmin()){
+    document.body.classList.add('is-admin');
+    document.getElementById('topbarMinistry').textContent='— Admin';
+    document.querySelectorAll('.admin-only').forEach(el=>el.style.display='');
+  } else {
+    document.getElementById('topbarMinistry').textContent=`— ${profile?.ministries?.name||'Ministerio'}`;
+  }
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  await loadMinistries();
+  await loadUpcoming();
+  initForms();
+}
+
+/* MINISTRIES */
+async function loadMinistries(){
+  const{data}=await sb.from('ministries').select('*').order('name');
+  ministries=data||[];
+  const opts=ministries.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  ['filterMinistry','evMinistry','uMinistry'].forEach(id=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML=id==='filterMinistry'?`<option value="">Todos</option>`+opts:opts;
+  });
+  if(!isAdmin()&&currentProfile?.ministry_id){
+    ['evMinistry','uMinistry'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=currentProfile.ministry_id;});
+  }
+  renderMinistriesTab();
+  buildFilterChecks();
+}
+function renderMinistriesTab(){
+  const el=document.getElementById('ministriesList');
+  if(!ministries.length){el.innerHTML='<p style="color:var(--muted)">No hay ministerios.</p>';return;}
+  el.innerHTML=ministries.map(m=>`
+    <div class="ministry-card">
+      <div class="ministry-card__dot" style="background:${m.color}"></div>
+      <div><div class="ministry-card__name">${m.name}</div><div class="ministry-card__id">${m.id}</div></div>
+    </div>`).join('');
+}
+
+/* EVENTS — normalize from `events` table */
+function normalizeEventsRow(row){
+  if(!row?.starts_at) return null;
+  const d=new Date(row.starts_at);
+  const dateStr=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  const h=d.getHours(),m=d.getMinutes();
+  // Resolve ministry from local ministries array (no FK join needed)
+  const mid=row.ministry_id||null;
+  const mObj=mid?(ministries.find(x=>x.id===mid)||null):null;
+  return{id:`evt-${row.id}`,title:row.title||'Evento',date:dateStr,
+    time:`${(h%12)||12}:${pad2(m)} ${h>=12?'PM':'AM'}`,
+    location:row.location||'',description:row.description||'',
+    category:'especial',cancelled:false,ministry_id:mid,
+    image_url:row.image_url||null,
+    ministries:mObj?{name:mObj.name,color:mObj.color}:null,
+    tag:row.tag||null,
+    fromEventsTable:true};
+}
+
+async function loadUpcoming(){
+  const el=document.getElementById('upcomingList');
+  el.innerHTML='<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  try{
+    const today=todayISO();
+    // Special events from `events` table (admin only)
+    let specialData=[];
+    if(isAdmin()){
+      const{data:evRows}=await sb.from('events').select('id,title,starts_at,location,description,tag,image_url,ministry_id').gte('starts_at',new Date().toISOString()).order('starts_at',{ascending:true});
+      specialData=(evRows||[]).map(normalizeEventsRow).filter(Boolean);
     }
-    // Disable unchecked if 2 selected
-    dd.querySelectorAll('.tag-option').forEach(opt => {
-      const cb = opt.querySelector('input[type="checkbox"]');
-      if (cb && !cb.checked && checks.length >= 2) opt.classList.add("disabled");
-      else if (cb) opt.classList.remove("disabled");
-    });
-  };
-
-  dd.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.addEventListener("change", update));
-  $(`${hiddenId}-custom-input`).addEventListener("input", update);
-
-  btn.addEventListener("click", e => { e.stopPropagation(); dd.classList.toggle("open"); });
-  document.addEventListener("click", e => { if (!container.contains(e.target)) dd.classList.remove("open"); });
-
-  return { update, setTags(tags) {
-    dd.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = tags.includes(cb.value); });
-    $(`${hiddenId}-custom-input`).value = "";
-    // Check if any tag not in options
-    const customs = tags.filter(t => !TAG_OPTIONS.includes(t));
-    if (customs.length) $(`${hiddenId}-custom-input`).value = customs[0];
-    update();
-  }, setDisabled(disabled) {
-    const b = $(`${hiddenId}-picker-btn`);
-    if (disabled) b.classList.add("disabled"); else b.classList.remove("disabled");
-  }};
+    // Regular activities from `calendar_events`
+    let calQ=sb.from('calendar_events').select('*,ministries(name,color)').gte('date',today).order('date',{ascending:true});
+    if(!isAdmin()&&currentProfile?.ministry_id) calQ=calQ.eq('ministry_id',currentProfile.ministry_id);
+    // ministry filter applied client-side in renderUpcoming
+    const{data:calData,error:calErr}=await calQ;
+    if(calErr) throw calErr;
+    const regularData=(calData||[]);
+    _upcomingSpecial=specialData;
+    _upcomingRegular=regularData;
+    renderUpcomingFiltered();
+  }catch(e){el.innerHTML=`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></div>`;}
 }
 
-// ── LOCATION OVERRIDE ────────────────────────────────────
-function wireLocOverride(inputId, btnId) {
-  const input = $(inputId), btn = $(btnId);
-  btn.addEventListener("click", () => {
-    if (input.readOnly) { input.readOnly = false; input.value = ""; input.focus(); btn.textContent = "Restaurar"; btn.classList.add("active"); }
-    else { input.readOnly = true; input.value = DEFAULT_LOC; btn.textContent = "Cambiar"; btn.classList.remove("active"); }
-  });
+function renderUpcomingFiltered(){
+  const el=document.getElementById('upcomingList');
+  if(!el) return;
+  const sp=filterEventsByMinistry(_upcomingSpecial);
+  const rg=filterEventsByMinistry(_upcomingRegular);
+  if(!sp.length&&!rg.length){el.innerHTML='<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos con estos filtros.</p></div>';return;}
+  let html='';
+  if(sp.length){html+='<div class="section-divider"><i class="fas fa-star"></i> Eventos Especiales</div>'+buildEventsTableHtml(sp,false);}
+  if(rg.length){html+='<div class="section-divider"><i class="fas fa-calendar-check"></i> Actividades Regulares</div>'+buildEventsTableHtml(rg,false);}
+  el.innerHTML=html;
 }
 
-function resetLoc(inputId, btnId) {
-  $(inputId).value = DEFAULT_LOC; $(inputId).readOnly = true;
-  $(btnId).textContent = "Cambiar"; $(btnId).classList.remove("active");
+function renderPastFiltered(){
+  const el=document.getElementById('pastList');
+  if(!el) return;
+  const sp=filterEventsByMinistry(_pastSpecial);
+  const rg=filterEventsByMinistry(_pastRegular);
+  if(!sp.length&&!rg.length){el.innerHTML='<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos con estos filtros.</p></div>';return;}
+  let html='';
+  if(sp.length){html+='<div class="section-divider"><i class="fas fa-star"></i> Eventos Especiales</div>'+buildEventsTableHtml(sp,true);}
+  if(rg.length){html+='<div class="section-divider"><i class="fas fa-calendar-check"></i> Actividades Regulares</div>'+buildEventsTableHtml(rg,true);}
+  el.innerHTML=html;
 }
 
-// ── TYPE SELECT + PRESET LOCK ────────────────────────────
-function populateTypeSelect(selId) {
-  const s = $(selId);
-  s.innerHTML = '<option value="">— Seleccionar —</option>';
-  PRESETS.forEach((p, i) => { const o = document.createElement("option"); o.value = i; o.textContent = p.title; s.appendChild(o); });
-  const c = document.createElement("option"); c.value = "__custom__"; c.textContent = "Otro / Personalizado"; s.appendChild(c);
-}
-
-function wireTypeSelect(selId, customId, badgeId, tagPicker, descId, descGroupId, imgUrlId, previewId, previewWrapId) {
-  $(selId).addEventListener("change", () => {
-    const val = $(selId).value;
-    const isPreset = val !== "" && val !== "__custom__";
-    const isCustom = val === "__custom__";
-
-    // Custom title input
-    if (isCustom) { $(customId).classList.add("show"); $(customId).value = ""; $(customId).focus(); }
-    else $(customId).classList.remove("show");
-
-    // Badge
-    if (isPreset) { $(badgeId).textContent = `✓ Preset: ${PRESETS[Number(val)].title}`; $(badgeId).classList.remove("hidden"); }
-    else $(badgeId).classList.add("hidden");
-
-    if (isPreset) {
-      const p = PRESETS[Number(val)];
-      tagPicker.setTags(p.tags); tagPicker.setDisabled(true);
-      $(descId).value = p.desc; $(descId).readOnly = true; $(descGroupId).classList.add("fg-locked");
-      let note = $(descGroupId).querySelector(".fg-locked-note");
-      if (!note) { note = document.createElement("p"); note.className = "fg-locked-note"; $(descGroupId).appendChild(note); }
-      note.textContent = "Auto-completado por preset.";
-      if (p.image) { const url = IMG_BASE + p.image; $(imgUrlId).value = url; if ($(previewId)) { $(previewId).src = url; $(previewWrapId).classList.remove("hidden"); } }
-    } else {
-      tagPicker.setTags([]); tagPicker.setDisabled(false);
-      $(descId).value = ""; $(descId).readOnly = false; $(descGroupId).classList.remove("fg-locked");
-      const note = $(descGroupId).querySelector(".fg-locked-note"); if (note) note.remove();
+async function loadPast(){
+  const el=document.getElementById('pastList');
+  el.innerHTML='<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  try{
+    const today=todayISO();
+    let specialData=[];
+    if(isAdmin()){
+      const{data:evRows}=await sb.from('events').select('id,title,starts_at,location,description,tag,image_url,ministry_id').lt('starts_at',new Date().toISOString()).order('starts_at',{ascending:false});
+      specialData=(evRows||[]).map(normalizeEventsRow).filter(Boolean);
     }
-  });
+    let calQ=sb.from('calendar_events').select('*,ministries(name,color)').lt('date',today).order('date',{ascending:false});
+    if(!isAdmin()&&currentProfile?.ministry_id) calQ=calQ.eq('ministry_id',currentProfile.ministry_id);
+    const{data:calData,error:calErr}=await calQ;
+    if(calErr) throw calErr;
+    const regularData=(calData||[]);
+    _pastSpecial=specialData;
+    _pastRegular=regularData;
+    renderPastFiltered();
+  }catch(e){el.innerHTML=`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></div>`;}
 }
 
-function getTitle(selId, customId) {
-  const v = $(selId).value;
-  if (v === "__custom__") return $(customId).value.trim();
-  if (v === "") return "";
-  return PRESETS[Number(v)]?.title || "";
+/* RENDER TABLE (Próximos/Pasados — original column layout) */
+function fmtDate(d){
+  if(!d) return '—';
+  const[y,m,day]=d.split('-').map(Number);
+  return new Date(y,m-1,day).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
 }
-
-// ── IMAGE PICKER ─────────────────────────────────────────
-function mountImagePicker(container,prefix){container.innerHTML=`<label>Imagen del evento</label><div class="img-picker"><div class="img-picker-option" id="${prefix}-pick-upload"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M2 17l.621 2.485A2 2 0 004.561 21h14.878a2 2 0 001.94-1.515L22 17"/></svg><div class="label">Subir nueva</div><div class="sublabel">JPG, PNG, WebP</div><input type="file" accept="image/*" id="${prefix}-image"></div><div class="img-picker-option" id="${prefix}-pick-existing"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><div class="label">Usar existente</div><div class="sublabel">Del almacén</div></div></div><div class="img-gallery hidden" id="${prefix}-gallery"></div><div class="img-preview-wrap hidden" id="${prefix}-preview-wrap"><img class="img-preview" id="${prefix}-preview" alt="Preview"><div class="img-actions"><button type="button" class="img-action-btn delete" id="${prefix}-delete-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/></svg></button></div></div><input type="hidden" id="${prefix}-image-url"><p style="font-size:var(--fs-xxs);color:var(--color-muted);margin-top:var(--mg-xxs)" id="${prefix}-status"></p>`;$(`${prefix}-pick-existing`).addEventListener("click",()=>toggleGallery(prefix));$(`${prefix}-image`).addEventListener("change",e=>handleUpload(e,prefix));$(`${prefix}-delete-btn`).addEventListener("click",()=>{activeImgPrefix=prefix;$("img-delete-modal").classList.remove("hidden");});}
-let galleryImages=null;
-async function loadGalleryImages(prefix){const g=$(`${prefix}-gallery`);g.innerHTML='<div class="img-gallery-loading">Cargando...</div>';const{data,error}=await sb.storage.from("event-images").list("",{limit:200,sortBy:{column:"created_at",order:"desc"}});if(error||!data){g.innerHTML='<div class="img-gallery-empty">Error.</div>';return;}const imgs=data.filter(f=>/\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));galleryImages=imgs;if(!imgs.length){g.innerHTML='<div class="img-gallery-empty">No hay imágenes.</div>';return;}g.innerHTML=imgs.map(img=>{const{data:u}=sb.storage.from("event-images").getPublicUrl(img.name);return`<div class="img-gallery-item" data-url="${u.publicUrl}" data-name="${img.name}"><img src="${u.publicUrl}" alt="${img.name}" loading="lazy"></div>`;}).join("");g.querySelectorAll(".img-gallery-item").forEach(el=>el.addEventListener("click",()=>{g.querySelectorAll(".selected").forEach(i=>i.classList.remove("selected"));el.classList.add("selected");$(`${prefix}-image-url`).value=el.dataset.url;$(`${prefix}-preview`).src=el.dataset.url;$(`${prefix}-preview-wrap`).classList.remove("hidden");$(`${prefix}-status`).textContent="Seleccionada ✓";}));}
-function toggleGallery(prefix){const g=$(`${prefix}-gallery`);if(g.classList.contains("hidden")){g.classList.remove("hidden");$(`${prefix}-pick-existing`).classList.add("active");$(`${prefix}-pick-upload`).classList.remove("active");if(!galleryImages)loadGalleryImages(prefix);else if(!g.children.length)loadGalleryImages(prefix);}else{g.classList.add("hidden");$(`${prefix}-pick-existing`).classList.remove("active");}}
-async function handleUpload(e,prefix){const file=e.target.files?.[0];if(!file)return;$(`${prefix}-pick-upload`).classList.add("active");$(`${prefix}-pick-existing`).classList.remove("active");$(`${prefix}-gallery`).classList.add("hidden");$(`${prefix}-preview`).src=URL.createObjectURL(file);$(`${prefix}-preview-wrap`).classList.remove("hidden");$(`${prefix}-status`).textContent="Subiendo...";const fn=`${Date.now()}-${Math.random().toString(36).slice(2,8)}.${file.name.split(".").pop()}`;const{error}=await sb.storage.from("event-images").upload(fn,file,{cacheControl:"3600",upsert:false});if(error){$(`${prefix}-status`).textContent="Error.";return;}const{data:u}=sb.storage.from("event-images").getPublicUrl(fn);$(`${prefix}-image-url`).value=u.publicUrl;$(`${prefix}-status`).textContent="Subida ✓";galleryImages=null;}
-function clearImg(prefix){$(`${prefix}-image-url`).value="";$(`${prefix}-preview`).src="";$(`${prefix}-preview-wrap`).classList.add("hidden");$(`${prefix}-status`).textContent="";const fi=$(`${prefix}-image`);if(fi)fi.value="";const g=$(`${prefix}-gallery`);if(g)g.querySelectorAll(".selected").forEach(i=>i.classList.remove("selected"));$(`${prefix}-pick-upload`)?.classList.remove("active");$(`${prefix}-pick-existing`)?.classList.remove("active");}
-let activeImgPrefix=null;
-$("img-delete-cancel").addEventListener("click",()=>$("img-delete-modal").classList.add("hidden"));
-$("img-delete-remove").addEventListener("click",()=>{if(activeImgPrefix)clearImg(activeImgPrefix);$("img-delete-modal").classList.add("hidden");toast("Imagen quitada");});
-$("img-delete-permanent").addEventListener("click",async()=>{const p=activeImgPrefix;const url=$(`${p}-image-url`)?.value;$("img-delete-modal").classList.add("hidden");if(url){const fn=url.split("/").pop();if(fn){const{error}=await sb.storage.from("event-images").remove([fn]);if(error)toast("Error: "+error.message,"error");else{toast("Eliminada del almacén");galleryImages=null;}}}clearImg(p);});
-$("img-delete-modal").addEventListener("click",e=>{if(e.target===$("img-delete-modal"))$("img-delete-modal").classList.add("hidden");});
-
-// ── AUTH ──────────────────────────────────────────────────
-let fTagPicker, bTagPicker;
-async function checkSession(){const{data:{session}}=await sb.auth.getSession();if(session)showDashboard();else showLogin();}
-function showLogin(){$("login-screen").classList.remove("hidden");$("admin-screen").classList.add("hidden");}
-function showDashboard(){
-  $("login-screen").classList.add("hidden");$("admin-screen").classList.remove("hidden");
-  mountImagePicker($("img-section"),"f");mountImagePicker($("bulk-img-section"),"b");
-  populateTypeSelect("f-type-select");populateTypeSelect("b-type-select");
-  fTagPicker=mountTagPicker("f-tag-picker","f-tag");bTagPicker=mountTagPicker("b-tag-picker","b-tag");
-  wireTypeSelect("f-type-select","f-title-custom","f-preset-badge",fTagPicker,"f-description","f-desc-group","f-image-url","f-preview","f-preview-wrap");
-  wireTypeSelect("b-type-select","b-title-custom","b-preset-badge",bTagPicker,"b-description","b-desc-group","b-image-url","b-preview","b-preview-wrap");
-  wireLocOverride("f-location","f-loc-override");wireLocOverride("b-location","b-loc-override");
-  loadEvents();
+function fmtTime(t){
+  if(!t) return '—';
+  if(/[AP]M$/i.test(t)) return t;
+  const[h,m]=t.split(':').map(Number);
+  if(isNaN(h)) return t;
+  return`${((h%12)||12)}:${pad2(m)} ${h>=12?'PM':'AM'}`;
 }
-$("login-btn").addEventListener("click",async()=>{const e=$("login-email").value.trim(),p=$("login-password").value;$("login-error").textContent="";if(!e||!p){$("login-error").textContent="Ingresa email y contraseña.";return;}const{error}=await sb.auth.signInWithPassword({email:e,password:p});if(error){$("login-error").textContent="Login incorrecto.";return;}showDashboard();});
-$("login-password").addEventListener("keydown",e=>{if(e.key==="Enter")$("login-btn").click();});
-$("logout-btn").addEventListener("click",async()=>{await sb.auth.signOut();showLogin();toast("Sesión cerrada");});
+function catLabel(c){return{servicio:'Servicio',estudio:'Estudio Bíblico',oracion:'Oración',evangelizacion:'Evangelización',especial:'Especial',otro:'Otro'}[c]||c;}
 
-// ── TABS + FILTER ────────────────────────────────────────
-let activeTab="upcoming";
-document.querySelectorAll(".tab").forEach(tab=>{tab.addEventListener("click",()=>{document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));tab.classList.add("active");activeTab=tab.dataset.tab;renderEventList();});});
-$("filter-search").addEventListener("input",renderEventList);$("filter-tag").addEventListener("change",renderEventList);
-
-// ── EVENTS CRUD ──────────────────────────────────────────
-let allEvents=[],deletingId=null;
-async function loadEvents(){$("events-list").innerHTML='<div class="empty-state">Cargando...</div>';const{data,error}=await sb.from("events").select("*").order("starts_at",{ascending:true});if(error){$("events-list").innerHTML='<div class="empty-state">Error.</div>';return;}allEvents=data||[];populateFilterTag();renderEventList();}
-function populateFilterTag(){const tags=[...new Set(allEvents.flatMap(e=>(e.tag||"").split("/").map(t=>t.trim())).filter(Boolean))].sort();const s=$("filter-tag");const v=s.value;s.innerHTML='<option value="">Todas</option>'+tags.map(t=>`<option value="${t}">${t}</option>`).join("");s.value=v;}
-function fmtDate(iso){try{const d=new Date(iso);return d.toLocaleDateString("es",{weekday:"short",month:"short",day:"numeric"})+" · "+d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit",hour12:true});}catch{return"—";}}
-function monthKey(iso){try{const d=new Date(iso);return`${d.getFullYear()}-${String(d.getMonth()).padStart(2,"0")}`;}catch{return"?";}}
-function monthLabel(k){const[y,m]=k.split("-").map(Number);return`${MONTHS[m]} ${y}`;}
-function renderEventList(){
-  const now=new Date();const search=$("filter-search").value.trim().toLowerCase();const tagF=$("filter-tag").value;
-  let list=allEvents;if(search)list=list.filter(e=>(e.title||"").toLowerCase().includes(search));
-  if(tagF)list=list.filter(e=>(e.tag||"").split("/").map(t=>t.trim()).includes(tagF));
-  const up=list.filter(e=>new Date(e.starts_at)>=now).sort((a,b)=>new Date(a.starts_at)-new Date(b.starts_at));
-  const past=list.filter(e=>new Date(e.starts_at)<now).sort((a,b)=>new Date(b.starts_at)-new Date(a.starts_at));
-  $("count-upcoming").textContent=up.length;$("count-past").textContent=past.length;
-  const show=activeTab==="upcoming"?up:past;
-  if(!show.length){$("events-list").innerHTML=`<div class="empty-state">${search||tagF?"Sin resultados.":activeTab==="upcoming"?"No hay eventos próximos.":"No hay eventos pasados."}</div>`;return;}
-  const groups=new Map();for(const ev of show){const mk=monthKey(ev.starts_at);if(!groups.has(mk))groups.set(mk,[]);groups.get(mk).push(ev);}
-  let html="";for(const[mk,evs]of groups){html+=`<div class="month-group"><div class="month-label">${monthLabel(mk)}</div>`;for(const ev of evs){const img=ev.image_url||"";const tag=ev.tag?`<span class="event-row-tag">${ev.tag}</span>`:"";html+=`<div class="event-row">${img?`<img class="event-row-img" src="${img}" alt="">`:`<div class="event-row-img"></div>`}<div class="event-row-info"><div class="event-row-title">${ev.title||"—"}${tag}</div><div class="event-row-date">${fmtDate(ev.starts_at)}</div></div><div class="event-row-actions"><button class="btn btn-ghost btn-sm" onclick="window._editEvent('${ev.id}')">Editar</button><button class="btn btn-danger btn-sm" onclick="window._deleteEvent('${ev.id}','${(ev.title||"").replace(/'/g,"\\'")}')">Eliminar</button><button class="btn-icon btn-icon-edit" onclick="window._editEvent('${ev.id}')" title="Editar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="btn-icon btn-icon-delete" onclick="window._deleteEvent('${ev.id}','${(ev.title||"").replace(/'/g,"\\'")}')" title="Eliminar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button></div></div>`;}html+=`</div>`;}
-  $("events-list").innerHTML=html;
-}
-
-// ── SINGLE FORM ──────────────────────────────────────────
-function showForm(ev=null){
-  $("view-list").classList.add("hidden");$("view-bulk").classList.add("hidden");$("view-form").classList.remove("hidden");
-  $("form-title").textContent=ev?"Editar Evento":"Nuevo Evento";$("f-id").value=ev?.id||"";
-  $("f-org-name").value=ev?.organizer_name||"";$("f-org-email").value=ev?.organizer_email||"";
-  clearImg("f");$("f-image-url").value=ev?.image_url||"";
-  resetLoc("f-location","f-loc-override");
-  if(ev?.location&&ev.location!==DEFAULT_LOC){$("f-location").value=ev.location;$("f-location").readOnly=false;$("f-loc-override").textContent="Restaurar";$("f-loc-override").classList.add("active");}
-
-  const sel=$("f-type-select");const custom=$("f-title-custom");
-  if(ev?.title){const idx=PRESETS.findIndex(p=>p.title===ev.title);if(idx>=0){sel.value=String(idx);custom.classList.remove("show");}else{sel.value="__custom__";custom.classList.add("show");custom.value=ev.title;}}else{sel.value="";custom.classList.remove("show");}
-  sel.dispatchEvent(new Event("change"));
-
-  // Override preset fills for edit
-  if(ev){
-    if(ev.tag){const tags=ev.tag.split("/").map(t=>t.trim());fTagPicker.setTags(tags);}
-    if(ev.description)$("f-description").value=ev.description;
+function buildEventsTableHtml(events,isPastTab){
+  if(!events.length) return '';
+  const today=todayISO();
+  const MONTH_NAMES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  // Group by YYYY-MM
+  const groups=new Map();
+  for(const ev of events){
+    if(!ev.date) continue;
+    const[y,m]=ev.date.split('-').map(Number);
+    const k=`${y}-${String(m).padStart(2,'0')}`;
+    if(!groups.has(k))groups.set(k,[]);
+    groups.get(k).push(ev);
   }
 
-  if(ev?.starts_at)$("f-starts").value=toLocalDT(ev.starts_at);else $("f-starts").value="";
-  if(ev?.ends_at)$("f-ends").value=toLocalDT(ev.ends_at);else $("f-ends").value="";
-  if(ev?.image_url){$("f-image-url").value=ev.image_url;$("f-preview").src=ev.image_url;$("f-preview-wrap").classList.remove("hidden");}
-  $("f-type-select").focus();
+  function fmtCompact(dateStr,time){
+    if(!dateStr) return '—';
+    const[y,m,d]=dateStr.split('-').map(Number);
+    const yy=String(y).slice(-2);
+    const base=`${m}/${d}/${yy}`;
+    return time?`${base} ${time}`:base;
+  }
+
+  let html='';
+  for(const[k,evs] of groups){
+    const[y,m]=k.split('-').map(Number);
+    const monthLabel=`${MONTH_NAMES[m-1]} ${y}`;
+    const rows=evs.map(ev=>{
+      const isPast=ev.date<today;
+      const rowClass=ev.cancelled?'row--cancelled':isPast?'row--past':'';
+      const minName=ev.ministries?.name||'—';
+      const minDot=ev.ministries?.color?`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${ev.ministries.color};margin-right:5px"></span>`:'';
+      const imgCell=ev.image_url
+        ?`<img src="${ev.image_url}" alt="" style="width:44px;height:32px;object-fit:cover;border-radius:4px;display:block">`
+        :`<div style="width:44px;height:32px;background:#eee;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#aaa">—</div>`;
+      const editBtn=ev.fromEventsTable
+        ?`<button class="icon-btn" title="Editar" onclick="openEditEventFromTable('${ev.id.replace('evt-','')}')"><i class="fas fa-pen"></i></button>`
+        :`<button class="icon-btn" title="Editar" onclick="openEditEvent('${ev.id}')"><i class="fas fa-pen"></i></button>`;
+      return`<tr class="${rowClass}" data-id="${ev.id}">
+        <td>${imgCell}</td>
+        <td><div class="event-title">${ev.title}</div></td>
+        <td style="white-space:nowrap">${fmtCompact(ev.date,ev.time)}</td>
+        <td><span class="cat-badge cat--${ev.category||'otro'}">${catLabel(ev.category||'otro')}</span></td>
+        <td>${minDot}${minName}</td>
+        <td><div class="row-actions">
+          ${!isPastTab?`${editBtn}
+          <button class="icon-btn ${ev.cancelled?'success':'warn'}" title="${ev.cancelled?'Reactivar':'Cancelar'}" onclick="toggleCancel('${ev.id}',${ev.cancelled})"><i class="fas fa-${ev.cancelled?'undo':'ban'}"></i></button>`:''}
+          <button class="icon-btn danger" title="Eliminar" onclick="deleteEvent('${ev.id}','${(ev.title||'').replace(/'/g,"\\\\'")}',${!!ev.fromEventsTable})"><i class="fas fa-trash"></i></button>
+        </div></td>
+      </tr>`;
+    }).join('');
+    html+=`<div class="month-group-label">${monthLabel}</div>
+    <table class="events-table" style="width:100%;margin-bottom:.75rem"><thead><tr>
+      <th style="width:52px"></th>
+      <th>Evento</th>
+      <th style="width:110px">Cuándo</th>
+      <th style="width:120px">Categoría</th>
+      <th>Ministerio</th>
+      <th style="width:100px">Acciones</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  return html;
 }
-function hideForm(){$("view-form").classList.add("hidden");$("view-list").classList.remove("hidden");$("event-form").reset();clearImg("f");$("f-desc-group").classList.remove("fg-locked");const n=$("f-desc-group").querySelector(".fg-locked-note");if(n)n.remove();$("f-description").readOnly=false;$("f-title-custom").classList.remove("show");$("f-preset-badge").classList.add("hidden");fTagPicker.setTags([]);fTagPicker.setDisabled(false);resetLoc("f-location","f-loc-override");}
-function toLocalDT(iso){try{const d=new Date(iso),p=n=>String(n).padStart(2,"0");return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}catch{return"";}}
-$("add-event-btn").addEventListener("click",()=>showForm());$("form-cancel-btn").addEventListener("click",hideForm);$("form-cancel-btn-2").addEventListener("click",hideForm);
 
-$("event-form").addEventListener("submit",async e=>{
-  e.preventDefault();const title=getTitle("f-type-select","f-title-custom");
-  if(!title){toast("Selecciona o escribe un título","error");return;}
-  const starts=$("f-starts").value;if(!starts){toast("Fecha obligatoria","error");return;}
-  const payload={title,tag:$("f-tag").value||null,location:$("f-location").value.trim()||null,starts_at:new Date(starts).toISOString(),ends_at:$("f-ends").value?new Date($("f-ends").value).toISOString():null,description:$("f-description").value.trim()||null,organizer_name:$("f-org-name").value.trim()||null,organizer_email:$("f-org-email").value.trim()||null,image_url:$("f-image-url").value||null};
-  const btn=$("form-submit-btn");btn.disabled=true;btn.innerHTML='<span class="loading-spinner"></span>';
-  const id=$("f-id").value;let error;if(id)({error}=await sb.from("events").update(payload).eq("id",id));else({error}=await sb.from("events").insert(payload));
-  btn.disabled=false;btn.textContent="Guardar Evento";if(error){toast("Error: "+error.message,"error");return;}toast(id?"Actualizado":"Creado");hideForm();loadEvents();
+function renderEventsTable(container,events,isPastTab){
+  container.innerHTML=buildEventsTableHtml(events,isPastTab)||`<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos aquí todavía.</p></div>`;
+}
+
+/* ADD / EDIT EVENT */
+
+window.openEditEvent=async(id)=>{
+  const{data:ev}=await sb.from('calendar_events').select('*').eq('id',id).single();
+  if(!ev) return;
+  editingEventId=id;
+  document.getElementById('eventModalTitle').textContent='Editar Evento';
+  document.getElementById('evTitle').value=ev.title;
+  document.getElementById('evDate').value=ev.date;
+  // convert time to 24h for <input type=time>
+  let t24='';
+  if(ev.time){if(/[AP]M$/i.test(ev.time)){const[tm,ap]=ev.time.split(' ');const[h,m]=tm.split(':').map(Number);const h2=ap==='PM'&&h!==12?h+12:ap==='AM'&&h===12?0:h;t24=`${pad2(h2)}:${pad2(m)}`;}else t24=ev.time;}
+  document.getElementById('evTime').value=t24;
+  document.getElementById('evLocation').value=ev.location||'';
+  document.getElementById('evDescription').value=ev.description||'';
+  document.getElementById('evCategory').value=ev.category||'otro';
+  document.getElementById('evCancelled').checked=ev.cancelled||false;
+  document.getElementById('evMinistry').value=ev.ministry_id||'';
+  document.getElementById('eventModalError').style.display='none';
+  openModal('eventModal');
+};
+
+document.getElementById('eventModalSave').addEventListener('click',async()=>{
+  const title=(document.getElementById('evTitle').value||'').trim();
+  const date=document.getElementById('evDate').value;
+  const errEl=document.getElementById('eventModalError');
+  if(!title||!date){errEl.textContent='El título y la fecha son obligatorios.';errEl.style.display='';return;}
+  errEl.style.display='none';
+  const btn=document.getElementById('eventModalSave');btn.disabled=true;
+  const timeRaw=document.getElementById('evTime').value;let fmtT=null;
+  if(timeRaw){const[h,m]=timeRaw.split(':').map(Number);fmtT=`${(h%12)||12}:${pad2(m)} ${h>=12?'PM':'AM'}`;}
+  const payload={title,date,time:fmtT,
+    location:document.getElementById('evLocation').value.trim()||null,
+    description:document.getElementById('evDescription').value.trim()||null,
+    category:document.getElementById('evCategory').value,
+    cancelled:document.getElementById('evCancelled').checked,
+    ministry_id:document.getElementById('evMinistry').value||currentProfile?.ministry_id||null,
+    created_by:currentUser.id};
+  const{error}=editingEventId
+    ?await sb.from('calendar_events').update(payload).eq('id',editingEventId)
+    :await sb.from('calendar_events').insert(payload);
+  btn.disabled=false;
+  if(error){errEl.textContent=error.message;errEl.style.display='';return;}
+  closeModal('eventModal');
+  toast(editingEventId?'Evento actualizado':'Evento agregado','success');
+  loadUpcoming();
+  // also refresh calendario if it's loaded
+  if(document.getElementById('tab-calendario').classList.contains('active')) loadCalendario();
+});
+document.getElementById('eventModalClose').addEventListener('click',()=>closeModal('eventModal'));
+document.getElementById('eventModalCancel').addEventListener('click',()=>closeModal('eventModal'));
+
+/* CANCEL / DELETE */
+window.toggleCancel=async(id,wasCancelled)=>{
+  const ok=await confirm(wasCancelled?'¿Reactivar evento?':'¿Cancelar evento?',
+    `El evento aparecerá como ${wasCancelled?'activo':'cancelado'} en el calendario.`);
+  if(!ok) return;
+  const{error}=await sb.from('calendar_events').update({cancelled:!wasCancelled}).eq('id',id);
+  if(error){toast(error.message,'error');return;}
+  toast(wasCancelled?'Evento reactivado':'Evento cancelado','success');
+  loadUpcoming();
+};
+
+window.deleteEvent=async(id,title,fromEventsTable)=>{
+  const ok=await confirm('¿Eliminar evento?',`"${title}" se eliminará permanentemente.`);
+  if(!ok) return;
+  let error;
+  if(fromEventsTable){const rawId=id.replace('evt-','');({error}=await sb.from('events').delete().eq('id',rawId));}
+  else{({error}=await sb.from('calendar_events').delete().eq('id',id));}
+  if(error){toast(error.message,'error');return;}
+  toast('Evento eliminado','success');
+  loadUpcoming();loadPast();
+};
+
+/* ── CALENDARIO TAB ── */
+let calEventsList=[], admCalYear=new Date().getFullYear(), admCalMonth=new Date().getMonth();
+const ADM_MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const ADM_DAYS=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+async function loadCalendario(){
+  // ── calendar_events ──────────────────────────────────────────
+  const{data:calData,error:calErr}=await sb
+    .from('calendar_events')
+    .select('*,ministries(name,color)')
+    .order('date',{ascending:true});
+  if(calErr){toast('Error cargando calendario: '+calErr.message,'error');return;}
+
+  // ── events table (special events) ────────────────────────────
+  const{data:evRows,error:evErr}=await sb
+    .from('events')
+    .select('id,title,starts_at,location,description,tag,image_url,ministry_id')
+    .order('starts_at',{ascending:true});
+  if(evErr) console.warn('[cal] events load error:',evErr.message);
+
+  // Resolve ministry from our already-loaded ministries array (avoids FK join requirement)
+  function resolveMinistry(mid){
+    if(!mid) return null;
+    const m=ministries.find(x=>x.id===mid);
+    return m?{name:m.name,color:m.color}:null;
+  }
+
+  const lp=n=>String(n).padStart(2,'0');
+  const evMapped=(evRows||[]).map(row=>{
+    if(!row?.starts_at) return null;
+    const d=new Date(row.starts_at);
+    const dateStr=`${d.getFullYear()}-${lp(d.getMonth()+1)}-${lp(d.getDate())}`;
+    const h=d.getHours(),m=d.getMinutes();
+    return{
+      id:`evt-${row.id}`,
+      title:row.title||'Evento',
+      date:dateStr,
+      time:`${(h%12)||12}:${lp(m)} ${h>=12?'PM':'AM'}`,
+      location:row.location||'',
+      description:row.description||'',
+      category:'especial',
+      cancelled:false,
+      ministry_id:row.ministry_id||null,
+      ministries:resolveMinistry(row.ministry_id),
+      image_url:row.image_url||null,
+      fromEventsTable:true,
+    };
+  }).filter(Boolean);
+
+  // Also patch calendar_events that have ministry_id but no join result
+  const calMapped=(calData||[]).map(row=>({
+    ...row,
+    ministries: row.ministries || resolveMinistry(row.ministry_id),
+  }));
+
+  calEventsList=[...calMapped,...evMapped]
+    .sort((a,b)=>a.date>b.date?1:-1);
+
+  console.log(`[cal] loaded ${calMapped.length} calendar_events + ${evMapped.length} events`);
+  renderAdmCal();
+}
+
+/* Day colors for dot */
+const CAT_COLORS={servicio:'#1e6b61',estudio:'#2a4a9e',oracion:'#5c3d9c',evangelizacion:'#a05a10',especial:'#b02030',otro:'#888'};
+const ADM_DAY_NAMES=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+function renderAdmCal(){
+  const y=admCalYear, m=admCalMonth;
+  document.getElementById('admCalLabel').textContent=`${ADM_MONTHS[m]} ${y}`;
+  document.getElementById('admCalWeekdays').innerHTML=ADM_DAYS.map(d=>`<div class="adm-cal-wd">${d}</div>`).join('');
+  // Apply ministry filter to calendar events
+  const filteredCalEvents = (typeof filterEventsByMinistry === 'function')
+    ? filterEventsByMinistry(calEventsList)
+    : calEventsList;
+  const idx={};
+  for(const ev of filteredCalEvents){
+    if(!ev.date) continue;
+    const[ey,em]=ev.date.split('-').map(Number);
+    if(ey===y&&em-1===m){(idx[ev.date]=idx[ev.date]||[]).push(ev);}
+  }
+  const today=todayISO();
+  const firstDow=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const lp=(n)=>String(n).padStart(2,'0');
+  const ds=(d)=>`${y}-${lp(m+1)}-${lp(d)}`;
+  let html='';
+  for(let i=0;i<firstDow;i++) html+=`<div class="adm-cal-cell adm-cal-cell--empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=ds(d);
+    const evs=idx[dateStr]||[];
+    const isToday=dateStr===today;
+    const isCellPast=dateStr<today&&!isToday;
+    const cellCls=isToday?'adm-cal-cell--today':isCellPast?'adm-cal-cell--past':'';
+    const dots=evs.slice(0,5).map(ev=>`<span class="adm-cal-dot adm-cal-dot--${ev.category||'otro'}"></span>`).join('');
+    const chips=evs.slice(0,3).map(ev=>{
+      const cat=ev.category||'otro';
+      const cc=ev.cancelled?' adm-cal-ev--cancelled':'';
+      const st=(ev.title||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+      return`<div class="adm-cal-ev adm-cal-ev--${cat}${cc}">
+        <span class="adm-cal-ev__label">${ev.title}</span>
+        <span class="adm-cal-ev__actions">
+          <button class="adm-cal-ev__btn adm-cal-ev__btn--edit" onclick="event.stopPropagation();calEdit('${ev.id}')" title="Editar">✏</button>
+          <button class="adm-cal-ev__btn ${ev.cancelled?'adm-cal-ev__btn--undo':'adm-cal-ev__btn--cancel'}" onclick="event.stopPropagation();calToggle('${ev.id}',${ev.cancelled})" title="${ev.cancelled?'Reactivar':'Cancelar'}">${ev.cancelled?'↩':'⊘'}</button>
+          <button class="adm-cal-ev__btn adm-cal-ev__btn--delete" onclick="event.stopPropagation();calDelete('${ev.id}','${st}')" title="Eliminar">✕</button>
+        </span>
+      </div>`;
+    }).join('');
+    const more=evs.length>3?`<div class="adm-cal-more">+${evs.length-3}</div>`:'';
+    html+=`<div class="adm-cal-cell${cellCls?' '+cellCls:''}" data-date="${dateStr}" data-has="${evs.length?1:0}">
+      <div class="adm-cal-num">${d}</div>
+      <div class="adm-cal-dots">${dots}</div>
+      ${chips}${more}
+    </div>`;
+  }
+  const daysEl=document.getElementById('admCalDays');
+  daysEl.innerHTML=html;
+  daysEl.querySelectorAll('.adm-cal-cell[data-has="1"]').forEach(cell=>{
+    cell.addEventListener('click',()=>{
+      const evs=idx[cell.dataset.date]||[];
+      if(evs.length) openDaySheet(cell.dataset.date,evs);
+    });
+  });
+}
+
+function openDaySheet(dateStr,evs){
+  const[y,m,d]=dateStr.split('-').map(Number);
+  const dow=ADM_DAY_NAMES[new Date(y,m-1,d).getDay()];
+  document.getElementById('daySheetDate').textContent=`${dow}, ${d} de ${ADM_MONTHS[m-1]} ${y}`;
+  document.getElementById('daySheetEvents').innerHTML=evs.map(ev=>{
+    const color=CAT_COLORS[ev.category||'otro'];
+    const cc=ev.cancelled?' cancelled':'';
+    const st=(ev.title||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return`<div class="day-sheet__ev${cc}">
+      <span class="day-sheet__ev-dot" style="background:${color}"></span>
+      <div class="day-sheet__ev-info">
+        <div class="day-sheet__ev-title">${ev.title}${ev.cancelled?'<span style="font-size:.65rem;color:#b02030;margin-left:4px">(Cancelado)</span>':''}</div>
+        <div class="day-sheet__ev-time">${ev.time||''}</div>
+      </div>
+      <div class="day-sheet__ev-actions">
+        <button class="icon-btn" title="Editar" onclick="closeDaySheet();calEdit('${ev.id}')"><i class="fas fa-pen"></i></button>
+        <button class="icon-btn ${ev.cancelled?'success':'warn'}" title="${ev.cancelled?'Reactivar':'Cancelar'}" onclick="closeDaySheet();calToggle('${ev.id}',${ev.cancelled})"><i class="fas fa-${ev.cancelled?'undo':'ban'}"></i></button>
+        <button class="icon-btn danger" title="Eliminar" onclick="closeDaySheet();calDelete('${ev.id}','${st}')"><i class="fas fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('daySheetBackdrop').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDaySheet(){
+  document.getElementById('daySheetBackdrop').classList.remove('open');
+  document.body.style.overflow='';
+}
+window.closeDaySheet=closeDaySheet;
+document.getElementById('daySheetBackdrop').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDaySheet();});
+
+document.getElementById('admCalPrev').onclick=()=>{if(--admCalMonth<0){admCalMonth=11;admCalYear--;}loadCalendario();};
+document.getElementById('admCalNext').onclick=()=>{if(++admCalMonth>11){admCalMonth=0;admCalYear++;}loadCalendario();};
+
+document.getElementById('calAddBtn').onclick=()=>{
+  editingEventId=null;
+  document.getElementById('eventModalTitle').textContent='Agregar Actividad';
+  document.getElementById('evTitle').value='';
+  // default date to 1st of viewed month
+  const pad=(n)=>String(n).padStart(2,'0');
+  document.getElementById('evDate').value=`${admCalYear}-${pad(admCalMonth+1)}-${pad(new Date().getDate())}`;
+  document.getElementById('evTime').value='19:00';document.getElementById('evLocation').value='2601 Clays Mill Rd, Lexington, KY 40503';
+  document.getElementById('evDescription').value='';document.getElementById('evCategory').value='otro';
+  document.getElementById('evCancelled').checked=false;
+  document.getElementById('eventModalError').style.display='none';
+  openModal('eventModal');
+};
+
+window.calEdit=async(id)=>{
+  const ev=calEventsList.find(e=>e.id===id);if(!ev)return;
+  editingEventId=id;
+  document.getElementById('eventModalTitle').textContent='Editar Actividad';
+  document.getElementById('evTitle').value=ev.title;
+  document.getElementById('evDate').value=ev.date;
+  let t24='';
+  if(ev.time){if(/[AP]M$/i.test(ev.time)){const[tm,ap]=ev.time.split(' ');const[h,m]=tm.split(':').map(Number);const h2=ap==='PM'&&h!==12?h+12:ap==='AM'&&h===12?0:h;t24=`${String(h2).padStart(2,'0')}:${String(m).padStart(2,'0')}`;}else t24=ev.time;}
+  document.getElementById('evTime').value=t24;
+  document.getElementById('evLocation').value=ev.location||'';
+  document.getElementById('evDescription').value=ev.description||'';
+  document.getElementById('evCategory').value=ev.category||'otro';
+  document.getElementById('evCancelled').checked=ev.cancelled||false;
+  document.getElementById('evMinistry').value=ev.ministry_id||'';
+  document.getElementById('eventModalError').style.display='none';
+  openModal('eventModal');
+};
+
+window.calToggle=async(id,wasCancelled)=>{
+  const ok=await confirm(wasCancelled?'¿Reactivar?':'¿Cancelar evento?',`El evento aparecerá como ${wasCancelled?'activo':'cancelado'}.`);
+  if(!ok)return;
+  const{error}=await sb.from('calendar_events').update({cancelled:!wasCancelled}).eq('id',id);
+  if(error){toast(error.message,'error');return;}
+  toast(wasCancelled?'Reactivado':'Cancelado','success');loadCalendario();
+};
+
+window.calDelete=async(id,title)=>{
+  const ok=await confirm('¿Eliminar actividad?',`"${title}" se eliminará permanentemente.`);
+  if(!ok)return;
+  const{error}=await sb.from('calendar_events').delete().eq('id',id);
+  if(error){toast(error.message,'error');return;}
+  toast('Eliminado','success');loadCalendario();
+};
+
+/* ── SMART PRESETS ── */
+const CAL_PRESETS=[
+  {title:'Estudio Bíblico',sub:'Todos los martes · 7:00 PM',category:'estudio',time:'7:00 PM',location:'2601 Clays Mill Rd, Lexington, KY 40503',description:'Estudio profundo de la Palabra de Dios cada martes. ¡Trae tu Biblia!',pattern:{type:'weekly',dow:2}},
+  {title:'Noche de Oración',sub:'Todos los viernes · 7:00 PM',category:'oracion',time:'7:00 PM',location:'2601 Clays Mill Rd, Lexington, KY 40503',description:'Reunión semanal de oración e intercesión cada viernes.',pattern:{type:'weekly',dow:5}},
+  {title:'Servicio Dominical',sub:'Todos los domingos · 2:00 PM',category:'servicio',time:'2:00 PM',location:'2601 Clays Mill Rd, Lexington, KY 40503',description:'Únete a nosotros cada domingo para adorar a Dios en comunidad.',pattern:{type:'weekly',dow:0}},
+  {title:'Evangelización',sub:'Todos los sábados · 10:00 AM',category:'evangelizacion',time:'10:00 AM',location:'Punto de salida: 2601 Clays Mill Rd',description:'Salida de evangelización cada sábado. Contacta a Javier para más info.',pattern:{type:'weekly',dow:6}},
+  {title:'Noche de Caballeros',sub:'Último sábado · 7:00 PM',category:'especial',time:'7:00 PM',location:'2601 Clays Mill Rd, Lexington, KY 40503',description:'Una noche de compañerismo entre hombres de fe.',pattern:{type:'lastWeekday',dow:6}},
+  {title:'Noche de Damas',sub:'3er viernes · 7:00 PM',category:'especial',time:'7:00 PM',location:'2601 Clays Mill Rd, Lexington, KY 40503',description:'Una noche especial para las mujeres de la iglesia.',pattern:{type:'nthWeekday',n:3,dow:5}},
+];
+const ymd=(y,m,d)=>`${y}-${pad2(m+1)}-${pad2(d)}`;
+function getDates(pattern,year,month){
+  const days=new Date(year,month+1,0).getDate(),result=[];
+  if(pattern.type==='weekly'){for(let d=1;d<=days;d++){if(new Date(year,month,d).getDay()===pattern.dow)result.push(ymd(year,month,d));}}
+  else if(pattern.type==='lastWeekday'){for(let d=days;d>=1;d--){if(new Date(year,month,d).getDay()===pattern.dow){result.push(ymd(year,month,d));break;}}}
+  else if(pattern.type==='nthWeekday'){let c=0;for(let d=1;d<=days;d++){if(new Date(year,month,d).getDay()===pattern.dow){c++;if(c===pattern.n){result.push(ymd(year,month,d));break;}}}}
+  return result;
+}
+let selPresetIdx=null;
+function buildPresetGrid(){
+  const g=document.getElementById('presetGrid');
+  g.innerHTML=CAL_PRESETS.map((p,i)=>`<div class="preset-card" data-idx="${i}"><div class="preset-card__title">${p.title}</div><div class="preset-card__sub">${p.sub}</div></div>`).join('');
+  g.querySelectorAll('.preset-card').forEach(c=>{c.onclick=()=>{g.querySelectorAll('.preset-card').forEach(x=>x.classList.remove('selected'));c.classList.add('selected');updateSmartPreview(Number(c.dataset.idx));};});
+}
+function updateSmartPreview(idx){
+  selPresetIdx=idx;const p=CAL_PRESETS[idx],month=Number(document.getElementById('smartMonth').value),year=Number(document.getElementById('smartYear').value);
+  const dates=getDates(p.pattern,year,month);
+  document.getElementById('smartCount').textContent=dates.length;
+  document.getElementById('previewPills').innerHTML=dates.map(d=>{const[y,mo,day]=d.split('-').map(Number);return`<span class="preview-pill">${new Date(y,mo-1,day).toLocaleDateString('es',{weekday:'short',day:'numeric',month:'short'})}</span>`;}).join('');
+  document.getElementById('smartPreview').style.display=dates.length?'block':'none';
+}
+['smartMonth','smartYear'].forEach(id=>document.getElementById(id).onchange=()=>{if(selPresetIdx!==null)updateSmartPreview(selPresetIdx);});
+document.getElementById('smartCreate').onclick=async()=>{
+  if(selPresetIdx===null)return;
+  const p=CAL_PRESETS[selPresetIdx],month=Number(document.getElementById('smartMonth').value),year=Number(document.getElementById('smartYear').value);
+  const dates=getDates(p.pattern,year,month);if(!dates.length)return;
+  const btn=document.getElementById('smartCreate');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creando...';
+  const rows=dates.map(date=>({title:p.title,date,time:p.time,location:p.location,description:p.description,category:p.category,cancelled:false,ministry_id:null,created_by:currentUser?.id}));
+  const{error}=await sb.from('calendar_events').insert(rows);
+  btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Crear todos';
+  if(error){toast(error.message,'error');return;}
+  toast(`${rows.length} actividades creadas`,'success');closeSmartPanel();loadCalendario();
+};
+document.getElementById('smartClear').onclick=()=>{selPresetIdx=null;document.getElementById('presetGrid').querySelectorAll('.preset-card').forEach(c=>c.classList.remove('selected'));document.getElementById('smartPreview').style.display='none';};
+document.getElementById('calSmartBtn').onclick=()=>{
+  const now=new Date();document.getElementById('smartMonth').value=now.getMonth();document.getElementById('smartYear').value=now.getFullYear();
+  selPresetIdx=null;document.getElementById('smartPreview').style.display='none';
+  document.getElementById('presetGrid').querySelectorAll('.preset-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('smartPanel').classList.add('open');
+  document.getElementById('smartPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+document.getElementById('smartClose').onclick=closeSmartPanel;
+function closeSmartPanel(){document.getElementById('smartPanel').classList.remove('open');}
+buildPresetGrid();
+
+/* ── USERS ── */
+async function loadUsers(){
+  const el=document.getElementById('usersList');
+  el.innerHTML='<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  // Fetch profiles without join — resolve ministry from local array
+  const{data,error}=await sb.from('profiles').select('*').order('created_at');
+  if(error){el.innerHTML=`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${error.message}</p></div>`;return;}
+  if(!data?.length){el.innerHTML='<div class="empty-state"><i class="fas fa-users"></i><p>No hay usuarios todavía.</p></div>';return;}
+  el.innerHTML=data.map(u=>{
+    const initials=(u.display_name||'?').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+    // Resolve ministry from local ministries array (no FK join needed)
+    const mObj=ministries.find(x=>x.id===u.ministry_id)||null;
+    const minName=mObj?.name||'—';
+    const minDot=mObj?.color?`<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${mObj.color};margin-right:4px"></span>`:'';
+    return`<div class="user-row">
+      <div class="user-row__avatar">${initials}</div>
+      <div class="user-row__info">
+        <div class="user-row__name">${u.display_name||'—'}</div>
+        <div class="user-row__meta">${minDot}${minName}</div>
+      </div>
+      <span class="role-badge role--${u.role}">${u.role==='admin'?'Admin':'Ministerio'}</span>
+    </div>`;
+  }).join('');
+}
+document.getElementById('addUserBtn').addEventListener('click',()=>{
+  document.getElementById('uName').value='';document.getElementById('uEmail').value='';document.getElementById('uPassword').value='';
+  document.getElementById('uRole').value='ministry';document.getElementById('userModalError').style.display='none';openModal('userModal');
+});
+document.getElementById('userModalSave').addEventListener('click',async()=>{
+  const name=document.getElementById('uName').value.trim(),email=document.getElementById('uEmail').value.trim();
+  const password=document.getElementById('uPassword').value,role=document.getElementById('uRole').value;
+  const minId=document.getElementById('uMinistry').value,errEl=document.getElementById('userModalError');
+  if(!name||!email||!password){errEl.textContent='Nombre, correo y contraseña son obligatorios.';errEl.style.display='';return;}
+  errEl.style.display='none';
+  const btn=document.getElementById('userModalSave');btn.disabled=true;
+  const{error}=await sb.auth.signUp({email,password,options:{data:{display_name:name,role,ministry_id:minId||null}}});
+  btn.disabled=false;
+  if(error){errEl.textContent=error.message;errEl.style.display='';return;}
+  closeModal('userModal');toast(`Usuario creado: ${name}`,'success');loadUsers();
+});
+document.getElementById('userModalClose').addEventListener('click',()=>closeModal('userModal'));
+document.getElementById('userModalCancel').addEventListener('click',()=>closeModal('userModal'));
+
+/* TABS */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    const panel=document.getElementById(`tab-${btn.dataset.tab}`);if(panel)panel.classList.add('active');
+    if(btn.dataset.tab==='past')       loadPast();
+    if(btn.dataset.tab==='calendario') loadCalendario();
+    if(btn.dataset.tab==='ministries') renderMinistriesTab();
+    if(btn.dataset.tab==='users')      loadUsers();
+  });
+});
+/* ── MINISTRY FILTER ── */
+// selectedMinistries: Set of checked ministry IDs. All selected by default after buildFilterChecks.
+// Empty set = show nothing. Full set = show all.
+let selectedMinistries = new Set();
+
+function buildFilterChecks(){
+  if(!isAdmin()) return;
+  // ── Eventos filter ──
+  document.getElementById('filterBarWrap').style.display='';
+  document.getElementById('filterPanel').style.display='';
+  const checkHtml = ministries.map(m => `
+    <label class="filter-check" data-id="${m.id}">
+      <input type="checkbox" value="${m.id}" checked>
+      <span class="filter-check__dot" style="background:${m.color}"></span>
+      <span>${m.name}</span>
+    </label>`).join('');
+  document.getElementById('filterChecks').innerHTML = checkHtml;
+  // ── Calendar filter (same checkboxes, same handler) ──
+  document.getElementById('calFilterBarWrap').style.display='';
+  document.getElementById('calFilterPanel').style.display='';
+  document.getElementById('calFilterChecks').innerHTML = checkHtml;
+  // Init: all checked
+  selectedMinistries = new Set(ministries.map(m => m.id));
+  // Wire both sets of checkboxes to the same handler
+  document.querySelectorAll('#filterChecks input[type=checkbox], #calFilterChecks input[type=checkbox]').forEach(cb => {
+    cb.addEventListener('change', onFilterChange);
+  });
+}
+
+function syncFilterUIs(){
+  // Keep both filter UIs in sync (eventos + calendar panels)
+  const allIds = new Set(ministries.map(m=>m.id));
+  const allSelected = selectedMinistries.size === allIds.size;
+  // Sync checkboxes in both panels
+  ['filterChecks','calFilterChecks'].forEach(id=>{
+    document.querySelectorAll(`#${id} input[type=checkbox]`).forEach(cb=>{
+      cb.checked = selectedMinistries.has(cb.value);
+    });
+  });
+  // Sync badges
+  [['filterBadge','filterToggleBtn'],['calFilterBadge','calFilterToggleBtn']].forEach(([badgeId,btnId])=>{
+    const badge = document.getElementById(badgeId);
+    const btn   = document.getElementById(btnId);
+    if(!badge||!btn) return;
+    badge.textContent = allSelected ? '' : selectedMinistries.size;
+    badge.classList.toggle('hidden', allSelected);
+    btn.classList.toggle('active', !allSelected);
+  });
+}
+
+function onFilterChange(e){
+  // Sync the sibling checkbox in the other panel (eventos ↔ calendar)
+  const changedVal = e.target.value;
+  const changedChecked = e.target.checked;
+  document.querySelectorAll(`#filterChecks input[value="${changedVal}"], #calFilterChecks input[value="${changedVal}"]`).forEach(cb=>{
+    cb.checked = changedChecked;
+  });
+  // Rebuild selectedMinistries from either panel (they're now in sync)
+  const allChecks = [...document.querySelectorAll('#filterChecks input[type=checkbox]')];
+  selectedMinistries = new Set(allChecks.filter(ch=>ch.checked).map(ch=>ch.value));
+  syncFilterUIs();
+  renderUpcomingFiltered();
+  renderPastFiltered();
+  if(document.getElementById('tab-calendario').classList.contains('active')) renderAdmCal();
+}
+
+function filterEventsByMinistry(events){
+  if(!selectedMinistries.size) return []; // nothing checked = show nothing
+  return events.filter(ev => {
+    if(!ev.ministry_id) return true; // no ministry = always show
+    return selectedMinistries.has(ev.ministry_id);
+  });
+}
+
+document.getElementById('filterToggleBtn').addEventListener('click', () => {
+  document.getElementById('filterPanel').classList.toggle('open');
+});
+document.getElementById('calFilterToggleBtn').addEventListener('click', () => {
+  document.getElementById('calFilterPanel').classList.toggle('open');
 });
 
-// ── BULK ─────────────────────────────────────────────────
-function showBulk(){$("view-list").classList.add("hidden");$("view-form").classList.add("hidden");$("view-bulk").classList.remove("hidden");$("bulk-form").reset();clearImg("b");$("bulk-dates").innerHTML="";addBulkDate();addBulkDate();updateBulkSummary();$("b-type-select").value="";$("b-title-custom").classList.remove("show");$("b-preset-badge").classList.add("hidden");$("b-desc-group").classList.remove("fg-locked");$("b-description").readOnly=false;const n=$("b-desc-group").querySelector(".fg-locked-note");if(n)n.remove();bTagPicker.setTags([]);bTagPicker.setDisabled(false);resetLoc("b-location","b-loc-override");$("b-type-select").focus();}
-function hideBulk(){$("view-bulk").classList.add("hidden");$("view-list").classList.remove("hidden");}
-function addBulkDate(){const c=$("bulk-dates");const r=document.createElement("div");r.className="bulk-date-row";r.innerHTML=`<input type="date" required><button type="button" class="bulk-date-remove">✕</button>`;r.querySelector(".bulk-date-remove").addEventListener("click",()=>{if(c.children.length>1){r.remove();updateBulkSummary();}});r.querySelector("input").addEventListener("change",updateBulkSummary);c.appendChild(r);updateBulkSummary();}
-function updateBulkSummary(){const n=[...$("bulk-dates").querySelectorAll("input[type=date]")].map(i=>i.value).filter(Boolean).length;$("bulk-summary").textContent=n?`${n} evento${n>1?"s":""} serán creados`:"";}
-$("bulk-event-btn").addEventListener("click",showBulk);$("bulk-cancel-btn").addEventListener("click",hideBulk);$("bulk-cancel-btn-2").addEventListener("click",hideBulk);$("bulk-add-date-btn").addEventListener("click",addBulkDate);
+/* ── EVENTS TABLE — add col-ministry class so mobile CSS hides it ── */
+// Patch renderEventsTable to add class to ministry column
+const _origRender = renderEventsTable;
 
-$("bulk-form").addEventListener("submit",async e=>{
-  e.preventDefault();const title=getTitle("b-type-select","b-title-custom");
-  if(!title){toast("Selecciona un título","error");return;}const ts=$("b-time-start").value;if(!ts){toast("Hora obligatoria","error");return;}
-  const dates=[...$("bulk-dates").querySelectorAll("input[type=date]")].map(i=>i.value).filter(Boolean);if(!dates.length){toast("Agrega fechas","error");return;}
-  const te=$("b-time-end").value;
-  const base={tag:$("b-tag").value||null,location:$("b-location").value.trim()||null,description:$("b-description").value.trim()||null,organizer_name:$("b-org-name").value.trim()||null,organizer_email:$("b-org-email").value.trim()||null,image_url:$("b-image-url").value||null};
+/* ── VIEW SWITCHER ── */
+function showView(name){
+  ['list','form','bulk'].forEach(v=>{
+    const el=document.getElementById(`view-${v}`);
+    if(el) el.classList.toggle('active', v===name);
+  });
+  window.scrollTo(0,0);
+}
+
+/* ── EVENT PRESETS ── */
+const EVENT_PRESETS=[
+  {title:'Noche de Caballeros',tags:['Servicio','Convivio'],img:'caballeros.png',desc:'Una noche de compañerismo entre hombres de fe. Tiempo de oración, estudio bíblico, comida y edificación mutua. Ven a crecer espiritualmente junto a tus hermanos en Cristo.'},
+  {title:'Noche de Damas',tags:['Servicio','Convivio'],img:'damas.png',desc:'Una noche especial para las mujeres de la iglesia. Alabanza, oración, comunión y compañerismo. Habrá comida y un tiempo de fortalecimiento espiritual entre hermanas en Cristo.'},
+  {title:'Vigilia',tags:['Servicio','Oración'],img:'vigilia.png',desc:'Una noche especial de oración, adoración y comunión. Ven a buscar la presencia de Dios junto a tus hermanos en Cristo. Habrá café, comida, alabanza y un tiempo inolvidable de fe.'},
+  {title:'Devocional',tags:['Servicio','Oración'],img:'devocional.png',desc:'Un tiempo dedicado a la reflexión bíblica, oración y crecimiento espiritual. Acompáñanos para profundizar en la Palabra de Dios.'},
+  {title:'Noche de Jóvenes',tags:['Servicio','Convivio'],img:'',desc:'Una noche de comunión entre jóvenes. Palabra, comida y actividades. ¡Ven a conectar con tu generación en Cristo!'},
+  {title:'Día de las Madres',tags:['Celebración','Servicio'],img:'madres.png',desc:'Un servicio especial para honrar y celebrar a las madres de nuestra comunidad.'},
+  {title:'Día del Padre',tags:['Celebración','Servicio'],img:'padre.png',desc:'Celebramos a los padres de nuestra iglesia con un servicio especial lleno de gratitud.'},
+  {title:'Día del Niño',tags:['Celebración','Niños'],img:'nino.png',desc:'Celebración para los más pequeños. Juegos, actividades, comida y un mensaje especial.'},
+  {title:'Thanksgiving',tags:['Celebración','Convivio'],img:'thanksgivings.png',desc:'Servicio de acción de gracias. Cena especial, alabanza y testimonios de gratitud.'},
+  {title:'Comida Navideña',tags:['Celebración','Convivio'],img:'cenanavidena.png',desc:'Celebramos el nacimiento de Cristo con cena, villancicos y compañerismo.'},
+  {title:'Campaña Evangelística',tags:['Evangelismo','Servicio'],img:'campanaEvangelistica.png',desc:'Servicios enfocados en compartir las buenas nuevas de Cristo con la comunidad.'},
+  {title:'Aniversario',tags:['Celebración','Servicio'],img:'aniversario.png',desc:'Celebración del aniversario de nuestra iglesia. Alabanza, testimonios y compañerismo.'},
+];
+const TAG_OPTIONS=['Servicio','Convivio','Celebración','Evangelismo','Ministerio','Oración','Adoración','Jóvenes','Niños'];
+const IMG_BASE=`https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/event-images/`;
+const DEFAULT_LOC='2601 Clays Mill Road';
+
+function populateTypeSelect(selId){
+  const s=document.getElementById(selId);
+  s.innerHTML='<option value="">— Seleccionar tipo —</option>';
+  EVENT_PRESETS.forEach((p,i)=>{const o=document.createElement('option');o.value=i;o.textContent=p.title;s.appendChild(o);});
+  const c=document.createElement('option');c.value='__custom__';c.textContent='Otro / Personalizado';s.appendChild(c);
+}
+
+function wireTypeSelect(selId,customId,noteId,tagPicker,descId,descGroupId,imgUrlId,previewId,pwrapId){
+  document.getElementById(selId).onchange=()=>{
+    const v=document.getElementById(selId).value;
+    const isPreset=v!==''&&v!=='__custom__', isCustom=v==='__custom__';
+    document.getElementById(customId).classList.toggle('show',isCustom);
+    if(isCustom) document.getElementById(customId).focus();
+    const note=document.getElementById(noteId);
+    if(isPreset){note.textContent=`✓ Preset: ${EVENT_PRESETS[Number(v)].title}`;note.classList.add('show');}
+    else note.classList.remove('show');
+    if(isPreset){
+      const p=EVENT_PRESETS[Number(v)];
+      tagPicker.setTags(p.tags); tagPicker.setDisabled(true);
+      document.getElementById(descId).value=p.desc;
+      document.getElementById(descId).readOnly=true;
+      document.getElementById(descGroupId).classList.add('fg-locked');
+      let n=document.getElementById(descGroupId).querySelector('.fg-locked-note');
+      if(!n){n=document.createElement('p');n.className='fg-locked-note';n.style.cssText='font-size:.7rem;color:var(--primary);font-weight:600;margin-top:.2rem';document.getElementById(descGroupId).appendChild(n);}
+      n.textContent='Auto-completado por preset.';
+      if(p.img){const url=IMG_BASE+p.img;document.getElementById(imgUrlId).value=url;document.getElementById(previewId).src=url;document.getElementById(pwrapId).style.display='inline-block';}
+    } else {
+      tagPicker.setDisabled(false);
+      document.getElementById(descId).readOnly=false;
+      document.getElementById(descGroupId).classList.remove('fg-locked');
+      const n=document.getElementById(descGroupId).querySelector('.fg-locked-note');if(n)n.remove();
+      if(!isPreset){document.getElementById(descId).value='';}
+    }
+  };
+}
+
+function getTitle(selId,customId){
+  const v=document.getElementById(selId).value;
+  if(v==='__custom__') return document.getElementById(customId).value.trim();
+  if(v==='') return '';
+  return EVENT_PRESETS[Number(v)]?.title||'';
+}
+
+/* ── TAG PICKER ── */
+function mountTagPicker(containerId,hiddenId){
+  const container=document.getElementById(containerId);
+  const btn=document.createElement('button');btn.type='button';btn.className='tag-picker-btn';btn.id=`${hiddenId}-btn`;
+  btn.innerHTML=`<span class="tag-pills" id="${hiddenId}-pills"><span style="color:var(--muted)">Seleccionar...</span></span><span style="font-size:9px">▼</span>`;
+  container.appendChild(btn);
+  const dd=document.createElement('div');dd.className='tag-dropdown';dd.id=`${hiddenId}-dd`;
+  TAG_OPTIONS.forEach(tag=>{const l=document.createElement('label');l.className='tag-opt';l.innerHTML=`<input type="checkbox" value="${tag}"><span>${tag}</span>`;dd.appendChild(l);});
+  const cw=document.createElement('div');cw.className='tag-custom-wrap';cw.innerHTML=`<input type="text" placeholder="Categoría personalizada..." id="${hiddenId}-custom">`;dd.appendChild(cw);
+  container.appendChild(dd);container.classList.add('tag-picker');
+  const upd=()=>{
+    const checks=[...dd.querySelectorAll('input[type=checkbox]:checked')].map(x=>x.value);
+    const cv=document.getElementById(`${hiddenId}-custom`).value.trim();if(cv&&checks.length<2)checks.push(cv);
+    document.getElementById(hiddenId).value=checks.join('/');
+    const pills=document.getElementById(`${hiddenId}-pills`);
+    pills.innerHTML=checks.length?checks.map(t=>`<span class="tag-pill">${t}</span>`).join(''):`<span style="color:var(--muted)">Seleccionar...</span>`;
+    dd.querySelectorAll('.tag-opt').forEach(o=>{const cb=o.querySelector('input[type=checkbox]');if(cb&&!cb.checked&&checks.length>=2)o.classList.add('disabled');else if(cb)o.classList.remove('disabled');});
+  };
+  dd.querySelectorAll('input[type=checkbox]').forEach(cb=>cb.addEventListener('change',upd));
+  document.getElementById(`${hiddenId}-custom`).addEventListener('input',upd);
+  btn.addEventListener('click',e=>{e.stopPropagation();dd.classList.toggle('open');});
+  document.addEventListener('click',e=>{if(!container.contains(e.target))dd.classList.remove('open');});
+  return{
+    setTags(tags){dd.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=tags.includes(cb.value);});document.getElementById(`${hiddenId}-custom`).value='';const cu=tags.filter(t=>!TAG_OPTIONS.includes(t));if(cu.length)document.getElementById(`${hiddenId}-custom`).value=cu[0];upd();},
+    setDisabled(d){document.getElementById(`${hiddenId}-btn`).classList.toggle('disabled',d);},
+    reset(){dd.querySelectorAll('input[type=checkbox]').forEach(cb=>{cb.checked=false;});document.getElementById(`${hiddenId}-custom`).value='';upd();}
+  };
+}
+
+/* ── LOCATION OVERRIDE ── */
+function wireLocOverride(inputId,btnId){
+  const input=document.getElementById(inputId),btn=document.getElementById(btnId);
+  btn.onclick=()=>{
+    if(input.readOnly){input.readOnly=false;input.value='';input.focus();btn.textContent='Restaurar';btn.classList.add('active');}
+    else{input.readOnly=true;input.value=DEFAULT_LOC;btn.textContent='Cambiar';btn.classList.remove('active');}
+  };
+}
+function resetLoc(inputId,btnId){document.getElementById(inputId).value=DEFAULT_LOC;document.getElementById(inputId).readOnly=true;document.getElementById(btnId).textContent='Cambiar';document.getElementById(btnId).classList.remove('active');}
+
+/* ── IMAGE PICKER ── */
+let galleryImages=null;
+function mountImgPicker(sectionEl,prefix){
+  sectionEl.innerHTML=`
+    <div class="img-grid">
+      <div class="img-opt" id="${prefix}-opt-upload">
+        <i class="fas fa-upload" style="font-size:1.4rem;margin-bottom:.3rem;color:var(--muted)"></i>
+        <div style="font-size:.78rem;font-weight:600">Subir nueva</div>
+        <div style="font-size:.68rem;color:var(--muted)">JPG, PNG, WebP</div>
+        <input type="file" accept="image/*" id="${prefix}-file">
+      </div>
+      <div class="img-opt" id="${prefix}-opt-gallery">
+        <i class="fas fa-images" style="font-size:1.4rem;margin-bottom:.3rem;color:var(--muted)"></i>
+        <div style="font-size:.78rem;font-weight:600">Usar existente</div>
+        <div style="font-size:.68rem;color:var(--muted)">Del almacén</div>
+      </div>
+    </div>
+    <div class="img-gallery" id="${prefix}-gallery" style="display:none"></div>
+    <div class="img-preview-wrap" id="${prefix}-preview-wrap" style="display:none">
+      <img class="img-preview" id="${prefix}-preview" alt="">
+      <button type="button" class="img-del-btn" id="${prefix}-del"><i class="fas fa-trash"></i></button>
+    </div>
+    <input type="hidden" id="${prefix}-url">
+    <div style="font-size:.7rem;color:var(--muted);margin-top:.3rem" id="${prefix}-status"></div>`;
+  document.getElementById(`${prefix}-opt-gallery`).onclick=()=>toggleGallery(prefix);
+  document.getElementById(`${prefix}-file`).onchange=e=>handleImgUpload(e,prefix);
+  document.getElementById(`${prefix}-del`).onclick=()=>clearImg(prefix);
+}
+function clearImg(p){document.getElementById(`${p}-url`).value='';document.getElementById(`${p}-preview`).src='';document.getElementById(`${p}-preview-wrap`).style.display='none';document.getElementById(`${p}-status`).textContent='';const f=document.getElementById(`${p}-file`);if(f)f.value='';document.getElementById(`${p}-opt-upload`).classList.remove('active');document.getElementById(`${p}-opt-gallery`).classList.remove('active');const g=document.getElementById(`${p}-gallery`);if(g){g.style.display='none';g.querySelectorAll('.img-gal-item').forEach(i=>i.classList.remove('selected'));}}
+async function loadGallery(prefix){
+  const g=document.getElementById(`${prefix}-gallery`);g.innerHTML='<div style="padding:1rem;text-align:center;color:var(--muted)">Cargando...</div>';
+  const{data,error}=await sb.storage.from('event-images').list('',{limit:200,sortBy:{column:'created_at',order:'desc'}});
+  if(error||!data){g.innerHTML='<div style="padding:1rem;text-align:center;color:var(--danger)">Error al cargar.</div>';return;}
+  const imgs=data.filter(f=>/\.(jpg|jpeg|png|webp|gif)$/i.test(f.name));galleryImages=imgs;
+  if(!imgs.length){g.innerHTML='<div style="padding:1rem;text-align:center;color:var(--muted)">No hay imágenes.</div>';return;}
+  g.innerHTML=imgs.map(img=>{const{data:u}=sb.storage.from('event-images').getPublicUrl(img.name);return`<div class="img-gal-item" data-url="${u.publicUrl}"><img src="${u.publicUrl}" alt="" loading="lazy"></div>`;}).join('');
+  g.querySelectorAll('.img-gal-item').forEach(el=>el.onclick=()=>{g.querySelectorAll('.img-gal-item').forEach(i=>i.classList.remove('selected'));el.classList.add('selected');document.getElementById(`${prefix}-url`).value=el.dataset.url;document.getElementById(`${prefix}-preview`).src=el.dataset.url;document.getElementById(`${prefix}-preview-wrap`).style.display='inline-block';document.getElementById(`${prefix}-status`).textContent='Seleccionada ✓';});
+}
+function toggleGallery(prefix){const g=document.getElementById(`${prefix}-gallery`);const show=g.style.display==='none';g.style.display=show?'grid':'none';document.getElementById(`${prefix}-opt-gallery`).classList.toggle('active',show);if(show&&!galleryImages)loadGallery(prefix);}
+async function handleImgUpload(e,prefix){
+  const file=e.target.files?.[0];if(!file)return;
+  document.getElementById(`${prefix}-opt-upload`).classList.add('active');document.getElementById(`${prefix}-preview`).src=URL.createObjectURL(file);document.getElementById(`${prefix}-preview-wrap`).style.display='inline-block';document.getElementById(`${prefix}-status`).textContent='Subiendo...';
+  const fn=`${Date.now()}-${Math.random().toString(36).slice(2,7)}.${file.name.split('.').pop()}`;
+  const{error}=await sb.storage.from('event-images').upload(fn,file,{cacheControl:'3600',upsert:false});
+  if(error){document.getElementById(`${prefix}-status`).textContent='Error al subir.';return;}
+  const{data:u}=sb.storage.from('event-images').getPublicUrl(fn);
+  document.getElementById(`${prefix}-url`).value=u.publicUrl;document.getElementById(`${prefix}-status`).textContent='Subida ✓';galleryImages=null;
+}
+
+function toLocalDT(iso){try{const d=new Date(iso),p=n=>String(n).padStart(2,'0');return`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}catch{return'';}}
+
+/* ── INIT FORMS ── */
+let fTagPicker, bTagPicker;
+function initForms(){
+  populateTypeSelect('fType'); populateTypeSelect('bType');
+  fTagPicker=mountTagPicker('fTagPicker','fTag');
+  bTagPicker=mountTagPicker('bTagPicker','bTag');
+  mountImgPicker(document.getElementById('fImgSection'),'f');
+  mountImgPicker(document.getElementById('bImgSection'),'b');
+  wireTypeSelect('fType','fTitleCustom','fPresetNote',fTagPicker,'fDesc','fDescGroup','f-url','f-preview','f-preview-wrap');
+  wireTypeSelect('bType','bTitleCustom','bPresetNote',bTagPicker,'bDesc','bDescGroup','b-url','b-preview','b-preview-wrap');
+  wireLocOverride('fLoc','fLocBtn');
+  wireLocOverride('bLoc','bLocBtn');
+}
+
+/* ── NEW EVENT BUTTON ── */
+document.getElementById('newEventBtn').onclick=()=>{
+  document.getElementById('formTitle').textContent='Nuevo Evento';
+  document.getElementById('fId').value='';
+  document.getElementById('fType').value='';document.getElementById('fTitleCustom').value='';document.getElementById('fTitleCustom').classList.remove('show');document.getElementById('fPresetNote').classList.remove('show');
+  fTagPicker.reset();fTagPicker.setDisabled(false);
+  document.getElementById('fDesc').value='';document.getElementById('fDesc').readOnly=false;document.getElementById('fDescGroup').classList.remove('fg-locked');const n=document.getElementById('fDescGroup').querySelector('.fg-locked-note');if(n)n.remove();
+  document.getElementById('fStarts').value='';document.getElementById('fEnds').value='';
+  document.getElementById('fOrgName').value='';document.getElementById('fOrgEmail').value='';
+  clearImg('f');resetLoc('fLoc','fLocBtn');
+  document.getElementById('fError').style.display='none';
+  showView('form');
+};
+
+document.getElementById('formBack').onclick=()=>showView('list');
+document.getElementById('formCancel').onclick=()=>showView('list');
+
+document.getElementById('fSaveBtn').onclick=async()=>{
+  const title=getTitle('fType','fTitleCustom');
+  if(!title){toast('Selecciona o escribe un título','error');return;}
+  const starts=document.getElementById('fStarts').value;
+  if(!starts){toast('La fecha de inicio es obligatoria','error');return;}
+  const errEl=document.getElementById('fError');errEl.style.display='none';
+  const payload={
+    title,
+    tag:document.getElementById('fTag').value||null,
+    location:document.getElementById('fLoc').value.trim()||null,
+    starts_at:new Date(starts).toISOString(),
+    ends_at:document.getElementById('fEnds').value?new Date(document.getElementById('fEnds').value).toISOString():null,
+    description:document.getElementById('fDesc').value.trim()||null,
+    organizer_name:document.getElementById('fOrgName').value.trim()||null,
+    organizer_email:document.getElementById('fOrgEmail').value.trim()||null,
+    image_url:document.getElementById('f-url').value||null
+  };
+  const btn=document.getElementById('fSaveBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+  const id=document.getElementById('fId').value;
+  let error;
+  if(id)({error}=await sb.from('events').update(payload).eq('id',id));
+  else({error}=await sb.from('events').insert(payload));
+  btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Guardar Evento';
+  if(error){errEl.textContent=error.message;errEl.style.display='';return;}
+  toast(id?'Evento actualizado':'Evento creado','success');
+  showView('list');loadUpcoming();
+};
+
+/* Edit event from events table */
+window.openEditEventFromTable=async(rawId)=>{
+  const{data:ev}=await sb.from('events').select('*').eq('id',rawId).single();
+  if(!ev)return;
+  document.getElementById('formTitle').textContent='Editar Evento';
+  document.getElementById('fId').value=ev.id;
+  const idx=EVENT_PRESETS.findIndex(p=>p.title===ev.title);
+  if(idx>=0){document.getElementById('fType').value=String(idx);document.getElementById('fTitleCustom').classList.remove('show');}
+  else if(ev.title){document.getElementById('fType').value='__custom__';document.getElementById('fTitleCustom').classList.add('show');document.getElementById('fTitleCustom').value=ev.title;}
+  else document.getElementById('fType').value='';
+  document.getElementById('fType').dispatchEvent(new Event('change'));
+  if(ev.tag)fTagPicker.setTags(ev.tag.split('/').map(t=>t.trim()));
+  if(ev.description)document.getElementById('fDesc').value=ev.description;
+  if(ev.starts_at)document.getElementById('fStarts').value=toLocalDT(ev.starts_at);
+  if(ev.ends_at)document.getElementById('fEnds').value=toLocalDT(ev.ends_at);
+  resetLoc('fLoc','fLocBtn');
+  if(ev.location&&ev.location!==DEFAULT_LOC){document.getElementById('fLoc').value=ev.location;document.getElementById('fLoc').readOnly=false;document.getElementById('fLocBtn').textContent='Restaurar';document.getElementById('fLocBtn').classList.add('active');}
+  document.getElementById('fOrgName').value=ev.organizer_name||'';document.getElementById('fOrgEmail').value=ev.organizer_email||'';
+  clearImg('f');
+  if(ev.image_url){document.getElementById('f-url').value=ev.image_url;document.getElementById('f-preview').src=ev.image_url;document.getElementById('f-preview-wrap').style.display='inline-block';}
+  document.getElementById('fError').style.display='none';
+  showView('form');
+};
+
+/* ── BULK FORM ── */
+document.getElementById('bulkEventBtn').onclick=()=>{
+  document.getElementById('bType').value='';document.getElementById('bTitleCustom').value='';document.getElementById('bTitleCustom').classList.remove('show');document.getElementById('bPresetNote').classList.remove('show');
+  bTagPicker.reset();bTagPicker.setDisabled(false);
+  document.getElementById('bDesc').value='';document.getElementById('bDesc').readOnly=false;document.getElementById('bDescGroup').classList.remove('fg-locked');const n=document.getElementById('bDescGroup').querySelector('.fg-locked-note');if(n)n.remove();
+  clearImg('b');resetLoc('bLoc','bLocBtn');
+  document.getElementById('bulkDates').innerHTML='';addBulkDate();addBulkDate();updateBulkSummary();
+  document.getElementById('bError').style.display='none';
+  showView('bulk');
+};
+document.getElementById('bulkBack').onclick=()=>showView('list');
+document.getElementById('bulkCancel').onclick=()=>showView('list');
+document.getElementById('bulkAddDate').onclick=addBulkDate;
+
+function addBulkDate(){
+  const c=document.getElementById('bulkDates'),r=document.createElement('div');r.className='bulk-date-row';
+  r.innerHTML=`<input type="date" required><button type="button" class="bulk-date-remove">✕</button>`;
+  r.querySelector('.bulk-date-remove').onclick=()=>{if(c.children.length>1){r.remove();updateBulkSummary();}};
+  r.querySelector('input').onchange=updateBulkSummary;
+  c.appendChild(r);updateBulkSummary();
+}
+function updateBulkSummary(){const n=[...document.getElementById('bulkDates').querySelectorAll('input[type=date]')].map(i=>i.value).filter(Boolean).length;document.getElementById('bulkSummary').textContent=n?`${n} evento${n>1?'s':''} serán creados`:'';}
+
+document.getElementById('bSaveBtn').onclick=async()=>{
+  const title=getTitle('bType','bTitleCustom');
+  if(!title){toast('Selecciona un título','error');return;}
+  const ts=document.getElementById('bTimeStart').value;
+  if(!ts){toast('La hora es obligatoria','error');return;}
+  const dates=[...document.getElementById('bulkDates').querySelectorAll('input[type=date]')].map(i=>i.value).filter(Boolean);
+  if(!dates.length){toast('Agrega al menos una fecha','error');return;}
+  const te=document.getElementById('bTimeEnd').value;
+  const base={tag:document.getElementById('bTag').value||null,location:document.getElementById('bLoc').value.trim()||null,description:document.getElementById('bDesc').value.trim()||null,organizer_name:document.getElementById('bOrgName').value.trim()||null,organizer_email:document.getElementById('bOrgEmail').value.trim()||null,image_url:document.getElementById('b-url').value||null};
   const events=dates.map(d=>({...base,title,starts_at:new Date(`${d}T${ts}`).toISOString(),ends_at:te?new Date(`${d}T${te}`).toISOString():null}));
-  const btn=$("bulk-submit-btn");btn.disabled=true;btn.innerHTML=`<span class="loading-spinner"></span> Creando ${events.length}...`;
-  const{error}=await sb.from("events").insert(events);btn.disabled=false;btn.textContent="Crear eventos";
-  if(error){toast("Error: "+error.message,"error");return;}toast(`${events.length} eventos creados`);hideBulk();loadEvents();
-});
+  const btn=document.getElementById('bSaveBtn');btn.disabled=true;btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> Creando ${events.length}...`;
+  const{error}=await sb.from('events').insert(events);
+  btn.disabled=false;btn.innerHTML='<i class="fas fa-layer-group"></i> Crear eventos';
+  if(error){document.getElementById('bError').textContent=error.message;document.getElementById('bError').style.display='';return;}
+  toast(`${events.length} eventos creados`,'success');showView('list');loadUpcoming();
+};
 
-// ── EDIT & DELETE ────────────────────────────────────────
-window._editEvent=id=>{const ev=allEvents.find(e=>e.id===id);if(ev)showForm(ev);};
-window._deleteEvent=(id,title)=>{deletingId=id;$("delete-name").textContent=title;$("delete-modal").classList.remove("hidden");};
-$("delete-cancel").addEventListener("click",()=>{$("delete-modal").classList.add("hidden");deletingId=null;});
-$("delete-confirm").addEventListener("click",async()=>{if(!deletingId)return;const{error}=await sb.from("events").delete().eq("id",deletingId);$("delete-modal").classList.add("hidden");if(error){toast("Error: "+error.message,"error");return;}toast("Eliminado");deletingId=null;loadEvents();});
-$("delete-modal").addEventListener("click",e=>{if(e.target===$("delete-modal")){$("delete-modal").classList.add("hidden");deletingId=null;}});
 
-checkSession();
+/* SESSION */
+(async()=>{
+  try{
+    const{data,error}=await sb.auth.getSession();
+    if(error){console.error('[admin] getSession error:',error);return;}
+    if(data?.session?.user){await bootApp(data.session.user);initForms();}
+  }catch(e){console.error('[admin] Session check threw:',e);}
+})();
 </script>
 </body>
 </html>

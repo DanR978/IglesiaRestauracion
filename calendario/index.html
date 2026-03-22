@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="robots" content="index, follow">
+  <title>Calendario — Iglesia Restauración Divina</title>
+  <meta name="description" content="Calendario de actividades de Iglesia Restauración Divina en Lexington, KY." />
+  <meta name="author" content="Iglesia Restauración Divina" />
+
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+
+  <meta property="og:site_name" content="Iglesia Restauración Divina" />
+  <meta property="og:title" content="Calendario — Iglesia Restauración Divina" />
+  <meta property="og:url" content="https://www.irdlex.org/calendario" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="Actividades regulares y eventos especiales de la congregación.">
+
+  <base href="/">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/pages/calendar.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Header — same pattern as all pages. CSS overrides hero to 40vh. -->
+  <header id="header"
+    data-hero="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/images/worshipSample.jpg"
+    data-hero-height="10vh !important">
+  </header>
+  <div class="hero-content animate-fade-in" data-threshold="0.8" style="padding-bottom:2rem">
+    <p class="hero-kicker">ACTIVIDADES</p>
+    <h1 class="hero-title" style="font-size:clamp(1.6rem,4vw,2.8rem)">Calendario</h1>
+  </div>
+
+  <main>
+    <section class="cal-page">
+
+      <p class="cal-page__subtitle">Actividades regulares y eventos especiales de la congregación</p>
+
+      <div class="cal-legend" id="calLegend"></div>
+      <div class="cal-error" id="calError" style="display:none"></div>
+
+      <!-- Month nav -->
+      <div class="cal-nav">
+        <button class="cal-nav__btn" id="calPrev" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="cal-nav__label" id="calNavLabel"></span>
+        <button class="cal-nav__btn" id="calNext" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="cal-grid">
+        <div class="cal-grid__weekdays" id="calWeekdays"></div>
+        <div class="cal-grid__days"     id="calDays"></div>
+      </div>
+
+      <!-- Upcoming list only — no Pasados tab -->
+      <div class="cal-list" id="calUpcoming"></div>
+
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <!-- Modal -->
+  <div class="cal-modal-backdrop" id="calModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="calModalTitle">
+    <div class="cal-modal">
+      <div class="cal-modal__handle"></div>
+      <button class="cal-modal__close" id="calModalClose" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div id="calModalContent"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/include.js"></script>
+  <script type="module" src="/js/utils/load-icons.js"></script>
+
+  <script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const SUPABASE_URL      = 'https://snqwxgyhfiinouewxgiy.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo';
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* ─── CATEGORY CONFIG ─── */
+  const CATS = {
+    servicio:       { label:'Servicio',        pill:'cat--servicio',       dot:'dot--servicio'       },
+    estudio:        { label:'Estudio Bíblico',  pill:'cat--estudio',        dot:'dot--estudio'        },
+    oracion:        { label:'Oración',          pill:'cat--oracion',        dot:'dot--oracion'        },
+    evangelizacion: { label:'Evangelización',   pill:'cat--evangelizacion', dot:'dot--evangelizacion' },
+    especial:       { label:'Especial',         pill:'cat--especial',       dot:'dot--especial'       },
+    otro:           { label:'Otro',             pill:'cat--otro',           dot:'dot--otro'           },
+  };
+  const cat = (c) => CATS[c] || CATS.otro;
+
+  const DAYS_S  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const DAYS_L  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const MONTHS  = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                   'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+  const pad      = n => String(n).padStart(2, '0');
+  const ymd      = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+  const todayYMD = () => { const t=new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
+
+  let viewYear  = new Date().getFullYear();
+  let viewMonth = new Date().getMonth();
+  let allEvents = [];   // flat array of all DB events
+
+  /* ─── LOAD FROM SUPABASE ─── */
+  async function loadFromSupabase() {
+    try {
+      // 1. calendar_events table (weekly activities managed in admin)
+      const { data: calData } = await sb
+        .from('calendar_events')
+        .select('id, title, date, time, location, description, category, cancelled')
+        .order('date');
+
+      // 2. events table (special events — Noche de Caballeros, Viglias, etc.)
+      const { data: evData } = await sb
+        .from('events')
+        .select('id, title, starts_at, location, description')
+        .order('starts_at');
+
+      const mapped = (evData || []).map(row => {
+        if (!row.starts_at) return null;
+        const d = new Date(row.starts_at);
+        return {
+          id:          `evt-${row.id}`,
+          title:       row.title || 'Evento',
+          date:        ymd(d.getFullYear(), d.getMonth(), d.getDate()),
+          time:        `${(d.getHours()%12)||12}:${pad(d.getMinutes())} ${d.getHours()>=12?'PM':'AM'}`,
+          location:    row.location || '',
+          description: row.description || '',
+          category:    'especial',
+          cancelled:   false,
+        };
+      }).filter(Boolean);
+
+      allEvents = [
+        ...(calData || []),
+        ...mapped,
+      ].sort((a,b) => a.date > b.date ? 1 : -1);
+
+    } catch(e) {
+      console.warn('[calendar] load failed:', e);
+    }
+  }
+
+  /* ─── BUILD INDEX for given month ─── */
+  function buildIndex(year, month) {
+    const idx = {};
+    for (const ev of allEvents) {
+      if (!ev.date) continue;
+      (idx[ev.date] = idx[ev.date] || []).push(ev);
+    }
+    return idx;
+  }
+
+  /* ─── RENDER LEGEND ─── */
+  function renderLegend() {
+    document.getElementById('calLegend').innerHTML =
+      Object.entries(CATS).map(([, m]) => `
+        <div class="cal-legend__item">
+          <span class="cal-legend__dot ${m.dot}"></span>
+          <span>${m.label}</span>
+        </div>`).join('');
+  }
+
+  function renderWeekdays() {
+    document.getElementById('calWeekdays').innerHTML =
+      DAYS_S.map(d => `<div class="cal-grid__weekday">${d}</div>`).join('');
+  }
+
+  /* ─── RENDER GRID ─── */
+  function renderGrid(year, month, idx) {
+    document.getElementById('calNavLabel').textContent = `${MONTHS[month]} ${year}`;
+    const today       = todayYMD();
+    const firstDow    = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let html = '';
+
+    for (let i = 0; i < firstDow; i++) html += `<div class="cal-day cal-day--empty"></div>`;
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const ds  = ymd(year, month, d);
+      const evs = idx[ds] || [];
+      const cls = ['cal-day',
+        ds === today ? 'cal-day--today' : '',
+        ds < today   ? 'cal-day--past'  : '',
+        evs.length   ? 'cal-day--has-events' : '',
+      ].filter(Boolean).join(' ');
+
+      const pills = evs.slice(0,2).map(ev =>
+        `<div class="cal-event-pill ${cat(ev.category).pill}${ev.cancelled?' cal-event-pill--cancelled':''}" data-id="${ev.id}">${ev.title}</div>`
+      ).join('');
+      const more = evs.length > 2 ? `<div class="cal-day__more">+${evs.length-2} más</div>` : '';
+      const dots = evs.slice(0,4).map(ev =>
+        `<span class="cal-day__dot-single ${cat(ev.category).dot}${ev.cancelled?' cal-day__dot-single--cancelled':''}"></span>`
+      ).join('');
+
+      html += `
+        <div class="${cls}" data-date="${ds}">
+          <div class="cal-day__num">${d}</div>
+          <div class="cal-day__events">${pills}${more}</div>
+          <div class="cal-day__dot-row">${dots}</div>
+        </div>`;
+    }
+
+    const daysEl = document.getElementById('calDays');
+    daysEl.innerHTML = html;
+
+    daysEl.querySelectorAll('.cal-day--has-events').forEach(cell => {
+      cell.addEventListener('click', e => {
+        const evs = idx[cell.dataset.date] || [];
+        const pill = e.target.closest('[data-id]');
+        const ev   = pill ? allEvents.find(x => x.id === pill.dataset.id) : evs[0];
+        if (ev) openModal(ev);
+      });
+    });
+  }
+
+  /* ─── RENDER UPCOMING LIST (Próximos, grouped by day) ─── */
+  function renderList(year, month, idx) {
+    const today    = todayYMD();
+    const days     = new Date(year, month + 1, 0).getDate();
+    const upcoming = [];
+
+    for (let d = 1; d <= days; d++) {
+      const ds  = ymd(year, month, d);
+      const evs = (idx[ds] || []).filter(ev => ds >= today);
+      if (evs.length) upcoming.push({ ds, evs });
+    }
+
+    const dayLabel = ds => {
+      const [y,m,d] = ds.split('-').map(Number);
+      return `${DAYS_L[new Date(y,m-1,d).getDay()].toUpperCase()}, ${d} DE ${MONTHS[m-1].toUpperCase()}`;
+    };
+
+    const uEl = document.getElementById('calUpcoming');
+
+    if (!upcoming.length) {
+      uEl.innerHTML = `
+        <div class="cal-list__title">${MONTHS[month]} ${year}</div>
+        <p class="cal-list__empty">Sin eventos próximos este mes.</p>`;
+      return;
+    }
+
+    uEl.innerHTML = `<div class="cal-list__title">${MONTHS[month]} ${year}</div>` +
+      upcoming.map(({ ds, evs }) => `
+        <div class="cal-list__day-group">
+          <div class="cal-list__day-label">${dayLabel(ds)}</div>
+          ${evs.map(ev => {
+            const isCancelled = ev.cancelled;
+            const rowCls = ['cal-list__item', isCancelled ? 'cal-list__item--cancelled' : ''].filter(Boolean).join(' ');
+            return `
+              <div class="${rowCls}" data-id="${ev.id}">
+                <span class="cal-list__dot ${cat(ev.category).dot}${isCancelled?' cal-list__dot--cancelled':''}"></span>
+                <div class="cal-list__info">
+                  <div class="cal-list__name${isCancelled?' cal-list__name--crossed':''}">
+                    ${ev.title}
+                    ${isCancelled ? '<span class="cal-list__cancelled-badge">Cancelado</span>' : ''}
+                  </div>
+                  <div class="cal-list__meta">
+                    ${ev.time     ? `<span><i class="far fa-clock" style="margin-right:4px;opacity:.7"></i>${ev.time}</span>` : ''}
+                    ${ev.time && ev.location ? ' · ' : ''}
+                    ${ev.location ? `<span>${ev.location.split(',')[0]}</span>` : ''}
+                  </div>
+                </div>
+                <span class="cal-list__chevron${isCancelled?' cal-list__chevron--hidden':''}">
+                  <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+              </div>`;
+          }).join('')}
+        </div>`).join('');
+
+    uEl.querySelectorAll('.cal-list__item').forEach(item => {
+      item.addEventListener('click', () => {
+        const ev = allEvents.find(x => x.id === item.dataset.id);
+        if (ev) openModal(ev);
+      });
+    });
+  }
+
+  function render(year, month) {
+    const idx = buildIndex(year, month);
+    renderGrid(year, month, idx);
+    renderList(year, month, idx);
+  }
+
+  /* ─── MODAL ─── */
+  function openModal(ev) {
+    const content = document.getElementById('calModalContent');
+    const meta    = cat(ev.category);
+    const today   = todayYMD();
+    const isPast  = ev.date && ev.date < today;
+
+    let dateLabel = '';
+    if (ev.date) {
+      const [y,m,d] = ev.date.split('-').map(Number);
+      const dow = DAYS_L[new Date(y,m-1,d).getDay()];
+      dateLabel = `${dow}, ${d} de ${MONTHS[m-1]} ${y}`;
+    }
+
+    const SVG = {
+      cal:  `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+      time: `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+      loc:  `<svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+    };
+
+    content.innerHTML = `
+      ${ev.cancelled ? `<div class="cal-modal__cancelled-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" style="width:16px;height:16px;stroke:currentColor;flex-shrink:0">
+          <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg> Este evento ha sido cancelado
+      </div>` : ''}
+      <div class="cal-modal__badge ${meta.pill}">
+        <span class="cal-modal__badge-dot ${meta.dot}"></span> ${meta.label}
+      </div>
+      <div class="cal-modal__title${ev.cancelled||isPast?' cal-modal__title--crossed':''}" id="calModalTitle">${ev.title}</div>
+      <div class="cal-modal__rows">
+        ${dateLabel ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.cal}</div><div class="cal-modal__row-text">${dateLabel}</div></div>` : ''}
+        ${ev.time   ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.time}</div><div class="cal-modal__row-text">${ev.time}</div></div>` : ''}
+        ${ev.location?`<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.loc}</div><div class="cal-modal__row-text">${ev.location}</div></div>` : ''}
+      </div>
+      ${ev.description ? `<div class="cal-modal__description">${ev.description}</div>` : ''}`;
+
+    document.getElementById('calModalBackdrop').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('calModalBackdrop').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ─── BOOT ─── */
+  document.addEventListener('DOMContentLoaded', async () => {
+    renderLegend();
+    renderWeekdays();
+    render(viewYear, viewMonth); // render empty grid immediately
+
+    await loadFromSupabase();
+    render(viewYear, viewMonth); // re-render with DB data
+
+    document.getElementById('calPrev').addEventListener('click', () => {
+      if (--viewMonth < 0) { viewMonth = 11; viewYear--; }
+      render(viewYear, viewMonth);
+    });
+    document.getElementById('calNext').addEventListener('click', () => {
+      if (++viewMonth > 11) { viewMonth = 0; viewYear++; }
+      render(viewYear, viewMonth);
+    });
+
+    document.getElementById('calModalClose').addEventListener('click', closeModal);
+    document.getElementById('calModalBackdrop').addEventListener('click', e => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  });
+  </script>
+</body>
+</html>

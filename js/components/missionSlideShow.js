@@ -4,7 +4,7 @@
     "Arrepiéntete de tu pecado",
     "Recibe nueva vida",
     "Toma tu cruz",
-    "Enamorate de el y síguelo"
+    "Síguelo"
   ];
 
   function getFadeMs(el) {
