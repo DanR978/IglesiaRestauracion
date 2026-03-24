@@ -10,7 +10,7 @@ on:
     branches: [main]
     paths:
       - 'css/**'
-      - 'build.sh'
+      - 'scripts/build.sh'
       - '.github/workflows/build-css.yml'
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build style.css
-        run: bash build.sh
+        run: bash scripts/build.sh
 
       - name: Commit style.css
         run: |
