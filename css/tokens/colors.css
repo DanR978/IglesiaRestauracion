@@ -79,6 +79,24 @@
   --gray-10: #F8F8F8;
   --gray-0: #FFFFFF;
 
+
+  --color-danger:          #dc2626;
+  --color-success:         #16a34a;
+  --color-warn:            #d97706;
+
+  --cat-servicio:          #e0f0ef;
+  --cat-servicio-t:        #1e6b61;
+  --cat-estudio:           #e3eaf8;
+  --cat-estudio-t:         #2a4a9e;
+  --cat-oracion:           #ede8f5;
+  --cat-oracion-t:         #5c3d9c;
+  --cat-evangelizacion:    #fef0e0;
+  --cat-evangelizacion-t:  #a05a10;
+  --cat-especial:          #fde8ea;
+  --cat-especial-t:        #b02030;
+  --cat-otro:              #f0f0f0;
+  --cat-otro-t:            #555555;
+
   --color-bg-light: #F4F6F7;
   --color-transparent: transparent;
 

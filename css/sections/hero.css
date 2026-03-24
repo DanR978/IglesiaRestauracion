@@ -72,3 +72,39 @@
     font-size: var(--size-4xl);
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO SIZE VARIANTS
+   ───────────────────────────────────────────────────────────────
+   Home page  →  <header id="header" data-hero="..."></header>
+   Interior   →  <header id="header" data-hero-size="page" data-hero="...">
+                   <div class="hero-content ...">...</div>
+                 </header>
+
+   Why this works:
+   - .header-grid { position:relative; height:100vh } in header.css
+     makes it the containing block for .hero-content { position:absolute }
+   - So top:75% on .hero-content = 75% of whatever .header-grid is tall
+   - We clamp .header-grid to 40vh → top:75% = 75% of 40vh ✓
+   - include.js sets min-height:100svh inline on <header>, CSS !important beats it
+═══════════════════════════════════════════════════════════════ */
+
+/* Clamp the mount element — beats include.js inline min-height:100svh */
+[data-hero-size="page"] {
+  height: 40vh !important;
+  min-height: 40vh !important;
+  max-height: 40vh !important;
+  overflow: hidden !important;
+}
+
+/* Clamp the injected .header-grid — THIS is the containing block for
+   .hero-content { position:absolute }, so this is the critical rule */
+[data-hero-size="page"] .header-grid {
+  height: 40vh !important;
+  min-height: 40vh !important;
+}
+
+#header[data-hero-size="page"] + .hero-content {
+  top: 30% !important;
+}

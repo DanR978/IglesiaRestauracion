@@ -44,7 +44,7 @@ body {
 a[href^="tel"],
 a[href^="mailto"] {
   text-decoration: inherit;
-  color: inherit;
+  color: white;
   transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 

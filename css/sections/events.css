@@ -59,7 +59,6 @@
   align-items: stretch;
 
   padding: 0;
-  margin: 3rem auto 5rem auto;
   list-style: none;
 
   max-width: calc((var(--max-cols) * var(--card-max)) + ((var(--max-cols) - 1) * var(--ev-gap)));

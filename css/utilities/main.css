@@ -44,6 +44,9 @@
 @import url('../sections/footer.css');
 @import url('../sections/service.css');
 @import url('../sections/versiculo.css');
+@import url('../pages/event-detail.css');
+@import url('../pages/calendar.css');
+@import url('../pages/admin.css');
 
 /* ================================
    UTILITIES
