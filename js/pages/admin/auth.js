@@ -54,7 +54,6 @@ export async function bootApp(user) {
 
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.body.classList.add('app-ready');
 
   await loadMinistries();
   await loadUpcoming();

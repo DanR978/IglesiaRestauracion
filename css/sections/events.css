@@ -63,6 +63,7 @@
 
   max-width: calc((var(--max-cols) * var(--card-max)) + ((var(--max-cols) - 1) * var(--ev-gap)));
   width: 100%;
+  margin: 0 auto;
 }
 
 /* ===== HOME (4-events) RESPONSIVE RULES =====

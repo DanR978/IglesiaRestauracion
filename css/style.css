@@ -440,16 +440,25 @@ button:active {
   outline: none;
 }
 /* -- layout container -- */
+/* layout/container.css */
+
 /* =========================================================
    CONTAINERS
-   --------------------------------------------------------- */
+   =========================================================
+   IMPORTANT: Use overflow:clip NOT overflow:hidden on .wrapper.
+   overflow:hidden creates a new Block Formatting Context which
+   breaks position:fixed for any child element (nav, hero content,
+   modals) — they scroll with the wrapper instead of the viewport.
+   overflow:clip provides identical visual clipping WITHOUT
+   creating a new formatting context.
+   ========================================================= */
 .wrapper,
 .wrapper--footer {
   max-width: 100%;
   min-width: var(--min-div-size);
   margin: var(--mg-md);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: clip;           /* ← was overflow:hidden — DO NOT change back */
   box-shadow: var(--container-shadow);
 }
 
@@ -470,8 +479,7 @@ button:active {
 
 /* =========================================================
    FLEX LAYOUT HELPERS
-   (keeps your old names as aliases)
-   --------------------------------------------------------- */
+   ========================================================= */
 .row-default,
 .temp-default {
   display: flex;
@@ -486,7 +494,6 @@ button:active {
   max-width: 100%;
 }
 
-/* wider row used for the “info” band */
 .temp-default {
   width: clamp(330px, 60vw, 800px);
   margin: 5rem 0;
@@ -503,7 +510,7 @@ button:active {
 
 /* =========================================================
    MEDIA / IMAGES
-   --------------------------------------------------------- */
+   ========================================================= */
 .overlay {
   position: absolute;
   inset: 0;
@@ -521,15 +528,15 @@ button:active {
   height: clamp(300px, 30vh, 800px);
   margin: clamp(var(--mg-xs), 4vw, var(--mg-lg)) var(--mg-sm);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: hidden;         /* img-wrapper has no fixed children — hidden is fine here */
   object-fit: cover;
 }
 
 .map { width: 100%; height: 100%; }
 
 /* =========================================================
-   RESPONSIVE (small)
-   --------------------------------------------------------- */
+   RESPONSIVE
+   ========================================================= */
 @media (max-width: var(--bp-xs)) {
   .wrapper,
   .wrapper--footer { margin: var(--mg-sm); }
@@ -538,7 +545,6 @@ button:active {
 
   .info-container { flex-direction: column; }
 }
-
 /* -- layout zigzag -- */
 
 /* =========================================================
@@ -1392,6 +1398,7 @@ button:active {
   }
 }
 /* -- sections header -- */
+/* -- sections header -- */
 .header-grid {
   position: relative;
   inset: 0;
@@ -1460,7 +1467,7 @@ button:active {
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: saturate(1.1) blur(80px);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.25);
-  opacity: 0.2;
+  opacity: 1;
 }
 
 .nav-container.scrolled::before { 
@@ -2054,6 +2061,100 @@ body.no-scroll {
 #header[data-hero-size="page"] + .hero-content {
   top: 30% !important;
 }
+/* -- sections hero -- */
+.hero {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  z-index: 0;
+  overflow: hidden;
+  inset: 0;
+}
+
+/* Hero Content */
+.hero-content {
+  position: absolute;
+  top: 75%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: var(--z-base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.hero-content .hero-kicker {
+  font-size: var(--fs-md);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
+  color: var(--color-white);
+}
+
+.hero-content .hero-title {
+  font-size: var(--size-xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-white);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.hero__page-title {
+  font-size: var(--fs-2xl);
+  font-weight: var(--fw-bold);
+  color: var(--color-white);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  
+}
+
+.hero__page-subtitle {
+  font-size: var(--size-xs);
+  color: var(--color-white);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 90vw;
+}
+
+@media (min-width: 768px) {
+  .hero-content .hero-title {
+    font-size: var(--size-4xl);
+  }
+}
+
+/* Clamp the mount element — beats include.js inline min-height:100svh */
+[data-hero-size="page"] {
+  height: 50vh !important;
+  min-height: 50vh !important;
+  max-height: 50vh !important;
+  overflow: hidden !important;
+}
+
+/* Clamp the injected .header-grid — THIS is the containing block for
+   .hero-content { position:absolute }, so this is the critical rule */
+[data-hero-size="page"] .header-grid {
+  height: 50vh !important;
+  min-height: 50vh !important;
+}
+
+#header[data-hero-size="page"] + .hero-content {
+  top: 40% !important;
+}
 /* -- sections mission -- */
 .column-container {
   padding: var(--size-4xl) 0;
@@ -2265,6 +2366,7 @@ body.no-scroll {
 
   max-width: calc((var(--max-cols) * var(--card-max)) + ((var(--max-cols) - 1) * var(--ev-gap)));
   width: 100%;
+  margin: 0 auto;
 }
 
 /* ===== HOME (4-events) RESPONSIVE RULES =====
@@ -4359,25 +4461,26 @@ textarea {
 /* -- admin auth -- */
 /* admin/auth.css */
 
-/* ── Guarantee html/body don't scroll or clip the auth screen ──────────────── */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
+/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
+/* NOTE: No html/body rules here — those would affect every page.
+   The auth screen uses position:fixed so it doesn't need them. */
 
-/* ── Auth screen: fixed full-viewport, flexbox-centered ────────────────────── */
 #authScreen {
   position: fixed;
-  inset: 0;                     /* top:0 right:0 bottom:0 left:0 */
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
   background: #06101a;
   overflow: hidden;
-  z-index: 0;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+/* Hide authScreen without display:none so the animation still runs on load */
+#authScreen[hidden] {
+  display: none !important;
 }
 
 /* ── Card ───────────────────────────────────────────────────────────────────── */
@@ -4426,14 +4529,6 @@ html, body {
   font-size: 0.85rem;
   margin-bottom: 1rem;
   display: none;
-}
-
-/* ── Restore normal scroll once app loads ───────────────────────────────────── */
-/* When #app becomes visible, the body needs to scroll again.
-   JS sets body.classList.add('app-ready') after login. */
-body.app-ready {
-  overflow: auto;
-  height: auto;
 }
 /* -- admin auth-animation -- */
 /* admin/auth-animation.css

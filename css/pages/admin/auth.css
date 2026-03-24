@@ -1,24 +1,25 @@
 /* admin/auth.css */
 
-/* ── Guarantee html/body don't scroll or clip the auth screen ──────────────── */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden;
-}
+/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
+/* NOTE: No html/body rules here — those would affect every page.
+   The auth screen uses position:fixed so it doesn't need them. */
 
-/* ── Auth screen: fixed full-viewport, flexbox-centered ────────────────────── */
 #authScreen {
   position: fixed;
-  inset: 0;                     /* top:0 right:0 bottom:0 left:0 */
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
   background: #06101a;
   overflow: hidden;
-  z-index: 0;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+/* Hide authScreen without display:none so the animation still runs on load */
+#authScreen[hidden] {
+  display: none !important;
 }
 
 /* ── Card ───────────────────────────────────────────────────────────────────── */
@@ -67,12 +68,4 @@ html, body {
   font-size: 0.85rem;
   margin-bottom: 1rem;
   display: none;
-}
-
-/* ── Restore normal scroll once app loads ───────────────────────────────────── */
-/* When #app becomes visible, the body needs to scroll again.
-   JS sets body.classList.add('app-ready') after login. */
-body.app-ready {
-  overflow: auto;
-  height: auto;
 }

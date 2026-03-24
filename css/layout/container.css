@@ -1,13 +1,22 @@
+/* layout/container.css */
+
 /* =========================================================
    CONTAINERS
-   --------------------------------------------------------- */
+   =========================================================
+   IMPORTANT: Use overflow:clip NOT overflow:hidden on .wrapper.
+   overflow:hidden creates a new Block Formatting Context which
+   breaks position:fixed for any child element (nav, hero content,
+   modals) — they scroll with the wrapper instead of the viewport.
+   overflow:clip provides identical visual clipping WITHOUT
+   creating a new formatting context.
+   ========================================================= */
 .wrapper,
 .wrapper--footer {
   max-width: 100%;
   min-width: var(--min-div-size);
   margin: var(--mg-md);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: clip;           /* ← was overflow:hidden — DO NOT change back */
   box-shadow: var(--container-shadow);
 }
 
@@ -28,8 +37,7 @@
 
 /* =========================================================
    FLEX LAYOUT HELPERS
-   (keeps your old names as aliases)
-   --------------------------------------------------------- */
+   ========================================================= */
 .row-default,
 .temp-default {
   display: flex;
@@ -44,7 +52,6 @@
   max-width: 100%;
 }
 
-/* wider row used for the “info” band */
 .temp-default {
   width: clamp(330px, 60vw, 800px);
   margin: 5rem 0;
@@ -61,7 +68,7 @@
 
 /* =========================================================
    MEDIA / IMAGES
-   --------------------------------------------------------- */
+   ========================================================= */
 .overlay {
   position: absolute;
   inset: 0;
@@ -79,15 +86,15 @@
   height: clamp(300px, 30vh, 800px);
   margin: clamp(var(--mg-xs), 4vw, var(--mg-lg)) var(--mg-sm);
   border-radius: 10px;
-  overflow: hidden;
+  overflow: hidden;         /* img-wrapper has no fixed children — hidden is fine here */
   object-fit: cover;
 }
 
 .map { width: 100%; height: 100%; }
 
 /* =========================================================
-   RESPONSIVE (small)
-   --------------------------------------------------------- */
+   RESPONSIVE
+   ========================================================= */
 @media (max-width: var(--bp-xs)) {
   .wrapper,
   .wrapper--footer { margin: var(--mg-sm); }
