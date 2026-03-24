@@ -990,6 +990,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   display: flex;
   border-bottom: 1.5px solid var(--gray-50);
   margin-bottom: .75rem;
+  justify-content: start;
 }
 
 .cal-tab {
@@ -997,7 +998,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   background: none;
   border: none;
   border-bottom: 2.5px solid transparent;
-  font-size: .85rem;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--color-muted);
   cursor: pointer;
@@ -1813,5 +1814,10 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 
   .smart-year-input {
     width: 80px;
+  }
+
+  .cal-tabs {
+    font-size: var(--fs-sm);
+    justify-content: start;
   }
 }
