@@ -1,0 +1,47 @@
+/* calendar/nav.css
+   Month navigation: prev/next buttons + month label. */
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.85rem;
+  padding: 10px 20px;
+}
+
+.cal-nav__btn {
+  background: none;
+  border: 1.5px solid var(--gray-60);
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--color-dark);
+  transition: background 0.35s, border-color 0.35s, color 0.35s;
+}
+
+.cal-nav__btn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.cal-nav__btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.cal-nav__label {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--color-black);
+  text-transform: capitalize;
+}

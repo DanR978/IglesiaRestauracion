@@ -1,0 +1,171 @@
+/* calendar/modal.css
+   Event detail popup triggered from the public calendar. */
+
+.cal-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  z-index: var(--z-max);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
+}
+
+.cal-modal-backdrop.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@media (min-width: 540px) {
+  .cal-modal-backdrop { align-items: center; }
+}
+
+.cal-modal {
+  background: var(--color-white);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 1.25rem 1.5rem 2rem;
+  transform: translateY(24px);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+}
+
+@media (min-width: 540px) {
+  .cal-modal {
+    border-radius: var(--radius-lg);
+    transform: translateY(16px) scale(0.97);
+  }
+}
+
+.cal-modal-backdrop.open .cal-modal { transform: translateY(0) scale(1); }
+
+.cal-modal__handle {
+  width: 36px;
+  height: 4px;
+  background: var(--gray-70);
+  border-radius: 2px;
+  margin: 0 auto 1rem;
+}
+
+@media (min-width: 540px) { .cal-modal__handle { display: none; } }
+
+.cal-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gray-30);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-dark);
+  transition: background 0.15s;
+}
+
+.cal-modal__close:hover { background: var(--gray-50); }
+
+.cal-modal__close svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.5;
+}
+
+.cal-modal__cancelled-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fde8ea;
+  color: #b02030;
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  margin-bottom: 1rem;
+}
+
+.cal-modal__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cal-modal__badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.cal-modal__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--color-dark);
+  line-height: 1.25;
+  margin-bottom: 1rem;
+}
+
+.cal-modal__title--crossed {
+  text-decoration: line-through;
+  color: var(--gray-120);
+}
+
+.cal-modal__rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 0.75rem;
+}
+
+.cal-modal__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  font-size: var(--fs-sm);
+  color: var(--color-dark);
+}
+
+.cal-modal__row-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--gray-20);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-modal__row-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: var(--color-primary);
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.cal-modal__row-text { padding-top: 6px; line-height: 1.4; }
+
+.cal-modal__description {
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+  line-height: 1.65;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gray-40);
+}

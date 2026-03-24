@@ -1,37 +1,25 @@
-// /js/components/calendar.js
-// Public calendar page — grid + two tabs: Especiales (→ detail page) + Actividades Regulares
+// js/components/calendar.js
+// Public calendar page — uses the shared CalendarGrid component.
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { CalendarGrid }  from '/js/components/CalendarGrid.js';
 import { setupStickyNav, setupBurgerMenu } from '/js/app/ui.js';
 
-// ─── Supabase ────────────────────────────────────────────────────────────────
+// ─── Supabase ─────────────────────────────────────────────────────────────────
 const SUPABASE_URL      = 'https://snqwxgyhfiinouewxgiy.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo';
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ─── Config ──────────────────────────────────────────────────────────────────
+// ─── Constants ────────────────────────────────────────────────────────────────
 const CATS = {
-  servicio:       { label: 'Servicio',        pill: 'cat--servicio',       dot: 'dot--servicio'       },
-  estudio:        { label: 'Estudio Bíblico',  pill: 'cat--estudio',        dot: 'dot--estudio'        },
-  oracion:        { label: 'Oración',          pill: 'cat--oracion',        dot: 'dot--oracion'        },
-  evangelizacion: { label: 'Evangelización',   pill: 'cat--evangelizacion', dot: 'dot--evangelizacion' },
-  especial:       { label: 'Especial',         pill: 'cat--especial',       dot: 'dot--especial'       },
-  otro:           { label: 'Otro',             pill: 'cat--otro',           dot: 'dot--otro'           },
-};
-const getCat = c => CATS[c] || CATS.otro;
-
-// Category dot colors — match admin
-const CAT_COLORS = {
-  servicio:       '#1e6b61',
-  estudio:        '#2a4a9e',
-  oracion:        '#5c3d9c',
-  evangelizacion: '#a05a10',
-  especial:       '#b02030',
-  otro:           '#888',
+  servicio:       { label: 'Servicio',       dot: 'dot--servicio'       },
+  estudio:        { label: 'Estudio Bíblico', dot: 'dot--estudio'        },
+  oracion:        { label: 'Oración',         dot: 'dot--oracion'        },
+  evangelizacion: { label: 'Evangelización',  dot: 'dot--evangelizacion' },
+  especial:       { label: 'Especial',        dot: 'dot--especial'       },
+  otro:           { label: 'Otro',            dot: 'dot--otro'           },
 };
 
-
-const DAYS_S = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DAYS_L = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -40,16 +28,25 @@ const pad      = n => String(n).padStart(2, '0');
 const ymd      = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
 const todayYMD = () => { const t = new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
 
-// ─── State ───────────────────────────────────────────────────────────────────
-let viewYear    = new Date().getFullYear();
-let viewMonth   = new Date().getMonth();
-let regularEvs  = [];   // from calendar_events (recurring weekly activities)
-let specialEvs  = [];   // from events table (Vigilias, Noches de Caballeros, etc.)
-let allEvents   = [];   // merged for grid index + modal lookup
+// ─── State ────────────────────────────────────────────────────────────────────
+let viewYear   = new Date().getFullYear();
+let viewMonth  = new Date().getMonth();
+let regularEvs = [];   // from calendar_events
+let specialEvs = [];   // from events table
+let allEvents  = [];   // merged for CalendarGrid
 
-// ─── Data loading ────────────────────────────────────────────────────────────
+// ─── CalendarGrid instance ────────────────────────────────────────────────────
+const grid = new CalendarGrid({
+  weekdaysEl:  'calWeekdays',
+  daysEl:      'calDays',
+  labelEl:     'calNavLabel',
+  mode:        'public',
+  onEventClick: ev => openModal(ev),
+});
+
+// ─── Data loading ─────────────────────────────────────────────────────────────
 async function loadFromSupabase() {
-  // 1. Recurring activities (calendar_events)
+  // Recurring activities (calendar_events)
   const { data: calData, error: calErr } = await sb
     .from('calendar_events')
     .select('id, title, date, time, location, description, category, cancelled')
@@ -57,7 +54,7 @@ async function loadFromSupabase() {
   if (calErr) console.warn('[calendar] calendar_events:', calErr.message);
   regularEvs = (calData || []).map(r => ({ ...r, _source: 'cal' }));
 
-  // 2. Special events (events table) — only upcoming, with image
+  // Special events (events table)
   const { data: evData, error: evErr } = await sb
     .from('events')
     .select('id, title, starts_at, location, description, image_url, tag')
@@ -68,8 +65,8 @@ async function loadFromSupabase() {
     if (!row.starts_at) return null;
     const d = new Date(row.starts_at);
     return {
-      id:          row.id,           // keep real UUID for detail page link
-      _id_cal:     `evt-${row.id}`,  // for grid index
+      id:          row.id,
+      _id_cal:     `evt-${row.id}`,
       title:       row.title || 'Evento',
       date:        ymd(d.getFullYear(), d.getMonth(), d.getDate()),
       time:        `${(d.getHours() % 12) || 12}:${pad(d.getMinutes())} ${d.getHours() >= 12 ? 'PM' : 'AM'}`,
@@ -83,24 +80,14 @@ async function loadFromSupabase() {
     };
   }).filter(Boolean);
 
-  // Merged list for grid: use _id_cal as id so grid index works
+  // Merged list: use _id_cal as the id that CalendarGrid stores in data-id
   allEvents = [
     ...regularEvs,
     ...specialEvs.map(e => ({ ...e, id: e._id_cal })),
   ].sort((a, b) => (a.date > b.date ? 1 : -1));
 }
 
-// ─── Build grid index ────────────────────────────────────────────────────────
-function buildIndex() {
-  const idx = {};
-  for (const ev of allEvents) {
-    if (!ev.date) continue;
-    (idx[ev.date] = idx[ev.date] || []).push(ev);
-  }
-  return idx;
-}
-
-// ─── Legend + Weekdays ───────────────────────────────────────────────────────
+// ─── Legend ───────────────────────────────────────────────────────────────────
 function renderLegend() {
   const el = document.getElementById('calLegend');
   if (!el) return;
@@ -111,75 +98,20 @@ function renderLegend() {
     </div>`).join('');
 }
 
-function renderWeekdays() {
-  const el = document.getElementById('calWeekdays');
-  if (!el) return;
-  el.innerHTML = DAYS_S.map(d => `<div class="cal-grid__weekday">${d}</div>`).join('');
+// ─── Render ───────────────────────────────────────────────────────────────────
+function render(year, month) {
+  grid.render(year, month, allEvents);
+  renderSpecialTab(document.getElementById('calTabSpecial'),  year, month);
+  renderRegularTab(document.getElementById('calTabRegular'),  year, month);
 }
 
-// ─── Grid ────────────────────────────────────────────────────────────────────
-function renderGrid(year, month, idx) {
-  const labelEl = document.getElementById('calNavLabel');
-  if (labelEl) labelEl.textContent = `${MONTHS[month]} ${year}`;
-
-  const today       = todayYMD();
-  const firstDow    = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  let html = '';
-
-  for (let i = 0; i < firstDow; i++) html += `<div class="cal-day cal-day--empty"></div>`;
-
-  for (let d = 1; d <= daysInMonth; d++) {
-    const ds  = ymd(year, month, d);
-    const evs = idx[ds] || [];
-    const cls = ['cal-day',
-      ds === today ? 'cal-day--today' : '',
-      ds < today   ? 'cal-day--past'  : '',
-      evs.length   ? 'cal-day--has-events' : '',
-    ].filter(Boolean).join(' ');
-
-    const pills = evs.slice(0, 2).map(ev =>
-      `<div class="cal-event-pill ${getCat(ev.category).pill}${ev.cancelled ? ' cal-event-pill--cancelled' : ''}" data-id="${ev.id}">${ev.title}</div>`
-    ).join('');
-    const more = evs.length > 2 ? `<div class="cal-day__more">+${evs.length - 2} más</div>` : '';
-    const dots = evs.slice(0, 4).map(ev =>
-      `<span class="cal-day__dot-single ${getCat(ev.category).dot}${ev.cancelled ? ' cal-day__dot-single--cancelled' : ''}"></span>`
-    ).join('');
-
-    html += `
-      <div class="${cls}" data-date="${ds}">
-        <div class="cal-day__num">${d}</div>
-        <div class="cal-day__events">${pills}${more}</div>
-        <div class="cal-day__dot-row">${dots}</div>
-      </div>`;
-  }
-
-  const daysEl = document.getElementById('calDays');
-  if (!daysEl) return;
-  daysEl.innerHTML = html;
-
-  daysEl.querySelectorAll('.cal-day--has-events').forEach(cell => {
-    cell.addEventListener('click', e => {
-      const evs  = idx[cell.dataset.date] || [];
-      const pill = e.target.closest('[data-id]');
-      const ev   = pill ? allEvents.find(x => x.id === pill.dataset.id) : evs[0];
-      if (!ev) return;
-      // Special events → detail page; regular events → modal
-      if (ev._source === 'evt') {
-        window.location.href = `/eventos/evento.html?id=${ev.id.replace('evt-', '')}`;
-      } else {
-        openModal(ev);
-      }
-    });
-  });
-}
-
-// ─── Tab: Special Events ─────────────────────────────────────────────────────
+// ─── Special events tab ───────────────────────────────────────────────────────
 function renderSpecialTab(container, year, month) {
+  if (!container) return;
   const today      = todayYMD();
   const monthStart = ymd(year, month, 1);
   const monthEnd   = ymd(year, month, new Date(year, month + 1, 0).getDate());
-  const list = specialEvs.filter(e =>
+  const list       = specialEvs.filter(e =>
     e.date >= monthStart && e.date <= monthEnd && e.date >= today
   );
 
@@ -188,7 +120,6 @@ function renderSpecialTab(container, year, month) {
     return;
   }
 
-  // Group by date
   const groups = new Map();
   for (const ev of list) {
     if (!groups.has(ev.date)) groups.set(ev.date, []);
@@ -198,14 +129,12 @@ function renderSpecialTab(container, year, month) {
   let html = '';
   for (const [date, evs] of groups) {
     const [y, m, d] = date.split('-').map(Number);
-    const dow   = DAYS_L[new Date(y, m - 1, d).getDay()];
-    const label = `${dow}, ${d} de ${MONTHS[m - 1]}`;
+    const label = `${DAYS_L[new Date(y, m - 1, d).getDay()]}, ${d} de ${MONTHS[m - 1]}`;
     html += `<div class="cal-up-group"><div class="cal-up-day-label">${label}</div>`;
     for (const ev of evs) {
-      const color = CAT_COLORS[ev.category || 'otro'] || '#888';
       const imgHtml = ev.image_url
         ? `<img class="cal-up-thumb" src="${ev.image_url}" alt="" loading="lazy">`
-        : `<span class="cal-up-dot" style="background:${color}"></span>`;
+        : `<span class="cal-up-dot dot--especial"></span>`;
       html += `
         <a class="cal-up-item cal-up-item--link" href="/eventos/evento.html?id=${ev.id}">
           ${imgHtml}
@@ -224,16 +153,17 @@ function renderSpecialTab(container, year, month) {
   container.innerHTML = html;
 }
 
-// ─── Tab: Regular Activities ──────────────────────────────────────────────────
+// ─── Regular activities tab ───────────────────────────────────────────────────
 function renderRegularTab(container, year, month) {
+  if (!container) return;
   const today = todayYMD();
   const days  = new Date(year, month + 1, 0).getDate();
-  const list  = [];
 
+  const list = [];
   for (let d = 1; d <= days; d++) {
     const ds  = ymd(year, month, d);
-    const evs = regularEvs.filter(ev => ev.date === ds && ds >= today);
-    evs.forEach(ev => list.push(ev));
+    if (ds < today) continue;
+    regularEvs.filter(ev => ev.date === ds).forEach(ev => list.push(ev));
   }
 
   if (!list.length) {
@@ -243,7 +173,6 @@ function renderRegularTab(container, year, month) {
     return;
   }
 
-  // Group by date
   const groups = new Map();
   for (const ev of list) {
     if (!groups.has(ev.date)) groups.set(ev.date, []);
@@ -253,15 +182,14 @@ function renderRegularTab(container, year, month) {
   let html = `<div class="cal-list__title">${MONTHS[month]} ${year}</div>`;
   for (const [date, evs] of groups) {
     const [y, m, d] = date.split('-').map(Number);
-    const dow   = DAYS_L[new Date(y, m - 1, d).getDay()];
-    const label = `${dow}, ${d} de ${MONTHS[m - 1]}`;
+    const label = `${DAYS_L[new Date(y, m - 1, d).getDay()]}, ${d} de ${MONTHS[m - 1]}`;
     html += `<div class="cal-up-group"><div class="cal-up-day-label">${label}</div>`;
     for (const ev of evs) {
-      const color       = CAT_COLORS[ev.category || 'otro'] || '#888';
       const isCancelled = ev.cancelled;
+      const cat = CATS[ev.category] || CATS.otro;
       html += `
         <div class="cal-up-item${isCancelled ? ' cancelled' : ''}" data-id="${ev.id}" style="cursor:pointer">
-          <span class="cal-up-dot" style="background:${color}"></span>
+          <span class="cal-up-dot ${cat.dot}${isCancelled ? ' cal-up-dot--cancelled' : ''}"></span>
           <div class="cal-up-info">
             <div class="cal-up-name">
               ${ev.title}
@@ -287,23 +215,12 @@ function renderRegularTab(container, year, month) {
   });
 }
 
-// ─── Render everything ────────────────────────────────────────────────────────
-function render(year, month) {
-  const idx = buildIndex();
-  renderGrid(year, month, idx);
-
-  const specialContainer  = document.getElementById('calTabSpecial');
-  const regularContainer  = document.getElementById('calTabRegular');
-  if (specialContainer) renderSpecialTab(specialContainer, year, month);
-  if (regularContainer)  renderRegularTab(regularContainer, year, month);
-}
-
-// ─── Modal (for regular events only) ────────────────────────────────────────
+// ─── Modal (regular events only) ─────────────────────────────────────────────
 function openModal(ev) {
   const content = document.getElementById('calModalContent');
   if (!content) return;
 
-  const meta   = getCat(ev.category);
+  const cat    = CATS[ev.category] || CATS.otro;
   const today  = todayYMD();
   const isPast = ev.date && ev.date < today;
 
@@ -325,8 +242,8 @@ function openModal(ev) {
         <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
       </svg> Este evento ha sido cancelado
     </div>` : ''}
-    <div class="cal-modal__badge ${meta.pill}">
-      <span class="cal-modal__badge-dot ${meta.dot}"></span> ${meta.label}
+    <div class="cal-modal__badge cat--${ev.category || 'otro'}">
+      <span class="cal-modal__badge-dot ${cat.dot}"></span> ${cat.label}
     </div>
     <div class="cal-modal__title${ev.cancelled || isPast ? ' cal-modal__title--crossed' : ''}" id="calModalTitle">${ev.title}</div>
     <div class="cal-modal__rows">
@@ -358,21 +275,20 @@ function initTabs() {
   });
 }
 
-// ─── Sticky nav + burger ─────────────────────────────────────────────────────
+// ─── Sticky nav ───────────────────────────────────────────────────────────────
 document.addEventListener('header:ready', () => {
   setupStickyNav();
   setupBurgerMenu();
 });
 
-// ─── Boot ────────────────────────────────────────────────────────────────────
+// ─── Boot ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   renderLegend();
-  renderWeekdays();
   initTabs();
-  render(viewYear, viewMonth);  // empty grid first
+  render(viewYear, viewMonth);       // empty grid first
 
   await loadFromSupabase();
-  render(viewYear, viewMonth);  // real data
+  render(viewYear, viewMonth);       // real data
 
   document.getElementById('calPrev')?.addEventListener('click', () => {
     if (--viewMonth < 0) { viewMonth = 11; viewYear--; }

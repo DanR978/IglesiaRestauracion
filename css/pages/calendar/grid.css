@@ -1,0 +1,219 @@
+/* calendar/grid.css
+   The calendar grid: container, weekday headers, day cells,
+   event pills, mobile dots, category colors.
+   Used by: public calendar page, admin calendar tab.
+   Depends on tokens: colors, radius, typography. */
+
+.cal-grid-wrap {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.cal-grid {
+  border: 1px solid var(--gray-60);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  background: var(--color-white);
+}
+
+/* ── Weekday header row ──────────────────────────────── */
+.cal-grid__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--color-primary);
+}
+
+.cal-grid__weekday {
+  text-align: center;
+  padding: 0.6rem 0.25rem;
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  color: rgba(255, 255, 255, 0.88);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Day grid ────────────────────────────────────────── */
+.cal-grid__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* ── Day cell ────────────────────────────────────────── */
+.cal-day {
+  min-height: 80px;
+  padding: 6px 6px 4px;
+  border-right: 1px solid var(--gray-40);
+  border-bottom: 1px solid var(--gray-40);
+  position: relative;
+  transition: background 0.1s;
+}
+
+.cal-day:nth-child(7n) { border-right: none; }
+
+.cal-day--past    { background: var(--gray-10); }
+.cal-day--empty   { background: var(--gray-10); min-height: 80px; }
+.cal-day--today   { background: #eff6ff; }
+.cal-day--has-events { cursor: pointer; }
+.cal-day--has-events:hover { background: var(--gray-20); }
+.cal-day--today.cal-day--has-events:hover { background: #dbeafe; }
+
+/* Admin mode: all cells are pointer */
+.cal-day--admin         { cursor: pointer; }
+.cal-day--admin:active  { background: rgba(52, 90, 101, 0.07); }
+
+/* ── Day number ──────────────────────────────────────── */
+.cal-day__num {
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--color-dark);
+  line-height: 26px;
+  width: 26px;
+  height: 26px;
+  text-align: center;
+  margin-bottom: 3px;
+}
+
+.cal-day--today .cal-day__num {
+  background: #2563eb;
+  color: var(--color-white);
+  border-radius: 50%;
+  font-weight: var(--fw-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cal-day--past .cal-day__num  { color: var(--gray-120); }
+.cal-day--empty .cal-day__num { visibility: hidden; }
+
+/* ── Event pills (desktop) ───────────────────────────── */
+.cal-day__events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cal-event-pill {
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.6;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cal-event-pill--cancelled {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.cal-day__more {
+  font-size: 10px;
+  color: var(--color-primary);
+  font-weight: var(--fw-semibold);
+  margin-top: 1px;
+  cursor: pointer;
+}
+
+/* ── Admin pill action buttons (hover) ───────────────── */
+.cal-ev__label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-ev__actions {
+  display: none;
+  flex-direction: row;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cal-event-pill:hover .cal-ev__actions { display: flex; }
+
+.cal-ev__btn {
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  padding: 0;
+  line-height: 1;
+  transition: filter 0.1s;
+}
+
+.cal-ev__btn:hover               { filter: brightness(0.8); }
+.cal-ev__btn--edit   { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+.cal-ev__btn--cancel { background: rgba(245, 158, 11, 0.2); color: #d97706; }
+.cal-ev__btn--delete { background: rgba(220, 38, 38, 0.2);  color: #dc2626; }
+.cal-ev__btn--undo   { background: rgba(22, 163, 74, 0.2);  color: #16a34a; }
+
+/* ── Mobile dots ─────────────────────────────────────── */
+.cal-day__dot-row {
+  display: none;
+  gap: 2px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.cal-day__dot-single {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.cal-day__dot-single--cancelled { opacity: 0.35; }
+
+/* ── Category colors ─────────────────────────────────── */
+.cat--servicio       { background: #e0f0ef; color: #1e6b61; }
+.cat--estudio        { background: #e3eaf8; color: #2a4a9e; }
+.cat--oracion        { background: #ede8f5; color: #5c3d9c; }
+.cat--evangelizacion { background: #fef0e0; color: #a05a10; }
+.cat--especial       { background: #fde8ea; color: #b02030; }
+.cat--otro           { background: #f0f0f0; color: #555;    }
+
+.dot--servicio       { background: #2aaa96; }
+.dot--estudio        { background: #4a6fd4; }
+.dot--oracion        { background: #7c52c8; }
+.dot--evangelizacion { background: #e07c18; }
+.dot--especial       { background: #d63045; }
+.dot--otro           { background: #999;    }
+
+/* ── Mobile overrides ────────────────────────────────── */
+@media (max-width: 480px) {
+  .cal-day {
+    min-height: 54px;
+    padding: 4px 3px 2px;
+  }
+
+  .cal-day__num {
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+  }
+
+  .cal-day--today .cal-day__num {
+    width: 22px;
+    height: 22px;
+  }
+
+  .cal-day__events { display: none; }
+  .cal-day__dot-row { display: flex; }
+}

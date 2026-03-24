@@ -10,7 +10,7 @@
 </head>
 <body>
 
-<!-- AUTH -->
+<!-- ── AUTH ────────────────────────────────────────────────────────────────── -->
 <div id="authScreen">
   <div class="auth-card">
     <div class="auth-card__logo">
@@ -19,22 +19,37 @@
     </div>
     <h2>Iniciar sesión</h2>
     <div class="auth-error" id="authError"></div>
-    <div class="form-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="correo@ejemplo.com" autocomplete="email"></div>
-    <div class="form-group"><label>Contraseña</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"></div>
-    <button class="btn btn--primary btn--full" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+    <form id="loginForm" onsubmit="return false">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="loginEmail" placeholder="correo@ejemplo.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn btn--primary btn--full" id="loginBtn">
+        <i class="fas fa-sign-in-alt"></i> Entrar
+      </button>
+    </form>
   </div>
 </div>
 
-<!-- APP -->
+<!-- ── APP ─────────────────────────────────────────────────────────────────── -->
 <div id="app">
+
+  <!-- Topbar -->
   <div class="topbar">
     <div class="topbar__title">IRD Admin <span id="topbarMinistry"></span></div>
     <div class="topbar__right">
       <span class="topbar__user" id="topbarUser"></span>
-      <button class="topbar__logout" id="logoutBtn" title="Cerrar sesión"><i class="fas fa-sign-out-alt"></i></button>
+      <button class="topbar__logout" id="logoutBtn" title="Cerrar sesión">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
     </div>
   </div>
 
+  <!-- Main tab bar -->
   <div class="tabs">
     <button class="tab-btn active" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
     <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Pasados</button>
@@ -43,17 +58,19 @@
     <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
   </div>
 
-  <!-- PRÓXIMOS -->
+  <!-- ── PRÓXIMOS ───────────────────────────────────────────────────────────── -->
   <div class="tab-panel active" id="tab-upcoming">
-    <!-- VIEW: list -->
+
+    <!-- View: list -->
     <div class="view-panel active" id="view-list">
       <div class="action-bar">
         <h2>Próximos Eventos</h2>
         <div style="display:flex;gap:.45rem">
-          <button class="btn btn--secondary" id="bulkEventBtn"><i class="fas fa-layer-group"></i>Bulk</button>
-          <button class="btn btn--primary" id="newEventBtn"><i class="fas fa-plus"></i>Nuevo</button>
+          <button class="btn btn--secondary" id="bulkEventBtn"><i class="fas fa-layer-group"></i> Bulk</button>
+          <button class="btn btn--primary"   id="newEventBtn"><i class="fas fa-plus"></i> Nuevo</button>
         </div>
       </div>
+
       <div class="filter-bar admin-only" id="filterBarWrap" style="display:none">
         <button class="filter-btn" id="filterToggleBtn">
           <i class="fas fa-sliders-h"></i> Filtrar por ministerio
@@ -64,10 +81,13 @@
         <div class="filter-panel__title">Filtrar por ministerio</div>
         <div class="filter-checks" id="filterChecks"></div>
       </div>
-      <div id="upcomingList"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+
+      <div id="upcomingList">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
     </div>
 
-    <!-- VIEW: single event form -->
+    <!-- View: single event form -->
     <div class="view-panel" id="view-form">
       <div class="toolbar-back">
         <h2 id="formTitle">Nuevo Evento</h2>
@@ -82,14 +102,27 @@
           <p class="preset-note" id="fPresetNote"></p>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Categoría (máx 2)</label><div id="fTagPicker"></div><input type="hidden" id="fTag"></div>
-          <div class="form-group"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="fLoc" value="2601 Clays Mill Road" readonly><button type="button" class="loc-btn" id="fLocBtn">Cambiar</button></div></div>
+          <div class="form-group">
+            <label>Categoría (máx 2)</label>
+            <div id="fTagPicker"></div>
+            <input type="hidden" id="fTag">
+          </div>
+          <div class="form-group">
+            <label>Ubicación</label>
+            <div class="loc-wrap">
+              <input type="text" id="fLoc" value="2601 Clays Mill Road" readonly>
+              <button type="button" class="loc-btn" id="fLocBtn">Cambiar</button>
+            </div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Inicio *</label><input type="datetime-local" id="fStarts" required></div>
           <div class="form-group"><label>Fin</label><input type="datetime-local" id="fEnds"></div>
         </div>
-        <div class="form-group" id="fDescGroup"><label>Descripción</label><textarea id="fDesc" rows="4" placeholder="Describe el evento..."></textarea></div>
+        <div class="form-group" id="fDescGroup">
+          <label>Descripción</label>
+          <textarea id="fDesc" rows="4" placeholder="Describe el evento..."></textarea>
+        </div>
         <div class="form-row">
           <div class="form-group"><label>Organizador</label><input type="text" id="fOrgName" placeholder="ej. Pastor Juan"></div>
           <div class="form-group"><label>Email organizador</label><input type="email" id="fOrgEmail" placeholder="juan@irdlex.org"></div>
@@ -98,19 +131,21 @@
         <div class="auth-error" id="fError"></div>
         <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
           <button class="btn btn--primary" id="fSaveBtn"><i class="fas fa-save"></i> Guardar Evento</button>
-          <button class="btn btn--ghost" id="formCancel">Cancelar</button>
+          <button class="btn btn--ghost"   id="formCancel">Cancelar</button>
         </div>
       </div>
     </div>
 
-    <!-- VIEW: bulk form -->
+    <!-- View: bulk form -->
     <div class="view-panel" id="view-bulk">
       <div class="toolbar-back">
         <h2>Crear en Bulk</h2>
         <button class="btn btn--ghost" id="bulkBack">← Regresar</button>
       </div>
       <div class="form-card">
-        <p style="font-size:.82rem;color:var(--muted);margin-bottom:.85rem">Selecciona el tipo de evento, agrega fechas y se crearán todos de una vez.</p>
+        <p style="font-size:.82rem;color:var(--color-muted);margin-bottom:.85rem">
+          Selecciona el tipo de evento, agrega fechas y se crearán todos de una vez.
+        </p>
         <div class="form-group">
           <label>Tipo de evento *</label>
           <select id="bType"></select>
@@ -118,14 +153,27 @@
           <p class="preset-note" id="bPresetNote"></p>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Categoría (máx 2)</label><div id="bTagPicker"></div><input type="hidden" id="bTag"></div>
-          <div class="form-group"><label>Ubicación</label><div class="loc-wrap"><input type="text" id="bLoc" value="2601 Clays Mill Road" readonly><button type="button" class="loc-btn" id="bLocBtn">Cambiar</button></div></div>
+          <div class="form-group">
+            <label>Categoría (máx 2)</label>
+            <div id="bTagPicker"></div>
+            <input type="hidden" id="bTag">
+          </div>
+          <div class="form-group">
+            <label>Ubicación</label>
+            <div class="loc-wrap">
+              <input type="text" id="bLoc" value="2601 Clays Mill Road" readonly>
+              <button type="button" class="loc-btn" id="bLocBtn">Cambiar</button>
+            </div>
+          </div>
         </div>
         <div class="form-row">
           <div class="form-group"><label>Hora inicio *</label><input type="time" id="bTimeStart" required></div>
           <div class="form-group"><label>Hora fin</label><input type="time" id="bTimeEnd"></div>
         </div>
-        <div class="form-group" id="bDescGroup"><label>Descripción</label><textarea id="bDesc" rows="3" placeholder="Describe el evento..."></textarea></div>
+        <div class="form-group" id="bDescGroup">
+          <label>Descripción</label>
+          <textarea id="bDesc" rows="3" placeholder="Describe el evento..."></textarea>
+        </div>
         <div class="form-row">
           <div class="form-group"><label>Organizador</label><input type="text" id="bOrgName"></div>
           <div class="form-group"><label>Email organizador</label><input type="email" id="bOrgEmail"></div>
@@ -140,28 +188,37 @@
         <div class="auth-error" id="bError"></div>
         <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
           <button class="btn btn--secondary" id="bSaveBtn"><i class="fas fa-layer-group"></i> Crear eventos</button>
-          <button class="btn btn--ghost" id="bulkCancel">Cancelar</button>
+          <button class="btn btn--ghost"     id="bulkCancel">Cancelar</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- PASADOS -->
+  </div><!-- /tab-upcoming -->
+
+  <!-- ── PASADOS ────────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-past">
     <div class="action-bar"><h2>Eventos Pasados</h2></div>
-    <div id="pastList"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+    <div id="pastList">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
   </div>
 
-  <!-- CALENDARIO -->
+  <!-- ── CALENDARIO ─────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-calendario">
+
     <div class="cal-toolbar">
       <h2>Calendario de Actividades</h2>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        <button class="btn btn--ghost" style="font-size:.85rem;padding:.55rem 1rem" id="calSmartBtn"><i class="fas fa-magic"></i> Presets</button>
-        <button class="btn btn--primary" id="calAddBtn"><i class="fas fa-plus"></i> Agregar</button>
+        <button class="btn btn--ghost" style="font-size:.85rem;padding:.55rem 1rem" id="calSmartBtn">
+          <i class="fas fa-magic"></i> Presets
+        </button>
+        <button class="btn btn--primary" id="calAddBtn">
+          <i class="fas fa-plus"></i> Agregar
+        </button>
       </div>
     </div>
-    <!-- Same ministry filter for calendar — shares the same selectedMinistries state -->
+
+    <!-- Ministry filter (shared state with Próximos) -->
     <div class="filter-bar admin-only" id="calFilterBarWrap" style="display:none">
       <button class="filter-btn" id="calFilterToggleBtn">
         <i class="fas fa-sliders-h"></i> Filtrar por ministerio
@@ -172,39 +229,54 @@
       <div class="filter-panel__title">Filtrar por ministerio</div>
       <div class="filter-checks" id="calFilterChecks"></div>
     </div>
-    <p style="font-size:.82rem;color:var(--muted);margin:.75rem 0 1rem">
-      Haz clic en cualquier evento para editarlo. Pasa el cursor para ver las opciones de editar, cancelar y eliminar.
+
+    <p style="font-size:.82rem;color:var(--color-muted);margin:.75rem 0 1rem">
+      Haz clic en cualquier evento para editarlo. Pasa el cursor para ver las opciones.
     </p>
-    <!-- Admin calendar grid -->
-    <div class="adm-cal-wrap" style="margin-bottom:1rem">
-      <div class="adm-cal-nav">
-        <button class="adm-cal-nav-btn" id="admCalPrev">&#8592;</button>
-        <h3 id="admCalLabel"></h3>
-        <button class="adm-cal-nav-btn" id="admCalNext">&#8594;</button>
+
+    <!-- Calendar grid — uses shared CalendarGrid component + calendar CSS classes -->
+    <div class="cal-grid-wrap" style="margin-bottom:1rem">
+      <div class="cal-nav">
+        <button class="cal-nav__btn" id="admCalPrev" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="cal-nav__label" id="admCalLabel"></span>
+        <button class="cal-nav__btn" id="admCalNext" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
       </div>
-      <div class="adm-cal-weekdays" id="admCalWeekdays"></div>
-      <div class="adm-cal-days" id="admCalDays"></div>
+      <div class="cal-grid">
+        <div class="cal-grid__weekdays" id="admCalWeekdays"></div>
+        <div class="cal-grid__days"     id="admCalDays"></div>
+      </div>
     </div>
 
-    <!-- Two-tab upcoming list — matches public calendar page -->
+    <!-- Two-tab upcoming list below grid -->
     <div class="cal-upcoming-wrap" id="admCalUpcoming">
-      <div class="cal-tabs">
-        <button class="cal-tab active" data-adm-target="admTabSpecial">
+      <div class="adm-tabs">
+        <button class="adm-tab active" data-adm-target="admTabSpecial">
           <i class="fas fa-star"></i> Eventos Especiales
         </button>
-        <button class="cal-tab" data-adm-target="admTabRegular">
+        <button class="adm-tab" data-adm-target="admTabRegular">
           <i class="fas fa-calendar-check"></i> Actividades Regulares
         </button>
       </div>
-      <div class="cal-tab-panel" id="admTabSpecial"></div>
-      <div class="cal-tab-panel" id="admTabRegular" hidden></div>
+      <div id="admTabSpecial"></div>
+      <div id="admTabRegular" hidden></div>
     </div>
 
     <!-- Smart preset panel -->
     <div class="smart-panel" id="smartPanel">
       <div class="smart-panel-header">
         <h3>Llenar mes con preset</h3>
-        <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartClose">✕ Cerrar</button>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartNewPresetBtn">
+            <i class="fas fa-plus"></i> Nuevo preset
+          </button>
+          <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartClose">
+            ✕ Cerrar
+          </button>
+        </div>
       </div>
 
       <!-- Month + Year row -->
@@ -236,44 +308,62 @@
             </div>
           </div>
         </div>
-
         <div class="smart-year-field">
           <label class="smart-year-field__label" for="smartYear">Año</label>
           <input type="number" id="smartYear" class="smart-year-input" min="2024" max="2035" value="2026">
         </div>
       </div>
 
-      <p style="font-size:.7rem;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;margin-top:1rem">Selecciona un preset:</p>
+      <p style="font-size:.7rem;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0 .4rem">
+        Selecciona un preset:
+      </p>
       <div class="smart-grid" id="presetGrid"></div>
+
       <div id="smartPreview" style="display:none">
-        <p style="font-size:.78rem;font-weight:600;margin-bottom:.35rem">Vista previa — <span id="smartCount">0</span> eventos a crear:</p>
+        <p style="font-size:.78rem;font-weight:600;margin-bottom:.35rem">
+          Vista previa — <span id="smartCount">0</span> eventos a crear:
+        </p>
         <div class="preview-pills" id="previewPills"></div>
         <div style="display:flex;gap:.5rem;margin-top:.65rem">
-          <button class="btn btn--primary" style="font-size:.85rem" id="smartCreate"><i class="fas fa-check"></i> Crear todos</button>
+          <button class="btn btn--primary" style="font-size:.85rem" id="smartCreate">
+            <i class="fas fa-check"></i> Crear todos
+          </button>
           <button class="btn btn--ghost" style="font-size:.85rem" id="smartClear">Limpiar</button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- MINISTERIOS -->
+  </div><!-- /tab-calendario -->
+
+  <!-- ── MINISTERIOS ────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-ministries">
     <div class="action-bar"><h2>Ministerios</h2></div>
-    <div id="ministriesList" class="card-grid"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+    <div id="ministriesList" class="card-grid">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
   </div>
 
-  <!-- USUARIOS -->
+  <!-- ── USUARIOS ───────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-users">
     <div class="action-bar">
       <h2>Cuentas de Acceso</h2>
-      <button class="btn btn--primary" id="addUserBtn"><i class="fas fa-user-plus"></i> Crear Usuario</button>
+      <button class="btn btn--primary" id="addUserBtn">
+        <i class="fas fa-user-plus"></i> Crear Usuario
+      </button>
     </div>
-    <p style="font-size:.85rem;color:var(--muted);margin-bottom:1.25rem">Crea cuentas para cada ministerio. Solo ellos verán y podrán editar sus eventos.</p>
-    <div id="usersList" class="user-list"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div></div>
+    <p style="font-size:.85rem;color:var(--color-muted);margin-bottom:1.25rem">
+      Crea cuentas para cada ministerio. Solo ellos verán y podrán editar sus eventos.
+    </p>
+    <div id="usersList" class="user-list">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
   </div>
-</div>
 
-<!-- EVENT MODAL (calendar_events) -->
+</div><!-- /app -->
+
+<!-- ── MODALS ────────────────────────────────────────────────────────────────── -->
+
+<!-- calendar_events modal -->
 <div class="modal-backdrop" id="eventModal">
   <div class="modal">
     <div class="modal__header">
@@ -281,12 +371,19 @@
       <button class="modal__close" id="eventModalClose"><i class="fas fa-times"></i></button>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Título *</label><input type="text" id="evTitle" placeholder="Nombre del evento"></div>
-      <div class="form-group"><label>Categoría</label>
+      <div class="form-group">
+        <label>Título *</label>
+        <input type="text" id="evTitle" placeholder="Nombre del evento">
+      </div>
+      <div class="form-group">
+        <label>Categoría</label>
         <select id="evCategory">
-          <option value="servicio">Servicio</option><option value="estudio">Estudio Bíblico</option>
-          <option value="oracion">Oración</option><option value="evangelizacion">Evangelización</option>
-          <option value="especial">Especial</option><option value="otro">Otro</option>
+          <option value="servicio">Servicio</option>
+          <option value="estudio">Estudio Bíblico</option>
+          <option value="oracion">Oración</option>
+          <option value="evangelizacion">Evangelización</option>
+          <option value="especial">Especial</option>
+          <option value="otro">Otro</option>
         </select>
       </div>
     </div>
@@ -294,45 +391,61 @@
       <div class="form-group"><label>Fecha *</label><input type="date" id="evDate"></div>
       <div class="form-group"><label>Hora</label><input type="time" id="evTime"></div>
     </div>
-    <div class="form-group"><label>Lugar</label><input type="text" id="evLocation" placeholder="2601 Clays Mill Rd"></div>
-    <div class="form-group"><label>Descripción</label><textarea id="evDescription" placeholder="Detalles del evento..."></textarea></div>
-    <div class="form-group admin-only" style="display:none"><label>Ministerio</label><select id="evMinistry"></select></div>
+    <div class="form-group">
+      <label>Lugar</label>
+      <input type="text" id="evLocation" placeholder="2601 Clays Mill Rd">
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea id="evDescription" placeholder="Detalles del evento..."></textarea>
+    </div>
+    <div class="form-group admin-only" style="display:none">
+      <label>Ministerio</label>
+      <select id="evMinistry"></select>
+    </div>
     <div class="form-group">
       <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:400;letter-spacing:0;cursor:pointer">
-        <input type="checkbox" id="evCancelled" style="width:auto;accent-color:var(--primary)"> Marcar como cancelado
+        <input type="checkbox" id="evCancelled" style="width:auto;accent-color:var(--color-primary)">
+        Marcar como cancelado
       </label>
     </div>
     <div class="auth-error" id="eventModalError"></div>
     <div class="modal__footer">
-      <button class="btn btn--ghost" id="eventModalCancel">Cancelar</button>
-      <button class="btn btn--primary" id="eventModalSave"><i class="fas fa-save"></i> Guardar</button>
+      <button class="btn btn--ghost"    id="eventModalCancel">Cancelar</button>
+      <button class="btn btn--primary"  id="eventModalSave"><i class="fas fa-save"></i> Guardar</button>
     </div>
   </div>
 </div>
 
-<!-- USER MODAL -->
+<!-- User modal -->
 <div class="modal-backdrop" id="userModal">
   <div class="modal">
     <div class="modal__header">
       <div class="modal__title">Crear Usuario</div>
       <button class="modal__close" id="userModalClose"><i class="fas fa-times"></i></button>
     </div>
-    <div class="form-group"><label>Nombre</label><input type="text" id="uName" placeholder="Ej: Ministerio Caballeros"></div>
-    <div class="form-group"><label>Correo electrónico</label><input type="email" id="uEmail" placeholder="caballeros@irdlex.org"></div>
-    <div class="form-group"><label>Contraseña</label><input type="password" id="uPassword" placeholder="Mínimo 8 caracteres"></div>
-    <div class="form-group"><label>Rol</label>
-      <select id="uRole"><option value="ministry">Ministerio (solo sus eventos)</option><option value="admin">Administrador (todo)</option></select>
-    </div>
-    <div class="form-group"><label>Ministerio asignado</label><select id="uMinistry"></select></div>
+    <form id="userForm" onsubmit="return false">
+      <div class="form-group"><label>Nombre</label><input type="text" id="uName" placeholder="Ej: Ministerio Caballeros"></div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="uEmail" placeholder="caballeros@irdlex.org"></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="uPassword" placeholder="Mínimo 8 caracteres" autocomplete="new-password"></div>
+      <div class="form-group">
+        <label>Rol</label>
+        <select id="uRole">
+          <option value="ministry">Ministerio (solo sus eventos)</option>
+          <option value="admin">Administrador (todo)</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Ministerio asignado</label><select id="uMinistry"></select></div>
+    </form>
     <div class="auth-error" id="userModalError"></div>
     <div class="modal__footer">
-      <button class="btn btn--ghost" id="userModalCancel">Cancelar</button>
+      <button class="btn btn--ghost"   id="userModalCancel">Cancelar</button>
       <button class="btn btn--primary" id="userModalSave"><i class="fas fa-user-plus"></i> Crear cuenta</button>
     </div>
   </div>
 </div>
 
-<!-- CONFIRM MODAL -->
+<!-- Confirm modal -->
 <div class="modal-backdrop" id="confirmModal">
   <div class="modal" style="max-width:360px">
     <div class="modal__header">
@@ -341,23 +454,96 @@
     </div>
     <p class="confirm-msg" id="confirmMsg"></p>
     <div class="modal__footer">
-      <button class="btn btn--ghost" id="confirmNo">No, cancelar</button>
+      <button class="btn btn--ghost"  id="confirmNo">No, cancelar</button>
       <button class="btn btn--danger" id="confirmYes">Sí, continuar</button>
     </div>
   </div>
 </div>
 
-<div id="toast"></div>
-
-<!-- Day sheet (mobile calendar tap) -->
-<div class="day-sheet-backdrop" id="daySheetBackdrop">
-  <div class="day-sheet">
-    <div class="day-sheet__handle"></div>
-    <div class="day-sheet__date" id="daySheetDate"></div>
-    <div id="daySheetEvents"></div>
+<!-- Preset modal (create / edit DB presets) -->
+<div class="modal-backdrop" id="presetModal">
+  <div class="modal" style="max-width:480px">
+    <div class="modal__header">
+      <div class="modal__title" id="presetModalTitle">Nuevo Preset</div>
+      <button class="modal__close" id="presetModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group">
+      <label>Nombre *</label>
+      <input type="text" id="pmName" placeholder="ej. Estudio Bíblico">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Categoría</label>
+        <select id="pmCategory">
+          <option value="servicio">Servicio</option>
+          <option value="estudio">Estudio Bíblico</option>
+          <option value="oracion">Oración</option>
+          <option value="evangelizacion">Evangelización</option>
+          <option value="especial">Especial</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Hora</label>
+        <input type="text" id="pmTime" placeholder="7:00 PM">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Ubicación</label>
+      <input type="text" id="pmLocation">
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea id="pmDescription" rows="2" placeholder="Descripción breve del evento..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Patrón de repetición</label>
+        <select id="pmPatternType">
+          <option value="weekly">Semanal (cada semana)</option>
+          <option value="lastWeekday">Último día del mes</option>
+          <option value="nthWeekday">N-ésimo día del mes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Día de la semana</label>
+        <select id="pmDayOfWeek">
+          <option value="0">Domingo</option>
+          <option value="1">Lunes</option>
+          <option value="2">Martes</option>
+          <option value="3">Miércoles</option>
+          <option value="4">Jueves</option>
+          <option value="5">Viernes</option>
+          <option value="6">Sábado</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" id="pmNthWeekRow" style="display:none">
+      <label>Semana del mes (1–5)</label>
+      <input type="number" id="pmNthWeek" min="1" max="5" placeholder="ej. 3 → 3er viernes del mes">
+    </div>
+    <div class="auth-error" id="presetModalError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost"   id="presetModalCancel">Cancelar</button>
+      <button class="btn btn--primary" id="presetModalSave">
+        <i class="fas fa-save"></i> Guardar preset
+      </button>
+    </div>
   </div>
 </div>
 
-<script type="module" src="/js/pages/admin.js"></script>
+<!-- Toast container -->
+<div id="toast"></div>
+
+<!-- Day sheet (mobile calendar tap) — injected by CalendarGrid, kept here as fallback -->
+<div class="day-sheet-backdrop" id="calDaySheetBackdrop">
+  <div class="day-sheet" id="calDaySheet">
+    <div class="day-sheet__handle"></div>
+    <div class="day-sheet__date" id="calDaySheetDate"></div>
+    <div id="calDaySheetEvents"></div>
+  </div>
+</div>
+
+<script type="module" src="/js/pages/admin/index.js"></script>
 </body>
 </html>

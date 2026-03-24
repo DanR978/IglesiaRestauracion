@@ -1,0 +1,31 @@
+# .github/workflows/build-css.yml
+# Runs on every push to main when any css/** source file changes.
+# Concatenates all source CSS into css/style.css and commits it back.
+# No @import, no build tools — just cat.
+
+name: Build CSS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'css/**'
+      - 'build.sh'
+      - '.github/workflows/build-css.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build style.css
+        run: bash build.sh
+
+      - name: Commit style.css
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add css/style.css
+          git diff --cached --quiet || git commit -m "chore: rebuild style.css [skip ci]"
+          git push

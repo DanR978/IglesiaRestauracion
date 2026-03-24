@@ -1,0 +1,53 @@
+/* admin/users.css
+   Users tab list and ministry cards. */
+
+.user-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.user-row {
+  background: var(--color-white);
+  border: 1.5px solid var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.user-row__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.user-row__info { flex: 1; }
+.user-row__name { font-weight: 600; font-size: 0.92rem; }
+.user-row__meta { font-size: 0.78rem; color: var(--color-muted); }
+
+/* ── Ministry cards ──────────────────────────────────── */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.ministry-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--gray-50);
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.ministry-card__dot  { width: 14px; height: 14px; border-radius: var(--radius-full); flex-shrink: 0; }
+.ministry-card__name { font-weight: 700; font-size: 0.95rem; }
+.ministry-card__id   { font-size: 0.7rem; color: var(--color-muted); margin-top: 2px; font-family: monospace; }

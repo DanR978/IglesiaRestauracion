@@ -1,0 +1,26 @@
+/* calendar/page.css
+   Page-level wrapper for the public /calendario page. */
+
+.cal-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 5rem;
+}
+
+.cal-page__subtitle {
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+  margin-bottom: 2rem;
+}
+
+.cal-error {
+  background: #fde8ea;
+  color: #b02030;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  margin-bottom: 1.25rem;
+  text-align: center;
+}

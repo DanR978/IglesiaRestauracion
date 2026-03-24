@@ -1,0 +1,95 @@
+/* admin/filters.css
+   Ministry filter bar and checkbox panel. */
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.42rem 0.85rem;
+  border: 1.5px solid var(--gray-50);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  cursor: pointer;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.filter-btn:hover  { border-color: var(--color-primary); color: var(--color-primary); }
+.filter-btn.active { border-color: var(--color-primary); color: var(--color-primary); background: rgba(52, 90, 101, 0.06); }
+
+.filter-btn__badge {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius-full);
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  margin-left: 2px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.filter-btn__badge.hidden { display: none; }
+
+.filter-panel {
+  background: var(--color-white);
+  border: 1.5px solid var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  display: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.filter-panel.open { display: block; }
+
+.filter-panel__title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+.filter-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.85rem;
+}
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  user-select: none;
+  padding: 0.2rem 0;
+}
+
+.filter-check input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.filter-check__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}

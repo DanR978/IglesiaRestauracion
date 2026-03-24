@@ -1,0 +1,122 @@
+/* admin/calendar-tab.css
+   Admin-only UI below the calendar grid:
+   upcoming-list tabs (adm-tabs/adm-tab) and adm-list__* row cards. */
+
+/* ── Upcoming tab bar ────────────────────────────────── */
+.cal-upcoming-wrap { margin-top: 1.25rem; }
+
+.adm-tabs {
+  display: flex;
+  border-bottom: 1.5px solid var(--gray-50);
+  margin-bottom: 0.75rem;
+}
+
+.adm-tab {
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.adm-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.adm-list__empty {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  padding: 0.5rem 0;
+}
+
+/* ── Upcoming list rows ───────────────────────────────── */
+.adm-list__day-group { margin-bottom: 0.5rem; }
+
+.adm-list__day-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  padding: 0.4rem 0 0.2rem;
+}
+
+.adm-list__item {
+  background: var(--color-white);
+  border: 1.5px solid var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: border-color 0.15s;
+}
+
+.adm-list__item:hover { border-color: var(--color-primary); }
+
+.adm-list__item.cancelled .adm-list__name {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.adm-list__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.adm-list__thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.adm-list__info  { flex: 1; min-width: 0; }
+
+.adm-list__name {
+  font-weight: 600;
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adm-list__meta {
+  font-size: 0.73rem;
+  color: var(--color-muted);
+  margin-top: 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+}
+
+.adm-list__actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.adm-list__cancelled-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: var(--cat-especial, #fde8ea);
+  color: var(--cat-especial-t, #b02030);
+  margin-left: 0.35rem;
+}

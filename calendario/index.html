@@ -1,192 +1,158 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="robots" content="index, follow">
-    <title>Calendario — Iglesia Restauración Divina</title>
-    <meta name="description" content="Calendario de actividades de Iglesia Restauración Divina en Lexington, KY." />
-    <meta name="author" content="Iglesia Restauración Divina" />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="robots" content="index, follow">
+  <title>Calendario — Iglesia Restauración Divina</title>
+  <meta name="description" content="Calendario de actividades de Iglesia Restauración Divina en Lexington, KY." />
+  <meta name="author" content="Iglesia Restauración Divina" />
 
-    <!-- LOGO -->
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+  <!-- Favicon -->
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+  <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
-    <!-- SOCIAL SHARING PREVIEW -->
-    <link rel="canonical" href="https://www.irdlex.org/calendario" />
-    <meta property="og:site_name" content="Iglesia Restauración Divina" />
-    <meta property="og:title" content="Calendario — Iglesia Restauración Divina" />
-    <meta property="og:url" content="https://www.irdlex.org/calendario" />
-    <meta property="og:type" content="website" />
-    <meta property="og:description" content="Actividades regulares y eventos especiales de la congregación. Mira qué está pasando esta semana en Iglesia Restauración Divina.">
-    <meta property="og:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/canonical_website_visit.png" />
+  <!-- Social / SEO -->
+  <link rel="canonical" href="https://www.irdlex.org/calendario" />
+  <meta property="og:site_name"   content="Iglesia Restauración Divina" />
+  <meta property="og:title"       content="Calendario — Iglesia Restauración Divina" />
+  <meta property="og:url"         content="https://www.irdlex.org/calendario" />
+  <meta property="og:type"        content="website" />
+  <meta property="og:description" content="Actividades regulares y eventos especiales de la congregación. Mira qué está pasando esta semana en Iglesia Restauración Divina." />
+  <meta property="og:image"       content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_calendar.png" />
+  <meta name="twitter:card"        content="summary" />
+  <meta name="twitter:title"       content="Calendario — Iglesia Restauración Divina" />
+  <meta name="twitter:description" content="Actividades regulares y eventos especiales de la congregación." />
+  <meta name="twitter:image"       content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_calendar.png" />
 
-    <!-- MESSAGING PREVIEW -->
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Calendario — Iglesia Restauración Divina" />
-    <meta name="twitter:description" content="Actividades regulares y eventos especiales de la congregación." />
-    <meta name="twitter:image" content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/canonical_website_visit.png" />
+  <base href="/">
 
-    <base href="/">
-    <!-- STYLESHEETS — calendar.css is imported via main.css -->
-    <link rel="stylesheet" href="css/style.css">
-    <meta name="format-detection" content="telephone=no">
+  <!-- Single stylesheet entry point — calendar.css and all tokens imported via style.css -->
+  <link rel="stylesheet" href="css/style.css">
 
-    <!-- FONTS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+  <meta name="format-detection" content="telephone=no">
 
-    <!-- BOOTSTRAP -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
 
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Event",
-        "name": "Calendario de Actividades — Iglesia Restauración Divina",
-        "organizer": {
-          "@type": "Church",
-          "name": "Iglesia Restauración Divina",
-          "url": "https://www.irdlex.org",
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "2601 Clays Mill Rd",
-            "addressLocality": "Lexington",
-            "addressRegion": "KY",
-            "postalCode": "40503"
-          }
-        },
-        "location": {
-          "@type": "Place",
-          "name": "Iglesia Restauración Divina",
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "2601 Clays Mill Rd",
-            "addressLocality": "Lexington",
-            "addressRegion": "KY",
-            "postalCode": "40503"
-          }
-        },
-        "url": "https://www.irdlex.org/calendario"
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "name": "Calendario de Actividades — Iglesia Restauración Divina",
+    "organizer": {
+      "@type": "Church",
+      "name": "Iglesia Restauración Divina",
+      "url": "https://www.irdlex.org",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "2601 Clays Mill Rd",
+        "addressLocality": "Lexington",
+        "addressRegion": "KY",
+        "postalCode": "40503"
       }
-    </script>
-  <style>
-    /* ── Shared event list styles (matches admin upcoming list) ── */
-    .cal-up-group { margin-bottom:.5rem; }
-    .cal-up-day-label {
-      font-size:.68rem; font-weight:700; text-transform:uppercase;
-      letter-spacing:.07em; color:var(--muted,#6b7280);
-      padding:.5rem 0 .3rem; border-bottom:1px solid #f0f0f0; margin-bottom:.25rem;
-    }
-    .cal-up-item {
-      display:flex; align-items:center; gap:.7rem;
-      padding:.65rem 0; border-bottom:1px solid #f5f5f5;
-    }
-    .cal-up-item:last-child { border-bottom:none; }
-    .cal-up-item--link { text-decoration:none; color:inherit; }
-    .cal-up-item--link:hover { background:rgba(0,0,0,.02); margin:0 -.5rem; padding:.65rem .5rem; border-radius:8px; }
-    .cal-up-item.cancelled .cal-up-name { text-decoration:line-through; opacity:.5; }
-    .cal-up-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-    .cal-up-thumb {
-      width:44px; height:44px; object-fit:cover;
-      border-radius:8px; flex-shrink:0;
-    }
-    .cal-up-info { flex:1; min-width:0; }
-    .cal-up-name {
-      font-weight:600; font-size:.9rem;
-      white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    }
-    .cal-up-meta {
-      font-size:.75rem; color:var(--muted,#6b7280);
-      margin-top:2px; display:flex; flex-wrap:wrap; gap:.2rem .5rem;
-    }
-    .cal-up-chevron { color:#ccc; font-size:.8rem; flex-shrink:0; }
-    .cal-up-chevron.hidden { visibility:hidden; }
-    .cal-up-badge {
-      font-size:.62rem; font-weight:700; padding:1px 6px;
-      border-radius:99px; margin-left:.35rem;
-    }
-    .cal-up-badge--cancelled { background:#fde8ea; color:#b02030; }
-  </style>
-  </head>
+    },
+    "location": {
+      "@type": "Place",
+      "name": "Iglesia Restauración Divina",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "2601 Clays Mill Rd",
+        "addressLocality": "Lexington",
+        "addressRegion": "KY",
+        "postalCode": "40503"
+      }
+    },
+    "url": "https://www.irdlex.org/calendario"
+  }
+  </script>
+</head>
 
-  <body>
+<body>
 
-    <!-- Header: include.js fetches /src/header.html and injects it here -->
-    <header id="header" data-hero-size="page"
-      data-hero="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/images/worshipSample.jpg">
-      <!-- Hero content inside header so it positions within the 40vh container -->
-      <div class="hero-content animate-fade-in" data-threshold="0.8">
-        <p class="hero-kicker">ACTIVIDADES</p>
-        <h1 class="hero__page-title">Calendario</h1>
-      </div>
-    </header>
-
-    <main>
-      <section class="cal-page">
-
-        <p class="cal-page__subtitle">Actividades regulares y eventos especiales de la congregación</p>
-
-        <div class="cal-legend" id="calLegend"></div>
-        <div class="cal-error"  id="calError" style="display:none"></div>
-
-        <!-- Month nav -->
-        <div class="cal-nav">
-          <button class="cal-nav__btn" id="calPrev" aria-label="Mes anterior">
-            <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-          </button>
-          <span class="cal-nav__label" id="calNavLabel"></span>
-          <button class="cal-nav__btn" id="calNext" aria-label="Mes siguiente">
-            <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </button>
-        </div>
-
-        <!-- Calendar grid -->
-        <div class="cal-grid">
-          <div class="cal-grid__weekdays" id="calWeekdays"></div>
-          <div class="cal-grid__days"     id="calDays"></div>
-        </div>
-
-        <!-- Tabs -->
-        <div class="cal-tabs">
-          <button class="cal-tab active" data-target="calTabSpecial">
-            <i class="fas fa-star"></i> Eventos Especiales
-          </button>
-          <button class="cal-tab" data-target="calTabRegular">
-            <i class="fas fa-calendar-check"></i> Actividades Regulares
-          </button>
-        </div>
-
-        <!-- Special events panel (cards → detail page) -->
-        <div class="cal-tab-panel cal-special-list" id="calTabSpecial"></div>
-
-        <!-- Regular recurring activities panel (grouped list → modal) -->
-        <div class="cal-tab-panel cal-list" id="calTabRegular" hidden></div>
-
-      </section>
-    </main>
-
-    <div id="footer"></div>
-
-    <!-- Event detail modal -->
-    <div class="cal-modal-backdrop" id="calModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="calModalTitle">
-      <div class="cal-modal">
-        <div class="cal-modal__handle"></div>
-        <button class="cal-modal__close" id="calModalClose" aria-label="Cerrar">
-          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-        <div id="calModalContent"></div>
-      </div>
+  <!-- Header: include.js injects header.html here.
+       data-hero-size="page" → 40vh hero via hero-size.css
+       hero-content must be INSIDE <header> so top:75% calculates against 40vh. -->
+  <header id="header" data-hero-size="page"
+    data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_calendar.png">
+    <div class="hero-content animate-fade-in" data-threshold="0.8">
+      <p class="hero-kicker">ACTIVIDADES</p>
+      <h1 class="hero__page-title">Calendario</h1>
     </div>
+  </header>
 
-    <!-- Scripts — same loading pattern as all other pages -->
-    <script type="module" src="/js/include.js"></script>
-    <script type="module" src="/js/utils/load-icons.js"></script>
-    <script type="module" src="/js/components/calendar.js"></script>
+  <main>
+    <section class="cal-page">
 
-  </body>
+      <p class="cal-page__subtitle">Actividades regulares y eventos especiales de la congregación</p>
+
+      <!-- Category legend -->
+      <div class="cal-legend" id="calLegend"></div>
+
+      <!-- Error banner (shown if Supabase fails) -->
+      <div class="cal-error" id="calError" style="display:none"></div>
+
+      <!-- Month navigation -->
+      <div class="cal-nav">
+        <button class="cal-nav__btn" id="calPrev" aria-label="Mes anterior">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="cal-nav__label" id="calNavLabel"></span>
+        <button class="cal-nav__btn" id="calNext" aria-label="Mes siguiente">
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+
+      <!-- Calendar grid -->
+      <div class="cal-grid">
+        <div class="cal-grid__weekdays" id="calWeekdays"></div>
+        <div class="cal-grid__days"     id="calDays"></div>
+      </div>
+
+      <!-- Tab bar: Especiales / Regulares -->
+      <div class="cal-tabs">
+        <button class="cal-tab active" data-target="calTabSpecial">
+          <i class="fas fa-star"></i> Eventos Especiales
+        </button>
+        <button class="cal-tab" data-target="calTabRegular">
+          <i class="fas fa-calendar-check"></i> Actividades Regulares
+        </button>
+      </div>
+
+      <!-- Special events (→ detail page on click) -->
+      <div class="cal-tab-panel" id="calTabSpecial"></div>
+
+      <!-- Regular activities (→ modal on click) -->
+      <div class="cal-tab-panel" id="calTabRegular" hidden></div>
+
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <!-- Event detail modal (regular activities only) -->
+  <div class="cal-modal-backdrop" id="calModalBackdrop"
+    role="dialog" aria-modal="true" aria-labelledby="calModalTitle">
+    <div class="cal-modal">
+      <div class="cal-modal__handle"></div>
+      <button class="cal-modal__close" id="calModalClose" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div id="calModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="/js/include.js"></script>
+  <script type="module" src="/js/utils/load-icons.js"></script>
+  <script type="module" src="/js/components/calendar.js"></script>
+
+</body>
 </html>

@@ -1,0 +1,89 @@
+/* admin/table.css
+   Events table used in Próximos and Pasados tabs. */
+
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.events-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid var(--gray-50);
+  background: var(--color-bg-light);
+}
+
+.events-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--gray-50);
+  vertical-align: middle;
+  font-size: 0.9rem;
+}
+
+.events-table tr:hover td { background: var(--color-bg-light); }
+
+.events-table tr.row--past td            { opacity: 0.6; }
+.events-table tr.row--past .event-title  { text-decoration: line-through; }
+.events-table tr.row--cancelled .event-title {
+  text-decoration: line-through;
+  color: var(--color-muted);
+}
+
+.event-title { font-weight: 600; }
+
+/* ── Mobile card view ────────────────────────────────── */
+@media (max-width: 640px) {
+  .events-table,
+  .events-table thead,
+  .events-table tbody,
+  .events-table th,
+  .events-table td,
+  .events-table tr { display: block !important; }
+
+  .events-table thead { display: none !important; }
+
+  .events-table tr {
+    background: var(--color-white);
+    border: 1.5px solid var(--gray-50);
+    border-radius: var(--radius-md);
+    margin-bottom: 0.65rem;
+    padding: 0.75rem;
+    position: relative;
+  }
+
+  .events-table tr:hover td    { background: transparent; }
+  .events-table tr.row--past   { opacity: 0.65; }
+
+  .events-table td { padding: 0 0 0.2rem; border: none; font-size: 0.88rem; }
+
+  .events-table td:first-child {
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--gray-50);
+    margin-bottom: 0.35rem;
+  }
+
+  .events-table td:nth-child(2),
+  .events-table td:nth-child(3) {
+    display: inline !important;
+    color: var(--color-muted);
+    font-size: 0.78rem;
+  }
+
+  .events-table td:nth-child(2)::after { content: ' · '; }
+  .events-table td:nth-child(4)        { margin-top: 0.25rem; }
+
+  .events-table td:last-child {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    padding: 0;
+  }
+
+  .row-actions { gap: 0.3rem; }
+  .icon-btn    { width: 28px; height: 28px; font-size: 0.78rem; }
+}

@@ -1,0 +1,137 @@
+/* calendar/day-sheet.css
+   Mobile bottom drawer — shown when a day cell is tapped.
+   Shared between public calendar and admin.
+   CalendarGrid injects this into the DOM automatically. */
+
+.day-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: var(--z-overlay);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.day-sheet-backdrop.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.day-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-white);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: 1rem 1.25rem 2.5rem;
+  max-height: 80vh;
+  overflow-y: auto;
+  transform: translateY(100%);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.day-sheet-backdrop.open .day-sheet { transform: translateY(0); }
+
+.day-sheet__handle {
+  width: 40px;
+  height: 4px;
+  background: var(--gray-80, #d0d0d0);
+  border-radius: var(--radius-sm);
+  margin: 0 auto 0.9rem;
+}
+
+.day-sheet__date {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  margin-bottom: 0.85rem;
+  color: var(--color-15);
+}
+
+.day-sheet__ev {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--gray-30, #f0f0f0);
+}
+
+.day-sheet__ev:last-child { border-bottom: none; }
+
+.day-sheet__ev-thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.day-sheet__ev-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.day-sheet__ev-info  { flex: 1; min-width: 0; }
+
+.day-sheet__ev-title {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.day-sheet__ev-title--cancelled {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+.day-sheet__ev-cancelled-badge {
+  font-size: var(--fs-xxs);
+  font-weight: var(--fw-bold);
+  background: var(--cat-especial, #fde8ea);
+  color: var(--cat-especial-t, #b02030);
+  padding: 1px 5px;
+  border-radius: var(--radius-full);
+  margin-left: 0.3rem;
+}
+
+.day-sheet__ev-time {
+  font-size: var(--fs-xxs);
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
+.day-sheet__ev-link {
+  font-size: var(--fs-xxs);
+  font-weight: var(--fw-semibold);
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.day-sheet__ev-link:hover { text-decoration: underline; }
+
+.day-sheet__ev-chevron {
+  color: var(--gray-100, #ccc);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.day-sheet__ev-actions {
+  display: flex;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.day-sheet__ev--cancelled .day-sheet__ev-title {
+  text-decoration: line-through;
+  color: var(--color-muted);
+  opacity: 0.6;
+}
