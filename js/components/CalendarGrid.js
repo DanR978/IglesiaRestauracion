@@ -103,19 +103,32 @@ export class CalendarGrid {
       ].filter(Boolean).join(' ');
 
       // Desktop: up to 2 pills (admin gets action buttons on hover)
+      const REPETITIVE_CATS = ['servicio', 'estudio', 'oracion'];
       const pills = evs.slice(0, 2).map(ev => {
         const cat = getCat(ev.category);
         const cc  = ev.cancelled ? ' cal-event-pill--cancelled' : '';
+        const isSpecialEv = ev._source === 'evt' || ev.fromEventsTable;
+        const rawEvId = ev.id.replace('evt-', '');
+        const safeTitle = (ev.title||'').replace(/'/g, "\\'");
+        const canCancel = REPETITIVE_CATS.includes(ev.category);
+
+        const editClick   = isSpecialEv
+          ? `window.__adminEditSpecial('${rawEvId}')`
+          : `window.__gridEdit('${ev.id}')`;
+        const deleteClick = isSpecialEv
+          ? `window.__adminDeleteEvent('${ev.id}','${safeTitle}',true)`
+          : `window.__gridDelete('${ev.id}','${safeTitle}')`;
+
         const adminActions = isAdmin ? `
           <span class="cal-ev__actions">
             <button class="cal-ev__btn cal-ev__btn--edit"
-              onclick="event.stopPropagation();window.__gridEdit('${ev.id}')"
+              onclick="event.stopPropagation();${editClick}"
               title="Editar">✏</button>
-            <button class="cal-ev__btn ${ev.cancelled ? 'cal-ev__btn--undo' : 'cal-ev__btn--cancel'}"
+            ${canCancel ? `<button class="cal-ev__btn ${ev.cancelled ? 'cal-ev__btn--undo' : 'cal-ev__btn--cancel'}"
               onclick="event.stopPropagation();window.__gridToggle('${ev.id}',${ev.cancelled})"
-              title="${ev.cancelled ? 'Reactivar' : 'Cancelar'}">${ev.cancelled ? '↩' : '⊘'}</button>
+              title="${ev.cancelled ? 'Reactivar' : 'Cancelar'}">${ev.cancelled ? '↩' : '⊘'}</button>` : ''}
             <button class="cal-ev__btn cal-ev__btn--delete"
-              onclick="event.stopPropagation();window.__gridDelete('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}')"
+              onclick="event.stopPropagation();${deleteClick}"
               title="Eliminar">✕</button>
           </span>` : '';
         return `<div class="cal-event-pill ${cat.pill}${cc}" data-id="${ev.id}">
@@ -169,7 +182,11 @@ export class CalendarGrid {
   }
 
   _handleEventClick(ev) {
-    if (ev._source === 'evt' || ev.fromEventsTable) {
+    const isAdmin = this.cfg.mode === 'admin';
+    if (isAdmin) {
+      // In admin, clicking any event opens edit
+      this.cfg.onEventEdit?.(ev);
+    } else if (ev._source === 'evt' || ev.fromEventsTable) {
       const rawId = ev.id.replace('evt-', '');
       window.location.href = `/eventos/evento.html?id=${rawId}`;
     } else {
@@ -222,26 +239,32 @@ export class CalendarGrid {
         ? `<img class="day-sheet__ev-thumb" src="${ev.image_url}" alt="" loading="lazy">`
         : `<span class="day-sheet__ev-dot ${cat.dot}"></span>`;
 
-      // Right side: special → link; regular → tap row; admin → action buttons
+      // Repetitive categories that support cancel/reactivate
+      const REPETITIVE = ['servicio', 'estudio', 'oracion'];
+      const canCancel = REPETITIVE.includes(ev.category);
+
+      // Right side: admin → action buttons for ALL events; public special → link; public regular → chevron
       let rightEl;
-      if (isSpecial) {
+      if (isAdmin) {
+        const editAction   = isSpecial ? `window.__adminEditSpecial('${rawId}')` : `window.__gridEdit('${ev.id}')`;
+        const deleteAction = isSpecial
+          ? `window.__adminDeleteEvent('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}',true)`
+          : `window.__gridDelete('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}')`;
+
+        rightEl = `<div class="day-sheet__ev-actions">
+          <button class="icon-btn" onclick="event.stopPropagation();${editAction};window.__closeDaySheet()" title="Editar"><i class="fas fa-pen"></i></button>
+          ${canCancel ? `<button class="icon-btn ${isCancelled ? 'success' : 'warn'}"
+            onclick="event.stopPropagation();${isSpecial ? `window.__adminToggleCancel('${ev.id}',${isCancelled})` : `window.__gridToggle('${ev.id}',${isCancelled})`};window.__closeDaySheet()"
+            title="${isCancelled ? 'Reactivar' : 'Cancelar'}">
+            <i class="fas fa-${isCancelled ? 'undo' : 'ban'}"></i>
+          </button>` : ''}
+          <button class="icon-btn danger" onclick="event.stopPropagation();${deleteAction};window.__closeDaySheet()" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>`;
+      } else if (isSpecial) {
         rightEl = `<a class="day-sheet__ev-link" href="/eventos/evento.html?id=${rawId}">
           Ver detalles <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
         </a>`;
-      } else if (isAdmin) {
-        rightEl = `<div class="day-sheet__ev-actions">
-          <button class="icon-btn" onclick="window.__gridEdit('${ev.id}');window.__closeDaySheet()"><i class="fas fa-pen"></i></button>
-          <button class="icon-btn ${isCancelled ? 'success' : 'warn'}"
-            onclick="window.__gridToggle('${ev.id}',${isCancelled});window.__closeDaySheet()">
-            <i class="fas fa-${isCancelled ? 'undo' : 'ban'}"></i>
-          </button>
-          <button class="icon-btn danger"
-            onclick="window.__gridDelete('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}');window.__closeDaySheet()">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>`;
       } else {
-        // Public: clicking the row opens the modal
         rightEl = `<i class="fas fa-chevron-right day-sheet__ev-chevron"></i>`;
       }
 

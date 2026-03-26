@@ -1,0 +1,225 @@
+/* ═══════════════════════════════════════════════
+   Admin Wizard — Step-by-step event creation
+   ═══════════════════════════════════════════════ */
+
+.wizard-backdrop {
+  position: fixed; inset: 0;
+  z-index: var(--z-modal, 100);
+  background: rgba(0,0,0,.55);
+  display: none; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.wizard-backdrop.open { display: flex; }
+
+.wizard {
+  background: var(--color-bg-light, #fff);
+  border-radius: 16px;
+  width: 100%; max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  position: relative;
+}
+
+.wizard__header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 1px solid rgba(0,0,0,.06);
+}
+.wizard__header h3 {
+  font-size: 1.1rem; font-weight: 700; margin: 0;
+  color: var(--color-dark);
+}
+.wizard__close {
+  background: none; border: none; font-size: 1.3rem;
+  cursor: pointer; color: var(--color-muted); padding: .25rem;
+  border-radius: 6px; line-height: 1;
+}
+.wizard__close:hover { background: rgba(0,0,0,.06); }
+
+/* Progress bar */
+.wizard__progress {
+  display: flex; gap: 4px; padding: 0 1.5rem; margin: .75rem 0;
+}
+.wizard__progress-dot {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: rgba(0,0,0,.08);
+  transition: background .3s;
+}
+.wizard__progress-dot.active {
+  background: var(--color-primary, #345a65);
+}
+.wizard__progress-dot.done {
+  background: var(--color-add, #72BB72);
+}
+
+.wizard__body { padding: 1rem 1.5rem 1.5rem; }
+
+/* Step visibility */
+.wiz-step { display: none; }
+.wiz-step.active { display: block; }
+
+/* ── Step 1: Type chooser ── */
+.wiz-type-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+  margin: .5rem 0;
+}
+.wiz-type-card {
+  border: 2px solid rgba(0,0,0,.08);
+  border-radius: 14px; padding: 1.5rem 1rem;
+  text-align: center; cursor: pointer;
+  transition: border-color .2s, transform .15s, box-shadow .2s;
+  background: var(--color-bg-light, #fff);
+}
+.wiz-type-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52,90,101,.12);
+}
+.wiz-type-card i {
+  font-size: 2rem; margin-bottom: .6rem;
+  display: block;
+}
+.wiz-type-card.type-special i { color: var(--color-secondary); }
+.wiz-type-card.type-regular i { color: var(--color-primary); }
+.wiz-type-card__title {
+  font-weight: 700; font-size: .95rem;
+  margin-bottom: .3rem;
+}
+.wiz-type-card__desc {
+  font-size: .78rem; color: var(--color-muted);
+  line-height: 1.35;
+}
+
+/* ── Step 2: Preset picker ── */
+.wiz-preset-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: .6rem; margin: .5rem 0;
+}
+.wiz-preset-card {
+  border: 2px solid rgba(0,0,0,.06);
+  border-radius: 10px; overflow: hidden;
+  cursor: pointer; transition: border-color .2s, transform .15s;
+  background: var(--color-bg-light, #fff);
+}
+.wiz-preset-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+.wiz-preset-card.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(52,90,101,.2);
+}
+.wiz-preset-card__img {
+  width: 100%; aspect-ratio: 16/10; object-fit: cover;
+  display: block; background: #f0f0f0;
+}
+.wiz-preset-card__name {
+  padding: .5rem .6rem; font-size: .8rem; font-weight: 600;
+  text-align: center; color: var(--color-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── Step 2 (regular): Category chooser ── */
+.wiz-cat-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .6rem;
+  margin: .5rem 0;
+}
+.wiz-cat-card {
+  border: 2px solid rgba(0,0,0,.06);
+  border-radius: 10px; padding: 1rem .75rem;
+  text-align: center; cursor: pointer;
+  transition: border-color .2s, transform .15s;
+}
+.wiz-cat-card:hover { transform: translateY(-2px); }
+.wiz-cat-card.selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(52,90,101,.15);
+}
+.wiz-cat-card__dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  display: inline-block; margin-bottom: .4rem;
+}
+.wiz-cat-card__title {
+  font-weight: 600; font-size: .88rem;
+}
+.wiz-cat-card__desc {
+  font-size: .72rem; color: var(--color-muted); margin-top: .2rem;
+}
+
+/* ── Step 3: Date/time ── */
+.wiz-field {
+  margin-bottom: .85rem;
+}
+.wiz-field label {
+  display: block; font-size: .82rem; font-weight: 600;
+  margin-bottom: .3rem; color: var(--color-dark);
+  text-transform: none; letter-spacing: 0;
+}
+.wiz-field input, .wiz-field textarea, .wiz-field select {
+  width: 100%; padding: .6rem .75rem;
+  border: 1.5px solid rgba(0,0,0,.12);
+  border-radius: 8px; font-size: .9rem;
+  background: var(--color-bg-light, #fff);
+  color: var(--color-dark, #333);
+  transition: border-color .2s;
+}
+.wiz-field input:focus, .wiz-field textarea:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+.wiz-field .wiz-hint {
+  font-size: .72rem; color: var(--color-muted);
+  margin-top: .2rem;
+}
+.wiz-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: .75rem;
+}
+
+/* ── Step 4: Review ── */
+.wiz-review {
+  border: 1.5px solid rgba(0,0,0,.08);
+  border-radius: 12px; overflow: hidden;
+  margin: .5rem 0;
+}
+.wiz-review__img {
+  width: 100%; aspect-ratio: 16/8; object-fit: cover;
+  display: block; background: #f0f0f0;
+}
+.wiz-review__body { padding: .85rem 1rem; }
+.wiz-review__title {
+  font-weight: 700; font-size: 1rem;
+  margin-bottom: .4rem;
+}
+.wiz-review__row {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .82rem; color: var(--color-muted);
+  margin-bottom: .2rem;
+}
+.wiz-review__row i { width: 16px; text-align: center; opacity: .6; }
+
+/* ── Navigation ── */
+.wiz-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 1.25rem; gap: .5rem;
+}
+.wiz-nav .btn { min-width: 100px; }
+.wiz-nav__spacer { flex: 1; }
+
+/* ── Step label ── */
+.wiz-step-label {
+  font-size: .75rem; color: var(--color-muted);
+  text-transform: uppercase; letter-spacing: .06em;
+  font-weight: 700; margin-bottom: .5rem;
+}
+
+/* ── Custom name input when "Personalizado" is selected ── */
+.wiz-custom-name {
+  margin-top: .6rem;
+}
+
+@media (max-width: 480px) {
+  .wiz-type-grid { grid-template-columns: 1fr; }
+  .wiz-row { grid-template-columns: 1fr; }
+  .wizard { max-width: 100%; border-radius: 12px; }
+}

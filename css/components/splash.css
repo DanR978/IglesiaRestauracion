@@ -1,0 +1,51 @@
+/* ═══════════════════════════════════════════════
+   IRD Splash — Fish Evangelism Loading Screen
+   ═══════════════════════════════════════════════ */
+
+#ird-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #090f11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.8s cubic-bezier(.4, 0, .2, 1);
+  will-change: opacity;
+}
+
+#ird-splash.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#ird-splash canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#ird-splash .splash-logo {
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 1.2s ease-out 0.3s, transform 1.2s ease-out 0.3s;
+  pointer-events: none;
+}
+
+#ird-splash .splash-logo.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#ird-splash .splash-logo svg {
+  width: 80px;
+  height: auto;
+  filter: drop-shadow(0 0 30px rgba(52, 90, 101, 0.4));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ird-splash { display: none !important; }
+}

@@ -146,6 +146,9 @@ function buildEventsTableHtml(events, isPastTab) {
       const [, mo, d] = ev.date.split('-').map(Number);
       const dateStr = `${mo}/${d}/${String(y).slice(-2)}${ev.time ? ' ' + ev.time : ''}`;
 
+      const REPETITIVE = ['servicio', 'estudio', 'oracion'];
+      const canCancel = REPETITIVE.includes(ev.category);
+
       return `
         <tr class="${rowClass}">
           <td>${imgCell}</td>
@@ -157,11 +160,11 @@ function buildEventsTableHtml(events, isPastTab) {
             <div class="row-actions">
               ${!isPastTab ? `
                 ${editBtn}
-                <button class="icon-btn__admin ${ev.cancelled ? 'success' : 'warn'}"
+                ${canCancel ? `<button class="icon-btn__admin ${ev.cancelled ? 'success' : 'warn'}"
                   title="${ev.cancelled ? 'Reactivar' : 'Cancelar'}"
                   onclick="window.__adminToggleCancel('${ev.id}', ${ev.cancelled})">
                   <i class="fas fa-${ev.cancelled ? 'undo' : 'ban'}"></i>
-                </button>` : ''}
+                </button>` : ''}` : ''}
               <button class="icon-btn__admin danger" title="Eliminar"
                 onclick="window.__adminDeleteEvent('${ev.id}', '${(ev.title || '').replace(/'/g, "\\'")}', ${!!ev.fromEventsTable})">
                 <i class="fas fa-trash"></i>

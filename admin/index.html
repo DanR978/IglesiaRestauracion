@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+    <script src="/js/components/splash.js"></script>
 
 <!-- ── AUTH ────────────────────────────────────────────────────────────────── -->
 <div id="authScreen">
@@ -65,10 +66,6 @@
     <div class="view-panel active" id="view-list">
       <div class="action-bar">
         <h2>Próximos Eventos</h2>
-        <div style="display:flex;gap:.45rem">
-          <button class="btn btn--secondary" id="bulkEventBtn"><i class="fas fa-layer-group"></i> Bulk</button>
-          <button class="btn btn--primary"   id="newEventBtn"><i class="fas fa-plus"></i> Nuevo</button>
-        </div>
       </div>
 
       <div class="filter-bar admin-only" id="filterBarWrap" style="display:none">
@@ -210,7 +207,7 @@
       <h2>Calendario de Actividades</h2>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
         <button class="btn btn--ghost" style="font-size:.85rem;padding:.55rem 1rem" id="calSmartBtn">
-          <i class="fas fa-magic"></i> Presets
+          <i class="fas fa-magic"></i> Preselección
         </button>
         <button class="btn btn--primary" id="calAddBtn">
           <i class="fas fa-plus"></i> Agregar
@@ -268,10 +265,10 @@
     <!-- Smart preset panel -->
     <div class="smart-panel" id="smartPanel">
       <div class="smart-panel-header">
-        <h3>Llenar mes con preset</h3>
+        <h3>Llenar mes con preselección</h3>
         <div style="display:flex;gap:.5rem;align-items:center">
           <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartNewPresetBtn">
-            <i class="fas fa-plus"></i> Nuevo preset
+            <i class="fas fa-plus"></i> Nueva preselección
           </button>
           <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartClose">
             ✕ Cerrar
@@ -315,7 +312,7 @@
       </div>
 
       <p style="font-size:.7rem;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0 .4rem">
-        Selecciona un preset:
+        Selecciona preseleccion:
       </p>
       <div class="smart-grid" id="presetGrid"></div>
 
@@ -526,8 +523,53 @@
     <div class="modal__footer">
       <button class="btn btn--ghost"   id="presetModalCancel">Cancelar</button>
       <button class="btn btn--primary" id="presetModalSave">
-        <i class="fas fa-save"></i> Guardar preset
+        <i class="fas fa-save"></i> Guardar preselección
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EVENT CREATION WIZARD ────────────────────────────────────────────── -->
+<div class="wizard-backdrop" id="wizardBackdrop">
+  <div class="wizard">
+    <div class="wizard__header">
+      <h3 id="wizardTitle">Crear Evento</h3>
+      <button class="wizard__close" id="wizardClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="wizard__progress">
+      <div class="wizard__progress-dot active"></div>
+      <div class="wizard__progress-dot"></div>
+      <div class="wizard__progress-dot"></div>
+      <div class="wizard__progress-dot"></div>
+    </div>
+    <div class="wizard__body">
+
+      <!-- Step 1: Choose type -->
+      <div class="wiz-step active" id="wizStep1">
+        <div class="wiz-step-label">¿Qué quieres crear?</div>
+        <div class="wiz-type-grid">
+          <div class="wiz-type-card type-special">
+            <i class="fas fa-star"></i>
+            <div class="wiz-type-card__title">Evento Especial</div>
+            <div class="wiz-type-card__desc">Vigilia, Noche de Caballeros, Celebraciones, etc.</div>
+          </div>
+          <div class="wiz-type-card type-regular">
+            <i class="fas fa-calendar-check"></i>
+            <div class="wiz-type-card__title">Actividad Regular</div>
+            <div class="wiz-type-card__desc">Servicio, Estudio Bíblico, Oración, etc.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: dynamic (preset or category picker) -->
+      <div class="wiz-step" id="wizStep2"></div>
+
+      <!-- Step 3: date/time/details -->
+      <div class="wiz-step" id="wizStep3"></div>
+
+      <!-- Step 4: review & create -->
+      <div class="wiz-step" id="wizStep4"></div>
+
     </div>
   </div>
 </div>

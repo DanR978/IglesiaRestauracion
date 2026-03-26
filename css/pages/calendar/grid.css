@@ -9,6 +9,7 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  padding: 15px;
 }
 
 .cal-grid {
@@ -215,5 +216,5 @@
   }
 
   .cal-day__events { display: none; }
-  .cal-day__dot-row { display: flex; }
+  .cal-day__dot-row { display: flex; padding: 0 5px; }
 }

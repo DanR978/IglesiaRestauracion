@@ -1,16 +1,17 @@
 /* admin/presets.css
-   Smart preset panel + preset cards + preview pills.
-   Also covers the new DB preset management modal. */
+   Smart preset panel + month dropdown + preset cards + preview pills. */
 
+/* ═══════════════════════════════════════════════
+   SMART PANEL (container)
+   ═══════════════════════════════════════════════ */
 .smart-panel {
   display: none;
   background: var(--color-white);
   border: 1.5px solid var(--color-primary);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   padding: 1.1rem;
   margin-bottom: 1rem;
 }
-
 .smart-panel.open { display: block; }
 
 .smart-panel-header {
@@ -19,46 +20,260 @@
   align-items: center;
   margin-bottom: 0.85rem;
 }
-
-.smart-panel-header h3 { font-size: 1rem; font-weight: 700; }
-
-.smart-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
+.smart-panel-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
 }
 
-/* ── Preset card ─────────────────────────────────────── */
+/* ═══════════════════════════════════════════════
+   SELECTOR ROW (month dropdown + year input)
+   ═══════════════════════════════════════════════ */
+.smart-selector-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+/* ── Month dropdown ─────────────────────────────── */
+.smart-month-dropdown {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.smart-month-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.85rem;
+  border: 1.5px solid var(--gray-60, #DCDCDC);
+  border-radius: 8px;
+  background: var(--color-white, #fff);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-dark, #394548);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.smart-month-btn:hover {
+  border-color: var(--color-primary);
+}
+.smart-month-btn:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(52, 90, 101, 0.12);
+  outline: none;
+}
+
+.smart-month-btn__label {
+  flex: 1;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.smart-month-btn__label i {
+  font-size: 0.85rem;
+  opacity: 0.5;
+}
+
+.smart-month-btn__badge {
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.smart-month-btn__caret {
+  font-size: 0.65rem;
+  opacity: 0.4;
+  transition: transform 0.2s;
+}
+.smart-month-menu.open ~ .smart-month-btn .smart-month-btn__caret,
+.smart-month-dropdown:has(.smart-month-menu.open) .smart-month-btn__caret {
+  transform: rotate(180deg);
+}
+
+/* ── Dropdown menu ──────────────────────────────── */
+.smart-month-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: var(--color-white, #fff);
+  border: 1.5px solid var(--gray-60, #DCDCDC);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  animation: smartMenuIn 0.15s ease-out;
+}
+.smart-month-menu.open {
+  display: block;
+}
+
+@keyframes smartMenuIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.smart-month-menu__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.smart-month-menu__clear {
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.smart-month-menu__clear:hover {
+  background: rgba(52, 90, 101, 0.08);
+}
+
+.smart-month-menu__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 0.5rem;
+}
+
+/* ── Month option chips ─────────────────────────── */
+.smart-month-opt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.3rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-dark, #394548);
+  transition: background 0.15s;
+  user-select: none;
+}
+.smart-month-opt:hover {
+  background: rgba(52, 90, 101, 0.06);
+}
+
+.smart-month-opt input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+  margin: 0;
+}
+
+.smart-month-opt:has(input:checked) {
+  background: rgba(52, 90, 101, 0.1);
+  font-weight: 600;
+}
+
+.smart-month-opt span {
+  pointer-events: none;
+}
+
+/* ── Year field ─────────────────────────────────── */
+.smart-year-field {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.smart-year-field__label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-dark);
+  white-space: nowrap;
+}
+
+.smart-year-input {
+  width: 80px;
+  padding: 0.55rem 0.6rem;
+  border: 1.5px solid var(--gray-60, #DCDCDC);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-align: center;
+  background: var(--color-white, #fff);
+  color: var(--color-dark);
+  transition: border-color 0.2s;
+}
+.smart-year-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(52, 90, 101, 0.12);
+}
+
+/* ═══════════════════════════════════════════════
+   PRESET GRID + CARDS
+   ═══════════════════════════════════════════════ */
+.smart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.6rem;
+  /* margin-bottom: 0.75rem; */
+}
+
 .preset-card {
-  border: 1.5px solid var(--gray-50);
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--gray-50, #E0E0E0);
+  border-radius: var(--radius-sm, 6px);
   padding: 0.55rem 0.8rem;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   position: relative;
+  display: flex;
+  justify-content: space-between;
+  ;
 }
-
-.preset-card:hover    { border-color: var(--color-primary); background: rgba(52, 90, 101, 0.04); }
-.preset-card.selected { border-color: var(--color-primary); background: rgba(52, 90, 101, 0.08); }
+.preset-card:hover {
+  border-color: var(--color-primary);
+  background: rgba(52, 90, 101, 0.04);
+}
+.preset-card.selected {
+  border-color: var(--color-primary);
+  background: rgba(52, 90, 101, 0.08);
+}
 
 .preset-card__title { font-weight: 600; font-size: 0.82rem; }
 .preset-card__sub   { font-size: 0.7rem; color: var(--color-muted); margin-top: 2px; }
 
 .preset-card__actions {
-  display: none;
-  position: absolute;
-  top: 0.35rem;
-  right: 0.35rem;
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;
   gap: 0.2rem;
 }
-
-.preset-card:hover .preset-card__actions { display: flex; }
 
 .preset-card__btn {
   width: 20px;
   height: 20px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-xs, 4px);
   border: none;
   cursor: pointer;
   display: flex;
@@ -72,7 +287,9 @@
 .preset-card__btn--delete { background: rgba(220, 38, 38, 0.2);  color: #dc2626; }
 .preset-card__btn:hover   { filter: brightness(0.8); }
 
-/* ── Preview pills ───────────────────────────────────── */
+/* ═══════════════════════════════════════════════
+   PREVIEW PILLS
+   ═══════════════════════════════════════════════ */
 .preview-pills {
   display: flex;
   flex-wrap: wrap;
@@ -87,6 +304,39 @@
   background: rgba(52, 90, 101, 0.1);
   color: var(--color-primary);
   padding: 2px 7px;
-  border-radius: var(--radius-full);
+  border-radius: 999px;
   font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  .smart-selector-row {
+    flex-direction: column;
+  }
+  .smart-month-dropdown {
+    min-width: 100%;
+  }
+  .smart-month-menu__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .smart-grid {
+    grid-template-columns: 1fr;
+  }
+  .smart-panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  .smart-year-field {
+    width: 100%;
+    padding: 0.55rem 0.6rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 820px) {
+  .smart-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }

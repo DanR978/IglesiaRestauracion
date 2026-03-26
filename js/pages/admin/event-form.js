@@ -19,7 +19,7 @@ export const EVENT_PRESETS = [
   { title:'Noche de Damas',      tags:['Servicio','Convivio'],    img:'damas.png',              desc:'Una noche especial para las mujeres de la iglesia. Alabanza, oración, comunión y compañerismo.' },
   { title:'Vigilia',             tags:['Servicio','Oración'],     img:'vigilia.png',            desc:'Una noche especial de oración, adoración y comunión. Habrá café, comida, alabanza y un tiempo inolvidable de fe.' },
   { title:'Devocional',          tags:['Servicio','Oración'],     img:'devocional.png',         desc:'Un tiempo dedicado a la reflexión bíblica, oración y crecimiento espiritual.' },
-  { title:'Noche de Jóvenes',    tags:['Servicio','Convivio'],    img:'',                       desc:'Una noche de comunión entre jóvenes. Palabra, comida y actividades.' },
+  { title:'Noche de Jóvenes',    tags:['Servicio','Convivio'],    img:'jovenes.png',            desc:'Una noche de comunión entre jóvenes. Palabra, comida y actividades.' },
   { title:'Día de las Madres',   tags:['Celebración','Servicio'], img:'madres.png',             desc:'Un servicio especial para honrar y celebrar a las madres de nuestra comunidad.' },
   { title:'Día del Padre',       tags:['Celebración','Servicio'], img:'padre.png',              desc:'Celebramos a los padres de nuestra iglesia con un servicio especial.' },
   { title:'Día del Niño',        tags:['Celebración','Niños'],    img:'nino.png',               desc:'Celebración para los más pequeños. Juegos, actividades, comida y un mensaje especial.' },
@@ -186,6 +186,15 @@ function _initSingleForm() {
 export async function openEditSpecial(rawId) {
   const { data: ev } = await sb.from('events').select('*').eq('id', rawId).single();
   if (!ev) return;
+
+  // Switch to Próximos tab so the form (inside #tab-upcoming) is visible
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const upcomingTab = document.querySelector('.tab-btn[data-tab="upcoming"]');
+  if (upcomingTab) upcomingTab.classList.add('active');
+  const upcomingPanel = document.getElementById('tab-upcoming');
+  if (upcomingPanel) upcomingPanel.classList.add('active');
+
   document.getElementById('formTitle').textContent = 'Editar Evento';
   document.getElementById('fId').value = ev.id;
   const idx = EVENT_PRESETS.findIndex(p => p.title === ev.title);

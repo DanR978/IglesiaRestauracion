@@ -39,7 +39,7 @@ export function buildPresetGrid() {
 
   if (!dbPresets.length) {
     g.innerHTML = `<p style="color:var(--color-muted);font-size:.85rem;grid-column:1/-1">
-      No hay presets todavía.
+      No hay preselecciones todavía.
       <button class="bulk-add-btn" onclick="window.__openPresetModal(null)" style="margin-left:.5rem">
         + Crear uno
       </button>
@@ -49,17 +49,26 @@ export function buildPresetGrid() {
 
   g.innerHTML = dbPresets.map((p, i) => `
     <div class="preset-card" data-idx="${i}">
-      <div class="preset-card__title">${p.name}</div>
-      <div class="preset-card__sub">${_patternLabel(p)}</div>
-      <div class="preset-card__actions">
-        <button class="preset-card__btn preset-card__btn--edit"
-          onclick="event.stopPropagation();window.__openPresetModal('${p.id}')"
-          title="Editar">✏</button>
-        <button class="preset-card__btn preset-card__btn--delete"
-          onclick="event.stopPropagation();window.__deletePreset('${p.id}','${(p.name||'').replace(/'/g,"\\'")}');"
-          title="Eliminar">✕</button>
+      <div class="preset-card__body">
+        <div class="preset-card__title">${p.name}</div>
+        <div class="preset-card__sub">${_patternLabel(p)}</div>
       </div>
-    </div>`).join('');
+
+      <div class="preset-card__footer">
+        <div class="preset-card__actions">
+          <button class="icon-btn__admin" title="Editar"
+            onclick="event.stopPropagation();window.__openPresetModal('${p.id}')">
+            <i class="fas fa-pen"></i>
+          </button>
+
+          <button class="icon-btn__admin danger" title="Eliminar"
+            onclick="event.stopPropagation();window.__deletePreset('${p.id}','${(p.name||'').replace(/'/g,"\\'")}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
 
   g.querySelectorAll('.preset-card').forEach(c => {
     c.addEventListener('click', () => {
@@ -79,22 +88,38 @@ function _patternLabel(p) {
 }
 
 // ─── Preview ──────────────────────────────────────────────────────────────────
+function getSelectedMonths() {
+  const checks = document.querySelectorAll('#monthDropdownMenu input[type="checkbox"]');
+  return [...checks].filter(c => c.checked).map(c => Number(c.value));
+}
+
+function updateMonthBadge() {
+  const count = getSelectedMonths().length;
+  const badge = document.getElementById('monthDropdownBadge');
+  if (badge) badge.textContent = String(count);
+}
+
 function updateSmartPreview(idx) {
   selPresetIdx = idx;
   const p     = dbPresets[idx];
   if (!p) return;
-  const month = Number(document.getElementById('smartMonth').value);
-  const year  = Number(document.getElementById('smartYear').value);
-  const dates = getDates(p, year, month);
+  const months = getSelectedMonths();
+  const year   = Number(document.getElementById('smartYear').value);
 
-  document.getElementById('smartCount').textContent = dates.length;
-  document.getElementById('previewPills').innerHTML = dates.map(d => {
+  const allDates = [];
+  for (const month of months) {
+    allDates.push(...getDates(p, year, month));
+  }
+  allDates.sort();
+
+  document.getElementById('smartCount').textContent = allDates.length;
+  document.getElementById('previewPills').innerHTML = allDates.map(d => {
     const [y, m, day] = d.split('-').map(Number);
     return `<span class="preview-pill">${
       new Date(y, m - 1, day).toLocaleDateString('es', { weekday:'short', day:'numeric', month:'short' })
     }</span>`;
   }).join('');
-  document.getElementById('smartPreview').style.display = dates.length ? 'block' : 'none';
+  document.getElementById('smartPreview').style.display = allDates.length ? 'block' : 'none';
 }
 
 function getDates(p, year, month) {
@@ -124,10 +149,15 @@ function getDates(p, year, month) {
 // ─── Create from preset ───────────────────────────────────────────────────────
 async function createFromPreset() {
   if (selPresetIdx === null) return;
-  const p     = dbPresets[selPresetIdx];
-  const month = Number(document.getElementById('smartMonth').value);
-  const year  = Number(document.getElementById('smartYear').value);
-  const dates = getDates(p, year, month);
+  const p      = dbPresets[selPresetIdx];
+  const months = getSelectedMonths();
+  const year   = Number(document.getElementById('smartYear').value);
+
+  const dates = [];
+  for (const month of months) {
+    dates.push(...getDates(p, year, month));
+  }
+  dates.sort();
   if (!dates.length) return;
 
   const btn = document.getElementById('smartCreate');
@@ -158,11 +188,11 @@ async function createFromPreset() {
 // ─── Delete preset ────────────────────────────────────────────────────────────
 window.__deletePreset = async (id, name) => {
   const { confirm: c } = await import('./ui.js');
-  const ok = await c('¿Eliminar preset?', `"${name}" se eliminará permanentemente.`);
+  const ok = await c('¿Eliminar preselección?', `"${name}" se eliminará permanentemente.`);
   if (!ok) return;
   const { error } = await sb.from('calendar_presets').delete().eq('id', id);
   if (error) { toast(error.message, 'error'); return; }
-  toast('Preset eliminado', 'success');
+  toast('Preselección eliminada', 'success');
   selPresetIdx = null;
   await loadPresets();
 };
@@ -177,7 +207,7 @@ window.__openPresetModal = async (id) => {
   errEl.style.display = 'none';
 
   if (id) {
-    titleEl.textContent = 'Editar Preset';
+    titleEl.textContent = 'Editar preselección';
     const p = dbPresets.find(x => x.id === id);
     if (!p) return;
     document.getElementById('pmName').value        = p.name;
@@ -190,7 +220,7 @@ window.__openPresetModal = async (id) => {
     document.getElementById('pmNthWeek').value     = p.nth_week || '';
     _toggleNthWeek();
   } else {
-    titleEl.textContent = 'Nuevo Preset';
+    titleEl.textContent = 'Preseleccionar';
     document.getElementById('pmName').value        = '';
     document.getElementById('pmDescription').value = '';
     document.getElementById('pmCategory').value    = 'otro';
@@ -243,7 +273,7 @@ async function _savePreset() {
 
   btn.disabled = false;
   if (error) { errEl.textContent = error.message; errEl.style.display = ''; return; }
-  toast(editingPresetId ? 'Preset actualizado' : 'Preset creado', 'success');
+  toast(editingPresetId ? 'Preselección actualizada' : 'Preselección creada', 'success');
   closeModal('presetModal');
   await loadPresets();
 }
@@ -252,7 +282,11 @@ async function _savePreset() {
 export function initSmartPresets() {
   document.getElementById('calSmartBtn')?.addEventListener('click', async () => {
     const now = new Date();
-    document.getElementById('smartMonth').value = now.getMonth();
+    // Pre-check current month
+    document.querySelectorAll('#monthDropdownMenu input[type="checkbox"]').forEach(c => {
+      c.checked = (Number(c.value) === now.getMonth());
+    });
+    updateMonthBadge();
     document.getElementById('smartYear').value  = now.getFullYear();
     selPresetIdx = null;
     document.getElementById('smartPreview').style.display = 'none';
@@ -270,10 +304,37 @@ export function initSmartPresets() {
     document.getElementById('smartPreview').style.display = 'none';
   });
 
-  ['smartMonth', 'smartYear'].forEach(id => {
-    document.getElementById(id)?.addEventListener('change', () => {
+  // Month dropdown toggle
+  document.getElementById('monthDropdownBtn')?.addEventListener('click', () => {
+    document.getElementById('monthDropdownMenu')?.classList.toggle('open');
+  });
+
+  // Close dropdown on outside click
+  document.addEventListener('click', (e) => {
+    const dd = document.getElementById('monthDropdown');
+    if (dd && !dd.contains(e.target)) {
+      document.getElementById('monthDropdownMenu')?.classList.remove('open');
+    }
+  });
+
+  // Clear all months
+  document.getElementById('monthClearAll')?.addEventListener('click', () => {
+    document.querySelectorAll('#monthDropdownMenu input[type="checkbox"]').forEach(c => c.checked = false);
+    updateMonthBadge();
+    if (selPresetIdx !== null) updateSmartPreview(selPresetIdx);
+  });
+
+  // Month checkbox changes
+  document.querySelectorAll('#monthDropdownMenu input[type="checkbox"]').forEach(c => {
+    c.addEventListener('change', () => {
+      updateMonthBadge();
       if (selPresetIdx !== null) updateSmartPreview(selPresetIdx);
     });
+  });
+
+  // Year changes
+  document.getElementById('smartYear')?.addEventListener('change', () => {
+    if (selPresetIdx !== null) updateSmartPreview(selPresetIdx);
   });
 
   document.getElementById('smartCreate')?.addEventListener('click', createFromPreset);

@@ -14,6 +14,7 @@ import { loadCalendario, initCalendarNav } from './calendar-tab.js';
 import { initForms } from './event-form.js';
 import { loadPresets, buildPresetGrid, initSmartPresets } from './presets.js';
 import { loadUsers, initUserModal } from './users.js';
+import { initWizard } from './wizard.js';
 import { confirmResolve } from './state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
   buildPresetGrid();
   loadPresets();  // load DB presets on boot
   initSmartPresets();
+
+  // ── Event creation wizard ────────────────────────────────────────────────
+  initWizard();
 
   // ── User modal ─────────────────────────────────────────────────────────────
   initUserModal();

@@ -1,0 +1,51 @@
+/* ═══════════════════════════════════════════════
+   IRD Logo Loader — edge-chase + comet + radiance
+   ═══════════════════════════════════════════════ */
+
+.ird-loader {
+  --ird-loader-size: 48px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.ird-loader svg {
+  display: block;
+  width: var(--ird-loader-size);
+  height: calc(var(--ird-loader-size) * 1.547);
+}
+
+/* ---- size presets ---- */
+.ird-loader[data-size="xs"]  { --ird-loader-size: 20px; }
+.ird-loader[data-size="sm"]  { --ird-loader-size: 28px; }
+.ird-loader[data-size="md"]  { --ird-loader-size: 48px; }
+.ird-loader[data-size="lg"]  { --ird-loader-size: 64px; }
+.ird-loader[data-size="xl"]  { --ird-loader-size: 96px; }
+
+/* ---- with-label layout ---- */
+.ird-loader[data-label] { width: auto; }
+.ird-loader[data-label]::before {
+  content: attr(data-label);
+  order: 1;
+  font-size: var(--fs-sm, 0.875rem);
+  color: var(--color-muted, #736960);
+  white-space: nowrap;
+}
+
+/* ---- centering helper ---- */
+.ird-loader--center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .ird-loader svg .ird-comet,
+  .ird-loader svg .ird-radiance { display: none; }
+  .ird-loader svg .ird-cross { opacity: 1 !important; }
+}

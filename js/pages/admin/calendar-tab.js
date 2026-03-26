@@ -143,6 +143,10 @@ function _renderTab(container, evs, isSpecial) {
       const minName     = ev.ministries?.name || '';
       const safeTitle   = (ev.title||'').replace(/'/g, "\\'");
 
+      // Only repetitive categories (servicio/estudio/oracion) can be cancelled
+      const REPETITIVE = ['servicio', 'estudio', 'oracion'];
+      const canCancel = REPETITIVE.includes(ev.category);
+
       const imgHtml = isSpecial && ev.image_url
         ? `<img class="adm-list__thumb" src="${ev.image_url}" alt="" loading="lazy">`
         : `<span class="adm-list__dot" style="background:${color}"></span>`;
@@ -166,9 +170,9 @@ function _renderTab(container, evs, isSpecial) {
           </div>
           <div class="adm-list__actions">
             <button class="icon-btn__admin" onclick="event.stopPropagation();${editAction}"><i class="fas fa-pen"></i></button>
-            <button class="icon-btn__admin ${isCancelled?'success':'warn'}" onclick="event.stopPropagation();${cancelAction}">
+            ${canCancel ? `<button class="icon-btn__admin ${isCancelled?'success':'warn'}" onclick="event.stopPropagation();${cancelAction}">
               <i class="fas fa-${isCancelled?'undo':'ban'}"></i>
-            </button>
+            </button>` : ''}
             <button class="icon-btn__admin danger" onclick="event.stopPropagation();${deleteAction}">
               <i class="fas fa-trash"></i>
             </button>
@@ -187,7 +191,13 @@ function _openEventModal(ev) {
 }
 
 export async function calEdit(id) {
-  // Delegate to event-form module
+  // Special events (from events table) use the full form editor
+  if (typeof id === 'string' && id.startsWith('evt-')) {
+    const { openEditSpecial } = await import('./event-form.js');
+    openEditSpecial(id.replace('evt-', ''));
+    return;
+  }
+  // Regular calendar events use the modal
   const { openEditRegular } = await import('./event-form.js');
   openEditRegular(id);
 }
@@ -205,12 +215,18 @@ export async function calToggle(id, wasCancelled) {
 
 export async function calDelete(id, title) {
   const { confirm: c } = await import('./ui.js');
-  const ok = await c('¿Eliminar actividad?', `"${title}" se eliminará permanentemente.`);
+  const ok = await c('¿Eliminar?', `"${title}" se eliminará permanentemente.`);
   if (!ok) return;
-  const { error } = await sb.from('calendar_events').delete().eq('id', id);
+  let error;
+  if (typeof id === 'string' && id.startsWith('evt-')) {
+    ({ error } = await sb.from('events').delete().eq('id', id.replace('evt-', '')));
+  } else {
+    ({ error } = await sb.from('calendar_events').delete().eq('id', id));
+  }
   if (error) { toast(error.message, 'error'); return; }
   toast('Eliminado', 'success');
   loadCalendario();
+  loadUpcoming();
 }
 
 // Expose for HTML onclick attributes
@@ -232,8 +248,5 @@ export function initCalendarNav() {
     setCalView(y, m);
     loadCalendario();
   });
-
-  document.getElementById('calAddBtn')?.addEventListener('click', () => {
-    import('./event-form.js').then(({ openNewRegular }) => openNewRegular());
-  });
+  // Note: calAddBtn is now handled by wizard.js
 }
