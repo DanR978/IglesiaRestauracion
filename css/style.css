@@ -3628,78 +3628,6 @@ body.no-scroll {
     color: var(--color-black);
   }
 }
-/* -- pages admin auth -- */
-/* admin/auth.css */
-
-/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
-/* NOTE: No html/body rules here — those would affect every page.
-   The auth screen uses position:fixed so it doesn't need them. */
-
-#authScreen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: #06101a;
-  overflow: hidden;
-  z-index: 9999;
-  box-sizing: border-box;
-}
-
-/* Hide authScreen without display:none so the animation still runs on load */
-#authScreen[hidden] {
-  display: none !important;
-}
-
-/* ── Card ───────────────────────────────────────────────────────────────────── */
-.auth-card {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 400px;
-  flex-shrink: 0;
-  background: var(--color-white, #fff);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
-  padding: 2.5rem 2rem;
-}
-
-.auth-card__logo {
-  text-align: center;
-  margin-bottom: 1.75rem;
-}
-
-.auth-card__logo h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  line-height: 1.3;
-}
-
-.auth-card__logo p {
-  font-size: 0.8rem;
-  color: var(--color-muted);
-  margin-top: 4px;
-}
-
-.auth-card h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--color-15, #1a1a1a);
-}
-
-.auth-error {
-  background: var(--cat-especial, #fde8ea);
-  color: var(--cat-especial-t, #b02030);
-  border-radius: var(--radius-sm, 6px);
-  padding: 0.6rem 0.9rem;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  display: none;
-}
 /* -- pages admin auth-animation -- */
 /* admin/auth-animation.css
    Underwater scene visuals. Layout (position:fixed, centering) is in auth.css.
@@ -3818,6 +3746,78 @@ body.no-scroll {
   6%   { opacity: 0.6; }
   88%  { opacity: 0.3; }
   100% { opacity: 0;   transform: translateY(-108vh)  translateX(var(--drift, 10px))   scale(0.4); }
+}
+/* -- pages admin auth -- */
+/* admin/auth.css */
+
+/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
+/* NOTE: No html/body rules here — those would affect every page.
+   The auth screen uses position:fixed so it doesn't need them. */
+
+#authScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #06101a;
+  overflow: hidden;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+/* Hide authScreen without display:none so the animation still runs on load */
+#authScreen[hidden] {
+  display: none !important;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.auth-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  flex-shrink: 0;
+  background: var(--color-white, #fff);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
+  padding: 2.5rem 2rem;
+}
+
+.auth-card__logo {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.auth-card__logo h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.3;
+}
+
+.auth-card__logo p {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+
+.auth-card h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-15, #1a1a1a);
+}
+
+.auth-error {
+  background: var(--cat-especial, #fde8ea);
+  color: var(--cat-especial-t, #b02030);
+  border-radius: var(--radius-sm, 6px);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: none;
 }
 /* -- pages admin buttons -- */
 /* admin/buttons.css
