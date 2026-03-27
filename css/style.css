@@ -99,7 +99,6 @@
   --cat-otro:              #f0f0f0;
   --cat-otro-t:            #555555;
 
-  --color-bg-light: #F4F6F7;
   --color-transparent: transparent;
 
   --btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -109,6 +108,8 @@
   --rail-g1: var(--color-30, #345a65);
   --rail-g2: var(--color-45, #4e8897);
   --rail-g3: var(--color-65, #89b6c2);
+
+  --static-black: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -195,6 +196,8 @@
     --btn-shadow: 0 2px 6px rgba(255, 255, 255, 0.25);
     --container-shadow: 0 10px 30px rgba(255, 255, 255, 0.25);
     --image-shadow: 0 0px 10px rgba(255, 255, 255, 0.25);
+
+    --static-black: #000000;
   }
 
   .theme-image-thorns {
@@ -283,11 +286,6 @@
     --min-div-size: 320px;
 }
 /* -- tokens typography -- */
-
-
-@import url('https://fonts.googleapis.com/css2?family=Carattere&family=Geist:wght@100..900&family=Signika:wght@300..700&display=swap');
-
-
 :root {
     --fs-xxs:                clamp(0.625rem, 0.5vw, 0.75rem);           /* 10–12px */
     --fs-xs:                 clamp(0.75rem, 0.6vw, 0.875rem);           /* 12–14px */
@@ -1235,53 +1233,154 @@ button:active {
         color: var(--color-25);
     }
 }
+/* -- components page-transition -- */
+/* ═══════════════════════════════════════════════
+   IRD Page Transition
+   ═══════════════════════════════════════════════ */
+
+#ird-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(8, 21, 32, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Outgoing page: fade IN the overlay */
+#ird-transition.entering {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Incoming page: starts visible, fades OUT */
+#ird-transition.exiting {
+  opacity: 1;
+  pointer-events: auto;
+  animation: transitionExit 0.4s 0.05s ease-out forwards;
+}
+
+@keyframes transitionExit {
+  to { opacity: 0; }
+}
+
+/* Logo */
+#ird-transition .transition-logo {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.25s ease-out, transform 0.3s cubic-bezier(.22,1,.36,1);
+}
+
+#ird-transition.entering .transition-logo,
+#ird-transition.exiting .transition-logo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#ird-transition.exiting .transition-logo {
+  animation: transitionLogoOut 0.35s 0.1s ease-in forwards;
+}
+
+@keyframes transitionLogoOut {
+  to { opacity: 0; transform: scale(1.15); }
+}
+
+#ird-transition .transition-logo svg {
+  width: 48px;
+  height: auto;
+  filter: drop-shadow(0 0 24px rgba(90,195,235,0.35));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ird-transition { display: none !important; }
+}
 /* -- components splash -- */
 /* ═══════════════════════════════════════════════
-   IRD Splash — Fish Evangelism Loading Screen
+   IRD Splash — overlay + morph
+   Fish/bubble base classes from auth-animation.css
    ═══════════════════════════════════════════════ */
 
 #ird-splash {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #090f11;
+  overflow: hidden;
+
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%,   rgba(15, 70, 100, 0.55) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 80% 100%,  rgba(5,  30,  50, 0.4)  0%, transparent 65%),
+    linear-gradient(180deg, #081520 0%, #05101a 50%, #030c14 100%);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.8s cubic-bezier(.4, 0, .2, 1);
-  will-change: opacity;
 }
 
-#ird-splash.fade-out {
-  opacity: 0;
-  pointer-events: none;
-}
-
-#ird-splash canvas {
+/* Light rays */
+#ird-splash::before {
+  content: '';
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    conic-gradient(
+      from -8deg at 35% 0%,
+      transparent 0deg, rgba(100,200,230,0.045) 5deg, transparent 11deg,
+      transparent 20deg, rgba(80,175,215,0.03)  25deg, transparent 30deg
+    ),
+    conic-gradient(
+      from -3deg at 68% 0%,
+      transparent 0deg, rgba(120,210,240,0.05)  6deg, transparent 13deg
+    );
+  animation: raysShift 16s ease-in-out infinite alternate;
 }
 
+/* ── Logo — pure CSS animation, no JS class toggle ── */
 #ird-splash .splash-logo {
   position: relative;
-  z-index: 1;
-  opacity: 0;
-  transform: scale(0.85);
-  transition: opacity 1.2s ease-out 0.3s, transform 1.2s ease-out 0.3s;
-  pointer-events: none;
+  z-index: 10;
+  animation: splashLogoIn 1.4s cubic-bezier(.22,1,.36,1) 0.3s both;
 }
 
-#ird-splash .splash-logo.visible {
-  opacity: 1;
-  transform: scale(1);
+@keyframes splashLogoIn {
+  0%   { opacity: 0; transform: scale(0.65); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 #ird-splash .splash-logo svg {
   width: 80px;
   height: auto;
-  filter: drop-shadow(0 0 30px rgba(52, 90, 101, 0.4));
+  animation: splashLogoBreathe 3s ease-in-out 1.7s infinite alternate;
+  filter: drop-shadow(0 0 30px rgba(90,195,235,0.3)) drop-shadow(0 0 70px rgba(60,165,215,0.15));
+}
+
+@keyframes splashLogoBreathe {
+  0%   { filter: drop-shadow(0 0 25px rgba(90,195,235,0.25)) drop-shadow(0 0 60px rgba(60,165,215,0.1)); }
+  100% { filter: drop-shadow(0 0 40px rgba(120,220,252,0.45)) drop-shadow(0 0 90px rgba(85,190,235,0.25)); }
+}
+
+/* ═══════ MORPH EXIT ═══════ */
+#ird-splash.morphing .splash-logo {
+  animation: splashLogoOut 0.45s ease-in forwards;
+}
+
+@keyframes splashLogoOut {
+  to { opacity: 0; transform: scale(1.3); }
+}
+
+#ird-splash.revealing {
+  animation: splashWipe 0.8s cubic-bezier(.4,0,.2,1) forwards;
+  pointer-events: none;
+}
+
+@keyframes splashWipe {
+  0%   { clip-path: circle(150% at 50% 50%); opacity: 1; }
+  100% { clip-path: circle(0%   at 50% 50%); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1766,14 +1865,14 @@ textarea {
 
 /* keep your existing borders/opacity; just ensure label sits over the border cleanly */
 .u-float-group .u-float-label {
-  background: white;
+  background: var(--color-bg-light);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   .u-float-group .u-float-label {
     background: var(--color-bg-light);
   }
-}
+} */
 /* -- sections events -- */
 /* ===== Events Block (Upcoming) ===== */
 :root {
@@ -3245,21 +3344,21 @@ body.no-scroll {
 
 /* Clamp the mount element — beats include.js inline min-height:100svh */
 [data-hero-size="page"] {
-  height: 50vh !important;
-  min-height: 50vh !important;
-  max-height: 50vh !important;
+  height: 30vh !important;
+  min-height: 30vh !important;
+  max-height: 30vh !important;
   overflow: hidden !important;
 }
 
 /* Clamp the injected .header-grid — THIS is the containing block for
    .hero-content { position:absolute }, so this is the critical rule */
 [data-hero-size="page"] .header-grid {
-  height: 50vh !important;
-  min-height: 50vh !important;
+  height: 30vh !important;
+  min-height: 30vh !important;
 }
 
 #header[data-hero-size="page"] + .hero-content {
-  top: 40% !important;
+  top: 20% !important;
 }
 /* -- sections live-stream -- */
 /* .live-wrapper {
@@ -3628,6 +3727,78 @@ body.no-scroll {
     color: var(--color-black);
   }
 }
+/* -- pages admin auth -- */
+/* admin/auth.css */
+
+/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
+/* NOTE: No html/body rules here — those would affect every page.
+   The auth screen uses position:fixed so it doesn't need them. */
+
+#authScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #06101a;
+  overflow: hidden;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+/* Hide authScreen without display:none so the animation still runs on load */
+#authScreen[hidden] {
+  display: none !important;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.auth-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  flex-shrink: 0;
+  background: var(--color-white, #fff);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
+  padding: 2.5rem 2rem;
+}
+
+.auth-card__logo {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.auth-card__logo h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.3;
+}
+
+.auth-card__logo p {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+
+.auth-card h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-15, #1a1a1a);
+}
+
+.auth-error {
+  background: var(--cat-especial, #fde8ea);
+  color: var(--cat-especial-t, #b02030);
+  border-radius: var(--radius-sm, 6px);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: none;
+}
 /* -- pages admin auth-animation -- */
 /* admin/auth-animation.css
    Underwater scene visuals. Layout (position:fixed, centering) is in auth.css.
@@ -3746,78 +3917,6 @@ body.no-scroll {
   6%   { opacity: 0.6; }
   88%  { opacity: 0.3; }
   100% { opacity: 0;   transform: translateY(-108vh)  translateX(var(--drift, 10px))   scale(0.4); }
-}
-/* -- pages admin auth -- */
-/* admin/auth.css */
-
-/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
-/* NOTE: No html/body rules here — those would affect every page.
-   The auth screen uses position:fixed so it doesn't need them. */
-
-#authScreen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: #06101a;
-  overflow: hidden;
-  z-index: 9999;
-  box-sizing: border-box;
-}
-
-/* Hide authScreen without display:none so the animation still runs on load */
-#authScreen[hidden] {
-  display: none !important;
-}
-
-/* ── Card ───────────────────────────────────────────────────────────────────── */
-.auth-card {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 400px;
-  flex-shrink: 0;
-  background: var(--color-white, #fff);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
-  padding: 2.5rem 2rem;
-}
-
-.auth-card__logo {
-  text-align: center;
-  margin-bottom: 1.75rem;
-}
-
-.auth-card__logo h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  line-height: 1.3;
-}
-
-.auth-card__logo p {
-  font-size: 0.8rem;
-  color: var(--color-muted);
-  margin-top: 4px;
-}
-
-.auth-card h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--color-15, #1a1a1a);
-}
-
-.auth-error {
-  background: var(--cat-especial, #fde8ea);
-  color: var(--cat-especial-t, #b02030);
-  border-radius: var(--radius-sm, 6px);
-  padding: 0.6rem 0.9rem;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  display: none;
 }
 /* -- pages admin buttons -- */
 /* admin/buttons.css
@@ -4031,6 +4130,7 @@ body.no-scroll {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--static-black);
 }
 
 .adm-list__meta {
@@ -4181,7 +4281,7 @@ body.no-scroll {
   font-size: 0.95rem;
   font-family: inherit;
   transition: border-color 0.15s;
-  background: var(--color-white);
+  background: transparent;
   color: var(--color-15);
 }
 
@@ -4997,7 +5097,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-primary);
+  color: var(--color-black);
   padding: 0.55rem 0 0.4rem;
   border-bottom: 2px solid var(--gray-50);
   margin: 1.25rem 0 0.5rem;
@@ -5014,7 +5114,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 .month-group-label {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-15);
+  color: var(--color-black);
   padding: 0.6rem 0.25rem 0.3rem;
   margin-top: 0.75rem;
   border-bottom: 2px solid var(--gray-50);
@@ -5029,6 +5129,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
   gap: 0.75rem;
+  color: var(--color-black);
 }
 
 .action-bar h2 {
@@ -5589,7 +5690,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 }
 
 .cal-grid {
-  border: 1px solid var(--gray-60);
+  border: 1px solid var(--gray-0);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -5623,15 +5724,15 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 .cal-day {
   min-height: 80px;
   padding: 6px 6px 4px;
-  border-right: 1px solid var(--gray-40);
-  border-bottom: 1px solid var(--gray-40);
+  border-right: 1px solid var(--gray-10);
+  border-bottom: 1px solid var(--gray-10);
   position: relative;
   transition: background 0.1s;
 }
 
 .cal-day:nth-child(7n) { border-right: none; }
 
-.cal-day--past    { background: var(--gray-10); }
+.cal-day--past    { background: var(--gray-20); }
 .cal-day--empty   { background: var(--gray-10); min-height: 80px; }
 .cal-day--today   { background: #eff6ff; }
 .cal-day--has-events { cursor: pointer; }
@@ -5793,6 +5894,15 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 
   .cal-day__events { display: none; }
   .cal-day__dot-row { display: flex; padding: 0 5px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .cal-day {
+    background: var(--gray-10);
+  }
+  .cal-day--past {
+    background: var(--gray-30);
+  }
 }
 /* -- pages calendar legend -- */
 /* calendar/legend.css
@@ -6340,7 +6450,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 .cal-nav__label {
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
-  color: var(--color-black);
+  color: var(--static-black);
   text-transform: capitalize;
 }
 /* -- pages calendar page -- */
@@ -6369,6 +6479,387 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   font-weight: var(--fw-medium);
   margin-bottom: 1.25rem;
   text-align: center;
+}
+/* -- pages sermons sermon -- */
+/* ═══════════════════════════════════════════════
+   Sermons — modern, clean, scalable UI
+   ═══════════════════════════════════════════════ */
+
+/* ── Layout tokens ── */
+:root {
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-md: 0 8px 26px rgba(0,0,0,0.12);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.18);
+
+  --transition-fast: 0.18s ease;
+  --transition-med: 0.28s cubic-bezier(.4, 0, .2, 1);
+}
+
+/* ═══════════════════════════════════════════════
+   Header
+   ═══════════════════════════════════════════════ */
+
+.sermon-header {
+  max-width: 900px;
+  margin: 1.75rem auto 0.75rem;
+  padding: 0 1rem;
+}
+
+.sermon-header__title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  color: var(--color-dark);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.sermon-header__count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: rgba(0,0,0,0.06);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+
+/* ═══════════════════════════════════════════════
+   Playlist Grid
+   ═══════════════════════════════════════════════ */
+
+.sermon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.4rem;
+  padding: 0 1rem;
+  max-width: 1200px;
+  margin: 2rem auto 4rem;
+}
+
+.sermon-card {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: linear-gradient(145deg, var(--rail-g1), var(--color-primary), var(--color-dark));
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+  cursor: pointer;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  color: var(--color-white);
+}
+
+.sermon-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Thumbnail */
+.sermon-card__thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.sermon-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.sermon-card:hover img {
+  transform: scale(1.06);
+}
+
+/* Overlay elements */
+.sermon-card__count {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: rgba(0,0,0,0.75);
+}
+
+.sermon-card__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.sermon-card__play::before {
+  content: '';
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  position: absolute;
+}
+
+.sermon-card__play svg {
+  position: relative;
+  width: 22px;
+  height: 22px;
+  fill: #fff;
+}
+
+.sermon-card:hover .sermon-card__play {
+  opacity: 1;
+}
+
+/* Card body */
+.sermon-card__body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sermon-card__title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.sermon-card__meta {
+  font-size: 0.78rem;
+  opacity: 0.7;
+}
+
+/* ═══════════════════════════════════════════════
+   Player
+   ═══════════════════════════════════════════════ */
+
+.sermon-player {
+  max-width: 900px;
+  margin: 0.5rem auto 1.75rem;
+  padding: 0 1rem;
+}
+
+.sermon-player__frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.sermon-player__frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.sermon-player__content {
+  margin-top: 0.9rem;
+}
+
+.sermon-player__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-black);
+}
+
+.sermon-player__meta {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  margin: 0.3rem 0 0.6rem;
+}
+
+.sermon-player__desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--color-dark);
+  max-width: 720px;
+}
+
+/* ═══════════════════════════════════════════════
+   Video List
+   ═══════════════════════════════════════════════ */
+
+.sermon-video-list {
+  max-width: 900px;
+  margin: 1rem auto 4rem;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.sermon-video {
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  gap: 0.9rem;
+  padding: 0.65rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-light);
+  border: 1px solid rgba(0,0,0,0.04);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: pointer;
+}
+
+.sermon-video:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Active */
+.sermon-video--active {
+  border-left: 3px solid var(--color-primary);
+  background: linear-gradient(90deg, rgba(0,120,255,0.08), transparent);
+}
+
+/* Thumbnail */
+.sermon-video__thumb {
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sermon-video__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Info */
+.sermon-video__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sermon-video__title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.sermon-video__meta {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.sermon-video__desc {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  line-height: 1.4;
+  margin-top: 0.1rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════
+   States
+   ═══════════════════════════════════════════════ */
+
+.sermon-loading,
+.sermon-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.sermon-empty i {
+  font-size: 2.4rem;
+  opacity: 0.25;
+  margin-bottom: 0.6rem;
+}
+
+/* ═══════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 640px) {
+  .sermon-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .sermon-video {
+    grid-template-columns: 120px 1fr;
+    gap: 0.6rem;
+    padding: 0.5rem;
+  }
+
+  .sermon-player__title {
+    font-size: 1.05rem;
+  }
+
+  .sermon-video__desc {
+    display: none;
+  }
+}
+
+
+/* Header row (button + title aligned) */
+.sermon-header-row {
+  max-width: 900px;
+  margin: 1.5rem auto 1rem;
+  padding: 0 1rem;
+
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Back button (clean pill style) */
+.sermon-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-primary);
+
+  background: rgba(0, 120, 255, 0.08);
+  border: 1px solid rgba(0, 120, 255, 0.18);
+  border-radius: 999px;
+
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.sermon-back:hover {
+  background: rgba(0, 120, 255, 0.14);
+  border-color: rgba(0, 120, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Icon tweak */
+.sermon-back i {
+  font-size: 0.7rem;
+}
+
+/* Title alignment tweak */
+.sermon-header__title {
+  margin: 0;
+}
+
+.gap {
+  gap: 10px;
 }
 /* -- pages event-detail -- */
 /* =========================================================

@@ -13,7 +13,9 @@ import { loadUpcoming } from './events-tab.js';
 import { loadCalendario } from './calendar-tab.js';
 import { EVENT_PRESETS, DEFAULT_LOC_ADDR } from './event-form.js';
 
-const IMG_BASE = 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/event-images/';
+const IMG_BASE = import.meta.env?.VITE_STORAGE_EVENT_IMAGES
+  ? import.meta.env.VITE_STORAGE_EVENT_IMAGES + '/'
+  : 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/event-images/';
 
 const CAT_OPTIONS = [
   { id: 'servicio',       label: 'Servicio Dominical',  color: '#1e6b61', desc: 'Culto principal del domingo' },
@@ -258,7 +260,7 @@ function renderStep4() {
         ${descVal ? `<div class="wiz-review__row" style="margin-top:.3rem;opacity:.7"><i class="fas fa-align-left"></i> ${descVal.slice(0, 80)}${descVal.length > 80 ? '...' : ''}</div>` : ''}
         <div class="wiz-review__row" style="margin-top:.3rem">
           <i class="fas fa-tag"></i>
-          <span style="background:${isSpecial ? 'var(--color-secondary)' : (CAT_OPTIONS.find(c=>c.id===cat)?.color || 'var(--color-muted)')};color:#fff;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:600">
+          <span style="background:${isSpecial ? '#b02030' : (CAT_OPTIONS.find(c=>c.id===cat)?.color || '#888')};color:#fff;padding:2px 8px;border-radius:4px;font-size:.72rem;font-weight:600">
             ${isSpecial ? 'Evento Especial' : (CAT_OPTIONS.find(c=>c.id===cat)?.label || 'Otro')}
           </span>
         </div>

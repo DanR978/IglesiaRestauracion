@@ -13,7 +13,7 @@
 }
 
 .cal-grid {
-  border: 1px solid var(--gray-60);
+  border: 1px solid var(--gray-0);
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -47,15 +47,15 @@
 .cal-day {
   min-height: 80px;
   padding: 6px 6px 4px;
-  border-right: 1px solid var(--gray-40);
-  border-bottom: 1px solid var(--gray-40);
+  border-right: 1px solid var(--gray-10);
+  border-bottom: 1px solid var(--gray-10);
   position: relative;
   transition: background 0.1s;
 }
 
 .cal-day:nth-child(7n) { border-right: none; }
 
-.cal-day--past    { background: var(--gray-10); }
+.cal-day--past    { background: var(--gray-20); }
 .cal-day--empty   { background: var(--gray-10); min-height: 80px; }
 .cal-day--today   { background: #eff6ff; }
 .cal-day--has-events { cursor: pointer; }
@@ -217,4 +217,13 @@
 
   .cal-day__events { display: none; }
   .cal-day__dot-row { display: flex; padding: 0 5px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .cal-day {
+    background: var(--gray-10);
+  }
+  .cal-day--past {
+    background: var(--gray-30);
+  }
 }

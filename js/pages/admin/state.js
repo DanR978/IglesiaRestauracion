@@ -2,14 +2,10 @@
 // Shared mutable state for the admin panel.
 // Import and mutate these directly — no framework needed for a panel this size.
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+import { sb as _sb } from '/js/lib/supabase.js';
 
-// ─── Supabase ────────────────────────────────────────────────────────────────
-export const SUPABASE_URL      = 'https://snqwxgyhfiinouewxgiy.supabase.co';
-export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo';
-export const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true },
-});
+// Re-export for all admin modules
+export const sb = _sb;
 
 // ─── Auth state ───────────────────────────────────────────────────────────────
 export let currentUser    = null;

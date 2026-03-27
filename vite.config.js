@@ -9,7 +9,7 @@ function discoverPages(root) {
 
   const pageDirs = [
     'donacion', 'eventos', 'linktree', 'poliza-de-privacidad',
-    'proximos-pasos', 'quienes-somos', 'visitanos'
+    'proximos-pasos', 'quienes-somos', 'sermones', 'visitanos'
   ];
 
   for (const dir of pageDirs) {

@@ -97,7 +97,6 @@
   --cat-otro:              #f0f0f0;
   --cat-otro-t:            #555555;
 
-  --color-bg-light: #F4F6F7;
   --color-transparent: transparent;
 
   --btn-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
@@ -107,6 +106,8 @@
   --rail-g1: var(--color-30, #345a65);
   --rail-g2: var(--color-45, #4e8897);
   --rail-g3: var(--color-65, #89b6c2);
+
+  --static-black: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -193,6 +194,8 @@
     --btn-shadow: 0 2px 6px rgba(255, 255, 255, 0.25);
     --container-shadow: 0 10px 30px rgba(255, 255, 255, 0.25);
     --image-shadow: 0 0px 10px rgba(255, 255, 255, 0.25);
+
+    --static-black: #000000;
   }
 
   .theme-image-thorns {

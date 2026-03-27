@@ -1,13 +1,7 @@
 // /js/components/event-detail.js
 // Reads ?id=<uuid> from URL, fetches event from Supabase, fills the page.
 
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const SUPABASE_URL = "https://snqwxgyhfiinouewxgiy.supabase.co";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucXd4Z3loZmlpbm91ZXd4Z2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MjMxNzAsImV4cCI6MjA3MTM5OTE3MH0.LgxKa56FGiHRZB24s8ikfg5epV5QXdG3aVkgPIRMneo";
-
-const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+import { sb } from '/js/lib/supabase.js';
 const TZ = "America/New_York";
 
 // ── Helpers ──────────────────────────────────────────────

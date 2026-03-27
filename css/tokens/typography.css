@@ -1,8 +1,3 @@
-
-
-@import url('https://fonts.googleapis.com/css2?family=Carattere&family=Geist:wght@100..900&family=Signika:wght@300..700&display=swap');
-
-
 :root {
     --fs-xxs:                clamp(0.625rem, 0.5vw, 0.75rem);           /* 10–12px */
     --fs-xs:                 clamp(0.75rem, 0.6vw, 0.875rem);           /* 12–14px */

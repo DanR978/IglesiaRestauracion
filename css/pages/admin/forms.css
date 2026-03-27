@@ -25,7 +25,7 @@
   font-size: 0.95rem;
   font-family: inherit;
   transition: border-color 0.15s;
-  background: var(--color-white);
+  background: transparent;
   color: var(--color-15);
 }
 

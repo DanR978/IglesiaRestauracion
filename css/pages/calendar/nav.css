@@ -42,6 +42,6 @@
 .cal-nav__label {
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
-  color: var(--color-black);
+  color: var(--static-black);
   text-transform: capitalize;
 }

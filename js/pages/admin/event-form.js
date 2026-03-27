@@ -11,7 +11,9 @@ import { loadCalendario } from './calendar-tab.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 export const DEFAULT_LOC_ADDR = '2601 Clays Mill Road';
-const IMG_BASE    = 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/event-images/';
+const IMG_BASE    = import.meta.env?.VITE_STORAGE_EVENT_IMAGES
+  ? import.meta.env.VITE_STORAGE_EVENT_IMAGES + '/'
+  : 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/event-images/';
 const TAG_OPTIONS = ['Servicio','Convivio','Celebración','Evangelismo','Ministerio','Oración','Adoración','Jóvenes','Niños'];
 
 export const EVENT_PRESETS = [

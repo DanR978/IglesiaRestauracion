@@ -262,11 +262,11 @@ textarea {
 
 /* keep your existing borders/opacity; just ensure label sits over the border cleanly */
 .u-float-group .u-float-label {
-  background: white;
+  background: var(--color-bg-light);
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   .u-float-group .u-float-label {
     background: var(--color-bg-light);
   }
-}
+} */

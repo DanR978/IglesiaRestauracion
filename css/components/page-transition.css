@@ -1,0 +1,64 @@
+/* ═══════════════════════════════════════════════
+   IRD Page Transition
+   ═══════════════════════════════════════════════ */
+
+#ird-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(8, 21, 32, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Outgoing page: fade IN the overlay */
+#ird-transition.entering {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Incoming page: starts visible, fades OUT */
+#ird-transition.exiting {
+  opacity: 1;
+  pointer-events: auto;
+  animation: transitionExit 0.4s 0.05s ease-out forwards;
+}
+
+@keyframes transitionExit {
+  to { opacity: 0; }
+}
+
+/* Logo */
+#ird-transition .transition-logo {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.25s ease-out, transform 0.3s cubic-bezier(.22,1,.36,1);
+}
+
+#ird-transition.entering .transition-logo,
+#ird-transition.exiting .transition-logo {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#ird-transition.exiting .transition-logo {
+  animation: transitionLogoOut 0.35s 0.1s ease-in forwards;
+}
+
+@keyframes transitionLogoOut {
+  to { opacity: 0; transform: scale(1.15); }
+}
+
+#ird-transition .transition-logo svg {
+  width: 48px;
+  height: auto;
+  filter: drop-shadow(0 0 24px rgba(90,195,235,0.35));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ird-transition { display: none !important; }
+}

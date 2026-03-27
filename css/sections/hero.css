@@ -75,19 +75,19 @@
 
 /* Clamp the mount element — beats include.js inline min-height:100svh */
 [data-hero-size="page"] {
-  height: 50vh !important;
-  min-height: 50vh !important;
-  max-height: 50vh !important;
+  height: 30vh !important;
+  min-height: 30vh !important;
+  max-height: 30vh !important;
   overflow: hidden !important;
 }
 
 /* Clamp the injected .header-grid — THIS is the containing block for
    .hero-content { position:absolute }, so this is the critical rule */
 [data-hero-size="page"] .header-grid {
-  height: 50vh !important;
-  min-height: 50vh !important;
+  height: 30vh !important;
+  min-height: 30vh !important;
 }
 
 #header[data-hero-size="page"] + .hero-content {
-  top: 40% !important;
+  top: 20% !important;
 }

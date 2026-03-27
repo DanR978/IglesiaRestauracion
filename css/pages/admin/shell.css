@@ -125,7 +125,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-primary);
+  color: var(--color-black);
   padding: 0.55rem 0 0.4rem;
   border-bottom: 2px solid var(--gray-50);
   margin: 1.25rem 0 0.5rem;
@@ -142,7 +142,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 .month-group-label {
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-15);
+  color: var(--color-black);
   padding: 0.6rem 0.25rem 0.3rem;
   margin-top: 0.75rem;
   border-bottom: 2px solid var(--gray-50);
@@ -157,6 +157,7 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   margin-bottom: 1.25rem;
   flex-wrap: wrap;
   gap: 0.75rem;
+  color: var(--color-black);
 }
 
 .action-bar h2 {

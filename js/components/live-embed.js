@@ -2,8 +2,8 @@
 // Calls Supabase Edge Function to check YouTube live status.
 // The API key lives server-side — never exposed to the browser.
 (function () {
-  const FUNCTION_URL =
-    'https://snqwxgyhfiinouewxgiy.supabase.co/functions/v1/youtube-live';
+  const FUNCTION_URL = import.meta.env?.VITE_YOUTUBE_LIVE_FN
+    || 'https://snqwxgyhfiinouewxgiy.supabase.co/functions/v1/youtube-live';
 
   function showIframe(videoId) {
     const liveEmbed = document.getElementById('liveEmbed');

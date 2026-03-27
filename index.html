@@ -19,16 +19,16 @@
 
     <!-- LOGO -->
     <link
-      href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico"
+      href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico"
       rel="icon" media="(prefers-color-scheme:no-preference)">
     <link
-      href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico"
+      href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico"
       rel="icon">
     <link
-      href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico"
+      href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico"
       rel="icon" media="(prefers-color-scheme: light)">
     <link
-      href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico"
+      href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico"
       rel="icon" media="(prefers-color-scheme: dark)">
 
     <!-- SOCIAL SHARING PREVIEW-->
@@ -40,7 +40,7 @@
     <meta property="og:description"
       content="Cristo transforma! Adora con nosotros este domingo.">
     <meta property="og:image"
-      content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/canonical_website_visit.png" />
+      content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
 
     <!-- MESSAGING PREVIEW -->
     <meta name="twitter:card" content="summary" />
@@ -48,10 +48,10 @@
     <meta name="twitter:description"
       content="Cristo transforma! Adora con nosotros este domingo." />
     <meta name="twitter:image"
-      content="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/canonical_website_visit.png" />
+      content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
 
     <link rel="apple-touch-icon" sizes="180x180"
-      href="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/apple-touch-icon.png">
+      href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/apple-touch-icon.png">
 
     <meta name="apple-mobile-web-app-status-bar-style"
       content="black-translucent">
@@ -65,9 +65,8 @@
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap"
-      rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Carattere&family=Geist:wght@100..900&family=Signika:wght@300..700&display=swap" rel="stylesheet">
 
     <!-- BOOTSTRAP -->
     <link rel="stylesheet"
@@ -95,9 +94,10 @@
   </head>
 
   <body>
-    <script src="/js/components/splash.js"></script>
+    <div id="ird-splash"></div>
+    <script type="module" src="/js/components/splash.js"></script>
     <header id="header"
-      data-hero="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/images/worshipSample.jpg"></header>
+      data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/home_image.jpg"></header>
     <div class="hero-content animate-fade-in" data-threshold="0.8">
       <p class="hero-kicker">BIENVENIDO A</p>
       <h1 class="hero-title">Iglesia Restauracion Divina</h1>
@@ -114,7 +114,7 @@
         <div class="mission-wrapper">
           <div class="crown-thorns animate-slide-in-left">
             <img
-              src="https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns.svg"
+              src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/thorns.svg"
               alt="Crown of throns" class="autoRotate theme-image-thorns" />
           </div>
           <div class="mission-content">
@@ -180,7 +180,7 @@
               >
                 <div class="placeholder live-placeholder" id="livePlaceholder">
                   <img
-                    src="/resources/media/images/lives.png"
+                    src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/lives.png"
                     alt="Transmisión en vivo próximamente"
                   >
                 </div>
@@ -239,8 +239,9 @@
 
     <script type="module" src="/js/main.js"></script>
     <script type="module" src="js/components/missionSlideShow.js"></script>
-    <script type="module" src="/js/components/live-embed.js"></script>
+    <!-- <script type="module" src="/js/components/live-embed.js"></script> -->
     <script type="module" src="/js/utils/load-icons.js"></script>
     <script type="module" src="/js/include.js"></script>
-  </body>
+      <script type="module" src="/js/components/page-transition.js"></script>
+</body>
 </html>

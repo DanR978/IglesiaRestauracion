@@ -94,6 +94,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--static-black);
 }
 
 .adm-list__meta {
