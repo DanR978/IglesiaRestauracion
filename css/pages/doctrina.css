@@ -1,0 +1,24 @@
+/* =========================================================
+   PAGE: DOCTRINA
+   ========================================================= */
+
+/* Finale section eyebrow */
+.doctrina-finale__eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-family: var(--font-DM-Sans);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  padding-bottom: var(--pd-xs);
+}
+
+.doctrina-finale__ref {
+  font-size: var(--fs-xs);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-medium);
+  color: var(--color-white);
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+  padding-top: 0.5rem;
+}

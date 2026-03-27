@@ -1,7 +1,7 @@
 // vite.config.js
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
-import { existsSync, cpSync, mkdirSync } from 'fs';
+import { existsSync, cpSync, mkdirSync, readdirSync } from 'fs';
 
 // Auto-discover all page HTML files
 function discoverPages(root) {
@@ -22,8 +22,7 @@ function discoverPages(root) {
   return pages;
 }
 
-// Simple plugin to copy static directories that are fetched at runtime
-// (HTML partials, images, etc. that Vite doesn't see in import graphs)
+// Copy static directories that Vite doesn't see in import graphs
 function copyStaticDirs(dirs) {
   return {
     name: 'copy-static-dirs',
@@ -41,31 +40,57 @@ function copyStaticDirs(dirs) {
   };
 }
 
+// Plugin to rewrite /pagename → /pagename/index.html for MPA dev server
+function mpaFallback() {
+  return {
+    name: 'mpa-fallback',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url?.split('?')[0] || '';
+
+        // Skip files with extensions (already have .html, .js, .css, etc.)
+        if (url.includes('.')) return next();
+
+        // Skip root
+        if (url === '/') return next();
+
+        // Clean the path: /sermones or /sermones/
+        const clean = url.replace(/\/+$/, '');
+
+        // Check if a directory with index.html exists
+        const indexPath = resolve('.', clean.slice(1), 'index.html');
+        if (existsSync(indexPath)) {
+          req.url = `${clean}/index.html`;
+        }
+
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   root: '.',
+  appType: 'mpa',
 
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-
     rollupOptions: {
       input: discoverPages('.'),
     },
-
-    // CSS @imports are automatically resolved, concatenated, and minified
     cssMinify: true,
     minify: 'terser',
     sourcemap: true,
   },
 
   plugins: [
-    // These dirs are loaded at runtime via fetch(), not import — Vite
-    // doesn't see them in the dependency graph, so we copy them manually.
+    mpaFallback(),
     copyStaticDirs([
-      'src',           // HTML partials (header.html, footer.html, etc.)
-      'resources',     // images, verses JSON, icons
-      'admin',         // admin panel if any
-      'seo',           // SEO files
+      'src',
+      'resources',
+      'admin',
+      'seo',
     ]),
   ],
 

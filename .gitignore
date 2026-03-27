@@ -1,4 +1,6 @@
 .env
+.env.local
+.env.*.local
 
 # Ignore OS-specific clutter
 .DS_Store
@@ -17,3 +19,7 @@ __pycache__/
 # GitHub Pages doesn’t need build or dist folders (if not used)
 dist/
 build/
+
+js/lib/config.js
+node_modules/
+

@@ -142,49 +142,34 @@
 
       <section class="column-container">
         <div class="info-container wrapper">
-          <div class="row-default ">
-            <div class="column-default ">
-              <div class="service-content ">
-                <h2 class="service-subheading animate-fade-in"
-                  data-threshold="1">Domingos de adoracion</h4>
+          <div class="row-default">
+            <div class="column-default">
+              <div class="service-content">
+                <h2 class="service-subheading animate-fade-in" data-threshold="1">
+                  Domingos de adoración
+                </h2>
               </div>
               <div class="buttons animate-fade-in" data-threshold="1">
-                <a href="https://www.youtube.com/@Lex.IglesiaRestauracionDivina"
-                  class="ird-btn ird-btn--white-empty ird-btn--outline">VER
-                  CONTENIDO</a>
+                <a href="sermones"
+                  class="ird-btn ird-btn--white-empty ird-btn--outline">VER CONTENIDO</a>
                 <button id="getDirections"
                   class="ird-btn ird-btn--white-fill ird-btn--outline">DIRECCIONES</button>
-
               </div>
               <div class="service-content animate-fade-in" data-threshold="1">
                 <div class="content">
                   <p class="service-time">Servicio a las 2:00 PM (ET)</p>
                 </div>
               </div>
-              <div class="live-embed" id="liveEmbed">
-                <iframe
-                  id="liveIframe"
-                  title="YouTube Live"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowfullscreen
-                  loading="lazy"
-                ></iframe>
-              </div>
 
-              <a
-                href="https://www.youtube.com/@Lex.IglesiaRestauracionDivina"
-                target="_blank"
-                rel="noopener"
-                class="live-placeholder-link"
-                id="livePlaceholderLink"
-              >
-                <div class="placeholder live-placeholder" id="livePlaceholder">
-                  <img
-                    src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/lives.png"
-                    alt="Transmisión en vivo próximamente"
-                  >
+              <!-- Latest sermon -->
+              <div class="latest-sermon" id="latestSermon">
+                <div class="latest-sermon__player" id="latestSermonPlayer">
+                  <div class="sermon-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando último sermón...
+                  </div>
                 </div>
-              </a>
+                <div class="latest-sermon__info" id="latestSermonInfo"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -239,9 +224,9 @@
 
     <script type="module" src="/js/main.js"></script>
     <script type="module" src="js/components/missionSlideShow.js"></script>
-    <!-- <script type="module" src="/js/components/live-embed.js"></script> -->
+    <script type="module" src="/js/pages/home/latest-sermon.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>
     <script type="module" src="/js/include.js"></script>
-      <script type="module" src="/js/components/page-transition.js"></script>
+    <script type="module" src="/js/components/page-transition.js"></script>
 </body>
 </html>

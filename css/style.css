@@ -198,6 +198,7 @@
     --image-shadow: 0 0px 10px rgba(255, 255, 255, 0.25);
 
     --static-black: #000000;
+    --static-white: #ffffff;
   }
 
   .theme-image-thorns {
@@ -564,6 +565,7 @@ button:active {
   overflow: hidden;
   width: 100%;
   border-radius: 10px;
+  max-height: clamp(300px, 50vw, 550px);
 }
 
 .img-cover-container {
@@ -2301,39 +2303,98 @@ textarea {
   }
 }
 /* -- sections footer -- */
-/* FOOTER */
+/* ═══════════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════════ */
+
 .footer-dark {
   padding: var(--pd-lg);
   color: #f0f9ff;
   background-color: var(--color-dark);
 }
 
+/* ── Headings ── */
 .footer__subheading {
   margin-top: 0;
   margin-bottom: 12px;
   font-weight: var(--fw-bold);
   font-size: var(--size-3xl);
   padding: var(--pd-auto);
+  position: relative;
+  padding-bottom: 0.75rem;
 }
 
+.footer__subheading::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: var(--orange-55);
+  border-radius: 2px;
+}
+
+.footer__subheading-iglesia {
+  margin: 0 auto;
+  font-weight: var(--fw-bold);
+  font-size: var(--size-lg);
+  padding: 0;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--static-white);
+  line-height: 1.8;
+}
+
+.footer__subheading-iglesia--sub {
+  font-size: var(--size-lg);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.2em;
+  opacity: 0.6;
+}
+
+/* ── Nav lists ── */
 .footer-dark ul {
   padding: var(--pd-auto);
   list-style: none;
-  line-height: 1.6;
+  line-height: 2;
   font-size: clamp(1.1rem, 1.5vw + 0.4rem, 1.5rem);
   margin-bottom: 0;
 }
 
 .footer-dark ul a {
-  color: inherit;
+  color: var(--static-white);
   text-decoration: none;
   opacity: 0.6;
-  font-size: var(--size-xl);
+  font-size: var(--size-lg);
+  font-weight: var(--fw-bold);
+  display: inline-block;
+  position: relative;
+  transition: opacity 0.25s ease, color 0.25s ease, padding-left 0.25s ease;
+}
+
+.footer-dark ul a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  border-radius: 10px;
+  background: var(--orange-55);
+  transition: width 0.3s ease, left 0.3s ease;
 }
 
 .footer-dark ul a:hover {
-  opacity: 0.9;
+  opacity: 1;
   color: var(--orange-55);
+  padding-left: 4px;
+}
+
+.footer-dark ul a:hover::after {
+  width: 100%;
+  left: 0;
 }
 
 .footer-dark .item.text {
@@ -2345,86 +2406,64 @@ textarea {
   margin-bottom: 0;
 }
 
-.footer-dark .item.social {
-  text-align: center;
-  width: 100%;
-  margin: 1rem 1.5rem;
-}
-
-.footer-dark .item.social>a {
-  font-size: 15px;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-  display: inline-block;
-  text-align: center;
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4);
-  margin: 5px;
-  color: var(--color-white);
-  opacity: 0.75;
-}
-
-.footer-dark .copyright {
-  text-align: center;
-  font-size: var(--fs-sm);
-  margin-bottom: 0;
-  opacity: 0.9;
-  text-align: left;
-  padding: 0 1.5rem;
-  font-size: 1rem;
-}
-
-.item.social a {
-  border: 1px solid var(--color-white);
-  transition: all 0.8s;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Facebook hover */
-.item.social a[aria-label="Facebook"]:hover {
-  background: #1877F2;
-  box-shadow: 0 4px 10px rgba(24, 119, 242, 0.4);
-  transform: translateY(-5px);
-}
-
-/* TikTok hover */
-.item.social a[aria-label="TikTok"]:hover {
-  background: linear-gradient(to right, #69C9D0, #EE1D52);
-  box-shadow: 0 4px 10px rgba(238, 29, 82, 0.4);
-  transform: translateY(-5px);
-}
-
-/* YouTube hover */
-.item.social a[aria-label="YouTube"]:hover {
-  background: #FF0000;
-  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4);
-  transform: translateY(-5px);
-}
-
-/* Instagram hover */
-.item.social a[aria-label="Instagram"]:hover {
-  background: linear-gradient(to right, #833ab4, #fd1d1d, #fcb045);
-  box-shadow: 0 4px 10px rgba(253, 29, 29, 0.4);
-  transform: translateY(-5px);
-}
+/* ═══════════════════════════════════════════════════════════════
+   CONTACT CARD — Glass Business Card
+   ═══════════════════════════════════════════════════════════════ */
 
 .contact-card {
   min-width: 280px;
-  max-width: 320px !important;
-  padding: var(--pd-md) var(--pd-xs);
+  max-width: 340px !important;
+  padding: var(--pd-lg) var(--pd-md);
   text-align: center;
-  background-color: var(--color-primary);
-  border-radius: 40px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  background: linear-gradient(
+    160deg,
+    rgba(100, 140, 160, 0.25) 0%,
+    rgba(60, 80, 95, 0.35) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  overflow: hidden;
 }
 
+.contact-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  border-radius: 24px 24px 0 0;
+}
+
+/* ── Card logo ── */
 .contact-card__logo {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin: 1rem;
+  margin: 0 1rem var(--pd-lg);
+  position: relative;
+  z-index: 1;
+}
+
+.contact-card__logo svg {
+  margin-bottom: var(--pd-sm);
+  width: 70px;
+  height: auto;
+  color: var(--static-white);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
 }
 
 .glass-effect svg {
@@ -2433,18 +2472,189 @@ textarea {
   height: auto;
 }
 
+/* ── Contact items ── */
 .contact-us-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 1.25rem;
   padding: 0 1.5rem;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .contact-us-content p {
-  font-size: 1rem;
-  opacity: 0.9;
+  font-size: var(--size-lg);
+  opacity: 1;
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  line-height: 1.55;
 }
+
+.contact-us-content p i {
+  color: var(--orange-55);
+  font-size: 1.15rem;
+  margin-top: 0.15rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.contact-us-content p a {
+  color: var(--static-white);
+  text-decoration: none;
+  opacity: 0.7;
+  position: relative;
+  display: inline-block;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.contact-us-content p a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 3px;
+  border-radius: 10px;
+  background: var(--orange-55);
+  transition: width 0.3s ease, left 0.3s ease;
+}
+
+.contact-us-content p a:hover {
+  opacity: 1;
+  color: var(--orange-55);
+}
+
+.contact-us-content p a:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+.contact-us-content p span {
+  color: var(--static-white);
+  opacity: 0.7;
+}
+
+/* ── Copyright ── */
+.footer-dark .contact-card .copyright {
+  text-align: left;
+  font-size: 0.88rem;
+  margin-bottom: var(--pd-sm);
+  opacity: 0.45;
+  padding: var(--pd-md) 1.5rem 0;
+  line-height: 1.7;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SOCIAL ICONS — General
+   ═══════════════════════════════════════════════════════════════ */
+
+.item.social a {
+  border: 1px solid var(--color-white);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.item.social a:hover {
+  text-decoration: none;
+}
+
+.item.social a[aria-label="Facebook"]:hover {
+  background: #1877F2;
+  box-shadow: 0 4px 10px rgba(24, 119, 242, 0.4);
+  transform: translateY(-5px);
+}
+
+.item.social a[aria-label="TikTok"]:hover {
+  background: linear-gradient(to right, #69C9D0, #EE1D52);
+  box-shadow: 0 4px 10px rgba(238, 29, 82, 0.4);
+  transform: translateY(-5px);
+}
+
+.item.social a[aria-label="YouTube"]:hover {
+  background: #FF0000;
+  box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4);
+  transform: translateY(-5px);
+}
+
+.item.social a[aria-label="Instagram"]:hover {
+  background: linear-gradient(to right, #833ab4, #fd1d1d, #fcb045);
+  box-shadow: 0 4px 10px rgba(253, 29, 29, 0.4);
+  transform: translateY(-5px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SOCIAL ICONS — Inside Card (overrides)
+   ═══════════════════════════════════════════════════════════════ */
+
+.footer-dark .contact-card .item.social {
+  text-align: left;
+  width: auto;
+  margin: 0;
+  padding: 0 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-dark .contact-card .item.social > a {
+  font-size: 16px;
+  width: 48px;
+  height: 48px;
+  line-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.footer-dark .contact-card .item.social > a:hover {
+  color: var(--static-white);
+  transform: translateY(-3px);
+  border-color: transparent;
+  text-decoration: none;
+}
+
+.footer-dark .contact-card .item.social a[aria-label="Facebook"]:hover {
+  background: #1877F2;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.4);
+}
+
+.footer-dark .contact-card .item.social a[aria-label="TikTok"]:hover {
+  background: linear-gradient(135deg, #69C9D0, #EE1D52);
+  box-shadow: 0 4px 12px rgba(238, 29, 82, 0.4);
+}
+
+.footer-dark .contact-card .item.social a[aria-label="YouTube"]:hover {
+  background: #FF0000;
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
+}
+
+.footer-dark .contact-card .item.social a[aria-label="Instagram"]:hover {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  box-shadow: 0 4px 12px rgba(253, 29, 29, 0.4);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   GRID + SECTIONS
+   ═══════════════════════════════════════════════════════════════ */
 
 .row {
   display: flex;
@@ -2489,7 +2699,11 @@ textarea {
   align-self: start;
 }
 
-/* ===== Mobile (<768px): stack everything ===== */
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ===== Mobile (<768px) ===== */
 @media (max-width: 767px) {
   .footer-grid {
     display: flex;
@@ -2514,22 +2728,32 @@ textarea {
   }
 
   .footer__subheading {
-    font-size: var(--size-3xl);
+    font-size: var(--size-2xl);
+  }
+
+  .footer__subheading::after {
+    left: 5%;
+    transform: translateX(-50%);
   }
 
   .footer-dark ul a {
-    font-size: var(--size-xl);
+    font-size: var(--size-base);
+  }
+
+  .footer-dark ul a:hover {
+    padding-left: 0;
   }
 
   .footer-section.iglesia p {
     font-size: var(--size-lg);
-}
+  }
+
+  .footer-dark .contact-card .item.social {
+    justify-content: center;
+  }
 }
 
-/* ===== Tablet (768–1023px)
-   Row 1: [ Conéctate | Nosotros ] inside .left-group
-   Row 2: [ Iglesia   | Contact card ]
-*/
+/* ===== Tablet (768–1023px) ===== */
 @media (min-width: 768px) and (max-width: 1023px) {
   .footer-grid {
     display: grid;
@@ -2542,9 +2766,7 @@ textarea {
 
   .left-group {
     grid-column: 1 / -1;
-    /* spans both columns on row 1 */
     display: grid;
-    /* make its children 2 columns */
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     width: 100%;
@@ -2554,7 +2776,6 @@ textarea {
 
   .footer-section.iglesia {
     grid-column: 1;
-    /* row 2, col 1 */
     margin: 0;
     max-width: none;
   }
@@ -2566,16 +2787,11 @@ textarea {
   }
 }
 
-/* ===== Desktop (≥1024px): 3 columns
-   Col1: left-group (stacked)
-   Col2: iglesia
-   Col3: contact card
-*/
+/* ===== Desktop (≥1024px) ===== */
 @media (min-width: 1024px) {
   .footer-grid {
     display: grid;
     grid-template-columns: 210px minmax(250px, 450px) auto;
-    /* kept your original */
     gap: 2rem;
     align-items: start;
     justify-items: start;
@@ -2585,7 +2801,6 @@ textarea {
   .left-group {
     grid-column: 1;
     display: flex;
-    /* stack again on desktop */
     flex-direction: column;
     gap: 2rem;
   }
@@ -3727,6 +3942,78 @@ body.no-scroll {
     color: var(--color-black);
   }
 }
+/* -- pages admin auth -- */
+/* admin/auth.css */
+
+/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
+/* NOTE: No html/body rules here — those would affect every page.
+   The auth screen uses position:fixed so it doesn't need them. */
+
+#authScreen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: #06101a;
+  overflow: hidden;
+  z-index: 9999;
+  box-sizing: border-box;
+}
+
+/* Hide authScreen without display:none so the animation still runs on load */
+#authScreen[hidden] {
+  display: none !important;
+}
+
+/* ── Card ───────────────────────────────────────────────────────────────────── */
+.auth-card {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  flex-shrink: 0;
+  background: var(--color-white, #fff);
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
+  padding: 2.5rem 2rem;
+}
+
+.auth-card__logo {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.auth-card__logo h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  line-height: 1.3;
+}
+
+.auth-card__logo p {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+}
+
+.auth-card h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-15, #1a1a1a);
+}
+
+.auth-error {
+  background: var(--cat-especial, #fde8ea);
+  color: var(--cat-especial-t, #b02030);
+  border-radius: var(--radius-sm, 6px);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  display: none;
+}
 /* -- pages admin auth-animation -- */
 /* admin/auth-animation.css
    Underwater scene visuals. Layout (position:fixed, centering) is in auth.css.
@@ -3845,78 +4132,6 @@ body.no-scroll {
   6%   { opacity: 0.6; }
   88%  { opacity: 0.3; }
   100% { opacity: 0;   transform: translateY(-108vh)  translateX(var(--drift, 10px))   scale(0.4); }
-}
-/* -- pages admin auth -- */
-/* admin/auth.css */
-
-/* ── Auth screen: fixed full-viewport, flex-centered ───────────────────────── */
-/* NOTE: No html/body rules here — those would affect every page.
-   The auth screen uses position:fixed so it doesn't need them. */
-
-#authScreen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: #06101a;
-  overflow: hidden;
-  z-index: 9999;
-  box-sizing: border-box;
-}
-
-/* Hide authScreen without display:none so the animation still runs on load */
-#authScreen[hidden] {
-  display: none !important;
-}
-
-/* ── Card ───────────────────────────────────────────────────────────────────── */
-.auth-card {
-  position: relative;
-  z-index: 10;
-  width: 100%;
-  max-width: 400px;
-  flex-shrink: 0;
-  background: var(--color-white, #fff);
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
-  padding: 2.5rem 2rem;
-}
-
-.auth-card__logo {
-  text-align: center;
-  margin-bottom: 1.75rem;
-}
-
-.auth-card__logo h1 {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  line-height: 1.3;
-}
-
-.auth-card__logo p {
-  font-size: 0.8rem;
-  color: var(--color-muted);
-  margin-top: 4px;
-}
-
-.auth-card h2 {
-  font-size: 1.35rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--color-15, #1a1a1a);
-}
-
-.auth-error {
-  background: var(--cat-especial, #fde8ea);
-  color: var(--cat-especial-t, #b02030);
-  border-radius: var(--radius-sm, 6px);
-  padding: 0.6rem 0.9rem;
-  font-size: 0.85rem;
-  margin-bottom: 1rem;
-  display: none;
 }
 /* -- pages admin buttons -- */
 /* admin/buttons.css
@@ -6480,6 +6695,66 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   margin-bottom: 1.25rem;
   text-align: center;
 }
+/* -- pages sermons latest-sermon -- */
+/* Latest sermon embed on homepage */
+.latest-sermon {
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto 0;
+}
+
+.latest-sermon__frame {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.latest-sermon__frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.latest-sermon__info {
+  text-align: center;
+  padding: 1.25rem 0.5rem;
+}
+
+.latest-sermon__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.35rem;
+}
+
+.latest-sermon__date {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 0.5rem;
+}
+
+.latest-sermon__desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Loading & empty states inherit from sermon styles */
+.latest-sermon .sermon-loading,
+.latest-sermon .sermon-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}
 /* -- pages sermons sermon -- */
 /* ═══════════════════════════════════════════════
    Sermons — modern, clean, scalable UI
@@ -6860,6 +7135,31 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 
 .gap {
   gap: 10px;
+}
+/* -- pages doctrina -- */
+/* =========================================================
+   PAGE: DOCTRINA
+   ========================================================= */
+
+/* Finale section eyebrow */
+.doctrina-finale__eyebrow {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  font-family: var(--font-DM-Sans);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  padding-bottom: var(--pd-xs);
+}
+
+.doctrina-finale__ref {
+  font-size: var(--fs-xs);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-medium);
+  color: var(--color-white);
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+  padding-top: 0.5rem;
 }
 /* -- pages event-detail -- */
 /* =========================================================
@@ -7305,6 +7605,193 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
     animation: none;
     opacity: 1;
     transform: none;
+  }
+}
+/* -- pages vision-valores -- */
+/* =========================================================
+   PAGE: VISION Y VALORES
+   ========================================================= */
+
+/* --- Mission trio cards --- */
+.vv-mission-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--pd-sm);
+}
+
+.vv-mission-card {
+  flex: 1 1 260px;
+  max-width: 320px;
+  background: var(--color-dark);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 1.5rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: var(--container-shadow);
+}
+
+.vv-mission-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.vv-mission-card__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background: var(--color-secondary);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-Signika);
+  margin-bottom: 1rem;
+}
+
+.vv-mission-card__text {
+  font-family: var(--font-Lexend);
+  font-weight: var(--fw-light);
+  font-size: clamp(0.9rem, 0.5rem + 0.8vw, 1.05rem);
+  color: var(--color-white);
+  line-height: 1.7;
+}
+
+.vv-mission-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.vv-mission-card:hover::after {
+  transform: scaleX(1);
+}
+
+/* --- Values grid --- */
+.vv-values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--pd-sm);
+}
+
+.vv-value-card {
+  position: relative;
+  background: var(--color-bg-light);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 1.5rem 2rem;
+  text-align: center;
+  cursor: default;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border: 1px solid rgba(52, 90, 101, 0.08);
+  overflow: hidden;
+}
+
+.vv-value-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(52, 90, 101, 0.12);
+}
+
+.vv-value-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 1.4rem;
+  transition: transform 0.3s ease;
+}
+
+.vv-value-card:hover .vv-value-card__icon {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.vv-value-card__title {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  color: var(--color-black);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vv-value-card__desc {
+  font-family: var(--font-Lexend);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-sm);
+  color: var(--color-black);
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* Top accent bar on hover */
+.vv-value-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.vv-value-card:nth-child(1)::before { background: var(--color-primary); }
+.vv-value-card:nth-child(2)::before { background: var(--color-secondary); }
+.vv-value-card:nth-child(3)::before { background: var(--color-primary); }
+.vv-value-card:nth-child(4)::before { background: var(--color-secondary); }
+
+.vv-value-card:hover::before {
+  opacity: 1;
+}
+
+/* --- Dark mode --- */
+@media (prefers-color-scheme: dark) {
+  .vv-value-card {
+    border-color: rgba(137, 182, 194, 0.1);
+  }
+}
+
+/* --- Mobile --- */
+@media (max-width: 768px) {
+  .vv-mission-points {
+    padding: 0 var(--pd-md);
+  }
+
+  .vv-mission-card {
+    max-width: 100%;
+  }
+
+  .vv-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 var(--pd-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .vv-values-grid {
+    grid-template-columns: 1fr;
   }
 }
 /* -- utilities animations -- */

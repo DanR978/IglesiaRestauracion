@@ -20,8 +20,9 @@
  *   photo-thumb.jpg  — 400px thumbnail for event cards
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { createRequire } from 'module';
 
 // ── Parse args ──
 const args = process.argv.slice(2);
@@ -57,6 +58,8 @@ for (let i = 0; i < args.length; i++) {
 // ── Check for sharp ──
 let sharp;
 try {
+  // Use createRequire because sharp may not support pure ESM import in all versions
+  const require = createRequire(import.meta.url);
   sharp = require('sharp');
 } catch {
   console.error(`
@@ -136,8 +139,10 @@ async function processFile(filePath) {
 }
 
 async function main() {
-  console.log(`\n  🖼️  Optimizing ${files.length} image(s)...`);
-  console.log(`  Max: ${maxWidth}px | Quality: ${quality} | Thumbs: ${thumbWidth}px\n`);
+  console.log(`
+  🖼️  Optimizing ${files.length} image(s)...`);
+  console.log(`  Max: ${maxWidth}px | Quality: ${quality} | Thumbs: ${thumbWidth}px
+`);
 
   let totalBefore = 0;
   let totalAfter = 0;
@@ -153,12 +158,15 @@ async function main() {
     }
   }
 
-  console.log(`\n  ────────────────────────────────────────`);
+  console.log(`
+  ────────────────────────────────────────`);
   console.log(`  ${formatSize(totalBefore)} → ${formatSize(totalAfter)} (saved ${formatSize(totalBefore - totalAfter)})`);
-  console.log(`  Files in: optimized/\n`);
+  console.log(`  Files in: optimized/
+`);
   console.log(`  💡 Upload .jpg to Supabase Storage for events.`);
   console.log(`     Use .webp in <picture> tags for faster loading.`);
-  console.log(`     Use -thumb.jpg for event card previews.\n`);
+  console.log(`     Use -thumb.jpg for event card previews.
+`);
 }
 
 main().catch(err => { console.error(err); process.exit(1); });

@@ -1,0 +1,186 @@
+/* =========================================================
+   PAGE: VISION Y VALORES
+   ========================================================= */
+
+/* --- Mission trio cards --- */
+.vv-mission-points {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--pd-sm);
+}
+
+.vv-mission-card {
+  flex: 1 1 260px;
+  max-width: 320px;
+  background: var(--color-dark);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 1.5rem;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  box-shadow: var(--container-shadow);
+}
+
+.vv-mission-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.vv-mission-card__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-full);
+  background: var(--color-secondary);
+  color: #fff;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  font-family: var(--font-Signika);
+  margin-bottom: 1rem;
+}
+
+.vv-mission-card__text {
+  font-family: var(--font-Lexend);
+  font-weight: var(--fw-light);
+  font-size: clamp(0.9rem, 0.5rem + 0.8vw, 1.05rem);
+  color: var(--color-white);
+  line-height: 1.7;
+}
+
+.vv-mission-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.vv-mission-card:hover::after {
+  transform: scaleX(1);
+}
+
+/* --- Values grid --- */
+.vv-values-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1.5rem;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--pd-sm);
+}
+
+.vv-value-card {
+  position: relative;
+  background: var(--color-bg-light);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 1.5rem 2rem;
+  text-align: center;
+  cursor: default;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  border: 1px solid rgba(52, 90, 101, 0.08);
+  overflow: hidden;
+}
+
+.vv-value-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(52, 90, 101, 0.12);
+}
+
+.vv-value-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  margin: 0 auto 1.25rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 1.4rem;
+  transition: transform 0.3s ease;
+}
+
+.vv-value-card:hover .vv-value-card__icon {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.vv-value-card__title {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  color: var(--color-black);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vv-value-card__desc {
+  font-family: var(--font-Lexend);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-sm);
+  color: var(--color-black);
+  opacity: 0.8;
+  line-height: 1.6;
+}
+
+/* Top accent bar on hover */
+.vv-value-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  transition: opacity 0.3s ease;
+  opacity: 0;
+}
+
+.vv-value-card:nth-child(1)::before { background: var(--color-primary); }
+.vv-value-card:nth-child(2)::before { background: var(--color-secondary); }
+.vv-value-card:nth-child(3)::before { background: var(--color-primary); }
+.vv-value-card:nth-child(4)::before { background: var(--color-secondary); }
+
+.vv-value-card:hover::before {
+  opacity: 1;
+}
+
+/* --- Dark mode --- */
+@media (prefers-color-scheme: dark) {
+  .vv-value-card {
+    border-color: rgba(137, 182, 194, 0.1);
+  }
+}
+
+/* --- Mobile --- */
+@media (max-width: 768px) {
+  .vv-mission-points {
+    padding: 0 var(--pd-md);
+  }
+
+  .vv-mission-card {
+    max-width: 100%;
+  }
+
+  .vv-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 var(--pd-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .vv-values-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,59 @@
+/* Latest sermon embed on homepage */
+.latest-sermon {
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto 0;
+}
+
+.latest-sermon__frame {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.latest-sermon__frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.latest-sermon__info {
+  text-align: center;
+  padding: 1.25rem 0.5rem;
+}
+
+.latest-sermon__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.35rem;
+}
+
+.latest-sermon__date {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 0.5rem;
+}
+
+.latest-sermon__desc {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.8);
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Loading & empty states inherit from sermon styles */
+.latest-sermon .sermon-loading,
+.latest-sermon .sermon-empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+}

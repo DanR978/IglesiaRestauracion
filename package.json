@@ -1,6 +1,7 @@
 {
   "name": "iglesia-restauracion-divina",
   "private": true,
+  "type": "module",
   "version": "1.0.0",
   "description": "Iglesia Restauración Divina — irdlex.org",
   "scripts": {
@@ -10,6 +11,6 @@
   },
   "devDependencies": {
     "sharp": "^0.34.5",
-    "vite": "^6.3.5"
+    "vite": "^6.4.1"
   }
 }
