@@ -64,13 +64,14 @@ async function fetchPlaylists() {
   } while (pageToken);
 
   return all.map(p => ({
-    id:          p.id,
-    title:       p.snippet.title,
+    id: p.id,
+    title: p.snippet.title,
     description: p.snippet.description || '',
-    thumbnail:   p.snippet.thumbnails?.high?.url || p.snippet.thumbnails?.medium?.url || p.snippet.thumbnails?.default?.url || '',
-    videoCount:  p.contentDetails.itemCount,
+    thumbnail: p.snippet.thumbnails?.high?.url || '',
+    videoCount: p.contentDetails.itemCount,
     publishedAt: p.snippet.publishedAt,
-  }));
+  }))
+  .filter(p => p.videoCount > 0 || p.title.includes('Coming Soon'))
 }
 
 async function fetchPlaylistVideos(playlistId) {
