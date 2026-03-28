@@ -84,7 +84,7 @@
       for (const src of candidates) {
         tried.push(src);
         try {
-          const mod = await import(src);
+          const mod = await import(/* @vite-ignore */ src);
           const api = mod?.default || mod || {};
           window.Rail = Object.assign(window.Rail || {}, api);
           if (window.Rail?.setEvents) {

@@ -48,16 +48,10 @@ function mpaFallback() {
       server.middlewares.use((req, res, next) => {
         const url = req.url?.split('?')[0] || '';
 
-        // Skip files with extensions (already have .html, .js, .css, etc.)
         if (url.includes('.')) return next();
-
-        // Skip root
         if (url === '/') return next();
 
-        // Clean the path: /sermones or /sermones/
         const clean = url.replace(/\/+$/, '');
-
-        // Check if a directory with index.html exists
         const indexPath = resolve('.', clean.slice(1), 'index.html');
         if (existsSync(indexPath)) {
           req.url = `${clean}/index.html`;
@@ -97,6 +91,9 @@ export default defineConfig({
   server: {
     port: 3000,
     open: true,
+    fs: {
+      deny: [],
+    },
   },
 
   resolve: {

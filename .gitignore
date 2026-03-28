@@ -20,6 +20,7 @@ __pycache__/
 dist/
 build/
 
+# Ignore local configuration files
 js/lib/config.js
 node_modules/
 
