@@ -1,18 +1,10 @@
 # .github/workflows/deploy.yml
-# Deploys the static site to GitHub Pages when you push to main.
-#
-# SETUP (one-time):
-# 1. Go to your repo → Settings → Pages
-# 2. Under "Build and deployment", change Source to "GitHub Actions"
-# 3. Push this file to .github/workflows/deploy.yml
-# 4. Done — every push to main auto-deploys.
-
 name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:  # allows manual deploy from GitHub UI
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,12 +23,24 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/configure-pages@v5
+
+      - name: Generate config.js from secrets
+        run: |
+          cat > js/lib/config.js << 'JSEOF'
+          export const CONFIG = {
+            SUPABASE_URL:      '${{ secrets.SUPABASE_URL }}',
+            SUPABASE_ANON_KEY: '${{ secrets.SUPABASE_ANON_KEY }}',
+            STORAGE_WEB:       '${{ secrets.STORAGE_WEB }}',
+            STORAGE_EVENTS:    '${{ secrets.STORAGE_EVENTS }}',
+            YT_API_KEY:        '${{ secrets.YT_API_KEY }}',
+            YT_CHANNEL_HANDLE: '${{ secrets.YT_CHANNEL_HANDLE }}',
+            YT_LIVE_FN:        '${{ secrets.YT_LIVE_FN }}',
+          };
+          JSEOF
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .  # deploy the entire repo as-is (static site, no build step)
-
+          path: .
       - uses: actions/deploy-pages@v4
         id: deployment
