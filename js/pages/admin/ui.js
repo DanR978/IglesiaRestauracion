@@ -61,7 +61,7 @@ export function showView(name) {
 }
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
-export function initTabs({ onCalendario, onPast, onMinistries, onUsers }) {
+export function initTabs({ onCalendario, onPast, onMinistries, onUsers, onDiscipulado, onGaleria }) {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -74,6 +74,8 @@ export function initTabs({ onCalendario, onPast, onMinistries, onUsers }) {
       if (btn.dataset.tab === 'calendario')  onCalendario?.();
       if (btn.dataset.tab === 'ministries')  onMinistries?.();
       if (btn.dataset.tab === 'users')       onUsers?.();
+      if (btn.dataset.tab === 'discipulado') onDiscipulado?.();
+      if (btn.dataset.tab === 'galeria')     onGaleria?.();
     });
   });
 }

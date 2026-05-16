@@ -23,16 +23,57 @@
 }
 
 /* ── Card ───────────────────────────────────────────────────────────────────── */
+/* Dark glass over the underwater animation. auth-animation.css adds rays,
+   bubbles, and the entrance keyframes — this file sets the base panel. */
 .auth-card {
   position: relative;
   z-index: 10;
   width: 100%;
   max-width: 400px;
   flex-shrink: 0;
-  background: var(--color-white, #fff);
+  background: rgba(10, 24, 38, 0.92);
+  border: 1px solid rgba(100, 195, 230, 0.22);
   border-radius: var(--radius-lg, 16px);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(80, 170, 215, 0.08),
+    0 2px 0  rgba(120, 210, 245, 0.12),
+    0 28px 72px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(150, 220, 248, 0.07);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
   padding: 2.5rem 2rem;
+  color: #daf0fa;
+}
+
+/* Force inner text colors to white so nothing inherits black from elsewhere */
+.auth-card,
+.auth-card label,
+.auth-card input,
+.auth-card .auth-card__logo h1,
+.auth-card .auth-card__logo p,
+.auth-card h2 {
+  color: #ffffff;
+}
+
+.auth-card .auth-card__logo h1 { color: #ffffff; }
+.auth-card .auth-card__logo p  { color: rgba(255, 255, 255, 0.72); }
+.auth-card h2                  { color: #ffffff; }
+
+.auth-card .form-group label {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.auth-card .form-group input {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.auth-card .form-group input::placeholder { color: rgba(255, 255, 255, 0.38); }
+.auth-card .form-group input:focus {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.55);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.10);
 }
 
 .auth-card__logo {

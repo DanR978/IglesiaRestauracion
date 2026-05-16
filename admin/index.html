@@ -56,6 +56,8 @@
     <button class="tab-btn active" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
     <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Pasados</button>
     <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> Calendario</button>
+    <button class="tab-btn" data-tab="discipulado" data-staff-only><i class="fas fa-hand-holding-heart"></i> Discipulado</button>
+    <button class="tab-btn" data-tab="galeria" data-staff-only><i class="fas fa-images"></i> Galería</button>
     <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> Ministerios</button>
     <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
   </div>
@@ -341,6 +343,259 @@
     </div>
   </div>
 
+  <!-- ── DISCIPULADO ────────────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-discipulado">
+
+    <!-- Sub-tabs inside Discipulado -->
+    <div class="adm-tabs dscp-admin__tabs">
+      <button class="adm-tab active" data-dscp-tab="groups">
+        <i class="fas fa-people-group"></i> Grupos
+        <span class="dscp-admin__count" id="dscpGroupsCount">0</span>
+      </button>
+      <button class="adm-tab" data-dscp-tab="interests">
+        <i class="fas fa-hand-holding-heart"></i> Interesados
+        <span class="dscp-admin__count" id="dscpInterestsCount">0</span>
+      </button>
+      <button class="adm-tab" data-dscp-tab="messages">
+        <i class="fas fa-envelope"></i> Mensajes
+      </button>
+    </div>
+
+    <!-- Groups sub-panel -->
+    <div class="dscp-admin__panel active" id="dscp-panel-groups">
+      <div class="action-bar">
+        <h2>Grupos de Discipulado</h2>
+        <button class="btn btn--primary" id="dscpAddGroupBtn">
+          <i class="fas fa-plus"></i> Crear grupo
+        </button>
+      </div>
+      <p style="font-size:.85rem;color:var(--color-muted);margin-bottom:1rem">
+        Crea grupos por nivel, asigna día/hora y casa de reunión. Marca como finalizado cuando terminen el ciclo.
+      </p>
+      <div id="dscpGroupsList" class="dscp-admin__list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando grupos...</div>
+      </div>
+    </div>
+
+    <!-- Interests sub-panel -->
+    <div class="dscp-admin__panel" id="dscp-panel-interests">
+      <div class="action-bar">
+        <h2>Personas Interesadas</h2>
+        <div class="dscp-admin__filters">
+          <button class="filter-pill active" data-dscp-filter="pending">Pendientes</button>
+          <button class="filter-pill" data-dscp-filter="approved">Aprobados</button>
+          <button class="filter-pill" data-dscp-filter="placed">Asignados</button>
+          <button class="filter-pill" data-dscp-filter="all">Todos</button>
+        </div>
+      </div>
+
+      <!-- Origin tabs -->
+      <div class="dscp-pool__controls">
+        <div class="dscp-pool__origin" role="tablist" aria-label="Origen de la solicitud">
+          <button class="dscp-pool__origin-btn active" data-dscp-origin="pool" role="tab" aria-selected="true">
+            <i class="fas fa-users"></i> Sin grupo aún
+            <span class="dscp-admin__count" id="dscpPoolCount">0</span>
+          </button>
+          <button class="dscp-pool__origin-btn" data-dscp-origin="assigned" role="tab" aria-selected="false">
+            <i class="fas fa-link"></i> Ya escogieron grupo
+            <span class="dscp-admin__count" id="dscpAssignedCount">0</span>
+          </button>
+        </div>
+
+        <div class="dscp-pool__groupby" id="dscpPoolGroupBy">
+          <label for="dscpGroupBySel">Organizar por:</label>
+          <select id="dscpGroupBySel">
+            <option value="none">— Ver todos juntos —</option>
+            <option value="age_range">Edad</option>
+            <option value="gender">Género</option>
+            <option value="can_host">¿Puede hospedar?</option>
+            <option value="experience_level">Nivel</option>
+            <option value="preferred_day">Día preferido</option>
+            <option value="preferred_time">Hora preferida</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="dscp-pool__hint" id="dscpPoolHint">
+        Estas son las personas que llenaron el formulario sin escoger un grupo. Marca varias y haz clic en
+        <strong>Formar grupo</strong> para crear un grupo nuevo con todos ellos a la vez.
+      </p>
+
+      <div id="dscpInterestsList" class="dscp-admin__list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+
+      <!-- Floating bulk-action bar — appears when at least 1 person is selected -->
+      <div class="dscp-bulk-bar" id="dscpBulkBar" hidden>
+        <span class="dscp-bulk-bar__count" id="dscpBulkCount">0 personas seleccionadas</span>
+        <div class="dscp-bulk-bar__actions">
+          <button class="btn btn--ghost" id="dscpBulkClear"><i class="fas fa-times"></i> Quitar selección</button>
+          <button class="btn btn--primary" id="dscpBulkFormGroup"><i class="fas fa-people-group"></i> Formar grupo con estas personas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages sub-panel -->
+    <div class="dscp-admin__panel" id="dscp-panel-messages">
+      <div class="action-bar">
+        <h2>Mensajes a Grupos</h2>
+      </div>
+      <p style="font-size:.85rem;color:var(--color-muted);margin-bottom:1rem">
+        Envía una actualización o nota a los miembros de un grupo. El mensaje queda guardado en el historial del grupo.
+      </p>
+
+      <div class="dscp-message-composer">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Grupo *</label>
+            <select id="dscpMsgGroup"></select>
+          </div>
+          <div class="form-group">
+            <label>Asunto</label>
+            <input type="text" id="dscpMsgSubject" placeholder="ej. Cambio de horario esta semana">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Mensaje *</label>
+          <textarea id="dscpMsgBody" rows="4" placeholder="Escribe la actualización para los miembros del grupo..."></textarea>
+        </div>
+        <div class="auth-error" id="dscpMsgError"></div>
+        <div style="display:flex;gap:.65rem;margin-top:.5rem">
+          <button class="btn btn--primary" id="dscpMsgSend">
+            <i class="fas fa-paper-plane"></i> Enviar mensaje
+          </button>
+        </div>
+      </div>
+
+      <h3 style="margin-top:2rem;font-size:1rem;color:var(--color-muted);font-weight:600">Historial reciente</h3>
+      <div id="dscpMessagesHistory" class="dscp-admin__messages"></div>
+    </div>
+
+  </div><!-- /tab-discipulado -->
+
+  <!-- ── GALERÍA ────────────────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-galeria">
+
+    <!-- Library view: list all albums -->
+    <div class="gal-admin__view active" id="gal-view-library">
+      <div class="action-bar">
+        <h2>Galería</h2>
+        <button class="btn btn--primary" id="galNewAlbumBtn">
+          <i class="fas fa-plus"></i> Nuevo álbum
+        </button>
+      </div>
+      <p style="font-size:.85rem;color:var(--color-muted);margin-bottom:1rem">
+        Crea álbumes por evento o ministerio. Cada álbum puede tener muchas fotos. Las fotos se optimizan automáticamente al subirlas.
+      </p>
+
+      <div class="gal-admin__filters">
+        <select id="galAdmYearFilter">
+          <option value="">Todos los años</option>
+        </select>
+        <select id="galAdmTypeFilter">
+          <option value="">Todos los tipos</option>
+        </select>
+        <label class="gal-admin__toggle">
+          <input type="checkbox" id="galAdmShowUnpublished"> Mostrar no publicados
+        </label>
+      </div>
+
+      <div id="galAdmAlbumsList" class="gal-admin__list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando álbumes…</div>
+      </div>
+    </div>
+
+    <!-- Album editor view -->
+    <div class="gal-admin__view" id="gal-view-album">
+      <div class="toolbar-back" style="justify-content:flex-start">
+        <button class="btn btn--ghost" id="galAdmBackBtn"><i class="fas fa-arrow-left"></i> Regresar</button>
+        <h2 id="galAdmEditorTitle">Editar álbum</h2>
+      </div>
+
+      <div class="form-card">
+        <input type="hidden" id="galAdmId">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Título del álbum *</label>
+            <input type="text" id="galAdmTitle" placeholder="ej. Noche de Adoración — Marzo 2026">
+          </div>
+          <div class="form-group">
+            <label>Año *</label>
+            <input type="number" id="galAdmYear" min="2000" max="2100">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tipo de evento</label>
+            <select id="galAdmType"></select>
+          </div>
+          <div class="form-group">
+            <label>Fecha del evento</label>
+            <input type="date" id="galAdmDate">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="galAdmDesc" rows="2" placeholder="Una breve descripción del evento o álbum..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:400;letter-spacing:0;cursor:pointer">
+              <input type="checkbox" id="galAdmPublished" checked style="width:auto;accent-color:var(--color-primary)">
+              Visible en la galería pública
+            </label>
+          </div>
+          <div class="form-group">
+            <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:400;letter-spacing:0;cursor:pointer">
+              <input type="checkbox" id="galAdmFeatured" style="width:auto;accent-color:var(--color-secondary)">
+              Marcar como destacado
+            </label>
+          </div>
+        </div>
+
+        <div class="auth-error" id="galAdmError"></div>
+        <div style="display:flex;gap:.65rem;flex-wrap:wrap;margin-top:.5rem">
+          <button class="btn btn--primary" id="galAdmSaveBtn"><i class="fas fa-save"></i> Guardar álbum</button>
+          <button class="btn btn--danger" id="galAdmDeleteBtn" style="display:none">
+            <i class="fas fa-trash"></i> Eliminar álbum
+          </button>
+        </div>
+      </div>
+
+      <!-- Photo upload + grid (only after album is saved at least once) -->
+      <div class="gal-admin__photos" id="galAdmPhotosWrap" hidden>
+
+        <div class="gal-admin__photos-head">
+          <h3>Fotos <span id="galAdmPhotoCount" style="color:var(--color-muted);font-weight:500">(0)</span></h3>
+          <button class="btn btn--ghost" id="galAdmRefreshBtn"><i class="fas fa-sync"></i> Actualizar</button>
+        </div>
+
+        <!-- Drop zone -->
+        <label class="gal-dropzone" id="galDropZone">
+          <input type="file" id="galFileInput" accept="image/*" multiple hidden>
+          <div class="gal-dropzone__inner">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p class="gal-dropzone__title">Arrastra fotos aquí o haz clic para escoger</p>
+            <p class="gal-dropzone__hint">Si el álbum aún no se ha guardado, lo guardamos automáticamente al subir la primera foto.<br>
+              Se optimizan automáticamente. JPG, PNG, WebP, HEIC.</p>
+          </div>
+        </label>
+
+        <!-- Upload progress -->
+        <div class="gal-upload-queue" id="galUploadQueue" hidden></div>
+
+        <!-- Photo grid (sortable on desktop) -->
+        <div class="gal-adm-grid" id="galAdmPhotoGrid"></div>
+
+      </div>
+    </div>
+
+  </div><!-- /tab-galeria -->
+
   <!-- ── USUARIOS ───────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-users">
     <div class="action-bar">
@@ -415,6 +670,164 @@
   </div>
 </div>
 
+<!-- Discipleship group modal -->
+<div class="modal-backdrop" id="dscpGroupModal">
+  <div class="modal">
+    <div class="modal__header">
+      <div class="modal__title" id="dscpGroupModalTitle">Crear grupo de discipulado</div>
+      <button class="modal__close" id="dscpGroupModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="hidden" id="dscpGroupId">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre del grupo *</label>
+        <input type="text" id="dscpGroupName" placeholder="ej. Discipulado Nivel 2 — Familias Lopez">
+      </div>
+      <div class="form-group">
+        <label>Nivel *</label>
+        <select id="dscpGroupLevel">
+          <option value="1">Nivel 1 — Fundamentos</option>
+          <option value="2">Nivel 2 — Crecimiento</option>
+          <option value="3">Nivel 3 — Discípulo</option>
+          <option value="4">Nivel 4 — Servidor</option>
+          <option value="5">Nivel 5 — Multiplicador</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Descripción</label>
+      <textarea id="dscpGroupDesc" rows="2" placeholder="Breve descripción del grupo, énfasis, materiales..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="dscpGroupStatus">
+          <option value="open">Abierto (recibe interesados)</option>
+          <option value="active">En curso</option>
+          <option value="completed">Finalizado</option>
+          <option value="cancelled">Cancelado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Cupo (opcional)</label>
+        <input type="number" id="dscpGroupCapacity" min="1" max="50" placeholder="ej. 12">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Día de reunión</label>
+        <select id="dscpGroupDay">
+          <option value="">— Sin definir —</option>
+          <option value="domingo">Domingo</option>
+          <option value="lunes">Lunes</option>
+          <option value="martes">Martes</option>
+          <option value="miércoles">Miércoles</option>
+          <option value="jueves">Jueves</option>
+          <option value="viernes">Viernes</option>
+          <option value="sábado">Sábado</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Hora</label>
+        <input type="time" id="dscpGroupTime">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Inicio</label>
+        <input type="date" id="dscpGroupStart">
+      </div>
+      <div class="form-group">
+        <label>Fin (opcional)</label>
+        <input type="date" id="dscpGroupEnd">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Casa / lugar</label>
+        <input type="text" id="dscpGroupLocName" placeholder="ej. Casa de los Rodríguez">
+      </div>
+      <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" id="dscpGroupLocAddr" placeholder="ej. 1234 Maple St, Lexington, KY">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Líder del grupo</label>
+      <input type="text" id="dscpGroupLeader" placeholder="ej. Hermano Juan Martínez">
+    </div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:400;letter-spacing:0;cursor:pointer">
+        <input type="checkbox" id="dscpGroupPublished" checked style="width:auto;accent-color:var(--color-primary)">
+        Visible en la página pública de Discipulado
+      </label>
+    </div>
+
+    <!-- QR code section (only visible when editing an existing group) -->
+    <div class="dscp-qr" id="dscpQrSection" hidden>
+      <div class="dscp-qr__head">
+        <h4>Código QR para este grupo</h4>
+        <p>Imprime y reparte este QR. Quien lo escanee llegará directo a la página de inscripción de este grupo.</p>
+      </div>
+      <div class="dscp-qr__body">
+        <img id="dscpQrImg" alt="Código QR" />
+        <div class="dscp-qr__details">
+          <p class="dscp-qr__caption">Imprime este código y repártelo. Quien lo escanee con el celular llegará directo a la página de inscripción de este grupo.</p>
+          <div class="dscp-qr__actions">
+            <button type="button" class="btn btn--primary" id="dscpQrDownload">
+              <i class="fas fa-download"></i> Descargar PNG
+            </button>
+            <button type="button" class="btn btn--ghost" id="dscpQrCopy">
+              <i class="fas fa-link"></i> Copiar enlace
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-error" id="dscpGroupError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost"   id="dscpGroupCancel">Cancelar</button>
+      <button class="btn btn--danger"  id="dscpGroupDelete" style="display:none">
+        <i class="fas fa-trash"></i> Eliminar
+      </button>
+      <button class="btn btn--primary" id="dscpGroupSave">
+        <i class="fas fa-save"></i> Guardar grupo
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Place-interest modal (assign an interest to a group) -->
+<div class="modal-backdrop" id="dscpPlaceModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal__header">
+      <div class="modal__title">Asignar a un grupo</div>
+      <button class="modal__close" id="dscpPlaceClose"><i class="fas fa-times"></i></button>
+    </div>
+    <p id="dscpPlaceName" style="font-size:.95rem;color:var(--color-primary);font-weight:600;margin-bottom:.75rem"></p>
+    <div class="form-group">
+      <label>Grupo *</label>
+      <select id="dscpPlaceGroup"></select>
+    </div>
+    <div class="form-group">
+      <label>Rol en el grupo</label>
+      <select id="dscpPlaceRole">
+        <option value="member">Miembro</option>
+        <option value="co-leader">Co-líder</option>
+        <option value="leader">Líder</option>
+      </select>
+    </div>
+    <div class="auth-error" id="dscpPlaceError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost"   id="dscpPlaceCancel">Cancelar</button>
+      <button class="btn btn--primary" id="dscpPlaceSave">
+        <i class="fas fa-check"></i> Asignar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- User modal -->
 <div class="modal-backdrop" id="userModal">
   <div class="modal">
@@ -424,7 +837,7 @@
     </div>
     <form id="userForm" onsubmit="return false">
       <div class="form-group"><label>Nombre</label><input type="text" id="uName" placeholder="Ej: Ministerio Caballeros"></div>
-      <div class="form-group"><label>Correo electrónico</label><input type="email" id="uEmail" placeholder="caballeros@irdlex.org"></div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="uEmail" placeholder="caballeros@irdlex.org" autocomplete="username"></div>
       <div class="form-group"><label>Contraseña</label><input type="password" id="uPassword" placeholder="Mínimo 8 caracteres" autocomplete="new-password"></div>
       <div class="form-group">
         <label>Rol</label>
@@ -526,6 +939,59 @@
       <button class="btn btn--primary" id="presetModalSave">
         <i class="fas fa-save"></i> Guardar preselección
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── GALLERY ALBUM CREATION WIZARD ────────────────────────────────────── -->
+<div class="wizard-backdrop" id="gwizBackdrop">
+  <div class="wizard">
+    <div class="wizard__header">
+      <h3 id="gwizTitle">Crear álbum</h3>
+      <button class="wizard__close" id="gwizClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="wizard__progress">
+      <div class="wizard__progress-dot active"></div>
+      <div class="wizard__progress-dot"></div>
+      <div class="wizard__progress-dot"></div>
+      <div class="wizard__progress-dot"></div>
+    </div>
+    <div class="wizard__body">
+      <div class="wiz-step active" id="gwizStep1"></div>
+      <div class="wiz-step" id="gwizStep2"></div>
+      <div class="wiz-step" id="gwizStep3"></div>
+      <div class="wiz-step" id="gwizStep4"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── DISCIPLESHIP GROUP CREATION WIZARD ──────────────────────────────── -->
+<div class="wizard-backdrop" id="dwizBackdrop">
+  <div class="wizard">
+    <div class="wizard__header">
+      <h3 id="dwizTitle">Crear grupo de discipulado</h3>
+      <button class="wizard__close" id="dwizClose"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="wizard__progress">
+      <div class="wizard__progress-dot active"></div>
+      <div class="wizard__progress-dot"></div>
+      <div class="wizard__progress-dot"></div>
+      <div class="wizard__progress-dot"></div>
+    </div>
+    <div class="wizard__body">
+
+      <!-- Step 1: Pick level -->
+      <div class="wiz-step active" id="dwizStep1"></div>
+
+      <!-- Step 2: Basics (name, leader, capacity, status) -->
+      <div class="wiz-step" id="dwizStep2"></div>
+
+      <!-- Step 3: Schedule (day, time, start, end) -->
+      <div class="wiz-step" id="dwizStep3"></div>
+
+      <!-- Step 4: Optional details + review & create -->
+      <div class="wiz-step" id="dwizStep4"></div>
+
     </div>
   </div>
 </div>

@@ -49,15 +49,54 @@ async function resolveChannelId() {
   return { channelId: '', uploadsPlaylistId: '' };
 }
 
-// ── Fetch latest video from uploads playlist ────────────────────────────────
-async function fetchLatestVideo(uploadsPlaylistId) {
-  const res = await fetch(
-    `${YT_API}/playlistItems?part=snippet,contentDetails&playlistId=${uploadsPlaylistId}&maxResults=1&key=${YT_API_KEY}`
-  );
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
+/** Map an ISO-8601 duration (PT1H2M3S / PT45S) to total seconds. */
+function durationSeconds(iso) {
+  if (!iso) return 0;
+  const m = String(iso).match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+  if (!m) return 0;
+  return (Number(m[1] || 0) * 3600) + (Number(m[2] || 0) * 60) + Number(m[3] || 0);
+}
 
-  const item = data.items?.[0];
+// ── Fetch latest video from uploads playlist ────────────────────────────────
+// Shorts are excluded by using YouTube's per-channel "long-form videos only"
+// system playlist: replace the UU prefix on the uploads playlist with UULF.
+// If that playlist returns nothing (rare), fall back to the regular uploads
+// playlist and skip any item whose duration is ≤ 60 s.
+async function fetchLatestVideo(uploadsPlaylistId) {
+  const longFormId = uploadsPlaylistId.replace(/^UU/, 'UULF');
+
+  async function pickFromPlaylist(playlistId, skipShorts = false) {
+    const res = await fetch(
+      `${YT_API}/playlistItems?part=snippet,contentDetails&playlistId=${playlistId}&maxResults=${skipShorts ? 10 : 1}&key=${YT_API_KEY}`
+    );
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const items = data.items || [];
+    if (!items.length) return null;
+
+    if (!skipShorts) return items[0];
+
+    // Defensive: query durations and pick first non-Short
+    const ids = items.map(i => i.contentDetails.videoId).join(',');
+    const dRes = await fetch(`${YT_API}/videos?part=contentDetails&id=${ids}&key=${YT_API_KEY}`);
+    const dData = await dRes.json();
+    const longIds = new Set(
+      (dData.items || [])
+        .filter(v => durationSeconds(v.contentDetails?.duration) > 60)
+        .map(v => v.id),
+    );
+    return items.find(i => longIds.has(i.contentDetails.videoId)) || null;
+  }
+
+  // 1) Try the long-form-only system playlist (no Shorts by design)
+  let item = null;
+  try {
+    item = await pickFromPlaylist(longFormId, false);
+  } catch (_) { /* UULF can 404 on small channels — fall through */ }
+
+  // 2) Fallback: full uploads + duration filter
+  if (!item) item = await pickFromPlaylist(uploadsPlaylistId, true);
+
   if (!item) return null;
 
   return {

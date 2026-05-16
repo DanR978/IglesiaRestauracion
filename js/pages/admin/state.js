@@ -14,7 +14,9 @@ export let currentProfile = null;
 export function setCurrentUser(u)    { currentUser    = u; }
 export function setCurrentProfile(p) { currentProfile = p; }
 
-export const isAdmin = () => currentProfile?.role === 'admin';
+export const isAdmin  = () => currentProfile?.role === 'admin';
+export const isPastor = () => currentProfile?.role === 'pastor';
+export const isStaff  = () => isAdmin() || isPastor();
 
 // ─── Ministry state ───────────────────────────────────────────────────────────
 export let ministries          = [];

@@ -24,3 +24,4 @@ build/
 js/lib/config.js
 node_modules/
 
+migrations/

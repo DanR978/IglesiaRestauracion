@@ -57,8 +57,14 @@
   right: 0;
   z-index: var(--z-menu);
   background-color: var(--transparent);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: translateY(0);
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow      0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform       0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* IMPORTANT: NO transform here by default. A transformed ancestor traps
+     position:fixed descendants (like the mobile menu .nav), which would
+     cause it to be scoped to this 80px header strip instead of the viewport.
+     Scroll-hide adds .nav-hidden which applies its own transform — that's
+     fine because at that point the menu isn't open. */
   text-decoration: none;
   max-width: 100vw;
 }
@@ -70,12 +76,25 @@
   opacity: 1;
 }
 
-.nav-container.scrolled::before { 
-  opacity: .95; 
+.nav-container.scrolled::before {
+  opacity: .95;
 }
 
 .nav-container.nav-hidden {
   transform: translateY(-100%);
+}
+
+/* CRITICAL: while the mobile menu is open, NOTHING on .nav-container may
+   create a containing block (transform / backdrop-filter / filter / etc),
+   otherwise position:fixed .nav re-anchors to the 80px header strip.
+   The scrolled-state styling isn't relevant while a full-screen menu is up. */
+.nav-container:has(.burger.open) {
+  transform: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .nav-container::before {
@@ -94,7 +113,7 @@
   text-decoration: none;
   font-size: var(--size-sm);
   z-index: var(--z-menu);
-  transition: color 1.5s ease;
+  transition: color 0.25s ease;
 }
 
 .logo:hover {
@@ -103,8 +122,8 @@
 }
 
 .nav-container:has(.burger.open) .logo {
-  color: var(--color-black);
-  transition: color 1.5s ease;
+  color: #000;
+  transition: color 0.25s ease;
 }
 
 /* Menu Styles */
@@ -265,195 +284,421 @@ body.no-scroll {
   display: none;
 }
 
-/* ————————————————————————————————————————————
-   MOBILE MENU (max-width: 768px)
-   ———————————————————————————————————————————— */
+/* The ← Atrás header is injected by JS for the mobile menu's nested-pane flow.
+   It must NOT appear in the desktop hover dropdown — hide it by default and
+   re-show inside the mobile @media block. */
+.submenu__head { display: none; }
+
+/* MOBILE MENU - nested panes, true horizontal swipe.   (max-width: 768px)
+   Pattern: Southland Christian / iOS Settings.
+   - Root pane shows category names only
+   - Tapping a category slides root out left, sub-pane in from right
+   - Back button returns to root */
 @media (max-width: 768px) {
+
+  /* Burger button */
   .burger {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 6px;
-    background: none;
-    outline: none;
-    border: none;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    background: transparent;
+    border: 0;
     cursor: pointer;
     z-index: var(--z-max);
-    transition: transform 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .burger:focus {
-    outline: none;
-    box-shadow: none;
+  .burger:focus-visible {
+    outline: 2px solid var(--color-secondary);
+    outline-offset: 4px;
+    border-radius: 4px;
   }
 
   .burger .bar {
-    height: 3px;
-    width: 25px;
+    width: 26px;
+    height: 2px;
     background: var(--color-white);
-    transition: transform 0.5s ease-in, opacity 0.3s ease-in, background-color 0.5s ease-in;
-    border-radius: 2px;
+    border-radius: 999px;
     transform-origin: center;
-    transform-style: preserve-3d;
+    transition: transform 0.32s cubic-bezier(.65,.05,.36,1), opacity 0.22s ease, background-color 0.25s ease;
   }
 
-  .burger.open .bar:nth-child(1) {
-    transform: scale3d(1, 1, 1) rotate(135deg) translateY(-7px) translateX(7px);
-    background-color: var(--color-black);
+  .burger.open {
+    position: fixed;
+    top: calc(var(--pd-md) + env(safe-area-inset-top));
+    right: var(--pd-md);
+    z-index: calc(var(--z-modal, 100) + 10);
   }
 
-  .burger.open .bar:nth-child(2) {
-    transform: scale3d(0, 1, 1);
-    opacity: 0;
+  .burger.open .bar { background: var(--color-primary, #345a65); }
+  .burger.open .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+  .burger.open .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
+  .burger.open .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+  /* (.nav-container has no default transform now — see the rule near the top
+     of this file — so position:fixed .nav is correctly anchored to the
+     viewport. No workaround needed here.) */
+
+  /* When the menu is open, only the COLOR of the logo changes (white → black).
+     position:relative + z-index keeps it visible above the white .nav panel,
+     but no font-size/letter-spacing changes — so the text doesn't shift. */
+  .nav-container:has(.burger.open) .logo {
+    position: relative;
+    z-index: calc(var(--z-modal, 100) + 10);
+    color: #000;
+    transition: color 0.25s ease;
   }
 
-  .burger.open .bar:nth-child(3) {
-    transform: scale3d(1, 1, 1) rotate(-135deg) translateY(6px) translateX(5px);
-    background-color: var(--color-black);
-  }
-
-  .burger.open~.logo,
-  .logo.open {
-    color: var(--color-black);
-  }
-
-
-  /* 📋 Panel */
+  /* Panel: pure white, slides in from the right.
+     Layout uses flex-column so .menu (flex:1) sits between the brand bar at
+     top and .menu-donate at the bottom. Crucially, .menu is NOT position:absolute
+     — that way it doesn't become a containing block and submenus correctly
+     attach to .nav. */
   .nav {
     position: fixed;
     inset: 0;
-    opacity: 0;
-    background-color: var(--mobile-menu-bg);
-    transform: translateX(-100%);
-    transition: transform 0.5s cubic-bezier(.6, .18, .42, .97), opacity 0.5s cubic-bezier(.6, .18, .42, .97);
+    z-index: var(--z-modal, 100);
+    margin: 0;
+    background: #ffffff;
+    color: var(--color-primary, #345a65);
     display: flex;
     flex-direction: column;
-    padding-top: var(--pd-md);
-    align-items: center;
-    margin: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+    will-change: transform;
+    transition: transform 0.32s cubic-bezier(.4, 0, .2, 1);
+    overflow: hidden;
+    padding: 0;
   }
 
   .nav.open {
     transform: translateX(0);
-    opacity: 1;
+    pointer-events: auto;
   }
 
-  .nav.closing {
-    transform: translateX(-100%);
-    opacity: 0;
+  /* Break menu-item containing block so submenus attach to .nav */
+  .menu-item.has-submenu { position: static; }
+
+  /* Don't transform .menu when a submenu opens — applying transform to .menu
+     would make it a containing block for the submenu inside it, which would
+     drag the submenu off-screen along with it. The submenu has a white bg
+     and slides in on top, so .menu doesn't need to animate out. */
+  .nav.has-open-submenu .menu {
     pointer-events: none;
   }
 
-  /* 📜 Menu list */
+  /* Root menu = a flex item taking all available height between brand bar
+     and donate; items vertically centered inside it.
+     IMPORTANT: keep it position:static so submenus inside it walk past it
+     and attach to .nav as their containing block. */
   .menu {
-    flex: 1;
-    list-style: none;
+    flex: 1 1 auto;
+    min-height: 0;
     margin: 0;
-    padding: 0;
+    padding: calc(5rem + env(safe-area-inset-top)) 1.6rem 1rem;
+    list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    width: 100%;
-    justify-content: flex-start;
-    align-items: stretch;
-    top: 50%;
+    justify-content: center;
+    gap: 0.25rem;
+    overflow-y: auto;
+    /* hide scrollbar visually (still scrollable) */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+  .menu::-webkit-scrollbar { display: none; }
 
-  /* optional: keep the closed state visually centered */
-  #mainNav.open {
-    padding-top: 30vh;
-    min-height: 100dvh;
-    overflow: auto;
-  }
+  .menu-item { width: 100%; padding: 0; color: var(--color-primary); }
 
-  .menu-item {
-    width: 100%;
-  }
-
+  /* Category row — centered horizontally (text + chevron together in the middle) */
   .accordion-toggle {
     display: flex;
     align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
     width: 100%;
-    padding: var(--pd-md);
-    font-size: var(--fs-2xl);
-    background-color: var(--mobile-menu-bg);
-    border: none;
-    color: var(--color-black);
-    text-align: left;
+    margin: 0;
+    padding: 0.85rem 0;
+    background: transparent;
+    border: 0;
+    color: var(--color-primary, #345a65);
+    font-family: var(--font-Signika, inherit);
+    font-size: 1.7rem;
+    font-weight: var(--fw-bold);
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    text-align: center;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+    transition: color 0.22s ease;
   }
 
-  .accordion-toggle:active,
-  .accordion-toggle:focus,
-  .accordion-toggle svg:active,
-  .accordion-toggle svg:focus {
-    background: var(--mobile-menu-bg);
-    color: var(--color-secondary);
-    border: none;
-    outline: none;
-  }
-
-  .accordion-toggle svg {
-    display: flex;
-  }
+  .accordion-toggle:hover,
+  .accordion-toggle:focus-visible,
+  .accordion-toggle:active { color: var(--color-secondary, #d98c59); }
 
   .accordion-toggle .chevron-icon {
-    margin-right: 1rem;
-    width: var(--size-2xl);
-    height: var(--size-2xl);
-    transition: transform 0.3s ease;
+    display: block;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    order: 2;                       /* push the chevron to the right of the label */
+    color: rgba(52, 90, 101, 0.40);
+    transition: color 0.22s ease, transform 0.22s ease;
   }
 
-  .menu-item.open .accordion-toggle .chevron-icon {
-    transform: rotate(90deg);
-    stroke: var(--color-black)
+  .accordion-toggle:hover .chevron-icon,
+  .accordion-toggle:focus-visible .chevron-icon,
+  .accordion-toggle:active .chevron-icon {
+    color: var(--color-secondary);
+    transform: translateX(3px);
   }
 
-  .submenu {
+  /* DONAR pill — last flex item of .nav, anchored at the bottom.
+     z-index puts it above the submenu so it stays visible on any pane. */
+  .menu-donate {
+    position: relative;        /* needed for z-index */
+    flex: 0 0 auto;
+    z-index: 5;
     margin: 0;
-    padding: 0;
-    list-style: none;
-    background-color: var(--transparent);
-    transform: scaleY(0);
-    transform-origin: top;
-    transition: transform .32s cubic-bezier(.62, .13, .42, .96);
-    pointer-events: none;
-    position: static;
+    padding: 1rem 1.6rem calc(1.5rem + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
     width: 100%;
-    display: block;
-    border-radius: 0px;
-    max-height: 0;
-    box-shadow: none;
-    border: none;
+    background: linear-gradient(to top, #fff 75%, rgba(255,255,255,0));
   }
 
-  .menu-item.open .submenu {
-    transform: scaleY(1);
-    pointer-events: auto;
-    opacity: 1;
-    max-height: 500px;
-  }
-
-  .submenu li a {
-    display: block;
-    padding: 1.13rem 2.9rem;
-    font-size: 1.07rem;
-    color: var(--color-black);
+  .menu-donate .ird-btn--donate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: none;
+    padding: 1.05rem 1.5rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--color-secondary, #d98c59);
+    color: var(--color-white);
+    font-size: 0.95rem;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.18em;
+    text-align: center;
     text-decoration: none;
-    background: none;
-    font-family: var(--font-base);
-    transition: background-color 0.18s, color 0.14s;
+    box-shadow: 0 12px 32px rgba(217, 140, 89, 0.32);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
-  .submenu li a:hover,
-  .submenu li a:focus {
-    background-color: var(--orange-55);
-    color: var(--color-black);
+  .menu-donate .ird-btn--donate::after {
+    content: "\2192";
+    font-size: 1.05rem;
+    transition: transform 0.2s ease;
   }
 
+  .menu-donate .ird-btn--donate:hover,
+  .menu-donate .ird-btn--donate:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(217, 140, 89, 0.42);
+    color: var(--color-white);
+    text-decoration: none;
+  }
+
+  .menu-donate .ird-btn--donate:hover::after { transform: translateX(4px); }
+
+  /* Sub-pane: positioned absolute inside .nav (since .menu is now flex, not
+     positioned, the absolute walks up past it to .nav). Stops above the DONAR
+     area so the pill stays visible. */
+  .submenu {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(6rem + env(safe-area-inset-bottom));
+    z-index: 2;
+    margin: 0;
+    list-style: none;
+    background: #ffffff;
+    color: var(--color-primary, #345a65);
+    transform: translateX(100%);
+    transition: transform 0.32s cubic-bezier(.4, 0, .2, 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    /* hide scrollbar visually (still scrollable) */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: calc(5.25rem + env(safe-area-inset-top)) 1.6rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    opacity: 1;
+    pointer-events: none;
+    max-width: 100%;
+    min-width: 0;
+    max-height: none;
+    will-change: transform;
+  }
+
+  .submenu::-webkit-scrollbar { display: none; }
+
+  .menu-item.is-open .submenu {
+    transform: translateX(0);
+    pointer-events: auto;
+  }
+
+  /* Used by the JS FLIP morph: position the submenu into its resting state
+     for a single frame WITHOUT making it visible, so we can measure the
+     title element's final position. visibility:hidden keeps it out of
+     pointer events and paint, while still computing layout. */
+  .submenu.is-measuring {
+    transform: translateX(0);
+    visibility: hidden;
+    transition: none;
+  }
+
+  /* Back button + items appear ALL TOGETHER (no stagger) AFTER the title
+     morph completes (~0.4s). Going OUT has no delay — they disappear with
+     the slide. */
+  .submenu .submenu-back,
+  .submenu li:not(.submenu__head) a {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    transition-delay: 0s;
+  }
+
+  .menu-item.is-open .submenu .submenu-back,
+  .menu-item.is-open .submenu li:not(.submenu__head) a {
+    opacity: 1;
+    transform: translateY(0);
+    transition-duration: 0.3s;
+    transition-delay: 0.4s;     /* wait for the morph to settle */
+  }
+
+  .submenu li { list-style: none; width: 100%; }
+
+  /* Back row */
+  .submenu .submenu__head {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0 0 1.75rem;
+    padding: 0;
+  }
+
+  .submenu-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.3rem 0.4rem 0;
+    background: transparent;
+    border: 0;
+    color: var(--color-primary, #345a65);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    /* opacity + transform needed for staggered fade-in; color for hover */
+    transition: color 0.22s ease, opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .submenu-back i {
+    color: var(--color-secondary, #d98c59);
+    font-size: 0.8rem;
+    transition: transform 0.22s ease;
+  }
+
+  .submenu-back:hover,
+  .submenu-back:focus-visible,
+  .submenu-back:active { color: var(--color-secondary, #d98c59); }
+  .submenu-back:hover i,
+  .submenu-back:focus-visible i,
+  .submenu-back:active i { transform: translateX(-4px); }
+
+  .submenu__title {
+    font-family: var(--font-Signika, inherit);
+    font-size: 0.72rem;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(52, 90, 101, 0.55);
+    position: relative;
+    padding-left: 1rem;
+  }
+
+  .submenu__title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 1rem;
+    background: rgba(52, 90, 101, 0.18);
+  }
+
+  /* Sub-pane items */
+  .submenu li:not(.submenu__head) a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0.65rem 0;
+    background: transparent;
+    color: var(--color-primary, #345a65);
+    font-family: var(--font-Signika, inherit);
+    font-size: 1.55rem;
+    font-weight: var(--fw-bold);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+    text-decoration: none;
+    /* opacity + transform are needed for the staggered fade-in earlier in
+       this stylesheet; color is for the hover state. Keep all three. */
+    transition: color 0.22s ease, opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .submenu li:not(.submenu__head) a::after {
+    content: "\2192";
+    margin-left: 0.6rem;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+    color: var(--color-secondary);
+    font-weight: 400;
+  }
+
+  .submenu li:not(.submenu__head) a:hover,
+  .submenu li:not(.submenu__head) a:focus-visible,
+  .submenu li:not(.submenu__head) a:active {
+    color: var(--color-secondary, #d98c59);
+    background: transparent;
+    padding-left: 0;
+  }
+
+  .submenu li:not(.submenu__head) a:hover::after,
+  .submenu li:not(.submenu__head) a:focus-visible::after,
+  .submenu li:not(.submenu__head) a:active::after {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
+/* Desktop: hover dropdowns */
 @media (min-width: 769px) {
-
   .menu-item.has-submenu:hover .submenu,
   .menu-item.has-submenu:focus-within .submenu {
     display: block;

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="robots" content="index, follow">
+    <meta name="keywords"
+      content="galería iglesia, fotos iglesia Lexington, memorias iglesia, bautismos, jóvenes, adoración, conferencias, comunidad cristiana, Iglesia Restauración Divina">
+
+    <title>Galería | Iglesia Restauración Divina</title>
+    <meta name="description"
+      content="Memorias y momentos especiales de nuestra familia en Cristo. Bautismos, conferencias, noches de adoración, jóvenes, evangelismo y mucho más.">
+    <meta name="author" content="Iglesia Restauración Divina" />
+
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+
+    <link rel="canonical" href="https://www.irdlex.org/galeria" />
+    <meta property="og:site_name" content="Iglesia Restauración Divina" />
+    <meta property="og:title" content="Galería — Iglesia Restauración Divina" />
+    <meta property="og:url" content="https://www.irdlex.org/galeria" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Memorias y momentos especiales de nuestra familia en Cristo." />
+    <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Galería — Iglesia Restauración Divina" />
+    <meta name="twitter:description" content="Memorias y momentos especiales de nuestra familia en Cristo." />
+    <meta name="twitter:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
+
+    <base href="/">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="format-detection" content="telephone=no">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "ImageGallery",
+        "name": "Galería — Iglesia Restauración Divina",
+        "description": "Archivo visual de la vida y ministerio de Iglesia Restauración Divina.",
+        "url": "https://www.irdlex.org/galeria",
+        "publisher": {
+          "@type": "Church",
+          "name": "Iglesia Restauración Divina",
+          "url": "https://www.irdlex.org"
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="ird-splash"></div>
+    <script type="module" src="/js/components/splash.js"></script>
+
+    <header id="header" data-hero-size="page"
+      data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers.jpg"></header>
+
+    <div class="hero-content glass-card rg-pd animate-fade-in" data-threshold="0.8">
+      <h1 class="hero__page-title">GALERÍA</h1>
+      <h2 class="hero__page-subtitle">MOMENTOS DE NUESTRA FAMILIA EN CRISTO</h2>
+    </div>
+
+    <main>
+
+      <!-- ─── Intro ─── -->
+      <section class="container--centered-text-block">
+        <div class="centered-text-block__inner">
+          <h5 class="centered-text-block__subtitle animate-fade-in" data-threshold="1">EL ARCHIVO DE LA FAMILIA</h5>
+          <h2 class="centered-text-block__title animate-fade-in" data-threshold="1">
+            CADA FOTO ES UN TESTIMONIO <br> DE LA OBRA DE DIOS EN NUESTRA IGLESIA
+          </h2>
+          <p class="centered-text-block__body animate-fade-in" data-threshold="1">
+            Aquí guardamos los momentos donde Dios nos ha hablado, transformado y unido como familia.
+            Bautismos, noches de adoración, conferencias, jóvenes, evangelismo y todas las veces que
+            simplemente nos hemos reunido para celebrar Su gracia.
+          </p>
+        </div>
+      </section>
+
+      <!-- ─── Filters ─── -->
+      <section class="gal-filters">
+        <div class="gal-filters__bar">
+          <div class="gal-filters__search">
+            <i class="fas fa-search"></i>
+            <input type="search" id="galSearch" placeholder="Buscar álbum…" aria-label="Buscar álbumes">
+          </div>
+          <div class="gal-filters__years" id="galYearPills" hidden></div>
+        </div>
+        <div class="gal-filters__chips" id="galTypePills">
+          <button class="gal-chip active" data-gal-type="">Todos</button>
+        </div>
+      </section>
+
+      <!-- ─── Featured (only if albums are flagged is_featured) ─── -->
+      <section class="gal-featured" id="galFeatured" hidden>
+        <div class="container--centered-text-block">
+          <div class="centered-text-block__inner">
+            <h5 class="centered-text-block__subtitle animate-fade-in" data-threshold="1">DESTACADOS</h5>
+          </div>
+        </div>
+        <div class="gal-featured__strip" id="galFeaturedStrip"></div>
+      </section>
+
+      <!-- ─── Albums grouped by year ─── -->
+      <section class="gal-years" id="galYears">
+        <div class="dscp-loading"><i class="fas fa-spinner fa-spin"></i> Cargando galería…</div>
+      </section>
+
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="/js/utils/load-icons.js"></script>
+    <script type="module" src="/js/include.js"></script>
+    <script type="module" src="/js/components/page-transition.js"></script>
+
+    <script type="module" src="/js/pages/galeria/index.js"></script>
+  </body>
+</html>

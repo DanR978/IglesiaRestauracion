@@ -1,0 +1,898 @@
+/* =============================================================================
+   PAGE: DISCIPULADO  (uses existing tokens — no new colors introduced)
+   ============================================================================= */
+
+/* ── Process steps (numbered editorial list) ─────────────────────────────── */
+.dscp-process {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem) 3rem;
+}
+
+.dscp-process__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.dscp-process__step {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(3rem, 6vw, 4.5rem) 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 0.3rem 1.25rem;
+  padding: 1.4rem 1.5rem 1.5rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-lg, 1rem);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.dscp-process__step:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--container-shadow);
+  border-color: var(--color-secondary);
+}
+
+.dscp-process__num {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: start;
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-bold);
+  font-size: clamp(2rem, 1rem + 2.5vw, 2.75rem);
+  line-height: 1;
+  color: var(--color-secondary);
+  letter-spacing: -0.04em;
+}
+
+.dscp-process__title {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.dscp-process__step p {
+  grid-column: 2;
+  grid-row: 2;
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0.25rem 0 0;
+}
+
+@media (max-width: 540px) {
+  .dscp-process__step { gap: 0.25rem 0.85rem; padding: 1.1rem 1.1rem 1.25rem; }
+  .dscp-process__num  { font-size: 2rem; }
+}
+
+/* ── Levels grid (5 cards, level 1 → 5) ──────────────────────────────────── */
+.dscp-levels {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem) 3rem;
+}
+
+/* Flex-wrap with centered justification so an orphan card never sits
+   alone on the left — it centers under the row above instead. */
+.dscp-levels__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.dscp-levels__grid > .dscp-level {
+  flex: 1 1 220px;
+  min-width: 200px;
+  max-width: 260px;
+}
+
+/* At very wide widths, force exactly 5 in a row */
+@media (min-width: 1100px) {
+  .dscp-levels__grid > .dscp-level {
+    flex: 1 1 calc((100% - 4rem) / 5);
+    max-width: calc((100% - 4rem) / 5);
+  }
+}
+
+.dscp-level {
+  position: relative;
+  padding: 1.6rem 1.4rem 1.4rem;
+  border-radius: var(--radius-lg, 1rem);
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.dscp-level::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.dscp-level:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--container-shadow);
+  border-color: var(--color-secondary);
+}
+
+.dscp-level:hover::before { opacity: 1; }
+
+.dscp-level__badge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  font-family: var(--font-Signika);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.75rem;
+}
+
+.dscp-level__num {
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-black);
+  font-size: clamp(3rem, 2rem + 2.5vw, 4.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--color-primary);
+  margin: 0 0 0.3rem;
+}
+
+.dscp-level__label {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  color: var(--color-black);
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dscp-level__blurb {
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+/* ── Groups grid (active/upcoming) ───────────────────────────────────────── */
+.dscp-groups {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem) 3rem;
+}
+
+/* Same flex-center pattern so a single group card centers under the layout
+   instead of sitting alone left-aligned. */
+.dscp-groups__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.dscp-groups__grid > .dscp-group {
+  flex: 1 1 320px;
+  min-width: 280px;
+  max-width: 380px;
+}
+
+.dscp-loading,
+.dscp-empty { width: 100%; }
+
+.dscp-loading,
+.dscp-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 3rem 1.5rem;
+  border: 1px dashed var(--gray-30);
+  border-radius: var(--radius-lg, 1rem);
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.dscp-empty__title {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  color: var(--color-primary);
+}
+
+.dscp-group {
+  position: relative;
+  padding: 1.5rem 1.4rem;
+  border-radius: var(--radius-lg, 1rem);
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  display: grid;
+  gap: 0.75rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.dscp-group:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--container-shadow);
+  border-color: var(--color-secondary);
+}
+
+.dscp-group__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dscp-group__level {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  background: var(--orange-90);
+  color: var(--orange-30);
+  border-radius: var(--radius-full, 999px);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.dscp-group__status {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dscp-group__status--open        { color: var(--color-success); }
+.dscp-group__status--active      { color: var(--color-primary); }
+.dscp-group__status--full        { color: var(--color-warn); }
+.dscp-group__status--in_progress { color: var(--color-primary); }
+.dscp-group__status--completed   { color: var(--color-muted);  opacity: 0.7; }
+.dscp-group__status--cancelled   { color: var(--color-danger); }
+
+/* Capacity strip on group card */
+.dscp-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0.2rem;
+}
+
+.dscp-cap__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-xs);
+  color: var(--color-muted);
+}
+
+.dscp-cap__count strong {
+  color: var(--color-primary);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
+}
+
+.dscp-cap__remaining {
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.03em;
+  color: var(--color-success);
+}
+
+.dscp-cap__remaining--full { color: var(--color-warn); }
+
+.dscp-cap__bar {
+  position: relative;
+  height: 6px;
+  background: var(--gray-30);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dscp-cap__bar-fill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.dscp-cap__bar-fill--full        { background: var(--color-warn); }
+.dscp-cap__bar-fill--in_progress { background: var(--color-primary); }
+
+/* Soft / muted CTAs for full and in-progress states */
+.dscp-group__cta--soft {
+  color: var(--color-warn);
+}
+
+.dscp-group__cta--muted {
+  color: var(--color-muted);
+  font-weight: var(--fw-semibold);
+}
+
+.dscp-group__cta--muted:hover { color: var(--color-primary); }
+
+.dscp-group__name {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-lg);
+  color: var(--color-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.dscp-group__meta {
+  display: grid;
+  gap: 0.35rem;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  color: var(--color-muted);
+}
+
+.dscp-group__meta li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+.dscp-group__meta i {
+  width: 14px;
+  color: var(--color-secondary);
+}
+
+.dscp-group__desc {
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.dscp-group__cta {
+  margin-top: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-sm);
+  color: var(--color-secondary);
+  text-decoration: none;
+  transition: gap 0.3s ease;
+}
+
+.dscp-group__cta:hover { gap: 0.7rem; }
+
+/* ── Weekly schedule (7-day strip) ───────────────────────────────────────── */
+.dscp-schedule {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem) 3rem;
+}
+
+.dscp-schedule__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.dscp-day {
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  padding: 0.85rem 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-height: 110px;
+}
+
+.dscp-day--has-event { border-color: var(--color-secondary); }
+
+.dscp-day__name {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+.dscp-day__count {
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-black);
+  font-size: clamp(1.5rem, 1rem + 1.2vw, 2rem);
+  text-align: center;
+  color: var(--color-secondary);
+  line-height: 1;
+}
+
+.dscp-day__count--zero { color: var(--gray-100); }
+
+.dscp-day__label {
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-xs);
+  text-align: center;
+  color: var(--color-muted);
+}
+
+@media (max-width: 680px) {
+  .dscp-schedule__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (max-width: 420px) {
+  .dscp-schedule__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ── Interest signup form ────────────────────────────────────────────────── */
+.dscp-signup {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem) 4rem;
+}
+
+.dscp-signup__card { padding: 2rem 1.75rem; }
+
+@media (min-width: 720px) {
+  .dscp-signup__card { padding: 2.5rem 2.5rem; }
+}
+
+/* Uniform field grid — every input/select/textarea uses the same label-above pattern
+   so rows align perfectly regardless of field type. */
+.dscp-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem 1rem;
+}
+
+.dscp-field { display: flex; flex-direction: column; min-width: 0; }
+.dscp-field--full { grid-column: 1 / -1; }
+
+@media (max-width: 540px) {
+  .dscp-form__grid { grid-template-columns: 1fr; }
+}
+
+.dscp-form__label {
+  display: block;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.4rem;
+}
+
+/* All field inputs share the same height + style so rows align */
+.dscp-form input[type="text"],
+.dscp-form input[type="email"],
+.dscp-form input[type="tel"],
+.dscp-form select,
+.dscp-form textarea {
+  width: 100%;
+  height: 2.85rem;
+  padding: 0 0.95rem;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-base);
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  color: var(--color-black);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.dscp-form textarea {
+  height: auto;
+  min-height: 6rem;
+  padding: 0.75rem 0.95rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.dscp-form input:focus,
+.dscp-form select:focus,
+.dscp-form textarea:focus {
+  outline: none;
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(217, 140, 89, 0.12);
+}
+
+.dscp-form select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23736960'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  padding-right: 2.2rem;
+  cursor: pointer;
+}
+
+.dscp-form__feedback {
+  margin-top: 1rem;
+  padding: 0;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  min-height: 1.25em;
+}
+
+.dscp-form__feedback--success { color: var(--color-success); font-weight: var(--fw-semibold); }
+.dscp-form__feedback--error   { color: var(--color-danger);  font-weight: var(--fw-semibold); }
+
+.dscp-form .form-submit {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Make the submit button flex so the icon + text have a real gap (not just a space) */
+#dscpSubmit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#dscpSubmit i {
+  font-size: 0.95em;
+  line-height: 1;
+}
+
+.dscp-form__legal {
+  margin: 1rem 0 0;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-xs);
+  color: var(--color-muted);
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* =============================================================================
+   GROUP DETAIL PAGE  (/discipulado/grupo/)
+   ============================================================================= */
+
+.dg-back-section {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.5rem var(--pd-md, 1.25rem) 0;
+}
+
+.dg-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-Signika);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s ease, gap 0.2s ease;
+}
+
+.dg-back:hover {
+  color: var(--color-primary);
+  gap: 0.7rem;
+}
+
+.dg-detail {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem var(--pd-md, 1.25rem) 1rem;
+}
+
+.dg-card {
+  padding: 2rem 1.75rem;
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 720px) {
+  .dg-card { padding: 2.5rem 2.5rem; }
+}
+
+.dg-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dg-card__name {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.dg-card__desc {
+  margin: 0;
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-light);
+  font-size: var(--fs-base);
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.dg-card__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.dg-card__meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dg-card__meta-label {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.dg-card__meta-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  color: var(--color-black);
+}
+
+.dg-card__meta-value i { color: var(--color-secondary); width: 14px; }
+
+.dg-card__meta-sub {
+  font-size: var(--fs-xs);
+  color: var(--color-muted);
+  margin-left: 1.1rem;
+}
+
+/* Capacity card inside group detail */
+.dg-capacity-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  background: var(--gray-20);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.dg-capacity-card--full        { border-color: var(--color-warn);    background: rgba(217,119,6,.06); }
+.dg-capacity-card--in_progress { border-color: var(--color-primary); background: rgba(52,90,101,.06); }
+
+.dg-capacity-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dg-capacity-card__label {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-muted);
+}
+
+.dg-capacity-card__pct {
+  font-family: var(--font-Geist);
+  font-weight: var(--fw-black);
+  font-size: clamp(1.25rem, 0.5rem + 2vw, 1.85rem);
+  color: var(--color-primary);
+  letter-spacing: -0.02em;
+}
+
+.dg-capacity-card__bar {
+  height: 10px;
+  background: var(--gray-30);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.dg-capacity-card__fill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.dg-capacity-card__fill--full        { background: var(--color-warn); }
+.dg-capacity-card__fill--in_progress { background: var(--color-primary); }
+
+.dg-capacity-card__text {
+  margin: 0;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  color: var(--color-dark);
+  line-height: 1.5;
+}
+
+.dg-capacity-card__text strong { color: var(--color-primary); }
+
+/* Form sections */
+.dg-form__section {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-md);
+  color: var(--color-primary);
+  letter-spacing: -0.005em;
+  margin: 0 0 0.85rem;
+}
+
+.dg-form__hint {
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+  color: var(--color-muted);
+  margin: -0.4rem 0 1.15rem;
+}
+
+.dg-form__rule {
+  margin: 2rem 0 1.25rem;
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gray-30), transparent);
+}
+
+/* Radio rows */
+.dg-radio-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+
+.dg-radio {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 0.95rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: 999px;
+  font-family: var(--font-Geist);
+  font-size: var(--fs-sm);
+  color: var(--color-dark);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.dg-radio:hover { border-color: var(--color-secondary); }
+
+.dg-radio input[type="radio"] {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+.dg-radio:has(input:checked) {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* Fallback for browsers without :has — use sibling selector via JS-less trick.
+   When :has isn't supported, add a "checked" class via JS, but for now the
+   visual works in all current Chromium/Safari/Firefox. */
+
+/* ── Thank-you success state ─────────────────────────────────────────────── */
+.dscp-thanks {
+  text-align: center;
+  padding: 2rem 0.5rem 1rem;
+  animation: dscpThanksIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes dscpThanksIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.dscp-thanks__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto 1.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--orange-90), var(--orange-85));
+  color: var(--color-secondary);
+  font-size: 2rem;
+  box-shadow: 0 4px 24px rgba(217, 140, 89, 0.28);
+  animation: dscpHeart 1.4s ease-in-out infinite;
+}
+
+@keyframes dscpHeart {
+  0%, 100% { transform: scale(1);    }
+  50%      { transform: scale(1.08); }
+}
+
+.dscp-thanks__title {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.75rem, 1rem + 3vw, 2.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
+  margin: 0 0 1rem;
+  text-wrap: balance;
+}
+
+.dscp-thanks__body {
+  font-family: var(--font-Geist);
+  font-size: clamp(1.05rem, 0.6rem + 1.2vw, 1.35rem);
+  line-height: 1.45;
+  color: var(--color-dark);
+  margin: 0 0 2rem;
+  font-weight: var(--fw-medium);
+}
+
+.dscp-thanks__verse {
+  font-family: var(--font-Signika);
+  font-style: italic;
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+  color: var(--color-muted);
+  margin: 0;
+  max-width: 32rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dscp-thanks__ref {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-style: normal;
+  font-weight: var(--fw-semibold);
+  color: var(--color-secondary);
+  letter-spacing: 0.04em;
+}

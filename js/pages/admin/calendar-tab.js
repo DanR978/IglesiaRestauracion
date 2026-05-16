@@ -11,6 +11,55 @@ import {
 import { toast, confirm, openModal } from './ui.js';
 import { onFilterChange } from './filters.js';
 import { loadUpcoming } from './events-tab.js';
+import { showActionSheet } from '/js/components/action-sheet.js';
+
+// Delegated kebab handler for calendar list items (attached once)
+if (!window.__irdCalKebabBound) {
+  window.__irdCalKebabBound = true;
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest?.('.kebab-btn[data-cal-menu]');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id        = btn.dataset.calMenu;
+    const title     = btn.dataset.calTitle || 'Evento';
+    const cancelled = btn.dataset.calCancelled === '1';
+    const canCancel = btn.dataset.calCancancel === '1';
+    const special   = btn.dataset.calSpecial === '1';
+    const when      = btn.dataset.calWhen || '';
+
+    const actions = [
+      {
+        label: 'Editar evento',
+        icon: 'fa-pen',
+        onClick: () => special
+          ? window.__adminEditSpecial?.(id.replace('evt-', ''))
+          : calEdit(id),
+      },
+    ];
+    if (canCancel) {
+      actions.push({
+        label: cancelled ? 'Reactivar evento' : 'Cancelar evento',
+        icon: cancelled ? 'fa-rotate-left' : 'fa-ban',
+        variant: 'warn',
+        onClick: () => special
+          ? window.__adminToggleCancel?.(id, cancelled)
+          : calToggle(id, cancelled),
+      });
+    }
+    actions.push({
+      label: 'Eliminar evento',
+      icon: 'fa-trash',
+      variant: 'danger',
+      onClick: () => special
+        ? window.__adminDeleteEvent?.(id, title, true)
+        : calDelete(id, title),
+    });
+
+    showActionSheet({ trigger: btn, title, subtitle: when, actions });
+  });
+}
 
 // Re-render grid when ministry filter changes
 onFilterChange(() => {
@@ -151,10 +200,6 @@ function _renderTab(container, evs, isSpecial) {
         ? `<img class="adm-list__thumb" src="${ev.image_url}" alt="" loading="lazy">`
         : `<span class="adm-list__dot" style="background:${color}"></span>`;
 
-      const editAction   = isSpecial ? `window.__adminEditSpecial('${ev.id.replace('evt-','')}')`  : `calEdit('${ev.id}')`;
-      const cancelAction = isSpecial ? `window.__adminToggleCancel('${ev.id}',${isCancelled})`     : `calToggle('${ev.id}',${isCancelled})`;
-      const deleteAction = isSpecial ? `window.__adminDeleteEvent('${ev.id}','${safeTitle}',true)` : `calDelete('${ev.id}','${safeTitle}')`;
-
       html += `
         <div class="adm-list__item${isCancelled?' cancelled':''}">
           ${imgHtml}
@@ -169,12 +214,15 @@ function _renderTab(container, evs, isSpecial) {
             </div>
           </div>
           <div class="adm-list__actions">
-            <button class="icon-btn__admin" onclick="event.stopPropagation();${editAction}"><i class="fas fa-pen"></i></button>
-            ${canCancel ? `<button class="icon-btn__admin ${isCancelled?'success':'warn'}" onclick="event.stopPropagation();${cancelAction}">
-              <i class="fas fa-${isCancelled?'undo':'ban'}"></i>
-            </button>` : ''}
-            <button class="icon-btn__admin danger" onclick="event.stopPropagation();${deleteAction}">
-              <i class="fas fa-trash"></i>
+            <button class="kebab-btn" title="Opciones" aria-label="Más opciones"
+              onclick="event.stopPropagation()"
+              data-cal-menu="${ev.id}"
+              data-cal-title="${safeTitle.replace(/"/g, '&quot;')}"
+              data-cal-cancelled="${isCancelled ? '1' : '0'}"
+              data-cal-cancancel="${canCancel ? '1' : '0'}"
+              data-cal-special="${isSpecial ? '1' : '0'}"
+              data-cal-when="${ev.time || ''}">
+              <i class="fas fa-ellipsis-vertical"></i>
             </button>
           </div>
         </div>`;

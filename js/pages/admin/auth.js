@@ -1,7 +1,7 @@
 // js/pages/admin/auth.js
 // Login, logout, and boot sequence.
 
-import { sb, setCurrentUser, setCurrentProfile, isAdmin } from './state.js';
+import { sb, setCurrentUser, setCurrentProfile, isAdmin, isPastor, isStaff } from './state.js';
 import { loadMinistries }   from './ministries.js';
 import { loadUpcoming }     from './events-tab.js';
 import { initForms }        from './event-form.js';
@@ -47,9 +47,18 @@ export async function bootApp(user) {
     document.body.classList.add('is-admin');
     document.getElementById('topbarMinistry').textContent = '— Admin';
     document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+  } else if (isPastor()) {
+    document.body.classList.add('is-pastor');
+    document.getElementById('topbarMinistry').textContent = '— Pastor';
   } else {
     document.getElementById('topbarMinistry').textContent =
       `— ${profile?.ministries?.name || 'Ministerio'}`;
+  }
+
+  // Staff (admin OR pastor) get access to the Discipulado tab
+  if (isStaff()) {
+    document.body.classList.add('is-staff');
+    document.querySelectorAll('[data-staff-only]').forEach(el => el.style.display = '');
   }
 
   document.getElementById('authScreen').style.display = 'none';

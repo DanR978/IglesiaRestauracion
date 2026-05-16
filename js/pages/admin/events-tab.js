@@ -10,6 +10,7 @@ import {
 import { toast, confirm, openModal, closeModal } from './ui.js';
 import { showView } from './ui.js';
 import { onFilterChange } from './filters.js';
+import { showActionSheet } from '/js/components/action-sheet.js';
 
 // Re-render when filter changes
 onFilterChange(() => {
@@ -139,10 +140,6 @@ function buildEventsTableHtml(events, isPastTab) {
       const imgCell  = ev.image_url
         ? `<img src="${ev.image_url}" alt="" style="width:44px;height:32px;object-fit:cover;border-radius:4px;display:block">`
         : `<div style="width:44px;height:32px;background:#eee;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#aaa">—</div>`;
-      const editBtn  = ev.fromEventsTable
-        ? `<button class="icon-btn__admin" title="Editar" onclick="window.__adminEditSpecial('${ev.id.replace('evt-', '')}')"><i class="fas fa-pen"></i></button>`
-        : `<button class="icon-btn__admin" title="Editar" onclick="window.__adminEditRegular('${ev.id}')"><i class="fas fa-pen"></i></button>`;
-
       const [, mo, d] = ev.date.split('-').map(Number);
       const dateStr = `${mo}/${d}/${String(y).slice(-2)}${ev.time ? ' ' + ev.time : ''}`;
 
@@ -158,16 +155,15 @@ function buildEventsTableHtml(events, isPastTab) {
           <td>${minDot}${minName}</td>
           <td>
             <div class="row-actions">
-              ${!isPastTab ? `
-                ${editBtn}
-                ${canCancel ? `<button class="icon-btn__admin ${ev.cancelled ? 'success' : 'warn'}"
-                  title="${ev.cancelled ? 'Reactivar' : 'Cancelar'}"
-                  onclick="window.__adminToggleCancel('${ev.id}', ${ev.cancelled})">
-                  <i class="fas fa-${ev.cancelled ? 'undo' : 'ban'}"></i>
-                </button>` : ''}` : ''}
-              <button class="icon-btn__admin danger" title="Eliminar"
-                onclick="window.__adminDeleteEvent('${ev.id}', '${(ev.title || '').replace(/'/g, "\\'")}', ${!!ev.fromEventsTable})">
-                <i class="fas fa-trash"></i>
+              <button class="kebab-btn" title="Opciones" aria-label="Más opciones"
+                data-ev-menu="${ev.id}"
+                data-ev-title="${(ev.title || '').replace(/"/g, '&quot;')}"
+                data-ev-cancelled="${ev.cancelled ? '1' : '0'}"
+                data-ev-cancancel="${canCancel ? '1' : '0'}"
+                data-ev-special="${ev.fromEventsTable ? '1' : '0'}"
+                data-ev-past="${isPastTab ? '1' : '0'}"
+                data-ev-when="${dateStr}">
+                <i class="fas fa-ellipsis-vertical"></i>
               </button>
             </div>
           </td>
@@ -187,6 +183,52 @@ function buildEventsTableHtml(events, isPastTab) {
       </table>`;
   }
   return html;
+}
+
+// ─── Kebab menu handler (delegated, attached once) ──────────────────────────
+if (!window.__irdKebabBound) {
+  window.__irdKebabBound = true;
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest?.('.kebab-btn[data-ev-menu]');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id        = btn.dataset.evMenu;
+    const title     = btn.dataset.evTitle || 'Evento';
+    const cancelled = btn.dataset.evCancelled === '1';
+    const canCancel = btn.dataset.evCanCancel === '1' || btn.dataset.evCancancel === '1';
+    const special   = btn.dataset.evSpecial === '1';
+    const isPast    = btn.dataset.evPast === '1';
+    const when      = btn.dataset.evWhen || '';
+
+    const actions = [];
+    if (!isPast) {
+      actions.push({
+        label: 'Editar evento',
+        icon: 'fa-pen',
+        onClick: () => special
+          ? window.__adminEditSpecial?.(id.replace('evt-', ''))
+          : window.__adminEditRegular?.(id),
+      });
+      if (canCancel) {
+        actions.push({
+          label: cancelled ? 'Reactivar evento' : 'Cancelar evento',
+          icon: cancelled ? 'fa-rotate-left' : 'fa-ban',
+          variant: 'warn',
+          onClick: () => window.__adminToggleCancel?.(id, cancelled),
+        });
+      }
+    }
+    actions.push({
+      label: 'Eliminar evento',
+      icon: 'fa-trash',
+      variant: 'danger',
+      onClick: () => window.__adminDeleteEvent?.(id, title, special),
+    });
+
+    showActionSheet({ trigger: btn, title, subtitle: when, actions });
+  });
 }
 
 // ─── CRUD actions (exposed as window.__ for inline onclick) ───────────────────

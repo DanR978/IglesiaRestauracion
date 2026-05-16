@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="robots" content="noindex, follow">
+
+    <title>Unirme a Discipulado | Iglesia Restauración Divina</title>
+    <meta name="description"
+      content="Detalles del grupo de discipulado y formulario para unirte. Iglesia Restauración Divina, Lexington KY.">
+    <meta name="author" content="Iglesia Restauración Divina" />
+
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+
+    <link rel="canonical" href="https://www.irdlex.org/discipulado/grupo" />
+    <meta property="og:title" content="Únete al Discipulado — Iglesia Restauración Divina" />
+    <meta property="og:description" content="Únete a un grupo de discipulado. Cuéntanos cómo podemos hacer que este sea el mejor lugar para ti." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
+
+    <base href="/">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="format-detection" content="telephone=no">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  </head>
+
+  <body class="page-discipulado-grupo">
+    <div id="ird-splash"></div>
+    <script type="module" src="/js/components/splash.js"></script>
+
+    <header id="header" data-hero-size="page"
+      data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/bibleStudy.jpg"></header>
+
+    <!-- Hero is filled by JS once the group loads -->
+    <div class="hero-content glass-card rg-pd animate-fade-in" data-threshold="0.8" id="dgHero">
+      <h1 class="hero__page-title" id="dgHeroTitle">DISCIPULADO</h1>
+      <h2 class="hero__page-subtitle" id="dgHeroSubtitle">Cargando grupo…</h2>
+    </div>
+
+    <main>
+
+      <!-- Back link -->
+      <section class="dg-back-section">
+        <a href="/discipulado" class="dg-back">
+          <i class="fas fa-arrow-left"></i> Ver todos los grupos
+        </a>
+      </section>
+
+      <!-- Loading / error / not-found / detail container -->
+      <section class="dg-detail" id="dgDetail">
+        <div class="dscp-loading">
+          <i class="fas fa-spinner fa-spin"></i> Cargando detalles…
+        </div>
+      </section>
+
+      <!-- Signup form (filled in / shown only when group loads) -->
+      <section class="dscp-signup" id="dgSignupWrap" hidden>
+
+        <div class="container--centered-text-block">
+          <div class="centered-text-block__inner">
+            <h5 class="centered-text-block__subtitle animate-fade-in" data-threshold="1">DA EL PASO</h5>
+            <h2 class="centered-text-block__title animate-fade-in" data-threshold="1">
+              CUÉNTANOS DE TI
+            </h2>
+          </div>
+        </div>
+
+        <div class="dscp-signup__card glass-card">
+
+          <form id="dgInterestForm" class="dscp-form" novalidate>
+            <input type="hidden" name="target_group_id" id="dgTargetGroupId">
+
+            <h3 class="dg-form__section">Tus datos</h3>
+
+            <div class="dscp-form__grid">
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgName">Nombre completo *</label>
+                <input type="text" id="dgName" name="full_name" autocomplete="name" required />
+              </div>
+
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgEmail">E-mail</label>
+                <input type="email" id="dgEmail" name="email" autocomplete="email" />
+              </div>
+
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgPhone">Teléfono *</label>
+                <input type="tel" id="dgPhone" name="phone" autocomplete="tel" inputmode="numeric" required />
+              </div>
+
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgAge">Tu etapa de vida</label>
+                <select id="dgAge" name="age_range">
+                  <option value="">— Prefiero no decir —</option>
+                  <option value="teen">Adolescente (13–17)</option>
+                  <option value="young-adult">Joven adulto (18–29)</option>
+                  <option value="adult">Adulto (30–59)</option>
+                  <option value="senior">Adulto mayor (60+)</option>
+                </select>
+              </div>
+
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgGender">Género</label>
+                <select id="dgGender" name="gender">
+                  <option value="">— Prefiero no decir —</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="femenino">Femenino</option>
+                  <option value="no-especifica">Prefiero no decir</option>
+                </select>
+              </div>
+
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgLevel">¿Has hecho discipulado antes?</label>
+                <select id="dgLevel" name="experience_level">
+                  <option value="">No estoy seguro</option>
+                  <option value="1">Nunca — es mi primera vez</option>
+                  <option value="2">Estoy comenzando en la fe</option>
+                  <option value="3">Tengo algo de tiempo caminando con Cristo</option>
+                  <option value="4">Ya he sido discipulado antes</option>
+                  <option value="5">Quiero crecer para discipular a otros</option>
+                </select>
+              </div>
+
+              <div class="dscp-field animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgFamily">¿Vienes con familia?</label>
+                <input type="text" id="dgFamily" name="bringing_family" placeholder="ej. esposo + 2 niños"/>
+              </div>
+            </div>
+
+            <hr class="dg-form__rule">
+
+            <h3 class="dg-form__section">Para ayudar al pastor a planear</h3>
+            <p class="dg-form__hint">
+              Estas preguntas son completamente opcionales. Nos ayudan a armar grupos que funcionen
+              para todos sin tener que preguntar incómodamente persona por persona.
+            </p>
+
+            <div class="dscp-form__grid">
+
+              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1">
+                <span class="dscp-form__label">¿Podrías ofrecer tu casa para una reunión semanal?</span>
+                <div class="dg-radio-row" role="radiogroup" aria-label="¿Podrías ofrecer tu casa?">
+                  <label class="dg-radio">
+                    <input type="radio" name="can_host" value="yes">
+                    <span>Sí, sin problema</span>
+                  </label>
+                  <label class="dg-radio">
+                    <input type="radio" name="can_host" value="maybe">
+                    <span>Tal vez, pregúntenme</span>
+                  </label>
+                  <label class="dg-radio">
+                    <input type="radio" name="can_host" value="no" checked>
+                    <span>Prefiero no hospedar</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1" id="dgAddressField" hidden>
+                <label class="dscp-form__label" for="dgAddress">
+                  Dirección donde podrías hospedar (solo el pastor la ve)
+                </label>
+                <input type="text" id="dgAddress" name="home_address" autocomplete="street-address"
+                  placeholder="ej. 1234 Maple St, Lexington, KY 40503"/>
+              </div>
+
+              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1">
+                <span class="dscp-form__label">¿Tienes transporte para llegar?</span>
+                <div class="dg-radio-row" role="radiogroup" aria-label="Transporte">
+                  <label class="dg-radio">
+                    <input type="radio" name="has_transportation" value="yes" checked>
+                    <span>Sí, tengo cómo llegar</span>
+                  </label>
+                  <label class="dg-radio">
+                    <input type="radio" name="has_transportation" value="no">
+                    <span>Necesito ayuda con transporte</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1">
+                <label class="dscp-form__label" for="dgMessage">Cuéntanos algo más (opcional)</label>
+                <textarea id="dgMessage" name="message" rows="4" maxlength="600"
+                  placeholder="Cualquier cosa que quieras compartir con el pastor antes del primer encuentro."></textarea>
+              </div>
+            </div>
+
+            <div class="dscp-form__feedback" id="dgFormFeedback" role="status" aria-live="polite"></div>
+
+            <div class="form-submit">
+              <button type="submit" class="ird-btn ird-btn--teal animate-fade-in" data-threshold="1" id="dgSubmit">
+                <i class="fas fa-hand-holding-heart"></i> Quiero unirme a este grupo
+              </button>
+            </div>
+
+            <p class="dscp-form__legal">
+              Tu información solo la verá el pastor y el liderazgo de la iglesia.
+              No la compartimos con nadie más.
+            </p>
+          </form>
+        </div>
+
+      </section>
+
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script type="module" src="/js/main.js"></script>
+    <script type="module" src="/js/utils/load-icons.js"></script>
+    <script type="module" src="/js/include.js"></script>
+    <script type="module" src="/js/components/page-transition.js"></script>
+    <script type="module" src="/js/pages/discipulado/grupo.js"></script>
+
+  </body>
+</html>

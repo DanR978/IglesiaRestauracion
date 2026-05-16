@@ -1,0 +1,726 @@
+/* =============================================================================
+   ADMIN — Discipulado tab (uses existing admin tokens only)
+   ============================================================================= */
+
+/* Sub-tab strip */
+.dscp-admin__tabs {
+  margin-top: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.dscp-admin__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.4rem;
+  height: 1.4rem;
+  padding: 0 0.4rem;
+  margin-left: 0.4rem;
+  border-radius: 999px;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.dscp-admin__count:empty,
+.dscp-admin__count[data-empty="true"] { display: none; }
+
+/* Sub-panels (only one active at a time) */
+.dscp-admin__panel { display: none; }
+.dscp-admin__panel.active { display: block; }
+
+/* List wrappers */
+.dscp-admin__list {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Group card in admin list */
+.dscp-card {
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  padding: 1rem 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+  transition: border-color 0.2s ease;
+}
+
+.dscp-card:hover { border-color: var(--color-secondary); }
+
+.dscp-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dscp-card__level {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange-30);
+  background: var(--orange-90);
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.dscp-card__status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.dscp-card__status--open      { color: var(--color-success); background: rgba(22,163,74,.10); }
+.dscp-card__status--active    { color: var(--color-primary); background: rgba(52,90,101,.10); }
+.dscp-card__status--completed { color: var(--gray-100);      background: var(--gray-30); }
+.dscp-card__status--cancelled { color: var(--color-danger);  background: rgba(220,38,38,.10); }
+
+.dscp-card__name {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.dscp-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.dscp-card__meta span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.dscp-card__meta i    { color: var(--color-secondary); width: 14px; }
+
+.dscp-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.dscp-card__actions .btn {
+  font-size: 0.8rem;
+  padding: 0.45rem 0.75rem;
+}
+
+/* Inline members panel */
+.dscp-members-panel {
+  background: var(--gray-20);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-md, 0.625rem);
+  padding: 0.9rem 1rem;
+  margin-top: -0.25rem;
+}
+
+.dscp-members-panel__title {
+  margin: 0 0 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.dscp-members-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.dscp-members-panel__list li {
+  display: grid;
+  grid-template-columns: 80px 1fr auto auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0.6rem;
+  background: var(--color-bg-light);
+  border-radius: var(--radius-sm, 0.375rem);
+  font-size: 0.85rem;
+}
+
+.dscp-member__role {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.dscp-member__name { font-weight: 600; color: var(--color-primary); }
+.dscp-member__email,
+.dscp-member__phone { color: var(--color-muted); font-size: 0.8rem; }
+
+.dscp-members-panel__list .btn { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+
+@media (max-width: 640px) {
+  .dscp-members-panel__list li {
+    grid-template-columns: 1fr auto;
+  }
+  .dscp-member__email,
+  .dscp-member__phone,
+  .dscp-member__role { grid-column: 1 / -1; }
+}
+
+/* Filter pills (interests) */
+.dscp-admin__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.filter-pill {
+  border: 1px solid var(--gray-30);
+  background: var(--color-bg-light);
+  color: var(--color-muted);
+  font-family: var(--font-Geist);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-pill:hover  { border-color: var(--color-secondary); color: var(--color-primary); }
+.filter-pill.active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-white); }
+
+/* Interest row */
+.dscp-int {
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  padding: 1rem 1.1rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dscp-int__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dscp-int__name {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.dscp-int__date {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.dscp-int__status {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+}
+
+.dscp-int__status--pending  { color: var(--color-warn);    background: rgba(217,119,6,.10); }
+.dscp-int__status--approved { color: var(--color-success); background: rgba(22,163,74,.10); }
+.dscp-int__status--placed   { color: var(--color-primary); background: rgba(52,90,101,.10); }
+.dscp-int__status--declined { color: var(--color-danger);  background: rgba(220,38,38,.10); }
+
+.dscp-int__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.dscp-int__contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.dscp-int__contact a:hover { color: var(--color-secondary); }
+.dscp-int__contact i { color: var(--color-secondary); width: 14px; }
+
+.dscp-int__pref {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.dscp-int__level {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.dscp-int__msg {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  background: var(--gray-20);
+  border-left: 3px solid var(--color-secondary);
+  border-radius: var(--radius-sm, 0.375rem);
+  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--color-dark);
+}
+
+.dscp-int__assigned {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--color-success);
+}
+
+.dscp-int__assigned i { margin-right: 0.3rem; }
+
+.dscp-int__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.dscp-int__actions .btn { font-size: 0.8rem; padding: 0.45rem 0.85rem; }
+
+/* Message composer + history */
+.dscp-message-composer {
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  padding: 1.1rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.dscp-admin__messages {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.dscp-msg {
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-sm, 0.375rem);
+  padding: 0.7rem 0.85rem;
+}
+
+.dscp-msg__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.85rem;
+}
+
+.dscp-msg__date {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.dscp-msg__body {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-dark);
+  white-space: pre-line;
+  line-height: 1.5;
+}
+
+/* Empty state shared */
+.dscp-admin__list .empty-state {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 1px dashed var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  color: var(--color-muted);
+}
+
+.dscp-admin__list .empty-state i {
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-secondary);
+  opacity: 0.6;
+}
+
+/* Staff-only visibility helper — JS reveals these for pastors/admins */
+[data-staff-only] { display: none; }
+body.is-staff [data-staff-only] { display: inline-flex; }
+
+/* QR code block inside the group modal */
+.dscp-qr {
+  margin: 1.25rem 0 0.25rem;
+  padding: 1.1rem 1.2rem;
+  background: var(--gray-20);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+}
+
+.dscp-qr__head h4 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.dscp-qr__head p {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+.dscp-qr__body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.1rem;
+  align-items: center;
+}
+
+.dscp-qr__body canvas,
+.dscp-qr__body img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+  background: #ffffff;
+  border-radius: 0.5rem;
+  border: 1px solid var(--gray-30);
+  padding: 0.4rem;
+}
+
+.dscp-qr__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.dscp-qr__caption {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-dark);
+  line-height: 1.5;
+}
+
+.dscp-qr__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dscp-qr__actions .btn { font-size: 0.82rem; padding: 0.5rem 0.85rem; }
+
+@media (max-width: 540px) {
+  .dscp-qr__body { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+  .dscp-qr__details { width: 100%; align-items: stretch; }
+}
+
+/* Extended interest chips (host info, transport, family) */
+.dscp-int__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.25rem 0;
+}
+
+.dscp-int__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--gray-20);
+  color: var(--color-dark);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-family: var(--font-Geist);
+}
+
+.dscp-int__chip i { font-size: 0.7rem; color: var(--color-muted); }
+
+.dscp-int__chip--good { background: rgba(22, 163, 74, 0.10); color: var(--color-success); }
+.dscp-int__chip--good i { color: var(--color-success); }
+
+.dscp-int__chip--warn { background: rgba(217, 119, 6, 0.10); color: var(--color-warn); }
+.dscp-int__chip--warn i { color: var(--color-warn); }
+
+.dscp-int__chip--addr { background: rgba(52, 90, 101, 0.08); color: var(--color-primary); }
+.dscp-int__chip--addr i { color: var(--color-primary); }
+
+.dscp-int__chip--soft { background: var(--gray-30); color: var(--color-muted); }
+
+/* ── Pool controls (origin tabs + groupBy + hint) ───────────────────────── */
+.dscp-pool__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.5rem;
+  margin: 0.25rem 0 0.6rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--gray-20);
+  border-radius: var(--radius-md, 0.625rem);
+}
+
+.dscp-pool__origin {
+  display: inline-flex;
+  gap: 0.25rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: 999px;
+  padding: 0.2rem;
+}
+
+.dscp-pool__origin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--font-Geist);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.dscp-pool__origin-btn:hover { color: var(--color-primary); }
+
+.dscp-pool__origin-btn.active {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.dscp-pool__origin-btn .dscp-admin__count {
+  margin-left: 0.4rem;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.dscp-pool__origin-btn:not(.active) .dscp-admin__count {
+  background: var(--color-secondary);
+  color: var(--color-white);
+}
+
+.dscp-pool__groupby {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.dscp-pool__groupby label { font-weight: 600; }
+
+.dscp-pool__groupby select {
+  padding: 0.4rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  color: var(--color-dark);
+}
+
+.dscp-pool__hint {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+  margin: 0 0 0.9rem;
+}
+
+.dscp-pool__hint code {
+  background: var(--gray-30);
+  padding: 0.05rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* ── Pool group-by collapsible ─────────────────────────────────────────── */
+.dscp-pool__group {
+  background: var(--color-bg-light);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-md, 0.625rem);
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.dscp-pool__group summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--color-primary);
+}
+
+.dscp-pool__group summary::-webkit-details-marker { display: none; }
+
+.dscp-pool__group summary > i {
+  transition: transform 0.2s ease;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+
+.dscp-pool__group[open] summary > i {
+  transform: rotate(90deg);
+  color: var(--color-secondary);
+}
+
+.dscp-pool__group-count {
+  margin-left: auto;
+  background: var(--color-secondary);
+  color: var(--color-white);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+}
+
+.dscp-pool__group-body {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0 0.85rem 0.85rem;
+}
+
+/* ── Interest card: multi-select checkbox ──────────────────────────────── */
+.dscp-int__head-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.dscp-int__check {
+  display: inline-block;
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 0.18rem;
+  cursor: pointer;
+}
+
+.dscp-int__check input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.dscp-int__check span {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid var(--gray-100);
+  background: var(--color-bg-light);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  position: relative;
+}
+
+.dscp-int__check input:checked + span {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.dscp-int__check input:checked + span::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 6px;
+  width: 5px;
+  height: 9px;
+  border: solid var(--color-white);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.dscp-int--selected {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(52, 90, 101, 0.10);
+}
+
+/* ── Floating bulk-action bar ──────────────────────────────────────────── */
+.dscp-bulk-bar {
+  position: sticky;
+  bottom: 12px;
+  margin: 1.25rem 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  border-radius: var(--radius-lg, 1rem);
+  box-shadow: 0 8px 28px rgba(52, 90, 101, 0.30);
+  z-index: 100;
+  animation: dscpBulkBarIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Browsers' default [hidden] = display:none is overridden by the rule above.
+   Re-assert it so the bar truly hides when no one is selected. */
+.dscp-bulk-bar[hidden] { display: none !important; }
+
+@keyframes dscpBulkBarIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dscp-bulk-bar__count {
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.dscp-bulk-bar__actions {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.dscp-bulk-bar__actions .btn--ghost {
+  color: var(--color-white);
+  border-color: rgba(255,255,255,0.3);
+}
+
+.dscp-bulk-bar__actions .btn--ghost:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.dscp-bulk-bar__actions .btn--primary {
+  background: var(--color-white);
+  color: var(--color-primary);
+}
+
+.dscp-bulk-bar__actions .btn--primary:hover {
+  background: var(--gray-30);
+}

@@ -12,5 +12,8 @@
   "devDependencies": {
     "sharp": "^0.34.5",
     "vite": "^6.4.1"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
   }
 }

@@ -1,0 +1,192 @@
+/* =============================================================================
+   iOS-style Action Sheet (popover on desktop, bottom sheet on mobile)
+   ============================================================================= */
+
+/* Backdrop */
+.act-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0);
+  z-index: 9990;
+  pointer-events: auto;
+  transition: background-color 220ms ease;
+}
+
+.act-sheet-backdrop--mobile.is-open {
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Common sheet */
+.act-sheet {
+  position: fixed;
+  z-index: 9991;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 220ms ease, transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+               var(--font-Geist), Roboto, Arial, sans-serif;
+}
+
+.act-sheet.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Popover variant (desktop / wide screens) ───────────────────────────── */
+.act-sheet--popover {
+  min-width: 220px;
+  max-width: 280px;
+  transform: scale(0.96) translateY(-4px);
+  transform-origin: top right;
+}
+
+.act-sheet--popover.is-open {
+  transform: scale(1) translateY(0);
+}
+
+.act-sheet--popover .act-sheet__card {
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  backdrop-filter: blur(28px) saturate(1.6);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.08),
+    0 10px 32px rgba(0, 0, 0, 0.18),
+    0 2px 8px  rgba(0, 0, 0, 0.10);
+}
+
+.act-sheet--popover .act-sheet__cancel { display: none; }
+
+/* ── Bottom sheet variant (mobile) ──────────────────────────────────────── */
+.act-sheet--mobile {
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  transform: translateY(110%);
+}
+
+.act-sheet--mobile.is-open {
+  transform: translateY(0);
+}
+
+.act-sheet--mobile .act-sheet__card {
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  backdrop-filter: blur(28px) saturate(1.6);
+  border-radius: 14px;
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Header (title + subtitle) ──────────────────────────────────────────── */
+.act-sheet__header {
+  padding: 0.85rem 1rem 0.6rem;
+  text-align: center;
+  border-bottom: 0.5px solid rgba(0, 0, 0, 0.08);
+}
+
+.act-sheet__title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(60, 60, 67, 0.85);
+  letter-spacing: 0.01em;
+}
+
+.act-sheet__subtitle {
+  font-size: 0.72rem;
+  color: rgba(60, 60, 67, 0.55);
+  margin-top: 0.15rem;
+}
+
+/* ── Action rows ────────────────────────────────────────────────────────── */
+.act-sheet__actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.act-sheet__row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.1rem;
+  background: transparent;
+  border: 0;
+  border-top: 0.5px solid rgba(0, 0, 0, 0.08);
+  font: inherit;
+  font-size: 1rem;
+  color: #0a84ff; /* iOS default blue tint */
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+.act-sheet__row:first-child { border-top: 0; }
+
+.act-sheet__row:active {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+@media (hover: hover) {
+  .act-sheet__row:hover { background: rgba(0, 0, 0, 0.04); }
+}
+
+.act-sheet__row i {
+  width: 18px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Variants */
+.act-sheet__row--default { color: var(--color-primary, #345a65); }
+.act-sheet__row--warn    { color: #d97706; }   /* amber */
+.act-sheet__row--danger  { color: #dc2626; }   /* red */
+
+/* Cancel button (mobile only) */
+.act-sheet__cancel {
+  display: block;
+  width: 100%;
+  padding: 1rem;
+  border: 0;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.96);
+  -webkit-backdrop-filter: blur(28px) saturate(1.6);
+  backdrop-filter: blur(28px) saturate(1.6);
+  box-shadow: 0 6px 32px rgba(0, 0, 0, 0.10);
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0a84ff;
+  cursor: pointer;
+}
+
+.act-sheet__cancel:active { background: rgba(255, 255, 255, 0.88); }
+
+/* ── Kebab trigger button (used by callers) ─────────────────────────────── */
+.kebab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-30);
+  background: var(--color-bg-light);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  padding: 0;
+}
+
+.kebab-btn:hover {
+  background: var(--gray-20);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.kebab-btn:active { background: var(--gray-30); }
+
+.kebab-btn i { font-size: 0.95rem; line-height: 1; }

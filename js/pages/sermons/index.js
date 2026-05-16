@@ -74,6 +74,32 @@ async function fetchPlaylists() {
   .filter(p => p.videoCount > 0 || p.title.includes('Coming Soon'))
 }
 
+/** ISO-8601 duration → total seconds. */
+function durationSeconds(iso) {
+  if (!iso) return 0;
+  const m = String(iso).match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
+  if (!m) return 0;
+  return (Number(m[1] || 0) * 3600) + (Number(m[2] || 0) * 60) + Number(m[3] || 0);
+}
+
+/** Batch-fetch durations for the given video IDs; returns Set of IDs that are Shorts (≤60s). */
+async function fetchShortIds(videoIds) {
+  if (!videoIds.length) return new Set();
+  const shorts = new Set();
+  // videos.list?id= accepts up to 50 comma-separated IDs per call
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const chunk = videoIds.slice(i, i + 50).join(',');
+    try {
+      const res = await fetch(`${YT_API}/videos?part=contentDetails&id=${chunk}&key=${YT_API_KEY}`);
+      const data = await res.json();
+      (data.items || []).forEach(v => {
+        if (durationSeconds(v.contentDetails?.duration) <= 60) shorts.add(v.id);
+      });
+    } catch { /* swallow — better to show maybe-shorts than to error the page */ }
+  }
+  return shorts;
+}
+
 async function fetchPlaylistVideos(playlistId) {
   const all = [];
   let pageToken = '';
@@ -87,7 +113,7 @@ async function fetchPlaylistVideos(playlistId) {
     pageToken = data.nextPageToken || '';
   } while (pageToken);
 
-  return all
+  const videos = all
     .map(v => ({
       videoId:     v.contentDetails.videoId,
       title:       v.snippet.title,
@@ -97,6 +123,10 @@ async function fetchPlaylistVideos(playlistId) {
       position:    v.snippet.position,
     }))
     .filter(v => v.title !== 'Private video' && v.title !== 'Deleted video');
+
+  // Defensive: drop Shorts if a pastor added one to the playlist
+  const shortIds = await fetchShortIds(videos.map(v => v.videoId));
+  return videos.filter(v => !shortIds.has(v.videoId));
 }
 
 // ── Date formatter ──────────────────────────────────────────────────────────

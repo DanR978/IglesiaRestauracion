@@ -15,6 +15,10 @@ import { initForms } from './event-form.js';
 import { loadPresets, buildPresetGrid, initSmartPresets } from './presets.js';
 import { loadUsers, initUserModal } from './users.js';
 import { initWizard } from './wizard.js';
+import { initDscpWizard } from './discipleship-wizard.js';
+import { initGalleryWizard } from './gallery-wizard.js';
+import { loadDiscipulado } from './discipleship-tab.js';
+import { loadGallery } from './gallery-tab.js';
 import { confirmResolve } from './state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -34,10 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Tabs ───────────────────────────────────────────────────────────────────
   initTabs({
-    onPast:        loadPast,
-    onCalendario:  loadCalendario,
-    onMinistries:  renderMinistriesTab,
-    onUsers:       loadUsers,
+    onPast:         loadPast,
+    onCalendario:   loadCalendario,
+    onMinistries:   renderMinistriesTab,
+    onUsers:        loadUsers,
+    onDiscipulado:  loadDiscipulado,
+    onGaleria:      loadGallery,
   });
 
   // ── Calendar nav + add button ──────────────────────────────────────────────
@@ -53,6 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Event creation wizard ────────────────────────────────────────────────
   initWizard();
+
+  // ── Discipleship group creation wizard ───────────────────────────────────
+  initDscpWizard();
+
+  // ── Gallery album creation wizard ────────────────────────────────────────
+  initGalleryWizard();
 
   // ── User modal ─────────────────────────────────────────────────────────────
   initUserModal();

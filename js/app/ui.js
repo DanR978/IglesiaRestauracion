@@ -16,44 +16,183 @@ export function setCurrentYear() {
 }
 
 export function setupBurgerMenu() {
-  const burger    = document.getElementById("burgerToggle");
-  const nav       = document.getElementById("mainNav");
-  const menuItems = document.querySelectorAll(".menu-item.has-submenu");
+  const burger = document.getElementById("burgerToggle");
+  const nav    = document.getElementById("mainNav");
   if (!burger || !nav) return;
 
-  const resetMenu = () => { menuItems.forEach(i => i.classList.remove("open")); };
-
-  const toggleNav = () => {
-    if (!nav.classList.contains("open")) {
-      nav.classList.add("open"); burger.classList.add("open"); document.body.classList.add("no-scroll");
-    } else {
-      nav.classList.add("closing"); burger.classList.remove("open"); document.body.classList.remove("no-scroll"); resetMenu();
-      nav.addEventListener("transitionend", function handler(e) {
-        if (e.propertyName === "transform") {
-          nav.classList.remove("open", "closing");
-          nav.removeEventListener("transitionend", handler);
-        }
-      });
-    }
+  /* ── Pane state ─────────────────────────────────────────────── */
+  const closeAllSubmenus = () => {
+    nav.classList.remove("has-open-submenu");
+    nav.querySelectorAll(".menu-item.is-open").forEach(li => li.classList.remove("is-open"));
   };
-  burger.addEventListener("click", toggleNav);
 
-  document.querySelectorAll(".accordion-toggle").forEach(btn => {
-    btn.addEventListener("click", e => {
-      if (window.innerWidth > 768) return;
-      e.preventDefault(); e.stopPropagation();
-      const li = btn.closest(".menu-item");
-      document.querySelectorAll(".menu-item.open").forEach(i => i !== li && i.classList.remove("open"));
-      li.classList.toggle("open");
+  /* FLIP animation: smoothly morph the category label in the root pane into
+     the section title at the top of the sub-pane. We measure the label's
+     current position/size (First), open the sub-pane (Last), then play a
+     short transform-only transition from First→Last on the title element. */
+  const morphLabelToTitle = (li) => {
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    const label = li.querySelector(".accordion-toggle");
+    if (!label) return;
+    const submenu = li.querySelector(".submenu");
+    const title = submenu?.querySelector(".submenu__title");
+    if (!title) return;
+
+    // Hide the chevron during morph so the animation is the text only
+    const chev = label.querySelector(".chevron-icon");
+
+    const startRect = label.getBoundingClientRect();
+    const startFontSize = parseFloat(getComputedStyle(label).fontSize);
+
+    // Force the sub-pane to its "open" state so we can read the title's
+    // resting position. The CSS transition won't actually run yet because
+    // the .has-open-submenu class hasn't been added — but we'll add it
+    // next, on the same frame.
+    submenu.classList.add("is-measuring");
+    const endRect = title.getBoundingClientRect();
+    const endFontSize = parseFloat(getComputedStyle(title).fontSize);
+    submenu.classList.remove("is-measuring");
+
+    // The title lives INSIDE .submenu, which itself slides in from
+     // translateX(100%) → 0. At t=0 that pushes the title +panelWidth to the
+     // right. To make the title visually start at the label's spot, undo
+     // that initial submenu offset in our FLIP delta.
+    const panelWidth = nav.offsetWidth;
+    const dx = startRect.left - endRect.left - panelWidth;
+    const dy = startRect.top  - endRect.top;
+    const scale = startFontSize / endFontSize;
+
+    // Apply the inverted transform so the title appears at the label's spot
+    title.style.transformOrigin = "left top";
+    title.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    title.style.color = getComputedStyle(label).color;
+    title.style.letterSpacing = "0";
+    title.style.transition = "none";
+
+    if (chev) chev.style.opacity = "0";
+
+    // Force layout flush, then play to the resting position on the next frame
+    void title.offsetHeight;
+    requestAnimationFrame(() => {
+      title.style.transition = "transform 0.4s cubic-bezier(.22,.61,.36,1), color 0.4s ease, letter-spacing 0.4s ease";
+      title.style.transform = "translate(0, 0) scale(1)";
+      title.style.color = "";          // reverts to CSS rule
+      title.style.letterSpacing = "";
+    });
+
+    // Cleanup after the animation
+    const cleanup = (e) => {
+      if (e.propertyName !== "transform") return;
+      title.style.transition = "";
+      title.style.transform = "";
+      title.style.transformOrigin = "";
+      title.style.color = "";
+      title.style.letterSpacing = "";
+      if (chev) chev.style.opacity = "";
+      title.removeEventListener("transitionend", cleanup);
+    };
+    title.addEventListener("transitionend", cleanup);
+  };
+
+  const openSubmenu = (li) => {
+    nav.querySelectorAll(".menu-item.is-open").forEach(other => other !== li && other.classList.remove("is-open"));
+    // Kick off the label→title morph BEFORE adding the .is-open class so we
+    // can measure the title's resting position in the same paint.
+    morphLabelToTitle(li);
+    li.classList.add("is-open");
+    nav.classList.add("has-open-submenu");
+  };
+
+  /* ── Burger open/close ─────────────────────────────────────── */
+  const open = () => {
+    nav.classList.remove("closing");
+    nav.classList.add("open");
+    burger.classList.add("open");
+    burger.setAttribute("aria-expanded", "true");
+    burger.setAttribute("aria-label", "Cerrar menú");
+    document.body.classList.add("no-scroll");
+  };
+
+  const close = () => {
+    // Remove .open immediately so the .nav actually transitions back out.
+    // (The previous version waited for transitionend BEFORE removing .open
+    // — which meant no transition ever started and the menu never closed.)
+    nav.classList.remove("open");
+    burger.classList.remove("open");
+    burger.setAttribute("aria-expanded", "false");
+    burger.setAttribute("aria-label", "Abrir menú");
+    document.body.classList.remove("no-scroll");
+
+    // After the slide-out finishes, reset to the root pane for next open
+    nav.addEventListener("transitionend", function handler(e) {
+      if (e.propertyName === "transform" && e.target === nav) {
+        closeAllSubmenus();
+        nav.removeEventListener("transitionend", handler);
+      }
+    });
+  };
+
+  const toggle = () => nav.classList.contains("open") ? close() : open();
+  burger.addEventListener("click", toggle);
+
+  /* ── Inject the ← Atrás header into each submenu (once) ─────── */
+  nav.querySelectorAll(".menu-item.has-submenu").forEach(item => {
+    const toggleBtn = item.querySelector(".accordion-toggle");
+    const submenu   = item.querySelector(".submenu");
+    if (!toggleBtn || !submenu) return;
+    if (submenu.querySelector(".submenu__head")) return;   // already done
+
+    const label = toggleBtn.textContent.trim();
+    const headerLi = document.createElement("li");
+    headerLi.className = "submenu__head";
+    headerLi.innerHTML = `
+      <button type="button" class="submenu-back" aria-label="Volver atrás">
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        <span>Atrás</span>
+      </button>
+      <span class="submenu__title">${label}</span>
+    `;
+    submenu.prepend(headerLi);
+    headerLi.querySelector(".submenu-back")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      closeAllSubmenus();
     });
   });
 
+  /* ── Category click on mobile → open sub-pane ──────────────── */
+  nav.querySelectorAll(".menu-item.has-submenu .accordion-toggle").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (window.innerWidth > 768) return;     // desktop: hover handles dropdowns
+      e.preventDefault();
+      e.stopPropagation();
+      openSubmenu(btn.closest(".menu-item"));
+    });
+  });
+
+  /* ── Tapping a real link inside the panel closes the menu ──── */
+  nav.addEventListener("click", (e) => {
+    if (window.innerWidth > 768) return;
+    const a = e.target.closest("a");
+    if (a && nav.classList.contains("open")) close();
+  });
+
+  /* ── ESC: go back if inside a sub-pane, otherwise close ────── */
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape" || !nav.classList.contains("open")) return;
+    if (nav.classList.contains("has-open-submenu")) closeAllSubmenus();
+    else close();
+  });
+
+  /* ── Reset everything when crossing the desktop breakpoint ─── */
   window.addEventListener("resize", () => {
     if (window.innerWidth > 768) {
-      nav.classList.remove("open", "closing");
-      burger.classList.remove("open");
-      document.body.classList.remove("no-scroll");
-      resetMenu();
+      if (nav.classList.contains("open")) {
+        nav.classList.remove("open", "closing");
+        burger.classList.remove("open");
+        burger.setAttribute("aria-expanded", "false");
+        document.body.classList.remove("no-scroll");
+      }
+      closeAllSubmenus();
     }
   });
 }
