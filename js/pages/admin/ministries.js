@@ -4,6 +4,7 @@
 import { sb, ministries, setMinistries, isAdmin, currentProfile } from './state.js';
 import { buildFilterChecks } from './filters.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
+import { autoBalance } from './grid-balance.js';
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c =>
@@ -47,6 +48,7 @@ export function renderMinistriesTab() {
         <i class="fas fa-pen"></i>
       </button>
     </div>`).join('');
+  autoBalance(el);
 }
 
 // ── Modal ────────────────────────────────────────────────────────────────────

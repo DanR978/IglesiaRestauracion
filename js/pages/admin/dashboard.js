@@ -3,6 +3,7 @@
 // Counts are scoped: a ministry leader only sees their own ministry.
 
 import { sb, isAdmin, currentProfile, todayISO, MONTHS, DAY_NAMES } from './state.js';
+import { autoBalance } from './grid-balance.js';
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c =>
@@ -80,6 +81,7 @@ export async function loadDashboard() {
         document.querySelector(`.tab-btn[data-tab="${btn.dataset.goto}"]`)?.click();
       });
     });
+    autoBalance(cardsEl);   // last row stretches to fill — no orphan cards
 
     const rows = nextRows.data || [];
     if (nextEl) {
