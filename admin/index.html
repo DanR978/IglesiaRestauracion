@@ -14,7 +14,14 @@
 
 <!-- ── AUTH ────────────────────────────────────────────────────────────────── -->
 <div id="authScreen">
-  <div class="auth-card">
+
+  <!-- Boot spinner — shown until the session state is known (prevents flash) -->
+  <div class="auth-card auth-card--boot" id="bootCard">
+    <div class="auth-boot"><i class="fas fa-spinner fa-spin"></i></div>
+  </div>
+
+  <!-- Login -->
+  <div class="auth-card" id="loginCard" hidden>
     <div class="auth-card__logo">
       <h1>Iglesia Restauración Divina</h1>
       <p>Panel de Administración</p>
@@ -34,7 +41,91 @@
         <i class="fas fa-sign-in-alt"></i> Entrar
       </button>
     </form>
+    <a href="#" class="auth-link" id="forgotLink">¿Olvidaste tu contraseña?</a>
   </div>
+
+  <!-- Two-factor authentication: enrollment + challenge share this card -->
+  <div class="auth-card" id="mfaCard" hidden>
+    <div class="auth-card__logo">
+      <h1>Iglesia Restauración Divina</h1>
+      <p id="mfaCardSub">Verificación en dos pasos</p>
+    </div>
+
+    <div id="mfaEnroll" hidden>
+      <h2>Protege tu cuenta</h2>
+      <p class="auth-text">Escanea este código con una app de autenticación
+        (Google Authenticator, Authy o Microsoft Authenticator).</p>
+      <div class="mfa-qr"><img id="mfaQrImg" alt="Código QR de verificación"></div>
+      <p class="auth-text auth-text--muted">¿No puedes escanear? Ingresa esta clave a mano:</p>
+      <code class="mfa-secret" id="mfaSecret"></code>
+    </div>
+
+    <div id="mfaChallenge" hidden>
+      <h2>Verifica tu identidad</h2>
+      <p class="auth-text">Ingresa el código de 6 dígitos que muestra tu app de autenticación.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Código de verificación</label>
+      <input type="text" id="mfaCode" class="mfa-code-input" inputmode="numeric"
+             maxlength="6" autocomplete="one-time-code" placeholder="000000">
+    </div>
+    <div class="auth-error" id="mfaError"></div>
+    <button class="btn btn--primary btn--full" id="mfaVerifyBtn">
+      <i class="fas fa-shield-alt"></i> Verificar
+    </button>
+    <a href="#" class="auth-link" id="mfaLogoutBtn">Cancelar y cerrar sesión</a>
+  </div>
+
+  <!-- Invitation acceptance / password reset (set a new password) -->
+  <div class="auth-card" id="inviteCard" hidden>
+    <div class="auth-card__logo">
+      <h1>Iglesia Restauración Divina</h1>
+      <p id="inviteCardSub">Crea tu contraseña para empezar</p>
+    </div>
+    <h2 id="inviteHeading">Activa tu cuenta</h2>
+    <form onsubmit="return false">
+      <div class="form-group">
+        <label>Contraseña nueva</label>
+        <input type="password" id="invitePassword" placeholder="Mínimo 8 caracteres"
+               autocomplete="new-password">
+      </div>
+      <div class="form-group">
+        <label>Confirma la contraseña</label>
+        <input type="password" id="invitePassword2" placeholder="Repite la contraseña"
+               autocomplete="new-password">
+      </div>
+      <div class="auth-error" id="inviteError"></div>
+      <button class="btn btn--primary btn--full" id="inviteBtn">
+        <i class="fas fa-arrow-right"></i> Continuar
+      </button>
+    </form>
+  </div>
+
+  <!-- Forgot password -->
+  <div class="auth-card" id="forgotCard" hidden>
+    <div class="auth-card__logo">
+      <h1>Iglesia Restauración Divina</h1>
+      <p>Recuperar acceso</p>
+    </div>
+    <h2>¿Olvidaste tu contraseña?</h2>
+    <p class="auth-text">Ingresa tu correo y te enviaremos un enlace para crear una nueva.</p>
+    <form onsubmit="return false">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="forgotEmail" placeholder="correo@ejemplo.com" autocomplete="email">
+      </div>
+      <div class="auth-ok" id="forgotMsg" hidden>
+        <i class="fas fa-check-circle"></i> Si la cuenta existe, recibirás un enlace en unos minutos.
+      </div>
+      <div class="auth-error" id="forgotError"></div>
+      <button class="btn btn--primary btn--full" id="forgotBtn">
+        <i class="fas fa-paper-plane"></i> Enviar enlace
+      </button>
+    </form>
+    <a href="#" class="auth-link" id="forgotBackLink">← Volver a iniciar sesión</a>
+  </div>
+
 </div>
 
 <!-- ── APP ─────────────────────────────────────────────────────────────────── -->
@@ -56,8 +147,8 @@
     <button class="tab-btn active" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
     <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Pasados</button>
     <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> Calendario</button>
-    <button class="tab-btn" data-tab="discipulado" data-staff-only><i class="fas fa-hand-holding-heart"></i> Discipulado</button>
-    <button class="tab-btn" data-tab="galeria" data-staff-only><i class="fas fa-images"></i> Galería</button>
+    <button class="tab-btn" data-tab="discipulado" data-admin-only><i class="fas fa-hand-holding-heart"></i> Discipulado</button>
+    <button class="tab-btn" data-tab="galeria" data-admin-only><i class="fas fa-images"></i> Galería</button>
     <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> Ministerios</button>
     <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
   </div>
@@ -599,14 +690,23 @@
   <!-- ── USUARIOS ───────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-users">
     <div class="action-bar">
-      <h2>Cuentas de Acceso</h2>
+      <h2>Cuentas y Accesos</h2>
       <button class="btn btn--primary" id="addUserBtn">
-        <i class="fas fa-user-plus"></i> Crear Usuario
+        <i class="fas fa-user-plus"></i> Invitar usuario
       </button>
     </div>
-    <p style="font-size:.85rem;color:var(--color-muted);margin-bottom:1.25rem">
-      Crea cuentas para cada ministerio. Solo ellos verán y podrán editar sus eventos.
+    <p class="users-hint">
+      Las cuentas son solo por invitación. La persona invitada crea su propia contraseña
+      y configura la verificación en dos pasos. Los líderes de ministerio solo ven y
+      gestionan los eventos de su ministerio.
     </p>
+
+    <div id="invitesSection" hidden>
+      <div class="section-divider"><i class="fas fa-paper-plane"></i> Invitaciones pendientes</div>
+      <div id="invitesList" class="user-list"></div>
+    </div>
+
+    <div class="section-divider"><i class="fas fa-users"></i> Usuarios activos</div>
     <div id="usersList" class="user-list">
       <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
     </div>
@@ -828,30 +928,45 @@
   </div>
 </div>
 
-<!-- User modal -->
+<!-- Invite / edit-user modal -->
 <div class="modal-backdrop" id="userModal">
   <div class="modal">
     <div class="modal__header">
-      <div class="modal__title">Crear Usuario</div>
+      <div class="modal__title" id="userModalTitle">Invitar usuario</div>
       <button class="modal__close" id="userModalClose"><i class="fas fa-times"></i></button>
     </div>
-    <form id="userForm" onsubmit="return false">
-      <div class="form-group"><label>Nombre</label><input type="text" id="uName" placeholder="Ej: Ministerio Caballeros"></div>
-      <div class="form-group"><label>Correo electrónico</label><input type="email" id="uEmail" placeholder="caballeros@irdlex.org" autocomplete="username"></div>
-      <div class="form-group"><label>Contraseña</label><input type="password" id="uPassword" placeholder="Mínimo 8 caracteres" autocomplete="new-password"></div>
+    <input type="hidden" id="invUserId">
+    <form id="inviteForm" onsubmit="return false">
+      <div class="form-group" id="invNameGroup">
+        <label>Nombre completo</label>
+        <input type="text" id="invName" placeholder="Ej: Hermano Juan Martínez">
+      </div>
+      <div class="form-group" id="invEmailGroup">
+        <label>Correo electrónico</label>
+        <input type="email" id="invEmail" placeholder="persona@ejemplo.com" autocomplete="off">
+      </div>
       <div class="form-group">
         <label>Rol</label>
-        <select id="uRole">
-          <option value="ministry">Ministerio (solo sus eventos)</option>
-          <option value="admin">Administrador (todo)</option>
+        <select id="invRole">
+          <option value="ministry_leader">Líder de ministerio — solo su ministerio</option>
+          <option value="admin">Administrador — acceso total</option>
         </select>
       </div>
-      <div class="form-group"><label>Ministerio asignado</label><select id="uMinistry"></select></div>
+      <div class="form-group" id="invMinistryGroup">
+        <label>Ministerio asignado</label>
+        <select id="invMinistry"></select>
+      </div>
     </form>
+    <p class="modal-note" id="invNote">
+      <i class="fas fa-envelope"></i> Se enviará un correo de invitación. La persona creará
+      su propia contraseña y configurará la verificación en dos pasos.
+    </p>
     <div class="auth-error" id="userModalError"></div>
     <div class="modal__footer">
       <button class="btn btn--ghost"   id="userModalCancel">Cancelar</button>
-      <button class="btn btn--primary" id="userModalSave"><i class="fas fa-user-plus"></i> Crear cuenta</button>
+      <button class="btn btn--primary" id="userModalSave">
+        <i class="fas fa-paper-plane"></i> Enviar invitación
+      </button>
     </div>
   </div>
 </div>

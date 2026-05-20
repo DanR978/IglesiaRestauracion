@@ -8,13 +8,13 @@ export async function loadMinistries() {
   setMinistries(data || []);
 
   const opts = ministries.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-  ['evMinistry', 'uMinistry'].forEach(id => {
+  ['evMinistry', 'invMinistry'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = opts;
   });
 
   if (!isAdmin() && currentProfile?.ministry_id) {
-    ['evMinistry', 'uMinistry'].forEach(id => {
+    ['evMinistry', 'invMinistry'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = currentProfile.ministry_id;
     });

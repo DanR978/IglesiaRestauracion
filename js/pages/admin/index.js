@@ -5,7 +5,7 @@ import { initAuthScene } from './auth-scene.js';
 // Each concern lives in its own module; this file only wires them together.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { tryLogin, logout, restoreSession } from './auth.js';
+import { initAuth } from './auth.js';
 import { initTabs, initConfirm, confirm, closeModal } from './ui.js';
 import { initFilterToggles } from './filters.js';
 import { renderMinistriesTab } from './ministries.js';
@@ -26,12 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Underwater auth scene
   initAuthScene();
 
-  // ── Auth ───────────────────────────────────────────────────────────────────
-  document.getElementById('loginBtn')?.addEventListener('click', tryLogin);
-  document.getElementById('loginPassword')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') tryLogin();
-  });
-  document.getElementById('logoutBtn')?.addEventListener('click', logout);
+  // ── Auth (login, MFA, invite acceptance, password reset, session boot) ─────
+  initAuth();
 
   // ── Confirm modal ──────────────────────────────────────────────────────────
   initConfirm(() => confirmResolve);
@@ -68,7 +64,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── User modal ─────────────────────────────────────────────────────────────
   initUserModal();
-
-  // ── Restore session (auto-login if token exists) ───────────────────────────
-  restoreSession();
 });
