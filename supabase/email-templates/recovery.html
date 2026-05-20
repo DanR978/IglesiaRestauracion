@@ -1,0 +1,82 @@
+<!--
+  Supabase Auth → Email Templates → "Reset Password"
+  Paste this whole file into the template body.
+  Suggested subject:  Restablece tu contraseña — Iglesia Restauración Divina
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restablecer contraseña</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f5f7;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:14px;overflow:hidden;border:1px solid #e3e6ea;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#345a65;padding:30px 32px;text-align:center;">
+              <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:21px;font-weight:700;color:#ffffff;">
+                Iglesia Restauración Divina
+              </div>
+              <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;color:#a9c6cf;margin-top:4px;">
+                Panel de Administración
+              </div>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:38px 32px 30px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+              <h1 style="margin:0 0 14px;font-size:20px;font-weight:700;color:#1a2d32;">
+                Restablece tu contraseña
+              </h1>
+              <p style="margin:0 0 22px;font-size:15px;line-height:1.65;color:#4b5563;">
+                Recibimos una solicitud para restablecer la contraseña de tu cuenta del
+                panel de administración. Haz clic en el botón para elegir una nueva.
+              </p>
+
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 26px;">
+                <tr>
+                  <td style="border-radius:9px;background-color:#345a65;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank"
+                       style="display:inline-block;padding:14px 34px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:9px;">
+                      Crear contraseña nueva
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 6px;font-size:13px;color:#8a929c;">
+                Si el botón no funciona, copia y pega este enlace en tu navegador:
+              </p>
+              <p style="margin:0 0 24px;font-size:13px;line-height:1.5;">
+                <a href="{{ .ConfirmationURL }}" target="_blank" style="color:#345a65;word-break:break-all;">{{ .ConfirmationURL }}</a>
+              </p>
+
+              <p style="margin:0;padding-top:20px;border-top:1px solid #eceef0;font-size:13px;line-height:1.6;color:#9aa1a9;">
+                Si no solicitaste este cambio, ignora este correo — tu contraseña actual
+                seguirá funcionando sin cambios.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f4f5f7;padding:20px 32px;text-align:center;border-top:1px solid #e3e6ea;">
+              <div style="font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:12px;color:#9aa1a9;line-height:1.6;">
+                Iglesia Restauración Divina &middot; Lexington, KY<br>
+                <a href="https://www.irdlex.org" target="_blank" style="color:#736960;text-decoration:none;">www.irdlex.org</a>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
