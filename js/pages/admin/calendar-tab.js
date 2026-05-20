@@ -7,6 +7,7 @@ import {
   calEventsList, admCalYear, admCalMonth,
   setCalEvents, setCalView,
   filterEventsByMinistry, normalizeEventsRow, ministries,
+  isAdmin, currentProfile,
 } from './state.js';
 import { toast, confirm, openModal } from './ui.js';
 import { onFilterChange } from './filters.js';
@@ -83,14 +84,23 @@ const grid = new CalendarGrid({
 
 // ─── Load data ────────────────────────────────────────────────────────────────
 export async function loadCalendario() {
-  const { data: calData, error: calErr } = await sb
-    .from('calendar_events').select('*,ministries(name,color)').order('date', { ascending: true });
+  // Ministry leaders see only their own ministry's calendar events.
+  let calQ = sb.from('calendar_events')
+    .select('*,ministries(name,color)').order('date', { ascending: true });
+  if (!isAdmin() && currentProfile?.ministry_id)
+    calQ = calQ.eq('ministry_id', currentProfile.ministry_id);
+  const { data: calData, error: calErr } = await calQ;
   if (calErr) { toast('Error cargando calendario: ' + calErr.message, 'error'); return; }
 
-  const { data: evRows, error: evErr } = await sb
-    .from('events').select('id,title,starts_at,location,description,tag,image_url,ministry_id')
-    .order('starts_at', { ascending: true });
-  if (evErr) console.warn('[cal] events:', evErr.message);
+  // Special events (events table) are admin-only.
+  let evRows = [];
+  if (isAdmin()) {
+    const { data, error: evErr } = await sb
+      .from('events').select('id,title,starts_at,location,description,tag,image_url,ministry_id')
+      .order('starts_at', { ascending: true });
+    if (evErr) console.warn('[cal] events:', evErr.message);
+    else evRows = data || [];
+  }
 
   function resolveMinistry(mid) {
     if (!mid) return null;

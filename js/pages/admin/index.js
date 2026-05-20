@@ -8,7 +8,9 @@ import { initAuthScene } from './auth-scene.js';
 import { initAuth } from './auth.js';
 import { initTabs, initConfirm, confirm, closeModal } from './ui.js';
 import { initFilterToggles } from './filters.js';
-import { renderMinistriesTab } from './ministries.js';
+import { renderMinistriesTab, initMinistryModal } from './ministries.js';
+import { loadDashboard } from './dashboard.js';
+import { initAccountModal } from './account.js';
 import { loadPast } from './events-tab.js';
 import { loadCalendario, initCalendarNav } from './calendar-tab.js';
 import { initForms } from './event-form.js';
@@ -34,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ── Tabs ───────────────────────────────────────────────────────────────────
   initTabs({
+    onInicio:       loadDashboard,
     onPast:         loadPast,
     onCalendario:   loadCalendario,
     onMinistries:   renderMinistriesTab,
@@ -62,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Gallery album creation wizard ────────────────────────────────────────
   initGalleryWizard();
 
-  // ── User modal ─────────────────────────────────────────────────────────────
+  // ── User / ministry / account modals ───────────────────────────────────────
   initUserModal();
+  initMinistryModal();
+  initAccountModal();
 });

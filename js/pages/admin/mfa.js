@@ -90,3 +90,12 @@ export async function submitCode(code) {
   _factorId = _challengeId = _mode = null;
   return true;
 }
+
+/** Remove every MFA factor on the account — used before re-enrolling. */
+export async function unenrollAll() {
+  const { data } = await sb.auth.mfa.listFactors();
+  for (const f of (data?.all ?? [])) {
+    try { await sb.auth.mfa.unenroll({ factorId: f.id }); } catch { /* ignore */ }
+  }
+  _factorId = _challengeId = _mode = null;
+}

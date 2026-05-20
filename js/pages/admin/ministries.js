@@ -1,13 +1,20 @@
 // js/pages/admin/ministries.js
+// Ministerios tab — list + full create / edit / delete management.
 
 import { sb, ministries, setMinistries, isAdmin, currentProfile } from './state.js';
 import { buildFilterChecks } from './filters.js';
+import { toast, openModal, closeModal, confirm } from './ui.js';
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 export async function loadMinistries() {
   const { data } = await sb.from('ministries').select('*').order('name');
   setMinistries(data || []);
 
-  const opts = ministries.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+  const opts = ministries.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
   ['evMinistry', 'invMinistry'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = opts;
@@ -28,15 +35,94 @@ export function renderMinistriesTab() {
   const el = document.getElementById('ministriesList');
   if (!el) return;
   if (!ministries.length) {
-    el.innerHTML = '<p style="color:var(--color-muted)">No hay ministerios.</p>';
+    el.innerHTML =
+      '<div class="empty-state"><i class="fas fa-church"></i><p>No hay ministerios todavía. Crea el primero.</p></div>';
     return;
   }
   el.innerHTML = ministries.map(m => `
     <div class="ministry-card">
-      <div class="ministry-card__dot" style="background:${m.color}"></div>
-      <div>
-        <div class="ministry-card__name">${m.name}</div>
-        <div class="ministry-card__id">${m.id}</div>
-      </div>
+      <div class="ministry-card__dot" style="background:${m.color || '#888'}"></div>
+      <div class="ministry-card__name">${esc(m.name)}</div>
+      <button class="icon-btn" data-min-edit="${m.id}" title="Editar ministerio">
+        <i class="fas fa-pen"></i>
+      </button>
     </div>`).join('');
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────────
+function setErr(msg) {
+  const el = document.getElementById('ministryModalError');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.style.display = msg ? '' : 'none';
+}
+
+function openMinistryModal(m) {
+  document.getElementById('ministryModalTitle').textContent =
+    m ? 'Editar ministerio' : 'Nuevo ministerio';
+  document.getElementById('minId').value    = m?.id || '';
+  document.getElementById('minName').value  = m?.name || '';
+  document.getElementById('minColor').value = m?.color || '#345a65';
+  document.getElementById('ministryModalDelete').style.display = m ? '' : 'none';
+  setErr('');
+  openModal('ministryModal');
+}
+
+async function saveMinistry() {
+  const id    = document.getElementById('minId').value;
+  const name  = document.getElementById('minName').value.trim();
+  const color = document.getElementById('minColor').value;
+  const btn   = document.getElementById('ministryModalSave');
+  setErr('');
+  if (!name) { setErr('Ingresa el nombre del ministerio.'); return; }
+
+  btn.disabled = true;
+  try {
+    const { error } = id
+      ? await sb.from('ministries').update({ name, color }).eq('id', id)
+      : await sb.from('ministries').insert({ name, color });
+    if (error) throw error;
+    toast(id ? 'Ministerio actualizado' : 'Ministerio creado', 'success');
+    closeModal('ministryModal');
+    await loadMinistries();
+  } catch (e) {
+    setErr(e.message || 'No se pudo guardar el ministerio.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteMinistry() {
+  const id = document.getElementById('minId').value;
+  if (!id) return;
+  const ok = await confirm('Eliminar ministerio',
+    '¿Eliminar este ministerio? Esta acción no se puede deshacer.');
+  if (!ok) return;
+
+  const { error } = await sb.from('ministries').delete().eq('id', id);
+  if (error) {
+    setErr(/foreign key|violates|referenced/i.test(error.message)
+      ? 'No se puede eliminar: hay eventos o usuarios asignados a este ministerio.'
+      : error.message);
+    return;
+  }
+  toast('Ministerio eliminado', 'success');
+  closeModal('ministryModal');
+  await loadMinistries();
+}
+
+export function initMinistryModal() {
+  document.getElementById('addMinistryBtn')?.addEventListener('click', () => openMinistryModal(null));
+  document.getElementById('ministryModalSave')?.addEventListener('click', saveMinistry);
+  document.getElementById('ministryModalDelete')?.addEventListener('click', deleteMinistry);
+  document.getElementById('ministryModalClose')?.addEventListener('click',  () => closeModal('ministryModal'));
+  document.getElementById('ministryModalCancel')?.addEventListener('click', () => closeModal('ministryModal'));
+
+  // Delegated — survives renderMinistriesTab() re-renders
+  document.getElementById('ministriesList')?.addEventListener('click', e => {
+    const btn = e.target.closest('[data-min-edit]');
+    if (!btn) return;
+    const m = ministries.find(x => x.id === btn.dataset.minEdit);
+    if (m) openMinistryModal(m);
+  });
 }

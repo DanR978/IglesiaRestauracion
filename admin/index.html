@@ -135,7 +135,7 @@
   <div class="topbar">
     <div class="topbar__title">IRD Admin <span id="topbarMinistry"></span></div>
     <div class="topbar__right">
-      <span class="topbar__user" id="topbarUser"></span>
+      <button type="button" class="topbar__user" id="topbarUser" title="Mi cuenta"></button>
       <button class="topbar__logout" id="logoutBtn" title="Cerrar sesión">
         <i class="fas fa-sign-out-alt"></i>
       </button>
@@ -144,7 +144,8 @@
 
   <!-- Main tab bar -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
+    <button class="tab-btn active" data-tab="inicio"><i class="fas fa-house"></i> Inicio</button>
+    <button class="tab-btn" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
     <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Pasados</button>
     <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> Calendario</button>
     <button class="tab-btn" data-tab="discipulado" data-admin-only><i class="fas fa-hand-holding-heart"></i> Discipulado</button>
@@ -153,8 +154,19 @@
     <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
   </div>
 
+  <!-- ── INICIO (Dashboard) ─────────────────────────────────────────────────── -->
+  <div class="tab-panel active" id="tab-inicio">
+    <div class="dash-welcome">
+      <h2 id="dashGreeting">Hola</h2>
+      <p class="dash-welcome__sub">Resumen de la actividad de la iglesia.</p>
+    </div>
+    <div class="dash-cards" id="dashCards"></div>
+    <div class="section-divider"><i class="fas fa-calendar-day"></i> Próximos eventos</div>
+    <div id="dashNext"></div>
+  </div>
+
   <!-- ── PRÓXIMOS ───────────────────────────────────────────────────────────── -->
-  <div class="tab-panel active" id="tab-upcoming">
+  <div class="tab-panel" id="tab-upcoming">
 
     <!-- View: list -->
     <div class="view-panel active" id="view-list">
@@ -300,7 +312,7 @@
     <div class="cal-toolbar">
       <h2>Calendario de Actividades</h2>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        <button class="btn btn--ghost" style="font-size:.85rem;padding:.55rem 1rem" id="calSmartBtn">
+        <button class="btn btn--ghost admin-only" style="font-size:.85rem;padding:.55rem 1rem;display:none" id="calSmartBtn">
           <i class="fas fa-magic"></i> Preselección
         </button>
         <button class="btn btn--primary" id="calAddBtn">
@@ -428,7 +440,12 @@
 
   <!-- ── MINISTERIOS ────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-ministries">
-    <div class="action-bar"><h2>Ministerios</h2></div>
+    <div class="action-bar">
+      <h2>Ministerios</h2>
+      <button class="btn btn--primary" id="addMinistryBtn">
+        <i class="fas fa-plus"></i> Agregar ministerio
+      </button>
+    </div>
     <div id="ministriesList" class="card-grid">
       <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
     </div>
@@ -967,6 +984,75 @@
       <button class="btn btn--primary" id="userModalSave">
         <i class="fas fa-paper-plane"></i> Enviar invitación
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- Ministry modal -->
+<div class="modal-backdrop" id="ministryModal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal__header">
+      <div class="modal__title" id="ministryModalTitle">Nuevo ministerio</div>
+      <button class="modal__close" id="ministryModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="hidden" id="minId">
+    <div class="form-group">
+      <label>Nombre del ministerio</label>
+      <input type="text" id="minName" placeholder="Ej: Ministerio de Jóvenes">
+    </div>
+    <div class="form-group">
+      <label>Color</label>
+      <input type="color" id="minColor" class="color-input" value="#345a65">
+    </div>
+    <div class="auth-error" id="ministryModalError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--danger" id="ministryModalDelete" style="display:none">
+        <i class="fas fa-trash"></i> Eliminar
+      </button>
+      <button class="btn btn--ghost"   id="ministryModalCancel">Cancelar</button>
+      <button class="btn btn--primary" id="ministryModalSave"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- "Mi cuenta" modal -->
+<div class="modal-backdrop" id="accountModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal__header">
+      <div class="modal__title">Mi cuenta</div>
+      <button class="modal__close" id="accountModalClose"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="acc-summary">
+      <div class="acc-summary__name"  id="accName"></div>
+      <div class="acc-summary__email" id="accEmail"></div>
+      <div class="acc-summary__row">
+        <span class="role-badge" id="accRole"></span>
+        <span class="acc-summary__ministry" id="accMinistry"></span>
+      </div>
+    </div>
+
+    <div class="section-divider"><i class="fas fa-key"></i> Cambiar contraseña</div>
+    <div class="form-group">
+      <label>Contraseña nueva</label>
+      <input type="password" id="accPw1" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label>Confirmar contraseña</label>
+      <input type="password" id="accPw2" placeholder="Repite la contraseña" autocomplete="new-password">
+    </div>
+    <div class="auth-error" id="accountError"></div>
+    <button class="btn btn--primary" id="accountPwBtn"><i class="fas fa-save"></i> Guardar contraseña</button>
+
+    <div class="section-divider"><i class="fas fa-shield-halved"></i> Verificación en dos pasos</div>
+    <p class="modal-note">
+      <i class="fas fa-shield-halved"></i> Tu cuenta está protegida con verificación en dos pasos.
+      Si cambiaste de teléfono, reconfigúrala aquí.
+    </p>
+    <button class="btn btn--ghost" id="accountMfaBtn"><i class="fas fa-rotate"></i> Reconfigurar 2FA</button>
+
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="accountModalDone">Cerrar</button>
     </div>
   </div>
 </div>

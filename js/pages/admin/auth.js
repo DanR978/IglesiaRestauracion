@@ -15,6 +15,7 @@
 import { sb, setCurrentUser, setCurrentProfile } from './state.js';
 import { loadMinistries } from './ministries.js';
 import { loadUpcoming }   from './events-tab.js';
+import { loadDashboard }  from './dashboard.js';
 import { initForms }      from './event-form.js';
 import { toast }          from './ui.js';
 import * as mfa           from './mfa.js';
@@ -149,6 +150,12 @@ async function showMfaChallenge() {
   document.getElementById('mfaCode').focus();
 }
 
+/** Re-enroll 2FA from inside the panel (used by the "Mi cuenta" screen). */
+export async function reEnrollMfa() {
+  try { await mfa.unenrollAll(); } catch { /* ignore */ }
+  showMfaEnroll();
+}
+
 async function verifyMfa() {
   const code = document.getElementById('mfaCode').value.trim();
   const btn  = document.getElementById('mfaVerifyBtn');
@@ -280,6 +287,7 @@ async function bootApp() {
 
   await loadMinistries();
   await loadUpcoming();
+  loadDashboard();
   initForms();
 }
 
