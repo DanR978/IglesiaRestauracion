@@ -119,7 +119,7 @@
 .acc-badge--warn { background: rgba(200, 130, 10, 0.16); color: #9a6206; }
 
 /* ── Icon action buttons ──────────────────────────────────────────────────── */
-.icon-btn {
+.adm-icon-btn {
   width: 34px;
   height: 34px;
   border: 1.5px solid var(--gray-50);
@@ -133,14 +133,18 @@
   font-size: 0.85rem;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.icon-btn:hover {
+.adm-icon-btn:hover {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-white);
 }
-.icon-btn--danger:hover {
+.adm-icon-btn--danger:hover {
   background: #b02030;
   border-color: #b02030;
+}
+.adm-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* ── Modal note line ──────────────────────────────────────────────────────── */

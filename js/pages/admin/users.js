@@ -98,11 +98,11 @@ function renderActive(u) {
       </div>
       <div class="user-row__badges">${roleBadge(u.role)} ${mfaBadge}</div>
       <div class="user-row__actions">
-        <button class="icon-btn" data-act="edit" data-id="${u.id}" title="Editar rol">
+        <button class="adm-icon-btn" data-act="edit" data-id="${u.id}" title="Editar rol">
           <i class="fas fa-user-pen"></i></button>
-        <button class="icon-btn" data-act="reset-mfa" data-id="${u.id}" title="Restablecer 2FA">
+        <button class="adm-icon-btn" data-act="reset-mfa" data-id="${u.id}" title="Restablecer 2FA">
           <i class="fas fa-shield-halved"></i></button>
-        ${isSelf ? '' : `<button class="icon-btn icon-btn--danger" data-act="delete" data-id="${u.id}" title="Eliminar cuenta">
+        ${isSelf ? '' : `<button class="adm-icon-btn adm-icon-btn--danger" data-act="delete" data-id="${u.id}" title="Eliminar cuenta">
           <i class="fas fa-trash"></i></button>`}
       </div>
     </div>`;
@@ -119,9 +119,9 @@ function renderPending(u) {
       </div>
       <div class="user-row__badges">${roleBadge(u.role)}</div>
       <div class="user-row__actions">
-        <button class="icon-btn" data-act="resend" data-id="${u.id}" title="Reenviar invitación">
+        <button class="adm-icon-btn" data-act="resend" data-id="${u.id}" title="Reenviar invitación">
           <i class="fas fa-rotate"></i></button>
-        <button class="icon-btn icon-btn--danger" data-act="revoke" data-id="${u.id}" title="Cancelar invitación">
+        <button class="adm-icon-btn adm-icon-btn--danger" data-act="revoke" data-id="${u.id}" title="Cancelar invitación">
           <i class="fas fa-xmark"></i></button>
       </div>
     </div>`;

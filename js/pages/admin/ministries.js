@@ -43,7 +43,7 @@ export function renderMinistriesTab() {
     <div class="ministry-card">
       <div class="ministry-card__dot" style="background:${m.color || '#888'}"></div>
       <div class="ministry-card__name">${esc(m.name)}</div>
-      <button class="icon-btn" data-min-edit="${m.id}" title="Editar ministerio">
+      <button class="adm-icon-btn" data-min-edit="${m.id}" title="Editar ministerio">
         <i class="fas fa-pen"></i>
       </button>
     </div>`).join('');
