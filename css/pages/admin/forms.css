@@ -34,6 +34,7 @@
 .form-group textarea:focus {
   outline: none;
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(52, 90, 101, 0.1);
 }
 
 .form-group textarea { resize: vertical; min-height: 80px; }
@@ -51,10 +52,11 @@
 /* ── Form card wrapper ───────────────────────────────── */
 .form-card {
   background: var(--color-white);
-  border: 1px solid var(--gray-50);
+  border: 1px solid var(--gray-40);
   border-radius: var(--radius-md);
   padding: 1.25rem;
   margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-back {

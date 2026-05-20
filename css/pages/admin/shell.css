@@ -18,6 +18,7 @@ body {
 #app {
   display: none;
   min-height: 100vh;
+  background: #f4f5f7;
 }
 
 /* ── Topbar ──────────────────────────────────────────── */
@@ -32,7 +33,7 @@ body {
   position: sticky;
   top: 0;
   z-index: var(--z-menu);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.14);
 }
 
 .topbar__title {
@@ -82,9 +83,10 @@ body {
 .tabs {
   display: flex;
   background: var(--color-white);
-  border-bottom: 1.5px solid var(--gray-50);
+  border-bottom: 1px solid var(--gray-50);
   padding: 0 1.5rem;
   overflow-x: auto;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .tab-btn {
@@ -103,6 +105,8 @@ body {
   white-space: nowrap;
   font-family: inherit;
 }
+
+.tab-btn:hover:not(.active) { color: var(--color-dark); }
 
 .tab-btn.active {
   color: var(--color-primary);

@@ -5,12 +5,13 @@
 
 .user-row {
   background: var(--color-white);
-  border: 1.5px solid var(--gray-50);
+  border: 1px solid var(--gray-40);
   border-radius: var(--radius-md);
   padding: 0.85rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .user-row__avatar {
@@ -41,12 +42,15 @@
 .ministry-card {
   background: var(--color-white);
   border-radius: var(--radius-md);
-  border: 1.5px solid var(--gray-50);
+  border: 1px solid var(--gray-40);
   padding: 1.1rem 1.25rem;
   display: flex;
   align-items: center;
   gap: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
+.ministry-card:hover { border-color: var(--gray-60); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07); }
 
 .ministry-card__dot  { width: 14px; height: 14px; border-radius: var(--radius-full); flex-shrink: 0; }
 .ministry-card__name { font-weight: 700; font-size: 0.95rem; }
@@ -96,12 +100,12 @@
   white-space: nowrap;
 }
 .role--admin {
-  background: rgba(176, 32, 48, 0.12);
-  color: #b02030;
+  background: rgba(52, 90, 101, 0.12);
+  color: var(--color-primary);
 }
 .role--ministry_leader {
-  background: rgba(30, 107, 97, 0.13);
-  color: #1e6b61;
+  background: rgba(190, 102, 14, 0.13);
+  color: #a85e12;
 }
 
 /* ── Account status badge (2FA) ───────────────────────────────────────────── */
@@ -152,7 +156,8 @@
   font-size: 0.8rem;
   color: var(--color-muted);
   line-height: 1.5;
-  background: var(--color-bg-light, #f7f9fa);
+  background: var(--gray-20);
+  border: 1px solid var(--gray-40);
   border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   margin: 0.25rem 0 0.5rem;
@@ -169,7 +174,8 @@
 
 /* ── "Mi cuenta" summary block ────────────────────────────────────────────── */
 .acc-summary {
-  background: var(--color-bg-light);
+  background: var(--gray-20);
+  border: 1px solid var(--gray-40);
   border-radius: var(--radius-md);
   padding: 1rem;
   margin-bottom: 0.5rem;

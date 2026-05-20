@@ -22,7 +22,7 @@
 
 .dash-card {
   background: var(--color-white);
-  border: 1.5px solid var(--gray-50);
+  border: 1px solid var(--gray-40);
   border-radius: var(--radius-md);
   padding: 1.1rem 1rem;
   display: flex;
@@ -31,6 +31,7 @@
   cursor: pointer;
   text-align: left;
   font-family: inherit;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: border-color 0.15s, transform 0.12s, box-shadow 0.15s;
 }
 .dash-card:hover {

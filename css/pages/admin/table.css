@@ -13,9 +13,9 @@
   color: var(--color-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 2px solid var(--gray-50);
-  background: var(--color-bg-light);
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--gray-50);
+  background: var(--gray-20);
 }
 
 .events-table td {
