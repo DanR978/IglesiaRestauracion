@@ -234,8 +234,11 @@ async function openGroupModal(id) {
   openModal('dscpGroupModal');
 }
 
-/* ── QR code generation (local, bundled by Vite — no network calls) ───── */
-import QRCode from 'qrcode';
+/* ── QR code generation (browser ESM module from CDN) ─────────────────────
+   Loaded as a full URL — NOT a bare specifier — so it resolves in the browser
+   even when files are served raw (GitHub Pages deploy does not run `vite build`).
+   Mirrors the pattern in js/lib/supabase.js. */
+import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm';
 
 let _currentQrUrl = '';
 let _currentGroupName = '';

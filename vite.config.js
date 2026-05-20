@@ -3,19 +3,43 @@ import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import { existsSync, cpSync, mkdirSync, readdirSync } from 'fs';
 
-// Auto-discover all page HTML files
+// Auto-discover all page HTML files (single + nested)
 function discoverPages(root) {
   const pages = { main: resolve(root, 'index.html') };
 
+  // Top-level page directories (each has index.html). Add new dirs here so
+  // their JS gets bundled (and import.meta.env.VITE_* is substituted).
   const pageDirs = [
-    'donacion', 'eventos', 'linktree', 'poliza-de-privacidad',
-    'proximos-pasos', 'quienes-somos', 'sermones', 'visitanos'
+    'admin',
+    'donacion',
+    'eventos',
+    'linktree',
+    'poliza-de-privacidad',
+    'proximos-pasos',
+    'quienes-somos',
+    'sermones',
+    'visitanos',
+    'discipulado',
+    'galeria',
   ];
+
+  // Nested page directories: <parent>/<child>/index.html
+  const nestedPages = {
+    discipulado: ['grupo'],
+    galeria:     ['album'],
+  };
 
   for (const dir of pageDirs) {
     const htmlPath = resolve(root, dir, 'index.html');
     if (existsSync(htmlPath)) {
       pages[dir] = htmlPath;
+    }
+    const children = nestedPages[dir] || [];
+    for (const child of children) {
+      const childPath = resolve(root, dir, child, 'index.html');
+      if (existsSync(childPath)) {
+        pages[`${dir}-${child}`] = childPath;
+      }
     }
   }
 
@@ -83,8 +107,10 @@ export default defineConfig({
     copyStaticDirs([
       'src',
       'resources',
-      'admin',
       'seo',
+      // NOTE: 'admin', 'discipulado', 'galeria' are NOT copied here — they are
+      // processed as Vite build inputs (see discoverPages) so their JS gets
+      // bundled and import.meta.env.VITE_* values are substituted correctly.
     ]),
   ],
 
