@@ -103,18 +103,10 @@ async function doLogin() {
   }
 }
 
-// After any successful credential step, decide: MFA needed, or straight in.
+// After any successful credential step, go straight into the panel.
+// (Two-factor auth is no longer a required step.)
 async function routeAfterLogin() {
-  let status;
-  try {
-    status = await mfa.mfaStatus();
-  } catch (e) {
-    setErr('authError', spanishError(e));
-    return showCard('loginCard');
-  }
-  if (status === 'ok')        return bootApp();
-  if (status === 'challenge') return showMfaChallenge();
-  return showMfaEnroll();
+  return bootApp();
 }
 
 // ─── MFA ──────────────────────────────────────────────────────────────────────

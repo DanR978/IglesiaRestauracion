@@ -3,8 +3,7 @@
 // reconfigure your own two-factor authentication.
 
 import { sb, currentUser, currentProfile } from './state.js';
-import { toast, openModal, closeModal, confirm } from './ui.js';
-import { reEnrollMfa } from './auth.js';
+import { toast, openModal, closeModal } from './ui.js';
 
 function setErr(msg) {
   const el = document.getElementById('accountError');
@@ -61,11 +60,4 @@ export function initAccountModal() {
   document.getElementById('accountModalClose')?.addEventListener('click', () => closeModal('accountModal'));
   document.getElementById('accountModalDone')?.addEventListener('click',  () => closeModal('accountModal'));
   document.getElementById('accountPwBtn')?.addEventListener('click', changePassword);
-  document.getElementById('accountMfaBtn')?.addEventListener('click', async () => {
-    const ok = await confirm('Reconfigurar verificación en dos pasos',
-      'Se eliminará tu autenticador actual y configurarás uno nuevo ahora mismo. ¿Continuar?');
-    if (!ok) return;
-    closeModal('accountModal');
-    reEnrollMfa();
-  });
 }
