@@ -1,7 +1,7 @@
-/* sections/latest-gallery.css — homepage "Galería" teaser */
+/* sections/latest-gallery.css — homepage "Galería" teaser (centered carousel) */
 
 .home-gallery {
-  max-width: 1080px;
+  max-width: 1140px;
   margin: 0 auto;
   padding: 0 var(--pd-md, 1.25rem);
   text-align: center;
@@ -18,7 +18,7 @@
 }
 
 .home-gallery__title {
-  margin: 0 0 1.6rem;
+  margin: 0 0 1.7rem;
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: clamp(1.6rem, 1rem + 2.4vw, 2.45rem);
@@ -26,25 +26,40 @@
   color: var(--color-primary);
 }
 
-.home-gallery__showcase { text-align: left; }
-
 .home-gallery__loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 180px;
+  min-height: 200px;
   color: var(--color-muted);
   font-size: 1.4rem;
 }
 
-/* ── Photo tiles ─────────────────────────────────────────────────────── */
+/* ── Carousel ────────────────────────────────────────────────────────── */
+.hg-rail-wrap { position: relative; }
+
+.hg-rail {
+  display: flex;
+  gap: 0.9rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  /* Leading/trailing space so the first & last photo can sit dead-centre. */
+  padding-inline: calc((100% - clamp(270px, 82vw, 600px)) / 2);
+}
+.hg-rail::-webkit-scrollbar { display: none; }
+
 .hg-tile {
   position: relative;
+  flex: 0 0 clamp(270px, 82vw, 600px);
+  aspect-ratio: 3 / 2;
+  scroll-snap-align: center;
   display: block;
   overflow: hidden;
-  border-radius: var(--radius-md, 0.7rem);
+  border-radius: var(--radius-lg, 1rem);
   background: var(--gray-20);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
 }
 .hg-tile img {
   width: 100%;
@@ -53,9 +68,9 @@
   display: block;
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.hg-tile:hover img { transform: scale(1.07); }
+.hg-tile:hover img { transform: scale(1.05); }
 
-/* "+N fotos" overlay on the last mosaic tile */
+/* "+N fotos" overlay on the last tile */
 .hg-tile__more {
   position: absolute;
   inset: 0;
@@ -63,48 +78,68 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(16, 32, 38, 0.62);
+  background: rgba(16, 32, 38, 0.6);
   color: #fff;
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
-  font-size: 1.9rem;
+  font-size: 2.1rem;
   line-height: 1;
 }
 .hg-tile__more small {
-  margin-top: 0.25rem;
-  font-size: 0.62rem;
+  margin-top: 0.3rem;
+  font-size: 0.66rem;
   font-weight: var(--fw-medium);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.85;
 }
 
-/* ── Mosaic: 1 lead + 4 supporting (album with 5+ photos) ────────────── */
-.hg-mosaic {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 0.7rem;
-  aspect-ratio: 16 / 9;
-}
-.hg-tile--lead { grid-column: 1; grid-row: 1 / span 2; }
-
-/* ── Even grid: album with 1–4 photos ────────────────────────────────── */
-.hg-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 0.7rem;
-}
-.hg-grid .hg-tile { aspect-ratio: 4 / 3; }
-
-/* ── Caption bar ─────────────────────────────────────────────────────── */
-.hg-caption {
+/* ── Arrows (pointer devices only — touch users swipe) ───────────────── */
+.hg-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem 1.5rem;
-  margin-top: 1.15rem;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.25);
+  transition: filter 0.15s ease;
+}
+.hg-arrow:hover  { filter: brightness(1.14); }
+.hg-arrow:active { filter: brightness(0.95); }
+.hg-arrow svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.hg-arrow--prev { left: 6px; }
+.hg-arrow--next { right: 6px; }
+
+.hg-rail-wrap--static .hg-arrow { display: none; }
+
+@media (hover: none), (max-width: 640px) {
+  .hg-arrow { display: none; }
+}
+
+/* ── Caption ─────────────────────────────────────────────────────────── */
+.hg-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 1.4rem;
 }
 .hg-caption__tag {
   display: inline-flex;
@@ -118,10 +153,10 @@
   color: var(--color-secondary);
 }
 .hg-caption__album {
-  margin: 0.35rem 0 0.15rem;
+  margin: 0.4rem 0 0.15rem;
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   line-height: 1.25;
   color: var(--color-primary);
 }
@@ -131,35 +166,4 @@
   font-size: 0.88rem;
   color: var(--color-muted);
 }
-.hg-caption .ird-btn { flex-shrink: 0; }
-
-/* ── Mobile ──────────────────────────────────────────────────────────── */
-/* On phones the photo layout becomes a compact, swipeable rail — one tidy
-   row instead of huge stacked images. */
-@media (max-width: 640px) {
-  .hg-mosaic,
-  .hg-grid {
-    display: flex;
-    grid-template-columns: none;
-    grid-template-rows: none;
-    aspect-ratio: auto;
-    gap: 0.55rem;
-    overflow-x: auto;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-  .hg-mosaic::-webkit-scrollbar,
-  .hg-grid::-webkit-scrollbar { display: none; }
-
-  .hg-mosaic .hg-tile,
-  .hg-grid .hg-tile {
-    flex: 0 0 74%;
-    aspect-ratio: 4 / 3;
-    scroll-snap-align: start;
-  }
-
-  .hg-caption { justify-content: center; text-align: center; }
-  .hg-caption__tag { justify-content: center; }
-  .hg-caption .ird-btn { width: 100%; }
-}
+.hg-caption .ird-btn { margin-top: 1rem; }
