@@ -105,6 +105,14 @@ async function initHomeGallery() {
     if (!photos.length) { section.hidden = true; return; }
 
     render(album, photos);
+
+    // Reveal the section now that real content is in place. Its kicker,
+    // title and showcase carry `.animate-fade-in` (opacity:0 until the
+    // global scroll-reveal observer adds `.visible`). On mobile that
+    // observer could leave them stuck at opacity:0 — a blank white void —
+    // so reveal them deterministically once the carousel has rendered.
+    section.querySelectorAll('.animate-fade-in')
+      .forEach((el) => el.classList.add('visible'));
   } catch (e) {
     console.warn('[home-gallery]', e);
     section.hidden = true;
