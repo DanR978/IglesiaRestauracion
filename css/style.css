@@ -4170,14 +4170,30 @@ body.no-scroll {
 .hg-caption .ird-btn { flex-shrink: 0; }
 
 /* ── Mobile ──────────────────────────────────────────────────────────── */
-@media (max-width: 600px) {
-  .hg-mosaic {
-    grid-template-columns: 1fr 1fr;
+/* On phones the photo layout becomes a compact, swipeable rail — one tidy
+   row instead of huge stacked images. */
+@media (max-width: 640px) {
+  .hg-mosaic,
+  .hg-grid {
+    display: flex;
+    grid-template-columns: none;
     grid-template-rows: none;
     aspect-ratio: auto;
+    gap: 0.55rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
-  .hg-tile--lead { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 16 / 10; }
-  .hg-mosaic .hg-tile:not(.hg-tile--lead) { aspect-ratio: 1; }
+  .hg-mosaic::-webkit-scrollbar,
+  .hg-grid::-webkit-scrollbar { display: none; }
+
+  .hg-mosaic .hg-tile,
+  .hg-grid .hg-tile {
+    flex: 0 0 74%;
+    aspect-ratio: 4 / 3;
+    scroll-snap-align: start;
+  }
 
   .hg-caption { justify-content: center; text-align: center; }
   .hg-caption__tag { justify-content: center; }
