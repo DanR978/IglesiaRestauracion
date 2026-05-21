@@ -13,6 +13,7 @@ import { optimizeImage } from '/js/lib/image-optimizer.js';
 export const EVENT_TYPES = [
   { value: 'baptism',         label: 'Bautismo',           icon: 'fa-water'        },
   { value: 'youth',           label: 'Jóvenes',             icon: 'fa-fire'         },
+  { value: 'kids',            label: 'Niños',               icon: 'fa-children'     },
   { value: 'worship',         label: 'Adoración',           icon: 'fa-music'        },
   { value: 'outreach',        label: 'Evangelismo',         icon: 'fa-hands-helping' },
   { value: 'discipulado',     label: 'Discipulado',         icon: 'fa-people-group' },
