@@ -92,17 +92,69 @@
 
       <!-- ─── Filters ─── -->
       <section class="gal-filters">
-        <div class="gal-filters__bar">
-          <div class="gal-filters__search">
-            <i class="fas fa-search"></i>
-            <input type="search" id="galSearch" placeholder="Buscar álbum…" aria-label="Buscar álbumes">
-          </div>
-          <div class="gal-filters__years" id="galYearPills" hidden></div>
-        </div>
-        <div class="gal-filters__chips" id="galTypePills">
-          <button class="gal-chip active" data-gal-type="">Todos</button>
+        <div class="gal-filterbar">
+          <button type="button" class="gal-fbtn" id="galFilterBtn" aria-haspopup="dialog">
+            <svg class="gal-fbtn__icon" viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="3" y1="6" x2="21" y2="6"/><circle cx="8" cy="6" r="2.5"/>
+              <line x1="3" y1="12" x2="21" y2="12"/><circle cx="16" cy="12" r="2.5"/>
+              <line x1="3" y1="18" x2="21" y2="18"/><circle cx="10" cy="18" r="2.5"/>
+            </svg>
+            <span>Filtrar</span>
+            <span class="gal-fbtn__badge" id="galFilterBadge" hidden>0</span>
+          </button>
+          <button type="button" class="gal-fbtn gal-fbtn--year" id="galYearBtn" aria-haspopup="dialog">
+            <span>Año: <strong id="galYearLabel">2026</strong></span>
+            <svg class="gal-fbtn__caret" viewBox="0 0 24 24" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
         </div>
       </section>
+
+      <!-- Filter popup -->
+      <div class="gal-modal" id="galFilterPop" hidden>
+        <div class="gal-modal__backdrop" data-gal-close></div>
+        <div class="gal-modal__panel" role="dialog" aria-label="Filtrar álbumes">
+          <div class="gal-modal__head">
+            <h3 class="gal-modal__title">Filtrar álbumes</h3>
+            <button type="button" class="gal-modal__close" data-gal-close aria-label="Cerrar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="gal-modal__body">
+            <label class="gal-search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg>
+              <input type="search" id="galSearch" placeholder="Buscar por título…" aria-label="Buscar álbumes">
+            </label>
+            <div class="gal-modal__label">Tipo de evento</div>
+            <div class="gal-checks" id="galTypeChecks"></div>
+          </div>
+          <div class="gal-modal__foot">
+            <button type="button" class="gal-btn gal-btn--ghost" id="galFilterClear">Limpiar</button>
+            <button type="button" class="gal-btn gal-btn--solid" id="galFilterApply">Ver álbumes</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Year picker -->
+      <div class="gal-modal" id="galYearPop" hidden>
+        <div class="gal-modal__backdrop" data-gal-close></div>
+        <div class="gal-modal__panel gal-modal__panel--year" role="dialog" aria-label="Seleccionar año">
+          <div class="gal-modal__head">
+            <h3 class="gal-modal__title">Seleccionar año</h3>
+            <button type="button" class="gal-modal__close" data-gal-close aria-label="Cerrar">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="gal-wheel">
+            <div class="gal-wheel__scroll" id="galYearScroll"></div>
+            <div class="gal-wheel__band" aria-hidden="true"></div>
+          </div>
+          <div class="gal-modal__foot">
+            <button type="button" class="gal-btn gal-btn--solid gal-btn--full" id="galYearApply">Aceptar</button>
+          </div>
+        </div>
+      </div>
 
       <!-- ─── Featured (only if albums are flagged is_featured) ─── -->
       <section class="gal-featured" id="galFeatured" hidden>

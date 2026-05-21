@@ -2,10 +2,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Public Galería page:
 //   • Loads all published albums
-//   • Year pill filter + event-type pill filter + search-by-title
-//   • Featured strip (albums with is_featured=true)
-//   • Albums grouped by year, each as a responsive card grid
-//   • Subscribes to realtime so newly-published albums appear without reload
+//   • Filter popup — search + multi-select event-type checkboxes, behind a
+//     filter icon button
+//   • Year picker — iOS-style scrolling wheel, defaults to the current year
+//   • "Más reciente" strip + albums grouped by year
+//   • Realtime updates so new albums appear without a reload
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
@@ -14,9 +15,11 @@ import {
   formatEventDate,
 } from '/js/lib/gallery.js';
 
+const CURRENT_YEAR = new Date().getFullYear();
+
 const state = {
-  year:   '',
-  type:   '',
+  year:   CURRENT_YEAR,   // a year number, or '' for "all years"
+  types:  [],             // selected event_type values — empty means all types
   search: '',
   all:    [],
 };
@@ -26,47 +29,118 @@ const escapeHtml = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-/* ── Filter rendering ─────────────────────────────────────────────────── */
+/* ── Filter bar ───────────────────────────────────────────────────────────── */
 
-function renderYearPills(years) {
-  const root = $('galYearPills');
-  if (!root) return;
-  // Hide the whole year row when there are no real years yet — keeps the bar uncluttered.
-  if (!years || years.length === 0) { root.hidden = true; root.innerHTML = ''; return; }
-  root.hidden = false;
-
-  const chips = [`<button class="gal-chip ${state.year === '' ? 'active' : ''}" data-gal-year="">Todos los años</button>`]
-    .concat(years.map(y =>
-      `<button class="gal-chip ${String(state.year) === String(y) ? 'active' : ''}" data-gal-year="${y}">${y}</button>`
-    ));
-  root.innerHTML = chips.join('');
-  root.querySelectorAll('[data-gal-year]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.year = btn.dataset.galYear;
-      root.querySelectorAll('.gal-chip').forEach(b => b.classList.toggle('active', b === btn));
-      renderAlbums();
-    });
-  });
+function updateBar() {
+  const badge = $('galFilterBadge');
+  if (badge) {
+    badge.textContent = String(state.types.length);
+    badge.hidden = state.types.length === 0;
+  }
+  const label = $('galYearLabel');
+  if (label) label.textContent = state.year === '' ? 'Todos' : String(state.year);
 }
 
-function renderTypePills() {
-  const root = $('galTypePills');
-  if (!root) return;
-  const chips = [`<button class="gal-chip active" data-gal-type="">Todos</button>`]
-    .concat(EVENT_TYPES.map(t =>
-      `<button class="gal-chip ${state.type === t.value ? 'active' : ''}" data-gal-type="${t.value}">${escapeHtml(t.label)}</button>`
-    ));
-  root.innerHTML = chips.join('');
-  root.querySelectorAll('[data-gal-type]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.type = btn.dataset.galType;
-      root.querySelectorAll('.gal-chip').forEach(b => b.classList.toggle('active', b === btn));
-      renderAlbums();
-    });
-  });
+/* ── Modal helpers ────────────────────────────────────────────────────────── */
+
+function showModal(id) {
+  const m = $(id);
+  if (m) { m.hidden = false; document.body.classList.add('gal-modal-open'); }
+}
+function hideModals() {
+  ['galFilterPop', 'galYearPop'].forEach(id => { const m = $(id); if (m) m.hidden = true; });
+  document.body.classList.remove('gal-modal-open');
 }
 
-/* ── Albums rendering ─────────────────────────────────────────────────── */
+/* ── Filter popup (search + type checkboxes) ──────────────────────────────── */
+
+function buildTypeChecks() {
+  const root = $('galTypeChecks');
+  if (!root) return;
+  root.innerHTML = EVENT_TYPES.map(t => `
+    <label class="gal-check">
+      <input type="checkbox" value="${t.value}" ${state.types.includes(t.value) ? 'checked' : ''}>
+      <span class="gal-check__box"><i class="fas fa-check"></i></span>
+      <i class="fas ${t.icon} gal-check__type-icon" aria-hidden="true"></i>
+      <span class="gal-check__label">${escapeHtml(t.label)}</span>
+    </label>
+  `).join('');
+}
+
+function openFilter() {
+  buildTypeChecks();
+  const s = $('galSearch');
+  if (s) s.value = state.search;
+  showModal('galFilterPop');
+}
+
+function applyFilter() {
+  state.types  = [...$('galTypeChecks').querySelectorAll('input:checked')].map(i => i.value);
+  state.search = ($('galSearch')?.value || '').trim();
+  hideModals();
+  updateBar();
+  renderAlbums();
+}
+
+function clearFilter() {
+  $('galTypeChecks')?.querySelectorAll('input').forEach(i => { i.checked = false; });
+  const s = $('galSearch');
+  if (s) s.value = '';
+}
+
+/* ── Year picker — iOS-style wheel ────────────────────────────────────────── */
+
+const ROW_H = 44;
+let wheelYears = [];   // e.g. ['', 2026, 2025, 2024]
+
+function buildYearWheel(years) {
+  // "Todos los años" first, then the current year, then any other years.
+  wheelYears = ['', CURRENT_YEAR, ...years.filter(y => y !== CURRENT_YEAR)];
+  const scroll = $('galYearScroll');
+  if (!scroll) return;
+  const spacer = '<div class="gal-wheel__spacer"></div>';
+  scroll.innerHTML = spacer + wheelYears.map(y =>
+    `<div class="gal-wheel__item" data-year="${y}">${y === '' ? 'Todos los años' : y}</div>`
+  ).join('') + spacer;
+}
+
+function wheelIndexOf(year) {
+  const i = wheelYears.findIndex(y => String(y) === String(year));
+  return i < 0 ? 1 : i;   // fall back to the current-year row
+}
+
+function markWheel() {
+  const scroll = $('galYearScroll');
+  if (!scroll) return;
+  const idx = Math.round(scroll.scrollTop / ROW_H);
+  scroll.querySelectorAll('.gal-wheel__item').forEach((el, i) =>
+    el.classList.toggle('is-active', i === idx));
+}
+
+function openYear() {
+  showModal('galYearPop');
+  const scroll = $('galYearScroll');
+  if (!scroll) return;
+  // Let the modal lay out, then centre the wheel on the active year.
+  setTimeout(() => {
+    scroll.scrollTop = wheelIndexOf(state.year) * ROW_H;
+    markWheel();
+  }, 40);
+}
+
+function applyYear() {
+  const scroll = $('galYearScroll');
+  if (scroll) {
+    const idx = Math.min(wheelYears.length - 1,
+                Math.max(0, Math.round(scroll.scrollTop / ROW_H)));
+    state.year = wheelYears[idx];
+  }
+  hideModals();
+  updateBar();
+  renderAlbums();
+}
+
+/* ── Album card ───────────────────────────────────────────────────────────── */
 
 const PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%23eef5f6" width="400" height="300"/><text x="50%25" y="50%25" font-family="sans-serif" font-size="14" fill="%23736960" text-anchor="middle" dominant-baseline="middle">Sin foto de portada</text></svg>`)}`;
 
@@ -75,8 +149,6 @@ function albumCard(a, { isRecent = false } = {}) {
     ? `/galeria/album/?slug=${encodeURIComponent(a.slug)}`
     : `/galeria/album/?id=${encodeURIComponent(a.id)}`;
 
-  // Pick the highest-quality cover available. Older albums may still have a
-  // 400px thumbnail in cover_url — that's fine, it will still render here.
   const cover = a.cover_url || PLACEHOLDER;
   const typeLabel = a.event_type ? EVENT_TYPE_LABEL[a.event_type] : '';
   const dateLabel = a.event_date ? formatEventDate(a.event_date) : `Año ${a.year}`;
@@ -104,14 +176,16 @@ function albumCard(a, { isRecent = false } = {}) {
     </a>`;
 }
 
+/* ── Filtering + rendering ────────────────────────────────────────────────── */
+
 function filtered() {
   const q = state.search.trim().toLowerCase();
   return state.all.filter(a => {
-    if (state.year && String(a.year) !== String(state.year)) return false;
-    if (state.type && a.event_type !== state.type) return false;
+    if (state.year !== '' && String(a.year) !== String(state.year)) return false;
+    if (state.types.length && !state.types.includes(a.event_type)) return false;
     if (q) {
-      const haystack = `${a.title || ''} ${a.description || ''} ${EVENT_TYPE_LABEL[a.event_type] || ''}`.toLowerCase();
-      if (!haystack.includes(q)) return false;
+      const hay = `${a.title || ''} ${a.description || ''} ${EVENT_TYPE_LABEL[a.event_type] || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
@@ -129,27 +203,22 @@ function renderAlbums() {
   if (!root) return;
 
   const recentId = mostRecentAlbumId(state.all);
-  // The most-recent album has its own "Más reciente" strip above, so it is
-  // excluded from the year grid here — it is never shown twice.
+  // The most-recent album has its own "Más reciente" strip, so it is excluded
+  // from the year grid here — it is never shown twice.
   const visible = filtered().filter(a => a.id !== recentId);
 
   if (!visible.length) {
-    const hasFilter = !!(state.year || state.type || state.search.trim());
-    if (!state.all.length) {
-      root.innerHTML = `
-        <div class="gal-empty">
-          <i class="fas fa-camera-retro"></i>
-          <p>Aún no hay álbumes en la galería.</p>
-        </div>`;
-    } else if (hasFilter) {
-      root.innerHTML = `
-        <div class="gal-empty">
-          <i class="fas fa-camera-retro"></i>
-          <p>Aún no hay álbumes que coincidan con tu búsqueda.</p>
-        </div>`;
-    } else {
-      root.innerHTML = '';   // only the most-recent album exists — shown above
+    let msg = 'Aún no hay álbumes en la galería.';
+    if (state.all.length) {
+      msg = (state.year !== '' && !state.types.length && !state.search.trim())
+        ? `No hay álbumes de ${state.year}.`
+        : 'No hay álbumes que coincidan con tu filtro.';
     }
+    root.innerHTML = `
+      <div class="gal-empty">
+        <i class="fas fa-camera-retro"></i>
+        <p>${escapeHtml(msg)}</p>
+      </div>`;
     renderRecent(state.all, recentId);
     return;
   }
@@ -181,46 +250,60 @@ function renderAlbums() {
   renderRecent(state.all, recentId);
 }
 
-/** Highlight the single most-recent album (by event_date) at the top of the page. */
+/** Highlight the single most-recent album at the top of the page. */
 function renderRecent(albums, recentId) {
-  const wrap   = $('galFeatured');
-  const strip  = $('galFeaturedStrip');
+  const wrap  = $('galFeatured');
+  const strip = $('galFeaturedStrip');
   if (!wrap || !strip) return;
   const recent = albums.find(a => a.id === recentId);
   if (!recent) { wrap.hidden = true; return; }
   wrap.hidden = false;
-  // Update the section heading from "DESTACADOS" → "MÁS RECIENTE"
   const heading = wrap.querySelector('.centered-text-block__subtitle');
   if (heading) heading.textContent = 'EL EVENTO MÁS RECIENTE';
   strip.innerHTML = albumCard(recent, { isRecent: true });
 }
 
-/* ── Search input ────────────────────────────────────────────────────── */
-function wireSearch() {
-  const input = $('galSearch');
-  if (!input) return;
-  let t;
-  input.addEventListener('input', (e) => {
-    clearTimeout(t);
-    t = setTimeout(() => {
-      state.search = e.target.value || '';
-      renderAlbums();
-    }, 150);
-  });
+/* ── Wiring ───────────────────────────────────────────────────────────────── */
+
+function initFilters() {
+  $('galFilterBtn')?.addEventListener('click', openFilter);
+  $('galYearBtn')?.addEventListener('click', openYear);
+  $('galFilterApply')?.addEventListener('click', applyFilter);
+  $('galFilterClear')?.addEventListener('click', clearFilter);
+  $('galYearApply')?.addEventListener('click', applyYear);
+  $('galSearch')?.addEventListener('keydown', e => { if (e.key === 'Enter') applyFilter(); });
+
+  document.querySelectorAll('[data-gal-close]').forEach(el =>
+    el.addEventListener('click', hideModals));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideModals(); });
+
+  const scroll = $('galYearScroll');
+  if (scroll) {
+    let raf = 0;
+    scroll.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(markWheel);
+    });
+    scroll.addEventListener('click', e => {
+      const item = e.target.closest('.gal-wheel__item');
+      if (!item) return;
+      const items = [...scroll.querySelectorAll('.gal-wheel__item')];
+      scroll.scrollTo({ top: items.indexOf(item) * ROW_H, behavior: 'smooth' });
+    });
+  }
 }
 
-/* ── Boot ─────────────────────────────────────────────────────────────── */
+/* ── Boot ─────────────────────────────────────────────────────────────────── */
 
 async function reload() {
   state.all = await fetchAlbums();
-  const years = await fetchAvailableYears();
-  renderYearPills(years);
+  buildYearWheel(await fetchAvailableYears());
   renderAlbums();
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-  renderTypePills();
-  wireSearch();
+  initFilters();
+  updateBar();
   await reload();
   subscribeAlbums(reload);
 });
