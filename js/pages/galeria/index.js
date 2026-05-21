@@ -128,15 +128,28 @@ function renderAlbums() {
   const root = $('galYears');
   if (!root) return;
 
-  const visible = filtered();
   const recentId = mostRecentAlbumId(state.all);
+  // The most-recent album has its own "Más reciente" strip above, so it is
+  // excluded from the year grid here — it is never shown twice.
+  const visible = filtered().filter(a => a.id !== recentId);
 
   if (!visible.length) {
-    root.innerHTML = `
-      <div class="gal-empty">
-        <i class="fas fa-camera-retro"></i>
-        <p>Aún no hay álbumes que coincidan con tu búsqueda.</p>
-      </div>`;
+    const hasFilter = !!(state.year || state.type || state.search.trim());
+    if (!state.all.length) {
+      root.innerHTML = `
+        <div class="gal-empty">
+          <i class="fas fa-camera-retro"></i>
+          <p>Aún no hay álbumes en la galería.</p>
+        </div>`;
+    } else if (hasFilter) {
+      root.innerHTML = `
+        <div class="gal-empty">
+          <i class="fas fa-camera-retro"></i>
+          <p>Aún no hay álbumes que coincidan con tu búsqueda.</p>
+        </div>`;
+    } else {
+      root.innerHTML = '';   // only the most-recent album exists — shown above
+    }
     renderRecent(state.all, recentId);
     return;
   }
@@ -160,7 +173,7 @@ function renderAlbums() {
         </span>
       </header>
       <div class="gal-album-grid">
-        ${byYear.get(y).map(a => albumCard(a, { isRecent: a.id === recentId })).join('')}
+        ${byYear.get(y).map(a => albumCard(a)).join('')}
       </div>
     </div>
   `).join('');

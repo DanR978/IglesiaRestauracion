@@ -122,7 +122,7 @@
   padding: 0 var(--pd-md, 1.25rem) 1rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 360px));
-  justify-content: start;
+  justify-content: center;
   gap: 1rem;
 }
 
@@ -168,14 +168,21 @@
 }
 
 /* ── Album cards grid ────────────────────────────────────────────────── */
-/* auto-fill (not auto-fit) keeps empty tracks so a single card doesn't
-   stretch to the full width. The 360px max cap keeps cards at a sensible
-   size, and justify-content:start aligns them to the left edge.            */
+/* auto-fill + a 360px cap keeps cards a sensible size on wide screens;
+   centering keeps a partial last row balanced instead of left-hugging.
+   On phones the grid drops to one full-width column (see media query). */
 .gal-album-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 360px));
-  justify-content: start;
+  justify-content: center;
   gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .gal-album-grid,
+  .gal-featured__strip {
+    grid-template-columns: 1fr;
+  }
 }
 
 .gal-album {

@@ -184,8 +184,12 @@ function fillMinistrySelect() {
 }
 
 function toggleMinistry() {
-  document.getElementById('invMinistryGroup').hidden =
-    document.getElementById('invRole').value !== 'ministry_leader';
+  const isLeader = document.getElementById('invRole').value === 'ministry_leader';
+  // A ministry leader is scoped to one ministry; an admin spans them all,
+  // so the ministry picker is hidden (and never saved) for admins.
+  document.getElementById('invMinistryGroup').hidden = !isLeader;
+  const note = document.getElementById('invAdminNote');
+  if (note) note.hidden = isLeader;
 }
 
 function setModalErr(msg) {
