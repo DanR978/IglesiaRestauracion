@@ -10,7 +10,7 @@ function setErr(msg) {
   const el = document.getElementById('accountError');
   if (!el) return;
   el.textContent = msg || '';
-  el.style.display = msg ? '' : 'none';
+  el.style.display = msg ? 'block' : 'none';
 }
 
 function openAccount() {

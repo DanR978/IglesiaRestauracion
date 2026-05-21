@@ -191,7 +191,7 @@ function toggleMinistry() {
 function setModalErr(msg) {
   const el = document.getElementById('userModalError');
   el.textContent = msg || '';
-  el.style.display = msg ? '' : 'none';
+  el.style.display = msg ? 'block' : 'none';
 }
 
 function openInvite() {
