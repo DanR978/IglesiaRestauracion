@@ -1,7 +1,9 @@
 /* sections/latest-gallery.css — homepage "Galería" teaser (centered carousel) */
 
 .home-gallery {
+  width: 100%;
   max-width: 1140px;
+  min-width: 0;            /* allow the flex item to shrink → no h-overflow */
   margin: 0 auto;
   padding: 0 var(--pd-md, 1.25rem);
   text-align: center;
@@ -11,7 +13,7 @@
   margin: 0 0 0.4rem;
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
-  font-size: 0.78rem;
+  font-size: var(--fs-xs);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--color-secondary);
@@ -21,7 +23,7 @@
   margin: 0 0 1.7rem;
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
-  font-size: clamp(1.6rem, 1rem + 2.4vw, 2.45rem);
+  font-size: var(--fs-2xl);
   line-height: 1.2;
   color: var(--color-primary);
 }
