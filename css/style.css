@@ -4033,6 +4033,157 @@ body.no-scroll {
 #header[data-hero-size="page"] + .hero-content {
   top: 20% !important;
 }
+/* -- sections latest-gallery -- */
+/* sections/latest-gallery.css — homepage "Galería" teaser */
+
+.home-gallery {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem);
+  text-align: center;
+}
+
+.home-gallery__kicker {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+
+.home-gallery__title {
+  margin: 0 0 1.6rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.6rem, 1rem + 2.4vw, 2.45rem);
+  line-height: 1.2;
+  color: var(--color-primary);
+}
+
+.home-gallery__showcase { text-align: left; }
+
+.home-gallery__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  color: var(--color-muted);
+  font-size: 1.4rem;
+}
+
+/* ── Photo tiles ─────────────────────────────────────────────────────── */
+.hg-tile {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-md, 0.7rem);
+  background: var(--gray-20);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.hg-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hg-tile:hover img { transform: scale(1.07); }
+
+/* "+N fotos" overlay on the last mosaic tile */
+.hg-tile__more {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 32, 38, 0.62);
+  color: #fff;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 1.9rem;
+  line-height: 1;
+}
+.hg-tile__more small {
+  margin-top: 0.25rem;
+  font-size: 0.62rem;
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* ── Mosaic: 1 lead + 4 supporting (album with 5+ photos) ────────────── */
+.hg-mosaic {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 0.7rem;
+  aspect-ratio: 16 / 9;
+}
+.hg-tile--lead { grid-column: 1; grid-row: 1 / span 2; }
+
+/* ── Even grid: album with 1–4 photos ────────────────────────────────── */
+.hg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.7rem;
+}
+.hg-grid .hg-tile { aspect-ratio: 4 / 3; }
+
+/* ── Caption bar ─────────────────────────────────────────────────────── */
+.hg-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  margin-top: 1.15rem;
+}
+.hg-caption__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+}
+.hg-caption__album {
+  margin: 0.35rem 0 0.15rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 1.4rem;
+  line-height: 1.25;
+  color: var(--color-primary);
+}
+.hg-caption__meta {
+  margin: 0;
+  font-family: var(--font-Geist);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+}
+.hg-caption .ird-btn { flex-shrink: 0; }
+
+/* ── Mobile ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .hg-mosaic {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: none;
+    aspect-ratio: auto;
+  }
+  .hg-tile--lead { grid-column: 1 / -1; grid-row: auto; aspect-ratio: 16 / 10; }
+  .hg-mosaic .hg-tile:not(.hg-tile--lead) { aspect-ratio: 1; }
+
+  .hg-caption { justify-content: center; text-align: center; }
+  .hg-caption__tag { justify-content: center; }
+  .hg-caption .ird-btn { width: 100%; }
+}
+
 /* -- sections live-stream -- */
 /* .live-wrapper {
     display: grid;
