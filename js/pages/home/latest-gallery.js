@@ -1,15 +1,27 @@
 // js/pages/home/latest-gallery.js
 // ─────────────────────────────────────────────────────────────────────────────
-// Homepage "Galería" teaser — features the most recent album as a centered,
-// swipeable photo carousel: big tiles, one always snapped to centre, scroll
-// left/right (arrows on desktop, swipe on touch).
+// Homepage "Galería" teaser — editorial split feature.
+//
+//   ┌──────────────────────┐  ┌──────────────┐
+//   │                      │  │ Album title  │
+//   │     Feature cover    │  │ Date · count │
+//   │     (cinematic)      │  │ ──────────── │
+//   │                      │  │ thumb thumb  │
+//   │                      │  │ thumb thumb  │
+//   │                      │  │              │
+//   │                      │  │  Ver más  →  │
+//   └──────────────────────┘  └──────────────┘
+//
+// One LARGE feature photo on the left (cover), and on the right: album meta +
+// 4 small supporting thumbnails + a minimal underline CTA. Light background,
+// editorial spacing — sits naturally between Discipulado and Donation.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
   fetchAlbums, fetchPhotos, formatEventDate, EVENT_TYPE_LABEL,
 } from '/js/lib/gallery.js';
 
-const MAX_TILES = 8;
+const THUMB_COUNT = 4;     // supporting thumbnails shown beside the feature
 
 const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -21,13 +33,8 @@ function albumUrl(a) {
     : `/galeria/album/?id=${encodeURIComponent(a.id)}`;
 }
 
-function tile(photo, href, overlay = '') {
-  const src = photo.webp_url || photo.public_url || photo.thumbnail_url;
-  return `
-    <a class="hg-tile" href="${href}" aria-label="Ver álbum">
-      <img src="${esc(src)}" alt="" loading="lazy" decoding="async">
-      ${overlay}
-    </a>`;
+function pickSrc(photo) {
+  return photo?.webp_url || photo?.public_url || photo?.thumbnail_url || '';
 }
 
 function render(album, photos) {
@@ -39,65 +46,67 @@ function render(album, photos) {
   const dateLabel = album.event_date ? formatEventDate(album.event_date) : `Año ${album.year}`;
   const typeLabel = album.event_type ? (EVENT_TYPE_LABEL[album.event_type] || '') : '';
 
-  const shown = photos.slice(0, MAX_TILES);
-  const extra = photos.length - shown.length;
-  const tiles = shown.map((p, i) => tile(p, href,
-    (i === shown.length - 1 && extra > 0)
-      ? `<span class="hg-tile__more">+${extra}<small>fotos</small></span>`
-      : ''
-  )).join('');
+  const feature  = photos[0];
+  const sidekick = photos.slice(1, 1 + THUMB_COUNT);
+  const extra    = Math.max(0, total - 1 - sidekick.length);
 
   root.innerHTML = `
-    <div class="hg-rail-wrap">
-      <button type="button" class="hg-arrow hg-arrow--prev" aria-label="Foto anterior">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div class="hg-rail" id="hgRail">${tiles}</div>
-      <button type="button" class="hg-arrow hg-arrow--next" aria-label="Foto siguiente">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
-    <div class="hg-caption">
-      <span class="hg-caption__tag"><i class="fas fa-clock"></i> Lo más reciente</span>
-      <h3 class="hg-caption__album">${esc(album.title)}</h3>
-      <p class="hg-caption__meta">
-        ${typeLabel ? esc(typeLabel) + ' · ' : ''}${esc(dateLabel)}
-        · ${total} ${total === 1 ? 'foto' : 'fotos'}
-      </p>
-      <a class="ird-btn ird-btn--teal" href="galeria">VER TODA LA GALERÍA</a>
+    <div class="hg-spread">
+
+      <!-- Feature cover -->
+      <a class="hg-feature" href="${href}" aria-label="Ver álbum ${esc(album.title)}">
+        <div class="hg-feature__frame">
+          <img src="${esc(pickSrc(feature))}"
+               alt="${esc(album.title)}"
+               loading="lazy"
+               decoding="async">
+          <div class="hg-feature__shade"></div>
+          ${typeLabel ? `<span class="hg-feature__tag">${esc(typeLabel)}</span>` : ''}
+        </div>
+      </a>
+
+      <!-- Caption + supporting thumbs + CTA -->
+      <aside class="hg-side">
+        <p class="hg-side__meta">
+          <span class="hg-side__dot" aria-hidden="true"></span>
+          Álbum más reciente · ${esc(dateLabel)}
+        </p>
+
+        <h3 class="hg-side__title">${esc(album.title)}</h3>
+
+        <p class="hg-side__count">
+          ${total} ${total === 1 ? 'foto' : 'fotos'}${typeLabel ? ` · ${esc(typeLabel)}` : ''}
+        </p>
+
+        ${sidekick.length ? `
+          <div class="hg-side__strip">
+            ${sidekick.map((p, i) => `
+              <a class="hg-thumb" href="${href}" aria-label="Ver más fotos">
+                <img src="${esc(pickSrc(p))}" alt="" loading="lazy" decoding="async">
+                ${(i === sidekick.length - 1 && extra > 0)
+                    ? `<span class="hg-thumb__more">+${extra}</span>`
+                    : ''}
+              </a>
+            `).join('')}
+          </div>` : ''}
+
+        <a class="hg-cta" href="/galeria">
+          <span>Ver galería completa</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="13 6 19 12 13 18"/>
+          </svg>
+        </a>
+      </aside>
+
     </div>`;
-
-  wireRail();
-}
-
-function wireRail() {
-  const rail = document.getElementById('hgRail');
-  if (!rail) return;
-  const wrap = rail.closest('.hg-rail-wrap');
-
-  const stepBy = () => {
-    const t = rail.querySelector('.hg-tile');
-    return (t ? t.getBoundingClientRect().width : rail.clientWidth * 0.8) + 14;
-  };
-  document.querySelector('.hg-arrow--prev')
-    ?.addEventListener('click', () => rail.scrollBy({ left: -stepBy(), behavior: 'smooth' }));
-  document.querySelector('.hg-arrow--next')
-    ?.addEventListener('click', () => rail.scrollBy({ left:  stepBy(), behavior: 'smooth' }));
-
-  // Hide the arrows when every photo already fits (nothing to scroll).
-  const syncArrows = () => {
-    const scrollable = rail.scrollWidth - rail.clientWidth > 4;
-    if (wrap) wrap.classList.toggle('hg-rail-wrap--static', !scrollable);
-  };
-  requestAnimationFrame(syncArrows);
-  window.addEventListener('resize', syncArrows);
 }
 
 async function initHomeGallery() {
   const section = document.getElementById('homeGallerySection');
   if (!section) return;
   try {
-    const albums = await fetchAlbums();          // published, newest first
+    const albums = await fetchAlbums();
     const album  = albums[0];
     if (!album) { section.hidden = true; return; }
 
@@ -106,11 +115,10 @@ async function initHomeGallery() {
 
     render(album, photos);
 
-    // Reveal the section now that real content is in place. Its kicker,
-    // title and showcase carry `.animate-fade-in` (opacity:0 until the
-    // global scroll-reveal observer adds `.visible`). On mobile that
-    // observer could leave them stuck at opacity:0 — a blank white void —
-    // so reveal them deterministically once the carousel has rendered.
+    // The kicker/title/showcase carry .animate-fade-in (opacity:0 until the
+    // global scroll-reveal observer kicks in). Reveal them deterministically
+    // once the layout is in place — avoids a blank section if the observer
+    // hasn't fired yet on small viewports.
     section.querySelectorAll('.animate-fade-in')
       .forEach((el) => el.classList.add('visible'));
   } catch (e) {

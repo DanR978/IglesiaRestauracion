@@ -79,7 +79,7 @@
 }
 
 .dscp-card__status--open      { color: var(--color-success); background: rgba(22,163,74,.10); }
-.dscp-card__status--active    { color: var(--color-primary); background: rgba(52,90,101,.10); }
+.dscp-card__status--active    { color: var(--color-dark); background: rgba(52,90,101,.10); }
 .dscp-card__status--completed { color: var(--gray-100);      background: var(--gray-30); }
 .dscp-card__status--cancelled { color: var(--color-danger);  background: rgba(220,38,38,.10); }
 
@@ -88,7 +88,7 @@
   font-family: var(--font-Signika);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .dscp-card__meta {
@@ -159,7 +159,7 @@
   color: var(--color-secondary);
 }
 
-.dscp-member__name { font-weight: 600; color: var(--color-primary); }
+.dscp-member__name { font-weight: 600; color: var(--color-dark); }
 .dscp-member__email,
 .dscp-member__phone { color: var(--color-muted); font-size: 0.8rem; }
 
@@ -196,8 +196,8 @@
   transition: all 0.2s ease;
 }
 
-.filter-pill:hover  { border-color: var(--color-secondary); color: var(--color-primary); }
-.filter-pill.active { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-white); }
+.filter-pill:hover  { border-color: var(--color-secondary); color: var(--color-dark); }
+.filter-pill.active { background: var(--color-dark); border-color: var(--color-dark); color: var(--color-white); }
 
 /* Interest row */
 .dscp-int {
@@ -221,7 +221,7 @@
   font-family: var(--font-Signika);
   font-size: 1rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .dscp-int__date {
@@ -241,7 +241,7 @@
 
 .dscp-int__status--pending  { color: var(--color-warn);    background: rgba(217,119,6,.10); }
 .dscp-int__status--approved { color: var(--color-success); background: rgba(22,163,74,.10); }
-.dscp-int__status--placed   { color: var(--color-primary); background: rgba(52,90,101,.10); }
+.dscp-int__status--placed   { color: var(--color-dark); background: rgba(52,90,101,.10); }
 .dscp-int__status--declined { color: var(--color-danger);  background: rgba(220,38,38,.10); }
 
 .dscp-int__contact {
@@ -255,7 +255,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  color: var(--color-primary);
+  color: var(--color-dark);
   text-decoration: none;
 }
 
@@ -272,7 +272,7 @@
   display: inline-block;
   margin-left: 0.5rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .dscp-int__msg {
@@ -381,7 +381,7 @@ body.is-staff [data-staff-only] { display: inline-flex; }
   margin: 0 0 0.25rem;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .dscp-qr__head p {
@@ -464,8 +464,8 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 .dscp-int__chip--warn { background: rgba(217, 119, 6, 0.10); color: var(--color-warn); }
 .dscp-int__chip--warn i { color: var(--color-warn); }
 
-.dscp-int__chip--addr { background: rgba(52, 90, 101, 0.08); color: var(--color-primary); }
-.dscp-int__chip--addr i { color: var(--color-primary); }
+.dscp-int__chip--addr { background: rgba(52, 90, 101, 0.08); color: var(--color-dark); }
+.dscp-int__chip--addr i { color: var(--color-dark); }
 
 .dscp-int__chip--soft { background: var(--gray-30); color: var(--color-muted); }
 
@@ -506,10 +506,10 @@ body.is-staff [data-staff-only] { display: inline-flex; }
   transition: background-color 0.18s ease, color 0.18s ease;
 }
 
-.dscp-pool__origin-btn:hover { color: var(--color-primary); }
+.dscp-pool__origin-btn:hover { color: var(--color-dark); }
 
 .dscp-pool__origin-btn.active {
-  background: var(--color-primary);
+  background: var(--color-dark);
   color: var(--color-white);
 }
 
@@ -576,7 +576,7 @@ body.is-staff [data-staff-only] { display: inline-flex; }
   font-family: var(--font-Signika);
   font-weight: 700;
   font-size: 0.92rem;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .dscp-pool__group summary::-webkit-details-marker { display: none; }
@@ -647,8 +647,8 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 }
 
 .dscp-int__check input:checked + span {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  background: var(--color-dark);
+  border-color: var(--color-dark);
 }
 
 .dscp-int__check input:checked + span::after {
@@ -664,7 +664,7 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 }
 
 .dscp-int--selected {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   box-shadow: 0 0 0 2px rgba(52, 90, 101, 0.10);
 }
 
@@ -678,7 +678,7 @@ body.is-staff [data-staff-only] { display: inline-flex; }
   justify-content: space-between;
   gap: 1rem;
   padding: 0.7rem 1rem;
-  background: var(--color-primary);
+  background: var(--color-dark);
   color: var(--color-white);
   border-radius: var(--radius-lg, 1rem);
   box-shadow: 0 8px 28px rgba(52, 90, 101, 0.30);
@@ -718,7 +718,7 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 
 .dscp-bulk-bar__actions .btn--primary {
   background: var(--color-white);
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .dscp-bulk-bar__actions .btn--primary:hover {

@@ -24,8 +24,8 @@
 }
 
 .cal-nav__btn:hover {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  background: var(--color-dark);
+  border-color: var(--color-dark);
   color: var(--color-white);
 }
 

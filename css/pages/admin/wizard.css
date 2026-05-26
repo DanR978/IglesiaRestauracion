@@ -47,7 +47,7 @@
   transition: background .3s;
 }
 .wizard__progress-dot.active {
-  background: var(--color-primary, #345a65);
+  background: var(--color-dark, #394548);
 }
 .wizard__progress-dot.done {
   background: var(--color-add, #72BB72);
@@ -72,7 +72,7 @@
   background: var(--color-bg-light, #fff);
 }
 .wiz-type-card:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(52,90,101,.12);
 }
@@ -81,7 +81,7 @@
   display: block;
 }
 .wiz-type-card.type-special i { color: var(--color-secondary); }
-.wiz-type-card.type-regular i { color: var(--color-primary); }
+.wiz-type-card.type-regular i { color: var(--color-dark); }
 .wiz-type-card__title {
   font-weight: 700; font-size: .95rem;
   margin-bottom: .3rem;
@@ -103,11 +103,11 @@
   background: var(--color-bg-light, #fff);
 }
 .wiz-preset-card:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   transform: translateY(-2px);
 }
 .wiz-preset-card.selected {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   box-shadow: 0 0 0 2px rgba(52,90,101,.2);
 }
 .wiz-preset-card__img {
@@ -133,7 +133,7 @@
 }
 .wiz-cat-card:hover { transform: translateY(-2px); }
 .wiz-cat-card.selected {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   box-shadow: 0 0 0 2px rgba(52,90,101,.15);
 }
 .wiz-cat-card__dot {
@@ -165,7 +165,7 @@
   transition: border-color .2s;
 }
 .wiz-field input:focus, .wiz-field textarea:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   outline: none;
 }
 .wiz-field .wiz-hint {
@@ -262,7 +262,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .08em;
-  color: var(--color-primary);
+  color: var(--color-dark);
   margin-bottom: .55rem;
 }
 .dwiz-review__row {
@@ -309,12 +309,12 @@
 }
 
 .gwiz-type-card:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   transform: translateY(-2px);
 }
 
 .gwiz-type-card.selected {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   background: rgba(52, 90, 101, .06);
   box-shadow: 0 0 0 2px rgba(52, 90, 101, .15);
 }
@@ -325,7 +325,7 @@
 }
 
 .gwiz-type-card.selected i {
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .gwiz-type-card__name {

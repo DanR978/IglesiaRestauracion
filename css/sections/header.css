@@ -183,6 +183,13 @@
 }
 
 
+/* ═══════════════════════════════════════════════════════════════
+   SUBMENU — base rule
+   ───────────────────────────────────────────────────────────────
+   Intentionally minimal. The mobile @media block below overrides
+   position/transform; the desktop hover redesign lives entirely
+   inside @media (min-width: 769px) so it can't leak to mobile.
+   ═══════════════════════════════════════════════════════════════ */
 .submenu {
   position: absolute;
   top: calc(100% + 0.75rem);
@@ -225,7 +232,6 @@
 .submenu li a:hover {
   background-color: var(--color-dark);
   border-radius: 15px;
-  transition: background-color 0.3s ease;
 }
 
 body.no-scroll {
@@ -335,7 +341,7 @@ body.no-scroll {
     z-index: calc(var(--z-modal, 100) + 10);
   }
 
-  .burger.open .bar { background: var(--color-primary, #345a65); }
+  .burger.open .bar { background: var(--color-dark, #394548); }
   .burger.open .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
   .burger.open .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
   .burger.open .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
@@ -365,7 +371,7 @@ body.no-scroll {
     z-index: var(--z-modal, 100);
     margin: 0;
     background: #ffffff;
-    color: var(--color-primary, #345a65);
+    color: var(--color-dark, #394548);
     display: flex;
     flex-direction: column;
     transform: translateX(100%);
@@ -413,7 +419,7 @@ body.no-scroll {
   }
   .menu::-webkit-scrollbar { display: none; }
 
-  .menu-item { width: 100%; padding: 0; color: var(--color-primary); }
+  .menu-item { width: 100%; padding: 0; color: var(--color-dark); }
 
   /* Category row — centered horizontally (text + chevron together in the middle) */
   .accordion-toggle {
@@ -426,7 +432,7 @@ body.no-scroll {
     padding: 0.85rem 0;
     background: transparent;
     border: 0;
-    color: var(--color-primary, #345a65);
+    color: var(--color-dark, #394548);
     font-family: var(--font-Signika, inherit);
     font-size: 1.7rem;
     font-weight: var(--fw-bold);
@@ -436,12 +442,20 @@ body.no-scroll {
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     pointer-events: auto;
+    outline: none;                   /* kill black focus border on tap */
     transition: color 0.22s ease;
+  }
+
+  /* Keyboard-only focus ring (taps don't show this) */
+  .accordion-toggle:focus-visible {
+    outline: 2px solid var(--color-secondary, #c89858);
+    outline-offset: 4px;
+    border-radius: 6px;
   }
 
   .accordion-toggle:hover,
   .accordion-toggle:focus-visible,
-  .accordion-toggle:active { color: var(--color-secondary, #d98c59); }
+  .accordion-toggle:active { color: var(--color-secondary, #c89858); }
 
   .accordion-toggle .chevron-icon {
     display: block;
@@ -484,14 +498,14 @@ body.no-scroll {
     padding: 1.05rem 1.5rem;
     border: 0;
     border-radius: 999px;
-    background: var(--color-secondary, #d98c59);
+    background: var(--color-secondary, #c89858);
     color: var(--color-white);
     font-size: 0.95rem;
     font-weight: var(--fw-bold);
     letter-spacing: 0.18em;
     text-align: center;
     text-decoration: none;
-    box-shadow: 0 12px 32px rgba(217, 140, 89, 0.32);
+    box-shadow: 0 12px 32px rgba(200, 152, 88, 0.32);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
 
@@ -504,7 +518,7 @@ body.no-scroll {
   .menu-donate .ird-btn--donate:hover,
   .menu-donate .ird-btn--donate:focus-visible {
     transform: translateY(-2px);
-    box-shadow: 0 16px 40px rgba(217, 140, 89, 0.42);
+    box-shadow: 0 16px 40px rgba(200, 152, 88, 0.42);
     color: var(--color-white);
     text-decoration: none;
   }
@@ -524,7 +538,12 @@ body.no-scroll {
     margin: 0;
     list-style: none;
     background: #ffffff;
-    color: var(--color-primary, #345a65);
+    color: var(--color-dark, #394548);
+    /* Reset the visibility/opacity from the desktop submenu rule so the
+       mobile pane is actually rendered (the desktop rule hides it for the
+       hover-dropdown animation, but mobile uses its own slide-in pattern). */
+    visibility: visible;
+    opacity: 1;
     transform: translateX(100%);
     transition: transform 0.32s cubic-bezier(.4, 0, .2, 1);
     overflow-y: auto;
@@ -603,7 +622,7 @@ body.no-scroll {
     padding: 0.4rem 0.3rem 0.4rem 0;
     background: transparent;
     border: 0;
-    color: var(--color-primary, #345a65);
+    color: var(--color-dark, #394548);
     font-family: inherit;
     font-size: 0.72rem;
     font-weight: var(--fw-bold);
@@ -616,14 +635,14 @@ body.no-scroll {
   }
 
   .submenu-back i {
-    color: var(--color-secondary, #d98c59);
+    color: var(--color-secondary, #c89858);
     font-size: 0.8rem;
     transition: transform 0.22s ease;
   }
 
   .submenu-back:hover,
   .submenu-back:focus-visible,
-  .submenu-back:active { color: var(--color-secondary, #d98c59); }
+  .submenu-back:active { color: var(--color-secondary, #c89858); }
   .submenu-back:hover i,
   .submenu-back:focus-visible i,
   .submenu-back:active i { transform: translateX(-4px); }
@@ -659,7 +678,7 @@ body.no-scroll {
     margin: 0;
     padding: 0.65rem 0;
     background: transparent;
-    color: var(--color-primary, #345a65);
+    color: var(--color-dark, #394548);
     font-family: var(--font-Signika, inherit);
     font-size: 1.55rem;
     font-weight: var(--fw-bold);
@@ -684,7 +703,7 @@ body.no-scroll {
   .submenu li:not(.submenu__head) a:hover,
   .submenu li:not(.submenu__head) a:focus-visible,
   .submenu li:not(.submenu__head) a:active {
-    color: var(--color-secondary, #d98c59);
+    color: var(--color-secondary, #c89858);
     background: transparent;
     padding-left: 0;
   }
@@ -697,14 +716,143 @@ body.no-scroll {
   }
 }
 
-/* Desktop: hover dropdowns */
+/* ═══════════════════════════════════════════════════════════════
+   DESKTOP SUBMENU — cinematic glass-card redesign  (≥769px only)
+   ───────────────────────────────────────────────────────────────
+   Wrapped entirely in this media query so it can't bleed to the
+   mobile menu — mobile keeps its own slide-in pane.
+   • Glass card drops down with origin-aware scale
+   • Amber hairline at the top draws in after the card lands
+   • Items stagger-fade-up from below
+   • Item hover: 4px amber accent slides up the left edge + label slides right
+   ═══════════════════════════════════════════════════════════════ */
 @media (min-width: 769px) {
+
+  /* ── Card itself (overrides the simple base styling on desktop) ── */
+  .submenu {
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    border-radius: 14px;
+    padding: 0.55rem 0;
+    min-width: 240px;
+    background: rgba(28, 36, 39, 0.78);
+    backdrop-filter: blur(22px) saturate(1.4);
+    -webkit-backdrop-filter: blur(22px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+      0 20px 50px rgba(0, 0, 0, 0.45),
+      0 6px 18px rgba(0, 0, 0, 0.30),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transform: translateX(-50%) translateY(-8px) scale(0.96);
+    transform-origin: top center;
+    transition:
+      opacity   0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+  }
+
+  /* Amber hairline at the very top of the card — draws in after the
+     card has landed (slight delay) for a layered feel. */
+  .submenu::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--color-secondary, #c89858), transparent);
+    transform: translateX(-50%);
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.12s;
+  }
+
+  /* ── Items: hidden by default, stagger-fade-up when card opens ── */
+  .submenu li {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity   0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .submenu li a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: calc(100% - 0.85rem);
+    padding: 0.7rem 1.4rem 0.7rem 1.6rem;
+    color: rgba(255, 255, 255, 0.86);
+    font-family: var(--font-Geist);
+    font-size: 0.96rem;
+    font-weight: 600;
+    letter-spacing: 0.005em;
+    border-radius: 9px;
+    transition:
+      color 0.22s ease,
+      background-color 0.25s ease,
+      padding-left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* 4px amber accent bar that slides up the left edge on hover */
+  .submenu li a::before {
+    content: "";
+    position: absolute;
+    left: 0.55rem;
+    top: 50%;
+    width: 4px;
+    height: 0;
+    border-radius: 999px;
+    background: var(--color-secondary, #c89858);
+    transform: translateY(-50%);
+    transition: height 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .submenu li a:hover,
+  .submenu li a:focus-visible {
+    color: var(--color-white);
+    background: rgba(255, 255, 255, 0.06);
+    padding-left: 1.85rem;
+    border-radius: 9px;
+  }
+
+  .submenu li a:hover::before,
+  .submenu li a:focus-visible::before {
+    height: 60%;
+  }
+
+  /* ── OPEN STATE: drives all the layered animations ────────────── */
   .menu-item.has-submenu:hover .submenu,
   .menu-item.has-submenu:focus-within .submenu {
-    display: block;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    pointer-events: auto;
+  }
+
+  .menu-item.has-submenu:hover .submenu::before,
+  .menu-item.has-submenu:focus-within .submenu::before {
+    width: 56%;
+  }
+
+  .menu-item.has-submenu:hover .submenu li,
+  .menu-item.has-submenu:focus-within .submenu li {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;
+  }
+  .menu-item.has-submenu:hover .submenu li:nth-child(1),
+  .menu-item.has-submenu:focus-within .submenu li:nth-child(1) { transition-delay: 0.08s; }
+  .menu-item.has-submenu:hover .submenu li:nth-child(2),
+  .menu-item.has-submenu:focus-within .submenu li:nth-child(2) { transition-delay: 0.14s; }
+  .menu-item.has-submenu:hover .submenu li:nth-child(3),
+  .menu-item.has-submenu:focus-within .submenu li:nth-child(3) { transition-delay: 0.20s; }
+  .menu-item.has-submenu:hover .submenu li:nth-child(4),
+  .menu-item.has-submenu:focus-within .submenu li:nth-child(4) { transition-delay: 0.26s; }
+  .menu-item.has-submenu:hover .submenu li:nth-child(5),
+  .menu-item.has-submenu:focus-within .submenu li:nth-child(5) { transition-delay: 0.32s; }
+  .menu-item.has-submenu:hover .submenu li:nth-child(6),
+  .menu-item.has-submenu:focus-within .submenu li:nth-child(6) { transition-delay: 0.38s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .submenu, .submenu li, .submenu::before { transition: none !important; }
+    .submenu li { opacity: 1; transform: none; }
   }
 }
 
@@ -733,8 +881,8 @@ body.no-scroll {
   color: var(--color-100);
   text-decoration: none;
   transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
-  box-shadow: 0 5px 20px rgba(217, 140, 89, 0.5),
-    0 4px 10px rgba(217, 140, 89, 0.5),
+  box-shadow: 0 5px 20px rgba(200, 152, 88, 0.5),
+    0 4px 10px rgba(200, 152, 88, 0.5),
     0 0 100px -10px var(--color-secondary);
 }
 
@@ -742,8 +890,8 @@ body.no-scroll {
   transform: translateY(-3px);
   color: var(--color-white);
   cursor: pointer;
-  box-shadow: 0 14px 28px rgba(217, 140, 89, 0.25),
-    0 10px 10px rgba(217, 140, 89, 0.22),
+  box-shadow: 0 14px 28px rgba(200, 152, 88, 0.25),
+    0 10px 10px rgba(200, 152, 88, 0.22),
     0 0 120px -10px var(--color-secondary);
 }
 

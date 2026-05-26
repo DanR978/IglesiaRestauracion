@@ -1,6 +1,6 @@
 :root {
-  --color-primary: #345a65;
-  --color-secondary: #d98c59;
+  /* --color-primary is intentionally removed. Use --color-dark instead. */
+  --color-secondary: #c89858;
   --color-accent: #be660e;
   --color-info: #2d4e57;
   --color-muted: #736960;
@@ -46,9 +46,9 @@
   --orange-30: #8e4d0b;
   --orange-35: #a6590c;
   --orange-40: #be660e;
-  --orange-45: #d98c59;
+  --orange-45: #c89858;     /* brand secondary alias */
   --orange-50: #ed8012;
-  --orange-55: #d98c59;
+  --orange-55: #c89858;     /* brand secondary alias */
   --orange-60: #f19941;
   --orange-64: #f2a152;
   --orange-65: #f3a659;
@@ -112,8 +112,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-primary: #345a65;
-    --color-secondary: #d98c59;
+    /* --color-primary is intentionally removed. Use --color-dark instead. */
+    --color-secondary: #c89858;
     --color-accent: #be660e;
     --color-info: #2d4e57;
     --color-muted: #736960;
@@ -159,7 +159,7 @@
     --orange-40: #f2a152;
     --orange-45: #f19941;
     --orange-50: #ed8012;
-    --orange-55: #d98c59;
+    --orange-55: #c89858;     /* brand secondary alias */
     --orange-60: #be660e;
     --orange-64: #a6590c;
     --orange-65: #8e4d0b;

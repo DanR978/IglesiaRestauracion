@@ -25,11 +25,11 @@
   transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
-.filter-btn:hover  { border-color: var(--color-primary); color: var(--color-primary); }
-.filter-btn.active { border-color: var(--color-primary); color: var(--color-primary); background: rgba(52, 90, 101, 0.06); }
+.filter-btn:hover  { border-color: var(--color-dark); color: var(--color-dark); }
+.filter-btn.active { border-color: var(--color-dark); color: var(--color-dark); background: rgba(52, 90, 101, 0.06); }
 
 .filter-btn__badge {
-  background: var(--color-primary);
+  background: var(--color-dark);
   color: var(--color-white);
   border-radius: var(--radius-full);
   font-size: 0.62rem;
@@ -82,7 +82,7 @@
 .filter-check input[type=checkbox] {
   width: 15px;
   height: 15px;
-  accent-color: var(--color-primary);
+  accent-color: var(--color-dark);
   cursor: pointer;
   flex-shrink: 0;
 }

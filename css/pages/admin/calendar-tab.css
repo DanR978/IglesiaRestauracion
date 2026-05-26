@@ -30,8 +30,8 @@
 }
 
 .adm-tab.active {
-  color: var(--color-primary);
-  border-bottom-color: var(--color-primary);
+  color: var(--color-dark);
+  border-bottom-color: var(--color-dark);
 }
 
 .adm-list__empty {
@@ -64,7 +64,7 @@
   transition: border-color 0.15s;
 }
 
-.adm-list__item:hover { border-color: var(--color-primary); }
+.adm-list__item:hover { border-color: var(--color-dark); }
 
 .adm-list__item.cancelled .adm-list__name {
   text-decoration: line-through;

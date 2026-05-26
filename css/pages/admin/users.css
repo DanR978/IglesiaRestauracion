@@ -18,7 +18,7 @@
   width: 38px;
   height: 38px;
   border-radius: var(--radius-full);
-  background: var(--color-primary);
+  background: var(--color-dark);
   color: var(--color-white);
   display: flex;
   align-items: center;
@@ -101,7 +101,7 @@
 }
 .role--admin {
   background: rgba(52, 90, 101, 0.12);
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 .role--ministry_leader {
   background: rgba(190, 102, 14, 0.13);
@@ -138,8 +138,8 @@
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .adm-icon-btn:hover {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  background: var(--color-dark);
+  border-color: var(--color-dark);
   color: var(--color-white);
 }
 .adm-icon-btn--danger:hover {
@@ -147,7 +147,7 @@
   border-color: #b02030;
 }
 .adm-icon-btn:focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-dark);
   outline-offset: 2px;
 }
 

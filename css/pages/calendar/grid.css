@@ -24,7 +24,7 @@
 .cal-grid__weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: var(--color-primary);
+  background: var(--color-dark);
 }
 
 .cal-grid__weekday {
@@ -121,7 +121,7 @@
 
 .cal-day__more {
   font-size: 10px;
-  color: var(--color-primary);
+  color: var(--color-dark);
   font-weight: var(--fw-semibold);
   margin-top: 1px;
   cursor: pointer;

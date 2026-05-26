@@ -21,7 +21,7 @@
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn--full    { width: 100%; }
 
-.btn--primary    { background: var(--color-primary);   color: var(--color-white); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
+.btn--primary    { background: var(--color-dark);   color: var(--color-white); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
 .btn--secondary  { background: var(--color-secondary); color: var(--color-white); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
 .btn--danger     { background: var(--color-danger);    color: var(--color-white); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12); }
 
@@ -30,7 +30,7 @@
 .btn--danger:hover  { filter: brightness(1.08); box-shadow: 0 3px 9px rgba(0, 0, 0, 0.16); }
 
 .btn--ghost        { background: var(--color-white); color: var(--color-muted); border: 1px solid var(--gray-50); }
-.btn--ghost:hover  { border-color: var(--color-primary); color: var(--color-primary); }
+.btn--ghost:hover  { border-color: var(--color-dark); color: var(--color-dark); }
 
 /* ── Icon buttons ────────────────────────────────────── */
 .row-actions {
@@ -54,7 +54,7 @@
   transition: border-color 0.15s, color 0.15s;
 }
 
-.icon-btn__admin:hover         { border-color: var(--color-primary); color: var(--color-primary); }
+.icon-btn__admin:hover         { border-color: var(--color-dark); color: var(--color-dark); }
 .icon-btn__admin.warn:hover    { border-color: var(--color-warn);    color: var(--color-warn);    }
 .icon-btn__admin.success:hover { border-color: var(--color-success); color: var(--color-success); }
 .icon-btn__admin.danger:hover  { border-color: var(--color-danger);  color: var(--color-danger);  }
@@ -109,7 +109,7 @@
 
 .toast-item--success { background: var(--color-success); }
 .toast-item--error   { background: var(--color-danger);  }
-.toast-item--info    { background: var(--color-primary);  }
+.toast-item--info    { background: var(--color-dark);  }
 
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }

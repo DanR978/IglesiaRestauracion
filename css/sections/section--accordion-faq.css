@@ -44,7 +44,7 @@
 }
 
 .accordion-faq__question:hover {
-  background-color: var(--color-primary);
+  background-color: var(--color-dark);
 }
 
 .accordion-faq__icon {

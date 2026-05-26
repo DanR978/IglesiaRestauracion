@@ -17,7 +17,7 @@ import { toast } from './ui.js';
 
 /* ── Level cards (visual picker for step 1) ─────────────────────────── */
 const LEVEL_CARDS = [
-  { id: 1, label: 'Nivel 1', sub: 'Fundamentos',     color: '#345A65' },
+  { id: 1, label: 'Nivel 1', sub: 'Fundamentos',     color: '#394548' },
   { id: 2, label: 'Nivel 2', sub: 'Crecimiento',     color: '#1e6b61' },
   { id: 3, label: 'Nivel 3', sub: 'Discípulo',       color: '#2a4a9e' },
   { id: 4, label: 'Nivel 4', sub: 'Servidor',        color: '#5c3d9c' },
@@ -283,7 +283,7 @@ function renderStep4() {
 
     <div class="wiz-field">
       <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:500;letter-spacing:0;cursor:pointer">
-        <input type="checkbox" id="dwizPublished" ${data.published ? 'checked' : ''} style="width:auto;accent-color:var(--color-primary)">
+        <input type="checkbox" id="dwizPublished" ${data.published ? 'checked' : ''} style="width:auto;accent-color:var(--color-dark)">
         Visible en la página pública de Discipulado
       </label>
     </div>

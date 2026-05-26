@@ -30,7 +30,7 @@
   font-family: inherit;
 }
 
-.cal-tab.active          { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+.cal-tab.active          { color: var(--color-dark); border-bottom-color: var(--color-dark); }
 .cal-tab:hover:not(.active) { color: var(--color-dark); }
 
 .cal-tab-panel[hidden] { display: none; }
@@ -45,7 +45,7 @@
   font-weight: var(--fw-bold);
   color: var(--color-black);
   padding: 1rem 0;
-  border-bottom: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-dark);
   text-transform: capitalize;
 }
 
@@ -111,7 +111,7 @@
 }
 
 .cal-list__item:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   box-shadow: 0 2px 8px rgba(52, 90, 101, 0.1);
 }
 

@@ -84,7 +84,7 @@
 .auth-card__logo h1 {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-dark);
   line-height: 1.3;
 }
 

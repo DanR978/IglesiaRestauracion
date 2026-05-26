@@ -137,7 +137,7 @@
 
 .ed-info__row svg {
   flex: 0 0 18px;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .ed-info__actions {
@@ -164,7 +164,7 @@
 
 .ed-section__heading {
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-dark);
   margin-bottom: 0.75rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -189,7 +189,7 @@
 
 /* ── Organizer card ── */
 .ed-organizer-card {
-  background: var(--color-primary);
+  background: var(--color-dark);
   padding: 1.5rem;
   border-radius: 12px;
 }

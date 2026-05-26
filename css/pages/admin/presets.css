@@ -7,7 +7,7 @@
 .smart-panel {
   display: none;
   background: var(--color-white);
-  border: 1.5px solid var(--color-primary);
+  border: 1.5px solid var(--color-dark);
   border-radius: var(--radius-md, 8px);
   padding: 1.1rem;
   margin-bottom: 1rem;
@@ -60,10 +60,10 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 .smart-month-btn:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
 }
 .smart-month-btn:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   box-shadow: 0 0 0 3px rgba(52, 90, 101, 0.12);
   outline: none;
 }
@@ -81,7 +81,7 @@
 }
 
 .smart-month-btn__badge {
-  background: var(--color-primary);
+  background: var(--color-dark);
   color: #fff;
   font-size: 0.68rem;
   font-weight: 700;
@@ -144,7 +144,7 @@
 .smart-month-menu__clear {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-dark);
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
@@ -184,7 +184,7 @@
 .smart-month-opt input[type="checkbox"] {
   width: 15px;
   height: 15px;
-  accent-color: var(--color-primary);
+  accent-color: var(--color-dark);
   cursor: pointer;
   margin: 0;
 }
@@ -225,7 +225,7 @@
   transition: border-color 0.2s;
 }
 .smart-year-input:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   outline: none;
   box-shadow: 0 0 0 3px rgba(52, 90, 101, 0.12);
 }
@@ -252,11 +252,11 @@
   ;
 }
 .preset-card:hover {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   background: rgba(52, 90, 101, 0.04);
 }
 .preset-card.selected {
-  border-color: var(--color-primary);
+  border-color: var(--color-dark);
   background: rgba(52, 90, 101, 0.08);
 }
 
@@ -302,7 +302,7 @@
 .preview-pill {
   font-size: 0.68rem;
   background: rgba(52, 90, 101, 0.1);
-  color: var(--color-primary);
+  color: var(--color-dark);
   padding: 2px 7px;
   border-radius: 999px;
   font-weight: 600;

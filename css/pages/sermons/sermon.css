@@ -60,7 +60,7 @@
 .sermon-card {
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: linear-gradient(145deg, var(--rail-g1), var(--color-primary), var(--color-dark));
+  background: linear-gradient(145deg, var(--rail-g1), var(--color-dark), var(--color-dark));
   box-shadow: var(--shadow-md);
   transition: transform var(--transition-med), box-shadow var(--transition-med);
   cursor: pointer;
@@ -235,7 +235,7 @@
 
 /* Active */
 .sermon-video--active {
-  border-left: 3px solid var(--color-primary);
+  border-left: 3px solid var(--color-dark);
   background: linear-gradient(90deg, rgba(0,120,255,0.08), transparent);
 }
 
@@ -347,7 +347,7 @@
 
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--color-dark);
 
   background: rgba(0, 120, 255, 0.08);
   border: 1px solid rgba(0, 120, 255, 0.18);

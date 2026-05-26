@@ -339,7 +339,7 @@ function _wireTypeSelect(selId, customId, noteId, tagPicker, descId, descGroupId
       let n = document.getElementById(descGroupId).querySelector('.fg-locked-note');
       if (!n) {
         n = document.createElement('p'); n.className = 'fg-locked-note';
-        n.style.cssText = 'font-size:.7rem;color:var(--color-primary);font-weight:600;margin-top:.2rem';
+        n.style.cssText = 'font-size:.7rem;color:var(--color-dark);font-weight:600;margin-top:.2rem';
         document.getElementById(descGroupId).appendChild(n);
       }
       n.textContent = 'Auto-completado por preset.';

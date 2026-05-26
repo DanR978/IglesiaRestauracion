@@ -199,16 +199,38 @@
 
       <section id="events-home"></section>
 
-      <!-- Galería teaser -->
-      <section class="column-container" id="homeGallerySection">
+      <!-- ─── Galería teaser — editorial split, light + airy ─────────── -->
+      <section class="home-gallery-section" id="homeGallerySection" aria-labelledby="homeGalleryTitle">
         <div class="home-gallery">
-          <h4 class="home-gallery__kicker animate-fade-in" data-threshold="1">GALERÍA</h4>
-          <h2 class="home-gallery__title animate-fade-in" data-threshold="1">
-            Momentos de nuestra familia en Cristo
-          </h2>
-          <div class="home-gallery__showcase animate-fade-in" data-threshold="0.5" id="homeGallery">
-            <div class="home-gallery__loading"><i class="fas fa-spinner fa-spin"></i></div>
+          <header class="home-gallery__head">
+            <h5 class="home-gallery__kicker animate-fade-in" data-threshold="1">GALERÍA</h5>
+            <h2 id="homeGalleryTitle" class="home-gallery__title animate-fade-in" data-threshold="1">
+              MOMENTOS DE NUESTRA<br>FAMILIA EN CRISTO
+            </h2>
+          </header>
+          <div class="home-gallery__showcase animate-fade-in" data-threshold="0.4" id="homeGallery">
+            <div class="home-gallery__loading" role="status" aria-live="polite">
+              <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+              <span class="sr-only">Cargando galería…</span>
+            </div>
           </div>
+        </div>
+      </section>
+
+      <!-- ─── Discipulado — typographic statement (matches site voice) ── -->
+      <section class="home-dscp-statement" id="homeDiscipuladoSection" aria-labelledby="homeDscpTitle">
+        <div class="home-dscp-statement__inner">
+          <h5 class="home-dscp-statement__kicker animate-fade-in" data-threshold="1">DISCIPULADO</h5>
+          <h2 id="homeDscpTitle" class="home-dscp-statement__title animate-fade-in" data-threshold="1">
+            CRECEMOS EN CRISTO.<br>CRECEMOS JUNTOS.
+          </h2>
+          <p class="home-dscp-statement__meta animate-fade-in" data-threshold="1">
+            Cinco niveles · Grupos en hogares · Cada semana
+          </p>
+          <a href="/discipulado" class="home-dscp-statement__cta animate-fade-in" data-threshold="1">
+            <span>Únete a un grupo</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          </a>
         </div>
       </section>
 

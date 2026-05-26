@@ -110,7 +110,7 @@
 .day-sheet__ev-link {
   font-size: var(--fs-xxs);
   font-weight: var(--fw-semibold);
-  color: var(--color-primary);
+  color: var(--color-dark);
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;

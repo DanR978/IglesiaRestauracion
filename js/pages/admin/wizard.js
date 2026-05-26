@@ -88,7 +88,7 @@ function renderStep2() {
           </div>`).join('')}
         <div class="wiz-preset-card${preset === -1 ? ' selected' : ''}" data-idx="-1">
           <div class="wiz-preset-card__img" style="display:flex;align-items:center;justify-content:center;background:rgba(52,90,101,.06)">
-            <i class="fas fa-plus" style="font-size:1.5rem;color:var(--color-primary);opacity:.5"></i>
+            <i class="fas fa-plus" style="font-size:1.5rem;color:var(--color-dark);opacity:.5"></i>
           </div>
           <div class="wiz-preset-card__name">Personalizado</div>
         </div>

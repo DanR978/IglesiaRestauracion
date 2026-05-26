@@ -44,15 +44,15 @@
   cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
 }
-.gal-fbtn:hover   { border-color: var(--color-primary); }
+.gal-fbtn:hover   { border-color: var(--color-dark); }
 .gal-fbtn:active  { transform: scale(0.98); }
 
 .gal-fbtn__icon {
   width: 18px; height: 18px;
-  fill: none; stroke: var(--color-primary);
+  fill: none; stroke: var(--color-dark);
   stroke-width: 2; stroke-linecap: round;
 }
-.gal-fbtn__icon circle { fill: var(--color-primary); stroke: none; }
+.gal-fbtn__icon circle { fill: var(--color-dark); stroke: none; }
 
 .gal-fbtn__caret {
   width: 15px; height: 15px;
@@ -74,7 +74,7 @@
 }
 .gal-fbtn__badge[hidden] { display: none; }
 
-.gal-fbtn--year strong { color: var(--color-primary); font-weight: var(--fw-bold); }
+.gal-fbtn--year strong { color: var(--color-dark); font-weight: var(--fw-bold); }
 
 /* ── Filter / year modal ─────────────────────────────────────────────── */
 .gal-modal {
@@ -129,7 +129,7 @@
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 1.1rem;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 .gal-modal__close {
   width: 32px; height: 32px;
@@ -211,8 +211,8 @@
 }
 .gal-check__box i { font-size: 0.7rem; opacity: 0; transition: opacity 0.12s ease; }
 .gal-check input:checked + .gal-check__box {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
+  background: var(--color-dark);
+  border-color: var(--color-dark);
 }
 .gal-check input:checked + .gal-check__box i { opacity: 1; }
 
@@ -234,10 +234,10 @@
   border: 1px solid transparent;
   transition: filter 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.gal-btn--solid { background: var(--color-primary); color: var(--color-white); }
+.gal-btn--solid { background: var(--color-dark); color: var(--color-white); }
 .gal-btn--solid:hover { filter: brightness(1.1); }
 .gal-btn--ghost { background: transparent; border-color: var(--gray-30); color: var(--color-muted); }
-.gal-btn--ghost:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.gal-btn--ghost:hover { border-color: var(--color-dark); color: var(--color-dark); }
 .gal-btn--full { flex: 1 1 100%; }
 
 /* ── iOS-style year wheel ────────────────────────────────────────────── */
@@ -273,7 +273,7 @@
   transition: color 0.15s ease, font-size 0.15s ease, font-weight 0.15s ease;
 }
 .gal-wheel__item.is-active {
-  color: var(--color-primary);
+  color: var(--color-dark);
   font-weight: var(--fw-bold);
   font-size: 1.3rem;
 }
@@ -337,7 +337,7 @@ body.gal-modal-open { overflow: hidden; }
   font-weight: var(--fw-light);
   font-size: clamp(2rem, 1rem + 3vw, 3rem);
   letter-spacing: -0.04em;
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .gal-year-block__num { display: inline-block; }
@@ -421,7 +421,7 @@ body.gal-modal-open { overflow: hidden; }
   left: 0.7rem;
   padding: 0.25rem 0.7rem;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--color-primary);
+  color: var(--color-dark);
   font-family: var(--font-Signika);
   font-size: 0.68rem;
   font-weight: var(--fw-bold);
@@ -458,7 +458,7 @@ body.gal-modal-open { overflow: hidden; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 1.05rem;
-  color: var(--color-primary);
+  color: var(--color-dark);
   line-height: 1.25;
   letter-spacing: -0.01em;
 }
@@ -479,7 +479,7 @@ body.gal-modal-open { overflow: hidden; }
 
 .gal-album__count {
   font-weight: var(--fw-semibold);
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .gal-album__desc {
@@ -573,7 +573,7 @@ body.gal-modal-open { overflow: hidden; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: clamp(1.6rem, 1rem + 2vw, 2.3rem);
-  color: var(--color-primary);
+  color: var(--color-dark);
   letter-spacing: -0.012em;
 }
 

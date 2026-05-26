@@ -164,7 +164,7 @@
 
 /* Body */
 .event__body {
-  background: linear-gradient(145deg, var(--rail-g1), var(--color-primary), var(--color-dark));
+  background: linear-gradient(145deg, var(--rail-g1), var(--color-dark), var(--color-dark));
   padding: 1rem 1rem 1.1rem;
   display: grid;
   gap: .7rem;
@@ -315,7 +315,7 @@
   align-items: stretch;
   /* Custom scrollbar — subtle, on-brand */
   scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) var(--gray-40);
+  scrollbar-color: var(--color-dark) var(--gray-40);
 }
 
 .events[data-month-accordion] .events__grid--accordion::-webkit-scrollbar {
@@ -329,7 +329,7 @@
 }
 
 .events[data-month-accordion] .events__grid--accordion::-webkit-scrollbar-thumb {
-  background: var(--color-primary);
+  background: var(--color-dark);
   border-radius: 99px;
 }
 

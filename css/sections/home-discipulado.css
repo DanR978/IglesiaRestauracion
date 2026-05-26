@@ -1,0 +1,119 @@
+/* =============================================================================
+   HOMEPAGE — Discipulado statement
+   Pure typography. No image, no checklist, no two-column "agency" layout —
+   just a quiet, confident chapter break that echoes the discipulado page's
+   own voice ("CRECEMOS EN CRISTO. CRECEMOS JUNTOS.").
+   ============================================================================= */
+
+.home-dscp-statement {
+  width: 100%;
+  background: var(--color-bg-light, #fff);
+  padding: clamp(6rem, 9vw + 1rem, 10rem) 0;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  text-align: center;
+}
+
+/* A single hairline separator at the top — frames the moment without
+   adding visual noise. */
+.home-dscp-statement::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: clamp(60px, 12vw, 120px);
+  height: 1px;
+  background: var(--color-secondary, #c89858);
+  transform: translateX(-50%);
+}
+
+.home-dscp-statement__inner {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-dscp-statement__kicker {
+  margin: 0 0 1.6rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
+}
+
+.home-dscp-statement__title {
+  margin: 0 0 1.6rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(2rem, 5vw + 0.5rem, 4.2rem);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  color: var(--color-dark, #394548);
+  text-transform: uppercase;
+}
+
+.home-dscp-statement__meta {
+  margin: 0 0 3rem;
+  font-family: var(--font-Geist);
+  font-size: clamp(0.92rem, 0.4vw + 0.85rem, 1.05rem);
+  font-weight: var(--fw-medium);
+  letter-spacing: 0.06em;
+  color: var(--color-muted, #736960);
+}
+
+/* ── CTA: minimal text + arrow that draws as you hover ──────────────── */
+.home-dscp-statement__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-dark, #394548);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 1rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dark, #394548);
+  text-decoration: none;
+  cursor: pointer;
+  transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.22s ease,
+              border-color 0.22s ease;
+}
+
+.home-dscp-statement__cta svg {
+  width: 28px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-dscp-statement__cta:hover,
+.home-dscp-statement__cta:focus-visible {
+  color: var(--color-secondary, #c89858);
+  border-bottom-color: var(--color-secondary, #c89858);
+  gap: 1.4rem;
+  text-decoration: none;
+}
+
+.home-dscp-statement__cta:hover svg,
+.home-dscp-statement__cta:focus-visible svg {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-dscp-statement__cta,
+  .home-dscp-statement__cta svg { transition: none; }
+}

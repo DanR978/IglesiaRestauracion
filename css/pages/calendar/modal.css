@@ -155,7 +155,7 @@
 .cal-modal__row-icon svg {
   width: 16px;
   height: 16px;
-  stroke: var(--color-primary);
+  stroke: var(--color-dark);
   fill: none;
   stroke-width: 1.8;
 }

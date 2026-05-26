@@ -167,7 +167,7 @@ function renderStep3() {
 
     <div class="wiz-field">
       <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:500;letter-spacing:0;cursor:pointer">
-        <input type="checkbox" id="gwizPublished" ${data.is_published ? 'checked' : ''} style="width:auto;accent-color:var(--color-primary)">
+        <input type="checkbox" id="gwizPublished" ${data.is_published ? 'checked' : ''} style="width:auto;accent-color:var(--color-dark)">
         Visible en la galería pública
       </label>
       <div class="wiz-hint">Si lo dejas sin marcar, el álbum queda como borrador hasta que decidas publicarlo</div>

@@ -36,7 +36,7 @@
   cursor: pointer;
 }
 
-.gal-admin__toggle input { accent-color: var(--color-primary); }
+.gal-admin__toggle input { accent-color: var(--color-dark); }
 
 /* ── Library grid: album cards in admin ────────────────────────────── */
 /* auto-fill + max-cap keeps a lone card at a sensible width instead of
@@ -112,7 +112,7 @@
   font-family: var(--font-Signika);
   font-size: 0.95rem;
   font-weight: var(--fw-bold);
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .gal-adm-card__meta {
@@ -149,7 +149,7 @@
   font-family: var(--font-Signika);
   font-size: 1.05rem;
   font-weight: var(--fw-bold);
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 /* ── Drop zone ─────────────────────────────────────────────────────── */
@@ -182,7 +182,7 @@
   font-family: var(--font-Signika);
   font-size: 1rem;
   font-weight: var(--fw-bold);
-  color: var(--color-primary);
+  color: var(--color-dark);
 }
 
 .gal-dropzone__hint {
@@ -265,7 +265,7 @@
 .gal-adm-photo:active   { cursor: grabbing; }
 .gal-adm-photo.is-cover { border-color: var(--color-secondary); }
 .gal-adm-photo.is-dragging    { opacity: 0.4; }
-.gal-adm-photo.is-drop-target { border-color: var(--color-primary); transform: scale(1.03); }
+.gal-adm-photo.is-drop-target { border-color: var(--color-dark); transform: scale(1.03); }
 
 .gal-adm-photo img {
   width: 100%;
@@ -312,7 +312,7 @@
   border-radius: 999px;
   border: 0;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--color-primary);
+  color: var(--color-dark);
   font-size: 0.75rem;
   cursor: pointer;
   display: inline-flex;

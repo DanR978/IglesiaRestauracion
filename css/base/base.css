@@ -54,7 +54,7 @@ a[href^="tel"]:focus-visible,
 a[href^="mailto"]:focus-visible {
   color: var(--color-secondary);
   text-decoration: underline;
-  text-decoration-color: var(--color-primary);
+  text-decoration-color: var(--color-dark);
   text-decoration: none;
 }
 

@@ -19,10 +19,10 @@
 
 /* === Button Color Variants === */
 .ird-btn--teal {
-  background-color: var(--color-primary);
+  background-color: var(--color-dark);
   box-shadow: 0 10px 20px rgba(45, 78, 87, 0.5),
               0 6px 6px rgba(45, 78, 87, 0.5),
-              0 0 100px -10px var(--color-primary);
+              0 0 100px -10px var(--color-dark);
 }
 .ird-btn--teal:hover {
   text-decoration: none;
@@ -30,23 +30,23 @@
   transform: translateY(-3px);
   box-shadow: 0 14px 28px rgba(45, 78, 87, 0.25),
               0 10px 10px rgba(45, 78, 87, 0.22),
-              0 0 120px -10px var(--color-primary);
+              0 0 120px -10px var(--color-dark);
 }
 
 .ird-btn--orange {
   text-decoration: none;
   color: var(--color-white);
   background-color: var(--color-secondary);
-  box-shadow: 0 5px 20px rgba(217, 140, 89, 0.5),
-              0 4px 10px rgba(217, 140, 89, 0.5),
+  box-shadow: 0 5px 20px rgba(200, 152, 88, 0.5),
+              0 4px 10px rgba(200, 152, 88, 0.5),
               0 0 100px -10px var(--color-secondary);
 }
 .ird-btn--orange:hover {
   text-decoration: none;
   color: var(--color-white);
   transform: translateY(-3px);
-  box-shadow: 0 14px 28px rgba(217, 140, 89, 0.25),
-              0 10px 10px rgba(217, 140, 89, 0.22),
+  box-shadow: 0 14px 28px rgba(200, 152, 88, 0.25),
+              0 10px 10px rgba(200, 152, 88, 0.22),
               0 0 120px -10px var(--color-secondary);
 }
 
@@ -56,16 +56,16 @@
   letter-spacing: 1px;
   background-color: var(--color-secondary);
   font-weight: var(--fw-bold);
-  box-shadow: 0 5px 20px rgba(217, 140, 89, 0.5),
-              0 4px 10px rgba(217, 140, 89, 0.5),
+  box-shadow: 0 5px 20px rgba(200, 152, 88, 0.5),
+              0 4px 10px rgba(200, 152, 88, 0.5),
               0 0 100px -10px var(--color-secondary);
 }
 .ird-btn--donate:hover {
   text-decoration: none;
   color: var(--color-white);
   transform: translateY(-3px);
-  box-shadow: 0 14px 28px rgba(217, 140, 89, 0.25),
-              0 10px 10px rgba(217, 140, 89, 0.22),
+  box-shadow: 0 14px 28px rgba(200, 152, 88, 0.25),
+              0 10px 10px rgba(200, 152, 88, 0.22),
               0 0 120px -10px var(--color-secondary);
 }
 
@@ -103,8 +103,8 @@
 }
 
 .ird-btn--outline.ird-btn--teal {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+  color: var(--color-dark);
+  border-color: var(--color-dark);
 }
 
 .ird-btn--outline.ird-btn--white-fill {
@@ -132,7 +132,7 @@
 }
 
 .ird-btn--outline.ird-btn--teal:hover {
-  background-color: var(--color-primary);
+  background-color: var(--color-dark);
   color: var(--color-white);
   box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
 }
