@@ -29,7 +29,7 @@
 .sermon-header__title {
   font-size: var(--fs-lg);
   font-weight: 700;
-  color: var(--color-dark);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -187,7 +187,7 @@
   font-size: 1.2rem;
   font-weight: 700;
   line-height: 1.35;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .sermon-player__meta {
@@ -199,7 +199,7 @@
 .sermon-player__desc {
   font-size: 0.9rem;
   line-height: 1.65;
-  color: var(--color-dark);
+  color: var(--color-text);
   max-width: 720px;
 }
 
@@ -347,7 +347,7 @@
 
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-dark);
+  color: var(--color-text);
 
   background: rgba(0, 120, 255, 0.08);
   border: 1px solid rgba(0, 120, 255, 0.18);

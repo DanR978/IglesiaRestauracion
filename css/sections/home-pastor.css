@@ -14,6 +14,17 @@
   overflow: hidden;
 }
 
+/* Dark mode: flip the ambient gradients to subtle warm + cool light tints
+   so the section still has visible "depth" against the dark page bg. */
+@media (prefers-color-scheme: dark) {
+  .home-pastor {
+    background:
+      radial-gradient(ellipse 80% 70% at 90% 0%, rgba(200, 152, 88, 0.07), transparent 60%),
+      radial-gradient(ellipse 60% 80% at 0% 100%, rgba(255, 255, 255, 0.03), transparent 70%),
+      var(--color-bg-light, #121c1f);
+  }
+}
+
 .home-pastor__inner {
   max-width: 1080px;
   margin: 0 auto;
@@ -103,6 +114,14 @@
   position: relative;
 }
 
+/* Quote text, signature, and CTA all use --color-text which auto-reverses.
+   Only the photo background needs a dark-mode tweak so the fallback icon
+   doesn't read as a bright white square against the dark page. */
+@media (prefers-color-scheme: dark) {
+  .home-pastor__media          { background: rgba(255, 255, 255, 0.04); }
+  .home-pastor__media-fallback { background: rgba(255, 255, 255, 0.04); color: rgba(240, 245, 247, 0.32); }
+}
+
 .home-pastor__quote p {
   margin: 0;
   font-family: var(--font-Signika);
@@ -110,7 +129,7 @@
   font-size: clamp(1.25rem, 1.5vw + 0.8rem, 1.7rem);
   line-height: 1.4;
   letter-spacing: -0.012em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
 }
 
 .home-pastor__sign {
@@ -124,7 +143,7 @@
 .home-pastor__sign strong {
   display: block;
   font-weight: 700;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   letter-spacing: 0.005em;
 }
 
@@ -141,13 +160,13 @@
   padding: 0.5rem 0;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-dark, #394548);
+  border-bottom: 1px solid var(--color-text, #394548);
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 0.9rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-decoration: none;
   transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
               color 0.22s ease,

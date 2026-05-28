@@ -23,12 +23,7 @@
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://www.irdlex.org/quienes-somos</loc>
-    <lastmod>2025-08-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+  <!-- /quienes-somos removed from sitemap until it has real content -->
 
   <url>
     <loc>https://www.irdlex.org/proximos-pasos</loc>

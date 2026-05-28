@@ -45,7 +45,7 @@
   pointer-events: auto;
   background-color: var(--color-white);
   /* neutral = white */
-  color: var(--color-black);
+  color: var(--color-text);
   /* neutral text */
   border-radius: 12px;
   padding: 12px 14px 12px 16px;

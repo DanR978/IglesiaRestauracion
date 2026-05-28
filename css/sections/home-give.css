@@ -2,6 +2,12 @@
    HOMEPAGE — Tu aporte (donation)
    Single primary CTA — no amount suggestions. We don't tell people what to
    give; we tell them the impact and let them decide.
+
+   NOTE on dark mode: this section is INTENTIONALLY always-dark in both
+   color schemes. The slate-on-amber-glow band IS the visual moment — a
+   cinematic interlude in the page rhythm. White text on slate reads
+   identically whether the surrounding page is light or dark, so no
+   prefers-color-scheme override is needed (or wanted) here.
    ============================================================================= */
 
 .home-give {

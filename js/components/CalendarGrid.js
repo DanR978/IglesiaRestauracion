@@ -89,8 +89,20 @@ export class CalendarGrid {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const isAdmin     = this.cfg.mode === 'admin';
 
+    // ── Leading neighbor-month days (last N days of the previous month) ──
+    // iOS-style — keeps the grid full and gives context for week boundaries.
     let html = '';
-    for (let i = 0; i < firstDow; i++) html += `<div class="cal-day cal-day--empty"></div>`;
+    const prevMonthDays = new Date(year, month, 0).getDate();   // last day of prev month
+    for (let i = 0; i < firstDow; i++) {
+      const dayNum = prevMonthDays - firstDow + 1 + i;
+      // Build the YYYY-MM-DD for prev month (month index handles wrap to Dec)
+      const prevY = month === 0 ? year - 1 : year;
+      const prevM = month === 0 ? 11       : month - 1;
+      const ds    = ymd(prevY, prevM, dayNum);
+      html += `<div class="cal-day cal-day--neighbor cal-day--neighbor-prev" data-date="${ds}">
+        <div class="cal-day__num">${dayNum}</div>
+      </div>`;
+    }
 
     for (let d = 1; d <= daysInMonth; d++) {
       const ds  = ymd(year, month, d);
@@ -151,23 +163,46 @@ export class CalendarGrid {
         </div>`;
     }
 
+    // ── Trailing neighbor-month days (first N days of the next month) ──
+    // Fill the grid out to a complete number of weeks so the calendar
+    // doesn't end with a ragged row of empty cells.
+    const lastDow   = new Date(year, month, daysInMonth).getDay();   // 0=Sun..6=Sat
+    const trailing  = 6 - lastDow;                                   // cells needed after the last day
+    const nextY     = month === 11 ? year + 1 : year;
+    const nextM     = month === 11 ? 0        : month + 1;
+    for (let d = 1; d <= trailing; d++) {
+      const ds = ymd(nextY, nextM, d);
+      html += `<div class="cal-day cal-day--neighbor cal-day--neighbor-next" data-date="${ds}">
+        <div class="cal-day__num">${d}</div>
+      </div>`;
+    }
+
     el.innerHTML = html;
 
     // Wire cell clicks
     el.querySelectorAll('.cal-day--has-events').forEach(cell => {
       cell.addEventListener('click', e => {
-        // Pill click on desktop
+        // Desktop pill click: scope the day-sheet to just that one event so
+        // the user gets details + "Ver detalles" without leaving the page.
         const pill = e.target.closest('[data-id]');
         if (pill && !e.target.closest('.cal-ev__actions')) {
           const ev = this._evs.find(x => x.id === pill.dataset.id);
-          if (ev) { this._handleEventClick(ev); return; }
+          if (ev) {
+            if (isAdmin) {
+              this._handleEventClick(ev);    // admin: open edit modal directly
+            } else {
+              this._openDaySheet(cell.dataset.date, [ev]);
+            }
+            return;
+          }
         }
-        // Cell click (or mobile tap) → day sheet
+        // Cell click (or mobile tap) → ALWAYS open day-sheet.
+        // (Previously a single special event auto-navigated, which surprised users.)
         const evs = this._idx[cell.dataset.date] || [];
-        if (evs.length === 1 && !isAdmin) {
-          // Single event on public: go straight to action
-          this._handleEventClick(evs[0]);
-        } else if (evs.length) {
+        if (!evs.length) return;
+        if (isAdmin && evs.length === 1) {
+          this._handleEventClick(evs[0]);    // admin shortcut: single → edit
+        } else {
           this._openDaySheet(cell.dataset.date, evs);
         }
       });
@@ -229,29 +264,25 @@ export class CalendarGrid {
       const cat         = getCat(ev.category);
       const rawId       = ev.id.replace('evt-', '');
 
-      const titleEl = `<div class="day-sheet__ev-title${isCancelled ? ' day-sheet__ev-title--cancelled' : ''}">
-        ${ev.title}
-        ${isCancelled ? '<span class="day-sheet__ev-cancelled-badge">Cancelado</span>' : ''}
-      </div>`;
-      const metaEl  = `<div class="day-sheet__ev-time">${ev.time || ''}</div>`;
-
-      const imgEl   = isSpecial && ev.image_url
-        ? `<img class="day-sheet__ev-thumb" src="${ev.image_url}" alt="" loading="lazy">`
-        : `<span class="day-sheet__ev-dot ${cat.dot}"></span>`;
-
-      // Repetitive categories that support cancel/reactivate
-      const REPETITIVE = ['servicio', 'estudio', 'oracion'];
-      const canCancel = REPETITIVE.includes(ev.category);
-
-      // Right side: admin → action buttons for ALL events; public special → link; public regular → chevron
-      let rightEl;
+      // ── ADMIN: original action-buttons layout (unchanged) ──────────────
       if (isAdmin) {
+        const titleEl = `<div class="day-sheet__ev-title${isCancelled ? ' day-sheet__ev-title--cancelled' : ''}">
+          ${ev.title}
+          ${isCancelled ? '<span class="day-sheet__ev-cancelled-badge">Cancelado</span>' : ''}
+        </div>`;
+        const metaEl  = `<div class="day-sheet__ev-time">${ev.time || ''}</div>`;
+        const imgEl   = isSpecial && ev.image_url
+          ? `<img class="day-sheet__ev-thumb" src="${ev.image_url}" alt="" loading="lazy">`
+          : `<span class="day-sheet__ev-dot ${cat.dot}"></span>`;
+
+        const REPETITIVE = ['servicio', 'estudio', 'oracion'];
+        const canCancel = REPETITIVE.includes(ev.category);
         const editAction   = isSpecial ? `window.__adminEditSpecial('${rawId}')` : `window.__gridEdit('${ev.id}')`;
         const deleteAction = isSpecial
           ? `window.__adminDeleteEvent('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}',true)`
           : `window.__gridDelete('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}')`;
 
-        rightEl = `<div class="day-sheet__ev-actions">
+        const rightEl = `<div class="day-sheet__ev-actions">
           <button class="icon-btn" onclick="event.stopPropagation();${editAction};window.__closeDaySheet()" title="Editar"><i class="fas fa-pen"></i></button>
           ${canCancel ? `<button class="icon-btn ${isCancelled ? 'success' : 'warn'}"
             onclick="event.stopPropagation();${isSpecial ? `window.__adminToggleCancel('${ev.id}',${isCancelled})` : `window.__gridToggle('${ev.id}',${isCancelled})`};window.__closeDaySheet()"
@@ -260,26 +291,45 @@ export class CalendarGrid {
           </button>` : ''}
           <button class="icon-btn danger" onclick="event.stopPropagation();${deleteAction};window.__closeDaySheet()" title="Eliminar"><i class="fas fa-trash"></i></button>
         </div>`;
-      } else if (isSpecial) {
-        rightEl = `<a class="day-sheet__ev-link" href="/eventos/evento.html?id=${rawId}">
-          Ver detalles <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
-        </a>`;
-      } else {
-        rightEl = `<i class="fas fa-chevron-right day-sheet__ev-chevron"></i>`;
+
+        return `
+          <div class="day-sheet__ev${isCancelled ? ' day-sheet__ev--cancelled' : ''}">
+            ${imgEl}
+            <div class="day-sheet__ev-info">${titleEl}${metaEl}</div>
+            ${rightEl}
+          </div>`;
       }
 
-      const clickable = !isSpecial && !isAdmin ? `data-ev-id="${ev.id}" style="cursor:pointer"` : '';
+      // ── PUBLIC: unified row — every event looks identical, every event has
+      // its own "Ver detalles →" affordance. Special events are real anchor
+      // links to the detail page; regular events are buttons that open the
+      // modal via the data-ev-id handler below. (User feedback: stop
+      // surprise-navigating, make specials look like regulars.) ────────────
+      const tag    = isSpecial ? 'a' : 'button';
+      const attrs  = isSpecial
+        ? `href="/eventos/evento.html?id=${rawId}"`
+        : `type="button" data-ev-id="${ev.id}"`;
+      const metaLine = [ev.time, ev.location].filter(Boolean).join(' · ');
+
       return `
-        <div class="day-sheet__ev${isCancelled ? ' day-sheet__ev--cancelled' : ''}" ${clickable}>
-          ${imgEl}
-          <div class="day-sheet__ev-info">${titleEl}${metaEl}</div>
-          ${rightEl}
-        </div>`;
+        <${tag} class="day-sheet__ev day-sheet__ev--clickable${isCancelled ? ' day-sheet__ev--cancelled' : ''}" ${attrs}>
+          <span class="day-sheet__ev-dot ${cat.dot}" aria-hidden="true"></span>
+          <div class="day-sheet__ev-info">
+            <div class="day-sheet__ev-title${isCancelled ? ' day-sheet__ev-title--cancelled' : ''}">
+              ${ev.title}
+              ${isCancelled ? '<span class="day-sheet__ev-cancelled-badge">Cancelado</span>' : ''}
+            </div>
+            ${metaLine ? `<div class="day-sheet__ev-time">${metaLine}</div>` : ''}
+          </div>
+          <span class="day-sheet__ev-link" aria-hidden="true">
+            Ver detalles <i class="fas fa-chevron-right" style="font-size:.7rem"></i>
+          </span>
+        </${tag}>`;
     }).join('');
 
-    // Wire public row taps → modal
+    // Wire public regular-event rows → modal (special events use real <a> nav)
     if (!isAdmin) {
-      document.getElementById('calDaySheetEvents').querySelectorAll('[data-ev-id]').forEach(row => {
+      document.getElementById('calDaySheetEvents').querySelectorAll('button[data-ev-id]').forEach(row => {
         row.addEventListener('click', () => {
           const ev = this._evs.find(x => x.id === row.dataset.evId);
           if (ev) { this._closeDaySheet(); this.cfg.onEventClick?.(ev); }
@@ -290,10 +340,14 @@ export class CalendarGrid {
     window.__closeDaySheet = () => this._closeDaySheet();
     document.getElementById('calDaySheetBackdrop').classList.add('open');
     document.body.style.overflow = 'hidden';
+    // Tells the floating-ui layer (WhatsApp FAB + mobile bar) to fade out
+    // so they don't overlap the bottom of the day-sheet popup.
+    document.body.classList.add('has-floating-popup');
   }
 
   _closeDaySheet() {
     document.getElementById('calDaySheetBackdrop')?.classList.remove('open');
     document.body.style.overflow = '';
+    document.body.classList.remove('has-floating-popup');
   }
 }

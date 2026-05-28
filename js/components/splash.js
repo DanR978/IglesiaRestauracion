@@ -1,27 +1,50 @@
 /**
  * IRD Splash — module script.
  *
- * The HTML has <div id="ird-splash"></div> in <body> (instant dark overlay via CSS).
- * This module either populates it with fish + logo + morph, or removes it if
- * the splash was already shown this session.
+ * Behavior:
+ *   • Shows ONCE per tab session (the very first page load).
+ *   • Every subsequent page navigation removes the splash element instantly.
+ *   • If the browser restores the page from the back/forward cache (bfcache),
+ *     we also wipe any splash that comes back with the restored DOM —
+ *     otherwise the user can get stuck looking at a frozen splash.
  *
- * Add ?splash to URL to force replay during development.
+ * Add ?splash to URL to force the splash to replay during development.
  */
 
 import { buildFishScene } from './fish-scene.js';
 
+const KEY = 'ird-splash-shown';
+
+/** Force-remove any splash element that's currently in the DOM. */
+function nukeSplash() {
+  const el = document.getElementById('ird-splash');
+  if (el) el.remove();
+}
+
+/** Belt-and-suspenders: if the page comes back from bfcache or any later
+ *  navigation, ensure we never get stuck on a frozen splash. */
+window.addEventListener('pageshow', (ev) => {
+  // ev.persisted = true → page restored from bfcache (back/forward button)
+  if (ev.persisted) nukeSplash();
+});
+
+// On a normal navigation away, mark splash as already-shown so the next
+// page doesn't render it again (defensive — sessionStorage is also set
+// when we first render it below).
+window.addEventListener('pagehide', () => {
+  try { sessionStorage.setItem(KEY, '1'); } catch (_) {}
+});
+
 const splash = document.getElementById('ird-splash');
-if (!splash) { /* no mount point — nothing to do */ }
-else {
-
-  const KEY   = 'ird-splash-shown';
+if (splash) {
   const force = new URLSearchParams(location.search).has('splash');
+  const alreadyShown = (() => { try { return !!sessionStorage.getItem(KEY); } catch (_) { return false; } })();
 
-  if (!force && sessionStorage.getItem(KEY)) {
-    // Already shown this session — remove the empty overlay immediately
+  if (!force && alreadyShown) {
+    // Already shown this session — wipe the placeholder overlay immediately
     splash.remove();
   } else {
-    sessionStorage.setItem(KEY, '1');
+    try { sessionStorage.setItem(KEY, '1'); } catch (_) {}
 
     const MIN_DURATION = 2800;
 

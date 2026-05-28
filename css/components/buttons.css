@@ -103,7 +103,7 @@
 }
 
 .ird-btn--outline.ird-btn--teal {
-  color: var(--color-dark);
+  color: var(--color-text);
   border-color: var(--color-dark);
 }
 
@@ -139,7 +139,7 @@
 
 .ird-btn--outline.ird-btn--white-fill:hover {
   background-color: var(--color-white);
-  color: #000;
+  color: var(--color-text);
   border-color: var(--color-white);
   box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
 }

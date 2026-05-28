@@ -12,6 +12,35 @@
   inset: 0;
 }
 
+/* ── Hero video — optional, injected by include.js when the <header> has
+   `data-hero-video="<mp4 url>"`. Sits over the poster .hero image; the
+   poster shows through until the video starts playing, then we cross-fade
+   the video in. Falls back to just the poster image if the video can't
+   play (reduced motion, slow network, codec missing). */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;                  /* same plane as .hero img; later in DOM wins */
+  pointer-events: none;        /* clicks pass through to UI on top */
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.hero-video.is-playing { opacity: 1; }
+
+/* On very small mobile devices, the autoplay can be expensive — but we
+   still want the cinematic moment. Modern phones handle it fine. If we
+   ever want to disable on mobile, swap this to `display: none`. */
+@media (prefers-reduced-motion: reduce) {
+  /* include.js doesn't insert the video when reduced-motion is set, but
+     leave this rule as a defense-in-depth for any markup that ships it
+     directly. */
+  .hero-video { display: none !important; }
+}
+
 /* Hero Content */
 .hero-content {
   position: absolute;

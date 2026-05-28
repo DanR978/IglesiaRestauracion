@@ -20,6 +20,16 @@ html.ready {
 body {
   margin: 0;
   font-family: "General Sans", sans-serif;
+  /* Kill any stray horizontal scrollbar caused by descendants overflowing
+     (Bootstrap .row -15px margins, edge-of-viewport ambient gradients, etc).
+     `clip` behaves like `hidden` but doesn't create a scroll container,
+     so sticky/fixed positioning still works correctly. */
+  overflow-x: clip;
+}
+
+/* Fallback for older browsers that don't yet support overflow:clip */
+@supports not (overflow-x: clip) {
+  body { overflow-x: hidden; }
 }
 
 ::-webkit-scrollbar {

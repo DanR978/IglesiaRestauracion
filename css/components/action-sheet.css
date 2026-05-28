@@ -184,7 +184,7 @@
 .kebab-btn:hover {
   background: var(--gray-20);
   border-color: var(--color-dark);
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .kebab-btn:active { background: var(--gray-30); }

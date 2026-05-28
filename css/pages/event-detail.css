@@ -61,7 +61,7 @@
 .ed-status {
   text-align: center;
   padding: 4rem 1rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .ed-status h2 {
@@ -104,7 +104,7 @@
   font-family: var(--font-base);
   font-size: clamp(1.75rem, 4vw, 2.75rem);
   font-weight: 800;
-  color: var(--color-black);
+  color: var(--color-text);
   line-height: 1.15;
   letter-spacing: -0.5px;
 }
@@ -131,13 +131,13 @@
   align-items: center;
   gap: 0.6rem;
   font-size: var(--fs-base, 1rem);
-  color: var(--color-black);
+  color: var(--color-text);
   font-family: var(--font-base);
 }
 
 .ed-info__row svg {
   flex: 0 0 18px;
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .ed-info__actions {
@@ -164,7 +164,7 @@
 
 .ed-section__heading {
   font-weight: 700;
-  color: var(--color-dark);
+  color: var(--color-text);
   margin-bottom: 0.75rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -175,7 +175,7 @@
   font-size: var(--fs-base, 1rem);
   font-family: var(--font-base);
   font-weight: 400;
-  color: var(--color-black);
+  color: var(--color-text);
   line-height: 1.75;
 }
 

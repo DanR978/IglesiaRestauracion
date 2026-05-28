@@ -49,6 +49,7 @@ import {
   initAnimations,
   setupDirectionsButton,
 } from "./app/ui.js";
+import { initFloatingUI } from "./app/floating-ui.js";
 
 // Expose namespace for legacy/partials
 const IRD = (window.IRD ||= (IRDns ?? {}));
@@ -85,6 +86,10 @@ document.addEventListener("header:ready", () => {
   setupStickyNav?.({ sentinelSelector: '.hero', scrollThreshold: 100, hideOnScroll: true });
   setupBurgerMenu?.();
 });
+
+// Floating UI cluster (WhatsApp FAB + mobile bar) — lives in the footer
+// include, observes #header for hero-exit. Auto-boots on includes:ready.
+document.addEventListener("includes:ready", () => initFloatingUI?.());
 
 
 // ---------------------------------------------------------------------------

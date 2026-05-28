@@ -30,8 +30,8 @@
   font-family: inherit;
 }
 
-.cal-tab.active          { color: var(--color-dark); border-bottom-color: var(--color-dark); }
-.cal-tab:hover:not(.active) { color: var(--color-dark); }
+.cal-tab.active             { color: var(--color-text); border-bottom-color: var(--color-secondary, #c89858); font-weight: var(--fw-bold); }
+.cal-tab:hover:not(.active) { color: var(--color-text); }
 
 .cal-tab-panel[hidden] { display: none; }
 
@@ -43,9 +43,9 @@
 .cal-list__title {
   font-size: var(--fs-md);
   font-weight: var(--fw-bold);
-  color: var(--color-black);
+  color: var(--color-text);
   padding: 1rem 0;
-  border-bottom: 2px solid var(--color-dark);
+  border-bottom: 2px solid var(--color-text);
   text-transform: capitalize;
 }
 
@@ -150,7 +150,7 @@
 .cal-list__name {
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
-  color: var(--color-dark);
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -173,6 +173,13 @@
   border-radius: var(--radius-full);
   margin-left: 0.4rem;
   vertical-align: middle;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cal-list__cancelled-badge {
+    background: rgba(214, 48, 69, 0.22);
+    color: #f29ba8;
+  }
 }
 
 .cal-list__meta {

@@ -23,12 +23,12 @@
 .contact-info__title {
   font-size: var(--fs-2xl);
   margin-bottom: 0.5rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .contact-info__subtitle {
   font-size: var(--fs-md);
-  color: var(--color-black);
+  color: var(--color-text);
   margin-bottom: 1.5rem;
 }
 
@@ -77,7 +77,7 @@ textarea {
   border: 1px solid var(--color-black);
   border-radius: 8px;
   font-size: var(--fs-sm);
-  color: var(--color-black);
+  color: var(--color-text);
   background-color: var(--transparent);
 }
 
@@ -91,7 +91,7 @@ textarea {
 }
 
 .disclaimer p {
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 @media (max-width: 960px) {
@@ -250,7 +250,7 @@ textarea {
   top: 0;
   left: 10%;
   transform: translate(-50%, -50%) scale(0.72);
-  color: var(--color-black);
+  color: var(--color-text);
   font-weight: 600;
 }
 

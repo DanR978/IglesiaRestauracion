@@ -70,7 +70,7 @@
 .cal-day__num {
   font-size: 13px;
   font-weight: var(--fw-semibold);
-  color: var(--color-dark);
+  color: var(--color-text);
   line-height: 26px;
   width: 26px;
   height: 26px;
@@ -90,6 +90,17 @@
 
 .cal-day--past .cal-day__num  { color: var(--gray-120); }
 .cal-day--empty .cal-day__num { visibility: hidden; }
+
+/* ── Neighbor-month cells (iOS-style "ghost" days at the edges) ─── */
+.cal-day--neighbor {
+  background: var(--gray-10);
+  cursor: default;
+}
+.cal-day--neighbor .cal-day__num {
+  color: var(--gray-110);
+  opacity: 0.65;
+}
+.cal-day--neighbor:hover { background: var(--gray-10); }
 
 /* ── Event pills (desktop) ───────────────────────────── */
 .cal-day__events {
@@ -121,7 +132,7 @@
 
 .cal-day__more {
   font-size: 10px;
-  color: var(--color-dark);
+  color: var(--color-text);
   font-weight: var(--fw-semibold);
   margin-top: 1px;
   cursor: pointer;
@@ -195,6 +206,59 @@
 .dot--evangelizacion { background: #e07c18; }
 .dot--especial       { background: #d63045; }
 .dot--otro           { background: #999;    }
+
+/* ── Dark mode: invert the pill treatment ─────────────────────────────
+   Light pastel bg + saturated text doesn't read on a dark page. Switch
+   to translucent saturated bg + lighter text (same hue family), keeping
+   the category identity but flipping the contrast. */
+@media (prefers-color-scheme: dark) {
+  /* Calendar surface: solid card on the dark page (not translucent — looks
+     muddy when blended). Slightly lighter than the page bg so it reads as
+     a distinct surface. */
+  .cal-grid-wrap {
+    background: #1e272b;
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+  }
+  .cal-grid {
+    background: #1e272b;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+
+  /* Day cells: distinct enough from the wrap to read as a grid */
+  .cal-day {
+    background: #232d31;
+    border-right-color: rgba(255, 255, 255, 0.05);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+  .cal-day--past  { background: #1c2528; }
+  .cal-day--empty { background: #1a2225; }
+  .cal-day--has-events:hover { background: #2a363b; }
+
+  /* Neighbor-month cells in dark mode */
+  .cal-day--neighbor { background: #1a2225; }
+  .cal-day--neighbor:hover { background: #1a2225; }
+  .cal-day--neighbor .cal-day__num { color: rgba(230, 236, 238, 0.32); }
+
+  /* Day number — readable light text */
+  .cal-day__num { color: #e6ecee; }
+
+  /* Today: keep the solid blue circle on the number (already works in dark
+     since #2563eb is high-contrast on light text). The cell tint switches
+     to a translucent blue accent. */
+  .cal-day--today { background: rgba(37, 99, 235, 0.20); }
+  .cal-day--today.cal-day--has-events:hover { background: rgba(37, 99, 235, 0.30); }
+
+  /* Category pills — SOLID darker bg + bright readable text (not faded) */
+  .cat--servicio       { background: #1f3d3a; color: #74cfbe; }
+  .cat--estudio        { background: #1f2f54; color: #9ab3ed; }
+  .cat--oracion        { background: #2a224b; color: #bba6ed; }
+  .cat--evangelizacion { background: #3d2a16; color: #f4b372; }
+  .cat--especial       { background: #3a1f24; color: #f29ba8; }
+  .cat--otro           { background: rgba(255, 255, 255, 0.10); color: rgba(255, 255, 255, 0.82); }
+
+  /* Weekday header row already uses --color-dark which is correct in both modes */
+}
 
 /* ── Mobile overrides ────────────────────────────────── */
 @media (max-width: 480px) {

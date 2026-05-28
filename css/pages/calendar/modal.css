@@ -67,7 +67,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-dark);
+  color: var(--color-text);
   transition: background 0.15s;
 }
 
@@ -116,7 +116,7 @@
 .cal-modal__title {
   font-size: var(--fs-xl);
   font-weight: var(--fw-extrabold);
-  color: var(--color-dark);
+  color: var(--color-text);
   line-height: 1.25;
   margin-bottom: 1rem;
 }
@@ -138,7 +138,7 @@
   align-items: flex-start;
   gap: 0.7rem;
   font-size: var(--fs-sm);
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .cal-modal__row-icon {

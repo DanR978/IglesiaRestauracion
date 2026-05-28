@@ -1,5 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
    FOOTER
+   ───────────────────────────────────────────────────────────────
+   NOTE on dark mode: the footer is INTENTIONALLY always-dark in both
+   color schemes. The slate `.footer-dark` background + light text is
+   the visual anchor of the page bottom regardless of the surrounding
+   page theme. The static hex colors (#f0f9ff, --static-white) are
+   intentional, not bugs.
    ═══════════════════════════════════════════════════════════════ */
 
 .footer-dark {
@@ -469,8 +475,40 @@
   }
 }
 
-/* ===== Tablet (768–1023px) ===== */
-@media (min-width: 768px) and (max-width: 1023px) {
+/* ===== Narrow tablet / portrait (768–899px) ===========================
+   At this range, four nav columns + iglesia + contact-card side-by-side
+   gets cramped. Drop to a 2×2 nav grid and stack iglesia + contact-card
+   vertically so each can breathe at its natural width. */
+@media (min-width: 768px) and (max-width: 899px) {
+  .footer-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.25rem;
+    max-width: 100%;
+  }
+
+  .left-group {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem 2rem;
+    width: 100%;
+    max-width: 640px;
+    margin: 0;
+  }
+
+  .footer-section.iglesia {
+    max-width: 640px;
+    text-align: left;
+  }
+
+  .footer-section.contact-card {
+    margin: 0 auto;
+    max-width: 360px;
+  }
+}
+
+/* ===== Wider tablet / small laptop (900–1023px) ====================== */
+@media (min-width: 900px) and (max-width: 1023px) {
   .footer-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -482,7 +520,7 @@
 
   .left-group {
     grid-column: 1 / -1;
-    grid-template-columns: repeat(4, 1fr);   /* 4-wide on tablet */
+    grid-template-columns: repeat(4, 1fr);
     gap: 2rem 1.5rem;
     width: 100%;
     margin: 0 0 2rem;

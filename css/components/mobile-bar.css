@@ -30,11 +30,39 @@
       0 18px 40px rgba(0, 0, 0, 0.36),
       0 6px 16px rgba(0, 0, 0, 0.24),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    /* Default: HIDDEN. Floating-ui state machine (floating-ui.js + .css)
+       reveals + dismisses via body classes. */
+    opacity: 0;
+    transform: translateY(140%);
+    pointer-events: none;
+    transition:
+      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity   0.26s ease;
+  }
+
+  /* Visible — user has scrolled past the hero */
+  body.floating-ui--past-hero .mobile-bar {
+    opacity: 1;
+    transform: none;
     pointer-events: auto;
+  }
+
+  /* Dismissed — user tapped × on the FAB */
+  body.floating-ui--dismissed .mobile-bar {
+    opacity: 0;
+    transform: translateY(140%);
+    pointer-events: none;
   }
 
   /* Hide the bar when the mobile menu overlay is open (it'd float on top) */
   body:has(#mainNav.open) .mobile-bar { display: none; }
+
+  /* Fade out while a floating popup (e.g. calendar day-sheet) is open. */
+  body.has-floating-popup .mobile-bar {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
 
   .mobile-bar__btn {
     flex: 1 1 0;

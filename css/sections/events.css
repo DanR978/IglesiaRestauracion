@@ -31,7 +31,7 @@
 }
 
 .event__header h2 {
-  color: var(--color-black);
+  color: var(--color-text);
   font-size: var(--fs-3xl);
   font-weight: var(--fw-extrabold);
   margin-bottom: 1rem;
@@ -258,7 +258,7 @@
 
 .event__addcal:hover {
   background-color: var(--color-white);
-  color: #000;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -266,7 +266,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--color-black);
+  color: var(--color-text);
   font-size: var(--fs-xl);
   font-weight: var(--fw-bold);
   text-align: center;

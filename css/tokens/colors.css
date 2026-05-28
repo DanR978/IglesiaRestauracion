@@ -5,6 +5,11 @@
   --color-info: #2d4e57;
   --color-muted: #736960;
   --color-dark: #394548;
+  /* --color-text is the AUTO-REVERSING foreground text color.
+     Light mode → dark slate. Dark mode → light off-white.
+     Use this for headings/body text that should always read against the
+     page background. (--color-dark is a fixed slate used for surfaces.) */
+  --color-text: #394548;
   --color-white: #ffffff;
   --color-black: #000000;
   --color-darkmode-font: #c2e6ff;
@@ -116,8 +121,10 @@
     --color-secondary: #c89858;
     --color-accent: #be660e;
     --color-info: #2d4e57;
-    --color-muted: #736960;
+    --color-muted: #aa9b8c;     /* warmer light brown that reads on dark */
     --color-dark: #313537;
+    /* Foreground text auto-reverses to light here. */
+    --color-text: #f0f5f7;
     --color-white: #dfdedc;
     --color-black: #dfdedc;
     --color-darkmode-font: #e6faff;

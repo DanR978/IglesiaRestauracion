@@ -54,9 +54,11 @@
   font-size: clamp(2rem, 5vw + 0.5rem, 4.2rem);
   line-height: 1;
   letter-spacing: -0.025em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-transform: uppercase;
 }
+
+/* Title + CTA use --color-text which auto-reverses for dark mode. */
 
 .home-dscp-statement__meta {
   margin: 0 0 3rem;
@@ -75,13 +77,13 @@
   padding: 0.5rem 0;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-dark, #394548);
+  border-bottom: 1px solid var(--color-text, #394548);
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 1rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-decoration: none;
   cursor: pointer;
   transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),

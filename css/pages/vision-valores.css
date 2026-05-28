@@ -120,7 +120,7 @@
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-md);
-  color: var(--color-black);
+  color: var(--color-text);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -130,7 +130,7 @@
   font-family: var(--font-Lexend);
   font-weight: var(--fw-light);
   font-size: var(--fs-sm);
-  color: var(--color-black);
+  color: var(--color-text);
   opacity: 0.8;
   line-height: 1.6;
 }

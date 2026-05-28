@@ -122,7 +122,7 @@
 }
 
 .nav-container:has(.burger.open) .logo {
-  color: #000;
+  color: var(--color-text);
   transition: color 0.25s ease;
 }
 
@@ -356,7 +356,7 @@ body.no-scroll {
   .nav-container:has(.burger.open) .logo {
     position: relative;
     z-index: calc(var(--z-modal, 100) + 10);
-    color: #000;
+    color: var(--color-text);
     transition: color 0.25s ease;
   }
 
@@ -419,7 +419,7 @@ body.no-scroll {
   }
   .menu::-webkit-scrollbar { display: none; }
 
-  .menu-item { width: 100%; padding: 0; color: var(--color-dark); }
+  .menu-item { width: 100%; padding: 0; color: var(--color-text); }
 
   /* Category row — centered horizontally (text + chevron together in the middle) */
   .accordion-toggle {

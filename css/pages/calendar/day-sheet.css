@@ -1,17 +1,25 @@
 /* calendar/day-sheet.css
-   Mobile bottom drawer — shown when a day cell is tapped.
-   Shared between public calendar and admin.
-   CalendarGrid injects this into the DOM automatically. */
+   Centered popup modal — shown when a day cell is tapped.
+   Replaces the old mobile bottom-drawer pattern with a single unified
+   popup that works the same on every viewport. CalendarGrid injects this
+   into the DOM automatically. */
 
 .day-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  z-index: var(--z-overlay);
+  background: rgba(0, 0, 0, 0.48);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  /* Above WhatsApp FAB (998) + mobile action bar (90). Matches the
+     desktop calendar modal at css/pages/calendar/modal.css. */
+  z-index: var(--z-max);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
+  transition: opacity 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .day-sheet-backdrop.open {
@@ -19,47 +27,80 @@
   pointer-events: all;
 }
 
+/* ── The popup itself ─────────────────────────────────────────────── */
 .day-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: min(82vh, 720px);
   background: var(--color-white);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: 1rem 1.25rem 2.5rem;
-  max-height: 80vh;
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1.5rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom));
   overflow-y: auto;
-  transform: translateY(100%);
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+  overscroll-behavior: contain;
+  opacity: 0;
+  transform: scale(0.94) translateY(8px);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   0.22s ease;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.32),
+    0 8px 20px rgba(0, 0, 0, 0.20);
 }
 
-.day-sheet-backdrop.open .day-sheet { transform: translateY(0); }
-
-.day-sheet__handle {
-  width: 40px;
-  height: 4px;
-  background: var(--gray-80, #d0d0d0);
-  border-radius: var(--radius-sm);
-  margin: 0 auto 0.9rem;
+.day-sheet-backdrop.open .day-sheet {
+  opacity: 1;
+  transform: none;
 }
+
+/* The grab handle isn't meaningful for a centered popup — hide it. The
+   JS still renders it for legacy/backward-compat. */
+.day-sheet__handle { display: none; }
 
 .day-sheet__date {
-  font-size: var(--fs-sm);
+  font-size: 0.74rem;
   font-weight: var(--fw-bold);
-  margin-bottom: 0.85rem;
-  color: var(--color-15);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+  color: var(--color-muted);
 }
 
+/* ── Event row — unified for all events (public + admin) ─────────── */
 .day-sheet__ev {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.65rem 0;
+  gap: 0.9rem;
+  padding: 0.95rem 0.25rem;
+  border-bottom: 1px solid var(--gray-30, #f0f0f0);
+  /* Reset anchor / button styles so <a> and <button> look identical */
+  background: transparent;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: default;
+  width: 100%;
+}
+.day-sheet__ev:last-child { border-bottom: none; }
+
+.day-sheet__ev--clickable {
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+  border-radius: var(--radius-md);
+  padding: 0.95rem 0.7rem;
+  margin: 0 -0.7rem;
   border-bottom: 1px solid var(--gray-30, #f0f0f0);
 }
 
-.day-sheet__ev:last-child { border-bottom: none; }
+.day-sheet__ev--clickable:hover,
+.day-sheet__ev--clickable:focus-visible {
+  background: rgba(57, 69, 72, 0.05);
+  outline: none;
+}
 
 .day-sheet__ev-thumb {
   width: 48px;
@@ -70,17 +111,20 @@
 }
 
 .day-sheet__ev-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
-.day-sheet__ev-info  { flex: 1; min-width: 0; }
+.day-sheet__ev-info { flex: 1; min-width: 0; }
 
 .day-sheet__ev-title {
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  font-size: 1rem;
+  color: var(--color-text);
+  letter-spacing: -0.005em;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -92,38 +136,50 @@
 }
 
 .day-sheet__ev-cancelled-badge {
-  font-size: var(--fs-xxs);
+  display: inline-block;
+  font-size: 0.62rem;
   font-weight: var(--fw-bold);
   background: var(--cat-especial, #fde8ea);
   color: var(--cat-especial-t, #b02030);
-  padding: 1px 5px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
-  margin-left: 0.3rem;
+  margin-left: 0.4rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .day-sheet__ev-time {
-  font-size: var(--fs-xxs);
+  font-size: 0.82rem;
   color: var(--color-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* "Ver detalles →" affordance on every public row */
 .day-sheet__ev-link {
-  font-size: var(--fs-xxs);
-  font-weight: var(--fw-semibold);
-  color: var(--color-dark);
-  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
   white-space: nowrap;
   flex-shrink: 0;
+  transition: color 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.day-sheet__ev-link:hover { text-decoration: underline; }
-
-.day-sheet__ev-chevron {
-  color: var(--gray-100, #ccc);
-  font-size: 0.85rem;
-  flex-shrink: 0;
+.day-sheet__ev--clickable:hover .day-sheet__ev-link,
+.day-sheet__ev--clickable:focus-visible .day-sheet__ev-link {
+  color: var(--color-text);
+  transform: translateX(2px);
 }
 
+/* Admin action buttons (kept) */
 .day-sheet__ev-actions {
   display: flex;
   gap: 0.3rem;
@@ -134,4 +190,26 @@
   text-decoration: line-through;
   color: var(--color-muted);
   opacity: 0.6;
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .day-sheet {
+    background: #1e272b;
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.6),
+      0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+  .day-sheet__ev { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .day-sheet__ev--clickable { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .day-sheet__ev--clickable:hover,
+  .day-sheet__ev--clickable:focus-visible {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* ── Tiny viewports: keep popup readable, allow full-width with margin ── */
+@media (max-width: 400px) {
+  .day-sheet-backdrop { padding: 0.6rem; }
+  .day-sheet { padding: 1.25rem 1rem calc(1.5rem + env(safe-area-inset-bottom)); }
 }

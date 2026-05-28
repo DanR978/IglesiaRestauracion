@@ -19,7 +19,7 @@
   text-transform: uppercase;
   font-weight: var(--fw-bold);
   margin-bottom: 1rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .centered-text-block__title {
@@ -28,5 +28,5 @@
   line-height: 1.6;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--color-black);
+  color: var(--color-text);
 }

@@ -39,7 +39,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  color: var(--color-black);
+  color: var(--color-text);
   font-size: var(--fs-3xl);
   font-family: var(--font-lexend);
   font-weight: var(--fw-extrabold);
@@ -54,7 +54,7 @@
   font-family: var(--font-lexend);
   font-weight: var(--fw-light);
   padding-bottom: 1rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .crown-thorns {

@@ -10,7 +10,7 @@
 /* Verse body — restrained typography, serif feel for editorial weight */
 .versiculo p {
   margin: 0;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   font-size: clamp(1.2rem, 1.5vw + 0.8rem, 1.65rem);
   font-family: var(--font-Signika);
   font-weight: 500;
@@ -32,7 +32,7 @@
 }
 
 .versiculo h5 {
-  color: var(--color-dark);
+  color: var(--color-text);
   font-size: 1rem;
   font-family: var(--font-Geist);
   font-weight: var(--fw-semibold);
@@ -56,6 +56,6 @@
 
 @media (prefers-color-scheme: dark) {
   .logo-svg {
-    color: var(--color-black);
+    color: var(--color-text);
   }
 }

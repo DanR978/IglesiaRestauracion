@@ -7,6 +7,11 @@
   --color-info: #2d4e57;
   --color-muted: #736960;
   --color-dark: #394548;
+  /* --color-text is the AUTO-REVERSING foreground text color.
+     Light mode → dark slate. Dark mode → light off-white.
+     Use this for headings/body text that should always read against the
+     page background. (--color-dark is a fixed slate used for surfaces.) */
+  --color-text: #394548;
   --color-white: #ffffff;
   --color-black: #000000;
   --color-darkmode-font: #c2e6ff;
@@ -118,8 +123,10 @@
     --color-secondary: #c89858;
     --color-accent: #be660e;
     --color-info: #2d4e57;
-    --color-muted: #736960;
+    --color-muted: #aa9b8c;     /* warmer light brown that reads on dark */
     --color-dark: #313537;
+    /* Foreground text auto-reverses to light here. */
+    --color-text: #f0f5f7;
     --color-white: #dfdedc;
     --color-black: #dfdedc;
     --color-darkmode-font: #e6faff;
@@ -350,6 +357,16 @@ html.ready {
 body {
   margin: 0;
   font-family: "General Sans", sans-serif;
+  /* Kill any stray horizontal scrollbar caused by descendants overflowing
+     (Bootstrap .row -15px margins, edge-of-viewport ambient gradients, etc).
+     `clip` behaves like `hidden` but doesn't create a scroll container,
+     so sticky/fixed positioning still works correctly. */
+  overflow-x: clip;
+}
+
+/* Fallback for older browsers that don't yet support overflow:clip */
+@supports not (overflow-x: clip) {
+  body { overflow-x: hidden; }
 }
 
 ::-webkit-scrollbar {
@@ -593,19 +610,19 @@ button:active {
   font-size: var(--fs-3xl);
   font-weight: var(--fw-extrabold);
   letter-spacing: 2px;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .zigzag-card h5 {
   font-size: var(--fs-md);
   font-weight: var(--fw-semibold);
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .zigzag-card p {
   font-size: var(--fs-md);
   font-weight: var(--fw-light);
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 /* Mobile: stack; image first; tweak sizes */
@@ -817,7 +834,7 @@ button:active {
 .kebab-btn:hover {
   background: var(--gray-20);
   border-color: var(--color-dark);
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .kebab-btn:active { background: var(--gray-30); }
@@ -930,7 +947,7 @@ button:active {
 }
 
 .ird-btn--outline.ird-btn--teal {
-  color: var(--color-dark);
+  color: var(--color-text);
   border-color: var(--color-dark);
 }
 
@@ -966,7 +983,7 @@ button:active {
 
 .ird-btn--outline.ird-btn--white-fill:hover {
   background-color: var(--color-white);
-  color: #000;
+  color: var(--color-text);
   border-color: var(--color-white);
   box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
 }
@@ -1219,7 +1236,7 @@ button:active {
   text-transform: uppercase;
   font-weight: var(--fw-bold);
   margin-bottom: 1rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .centered-text-block__title {
@@ -1228,8 +1245,124 @@ button:active {
   line-height: 1.6;
   letter-spacing: -0.05em;
   text-transform: uppercase;
-  color: var(--color-black);
+  color: var(--color-text);
 }
+/* -- components floating-ui -- */
+/* =============================================================================
+   FLOATING UI — dismiss × button + peek tab + reduced-motion fallback
+   ─────────────────────────────────────────────────────────────────────────
+   The show/hide *transform* logic for .whatsapp-fab and .mobile-bar lives
+   in their own component files (whatsapp-fab.css and mobile-bar.css) —
+   those files own the base hidden state + body.floating-ui--past-hero /
+   floating-ui--dismissed overrides.
+   This file owns just:
+     • the × dismiss button injected on the FAB
+     • the peek tab shown while dismissed
+     • the prefers-reduced-motion override
+   ============================================================================= */
+
+/* ── Dismiss × on the FAB ─────────────────────────────────────────── */
+.floating-ui__dismiss {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(20, 30, 35, 0.92);
+  color: var(--color-white);
+  border: 1.5px solid var(--color-white);
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1;
+}
+
+.floating-ui__dismiss svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.floating-ui__dismiss:hover,
+.floating-ui__dismiss:focus-visible {
+  transform: scale(1.1);
+  background: var(--color-dark, #394548);
+  outline: none;
+}
+
+/* ── Peek tab — only shown while dismissed AND past the hero ──────── */
+.floating-ui__peek {
+  position: fixed;
+  right: clamp(0.5rem, 1.2vw, 1rem);
+  bottom: calc(0.4rem + env(safe-area-inset-bottom));
+  width: 44px;
+  height: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px 14px 4px 4px;
+  background: var(--color-dark, #394548);
+  color: var(--color-white);
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  z-index: 997;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(60%);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   0.26s ease,
+    background-color 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.floating-ui__peek svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.floating-ui--past-hero.floating-ui--dismissed .floating-ui__peek {
+  display: inline-flex;
+  opacity: 1;
+  transform: none;
+}
+
+.floating-ui__peek:hover,
+.floating-ui__peek:focus-visible {
+  background: var(--color-secondary, #c89858);
+  outline: none;
+}
+
+/* Kill the pulsing halo on the FAB while it's dismissed */
+body.floating-ui--dismissed .whatsapp-fab { animation: none; }
+
+/* ── Reduced motion: no slide, just opacity ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab,
+  .mobile-bar,
+  .floating-ui__peek {
+    transform: none !important;
+    transition: opacity 0.18s ease;
+  }
+}
+
 /* -- components glasscard -- */
 .glass-card {
   background: rgba(255, 255, 255, 0.2);
@@ -1417,7 +1550,7 @@ button:active {
 }
 /* -- components logos -- */
 .church-logo-svg-dark {
-    color: var(--color-dark);
+    color: var(--color-text);
 }
 
 .church-logo-svg-white {
@@ -1462,11 +1595,39 @@ button:active {
       0 18px 40px rgba(0, 0, 0, 0.36),
       0 6px 16px rgba(0, 0, 0, 0.24),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    /* Default: HIDDEN. Floating-ui state machine (floating-ui.js + .css)
+       reveals + dismisses via body classes. */
+    opacity: 0;
+    transform: translateY(140%);
+    pointer-events: none;
+    transition:
+      transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity   0.26s ease;
+  }
+
+  /* Visible — user has scrolled past the hero */
+  body.floating-ui--past-hero .mobile-bar {
+    opacity: 1;
+    transform: none;
     pointer-events: auto;
+  }
+
+  /* Dismissed — user tapped × on the FAB */
+  body.floating-ui--dismissed .mobile-bar {
+    opacity: 0;
+    transform: translateY(140%);
+    pointer-events: none;
   }
 
   /* Hide the bar when the mobile menu overlay is open (it'd float on top) */
   body:has(#mainNav.open) .mobile-bar { display: none; }
+
+  /* Fade out while a floating popup (e.g. calendar day-sheet) is open. */
+  body.has-floating-popup .mobile-bar {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.22s ease;
+  }
 
   .mobile-bar__btn {
     flex: 1 1 0;
@@ -1727,7 +1888,7 @@ button:active {
   pointer-events: auto;
   background-color: var(--color-white);
   /* neutral = white */
-  color: var(--color-black);
+  color: var(--color-text);
   /* neutral text */
   border-radius: 12px;
   padding: 12px 14px 12px 16px;
@@ -1917,8 +2078,29 @@ button:active {
   box-shadow:
     0 12px 30px rgba(37, 211, 102, 0.42),
     0 4px 12px rgba(0, 0, 0, 0.18);
-  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
-              box-shadow 0.22s ease;
+  /* Default: HIDDEN. The floating-ui state machine in floating-ui.css /
+     floating-ui.js reveals + dismisses this via body classes. */
+  opacity: 0;
+  transform: translateY(140%) scale(0.92);
+  pointer-events: none;
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   0.26s ease,
+    box-shadow 0.22s ease;
+}
+
+/* Visible — user has scrolled past the hero */
+body.floating-ui--past-hero .whatsapp-fab {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* Dismissed — user tapped × (peek tab is rendered in floating-ui.css) */
+body.floating-ui--dismissed .whatsapp-fab {
+  opacity: 0;
+  transform: translateY(140%) scale(0.92);
+  pointer-events: none;
 }
 
 .whatsapp-fab svg {
@@ -1927,8 +2109,9 @@ button:active {
   fill: currentColor;
 }
 
-.whatsapp-fab:hover,
-.whatsapp-fab:focus-visible {
+/* Hover only matters when the FAB is actually visible (past hero, not dismissed) */
+body.floating-ui--past-hero:not(.floating-ui--dismissed) .whatsapp-fab:hover,
+body.floating-ui--past-hero:not(.floating-ui--dismissed) .whatsapp-fab:focus-visible {
   transform: translateY(-3px) scale(1.04);
   color: var(--color-white);
   text-decoration: none;
@@ -1959,6 +2142,15 @@ button:active {
 
 @media (prefers-reduced-motion: reduce) {
   .whatsapp-fab { animation: none; }
+}
+
+/* While a floating popup (e.g. the calendar day-sheet) is open, fade the
+   FAB out so it doesn't compete with the popup. If the FAB was already
+   hidden (user in hero, or user has dismissed), this is a no-op. */
+body.has-floating-popup .whatsapp-fab {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s ease;
 }
 
 /* Lift the FAB above the mobile bar on phones so they don't overlap */
@@ -1997,12 +2189,12 @@ button:active {
 .contact-info__title {
   font-size: var(--fs-2xl);
   margin-bottom: 0.5rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .contact-info__subtitle {
   font-size: var(--fs-md);
-  color: var(--color-black);
+  color: var(--color-text);
   margin-bottom: 1.5rem;
 }
 
@@ -2051,7 +2243,7 @@ textarea {
   border: 1px solid var(--color-black);
   border-radius: 8px;
   font-size: var(--fs-sm);
-  color: var(--color-black);
+  color: var(--color-text);
   background-color: var(--transparent);
 }
 
@@ -2065,7 +2257,7 @@ textarea {
 }
 
 .disclaimer p {
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 @media (max-width: 960px) {
@@ -2224,7 +2416,7 @@ textarea {
   top: 0;
   left: 10%;
   transform: translate(-50%, -50%) scale(0.72);
-  color: var(--color-black);
+  color: var(--color-text);
   font-weight: 600;
 }
 
@@ -2278,7 +2470,7 @@ textarea {
 }
 
 .event__header h2 {
-  color: var(--color-black);
+  color: var(--color-text);
   font-size: var(--fs-3xl);
   font-weight: var(--fw-extrabold);
   margin-bottom: 1rem;
@@ -2505,7 +2697,7 @@ textarea {
 
 .event__addcal:hover {
   background-color: var(--color-white);
-  color: #000;
+  color: var(--color-text);
   text-decoration: none;
 }
 
@@ -2513,7 +2705,7 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--color-black);
+  color: var(--color-text);
   font-size: var(--fs-xl);
   font-weight: var(--fw-bold);
   text-align: center;
@@ -2674,6 +2866,12 @@ textarea {
 /* -- sections footer -- */
 /* ═══════════════════════════════════════════════════════════════
    FOOTER
+   ───────────────────────────────────────────────────────────────
+   NOTE on dark mode: the footer is INTENTIONALLY always-dark in both
+   color schemes. The slate `.footer-dark` background + light text is
+   the visual anchor of the page bottom regardless of the surrounding
+   page theme. The static hex colors (#f0f9ff, --static-white) are
+   intentional, not bugs.
    ═══════════════════════════════════════════════════════════════ */
 
 .footer-dark {
@@ -3143,8 +3341,40 @@ textarea {
   }
 }
 
-/* ===== Tablet (768–1023px) ===== */
-@media (min-width: 768px) and (max-width: 1023px) {
+/* ===== Narrow tablet / portrait (768–899px) ===========================
+   At this range, four nav columns + iglesia + contact-card side-by-side
+   gets cramped. Drop to a 2×2 nav grid and stack iglesia + contact-card
+   vertically so each can breathe at its natural width. */
+@media (min-width: 768px) and (max-width: 899px) {
+  .footer-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.25rem;
+    max-width: 100%;
+  }
+
+  .left-group {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.75rem 2rem;
+    width: 100%;
+    max-width: 640px;
+    margin: 0;
+  }
+
+  .footer-section.iglesia {
+    max-width: 640px;
+    text-align: left;
+  }
+
+  .footer-section.contact-card {
+    margin: 0 auto;
+    max-width: 360px;
+  }
+}
+
+/* ===== Wider tablet / small laptop (900–1023px) ====================== */
+@media (min-width: 900px) and (max-width: 1023px) {
   .footer-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -3156,7 +3386,7 @@ textarea {
 
   .left-group {
     grid-column: 1 / -1;
-    grid-template-columns: repeat(4, 1fr);   /* 4-wide on tablet */
+    grid-template-columns: repeat(4, 1fr);
     gap: 2rem 1.5rem;
     width: 100%;
     margin: 0 0 2rem;
@@ -3330,7 +3560,7 @@ textarea {
 }
 
 .nav-container:has(.burger.open) .logo {
-  color: #000;
+  color: var(--color-text);
   transition: color 0.25s ease;
 }
 
@@ -3564,7 +3794,7 @@ body.no-scroll {
   .nav-container:has(.burger.open) .logo {
     position: relative;
     z-index: calc(var(--z-modal, 100) + 10);
-    color: #000;
+    color: var(--color-text);
     transition: color 0.25s ease;
   }
 
@@ -3627,7 +3857,7 @@ body.no-scroll {
   }
   .menu::-webkit-scrollbar { display: none; }
 
-  .menu-item { width: 100%; padding: 0; color: var(--color-dark); }
+  .menu-item { width: 100%; padding: 0; color: var(--color-text); }
 
   /* Category row — centered horizontally (text + chevron together in the middle) */
   .accordion-toggle {
@@ -4277,6 +4507,35 @@ body.no-scroll {
   inset: 0;
 }
 
+/* ── Hero video — optional, injected by include.js when the <header> has
+   `data-hero-video="<mp4 url>"`. Sits over the poster .hero image; the
+   poster shows through until the video starts playing, then we cross-fade
+   the video in. Falls back to just the poster image if the video can't
+   play (reduced motion, slow network, codec missing). */
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;                  /* same plane as .hero img; later in DOM wins */
+  pointer-events: none;        /* clicks pass through to UI on top */
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.hero-video.is-playing { opacity: 1; }
+
+/* On very small mobile devices, the autoplay can be expensive — but we
+   still want the cinematic moment. Modern phones handle it fine. If we
+   ever want to disable on mobile, swap this to `display: none`. */
+@media (prefers-reduced-motion: reduce) {
+  /* include.js doesn't insert the video when reduced-motion is set, but
+     leave this rule as a defense-in-depth for any markup that ships it
+     directly. */
+  .hero-video { display: none !important; }
+}
+
 /* Hero Content */
 .hero-content {
   position: absolute;
@@ -4522,9 +4781,11 @@ body.no-scroll {
   font-size: clamp(2rem, 5vw + 0.5rem, 4.2rem);
   line-height: 1;
   letter-spacing: -0.025em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-transform: uppercase;
 }
+
+/* Title + CTA use --color-text which auto-reverses for dark mode. */
 
 .home-dscp-statement__meta {
   margin: 0 0 3rem;
@@ -4543,13 +4804,13 @@ body.no-scroll {
   padding: 0.5rem 0;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-dark, #394548);
+  border-bottom: 1px solid var(--color-text, #394548);
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 1rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-decoration: none;
   cursor: pointer;
   transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
@@ -4591,6 +4852,12 @@ body.no-scroll {
    HOMEPAGE — Tu aporte (donation)
    Single primary CTA — no amount suggestions. We don't tell people what to
    give; we tell them the impact and let them decide.
+
+   NOTE on dark mode: this section is INTENTIONALLY always-dark in both
+   color schemes. The slate-on-amber-glow band IS the visual moment — a
+   cinematic interlude in the page rhythm. White text on slate reads
+   identically whether the surrounding page is light or dark, so no
+   prefers-color-scheme override is needed (or wanted) here.
    ============================================================================= */
 
 .home-give {
@@ -4744,6 +5011,17 @@ body.no-scroll {
   overflow: hidden;
 }
 
+/* Dark mode: flip the ambient gradients to subtle warm + cool light tints
+   so the section still has visible "depth" against the dark page bg. */
+@media (prefers-color-scheme: dark) {
+  .home-pastor {
+    background:
+      radial-gradient(ellipse 80% 70% at 90% 0%, rgba(200, 152, 88, 0.07), transparent 60%),
+      radial-gradient(ellipse 60% 80% at 0% 100%, rgba(255, 255, 255, 0.03), transparent 70%),
+      var(--color-bg-light, #121c1f);
+  }
+}
+
 .home-pastor__inner {
   max-width: 1080px;
   margin: 0 auto;
@@ -4833,6 +5111,14 @@ body.no-scroll {
   position: relative;
 }
 
+/* Quote text, signature, and CTA all use --color-text which auto-reverses.
+   Only the photo background needs a dark-mode tweak so the fallback icon
+   doesn't read as a bright white square against the dark page. */
+@media (prefers-color-scheme: dark) {
+  .home-pastor__media          { background: rgba(255, 255, 255, 0.04); }
+  .home-pastor__media-fallback { background: rgba(255, 255, 255, 0.04); color: rgba(240, 245, 247, 0.32); }
+}
+
 .home-pastor__quote p {
   margin: 0;
   font-family: var(--font-Signika);
@@ -4840,7 +5126,7 @@ body.no-scroll {
   font-size: clamp(1.25rem, 1.5vw + 0.8rem, 1.7rem);
   line-height: 1.4;
   letter-spacing: -0.012em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
 }
 
 .home-pastor__sign {
@@ -4854,7 +5140,7 @@ body.no-scroll {
 .home-pastor__sign strong {
   display: block;
   font-weight: 700;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   letter-spacing: 0.005em;
 }
 
@@ -4871,13 +5157,13 @@ body.no-scroll {
   padding: 0.5rem 0;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-dark, #394548);
+  border-bottom: 1px solid var(--color-text, #394548);
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 0.9rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-decoration: none;
   transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
               color 0.22s ease,
@@ -4946,7 +5232,7 @@ body.no-scroll {
   font-size: clamp(1.8rem, 3.8vw + 0.5rem, 3.2rem);
   line-height: 1.08;
   letter-spacing: -0.02em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
 }
 
 /* 3-column grid on desktop, stacks on mobile */
@@ -4976,8 +5262,20 @@ body.no-scroll {
   transition:
     transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.32s ease,
-    border-color 0.32s ease;
+    border-color 0.32s ease,
+    background-color 0.32s ease;
   overflow: hidden;
+}
+
+/* Dark mode: --color-white flips to a very light gray which reads OK as a
+   card surface against the dark page, but the border becomes invisible.
+   Use a translucent-white glass surface + a slightly more visible border. */
+@media (prefers-color-scheme: dark) {
+  .home-welcome__card {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.10);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
 }
 
 /* Subtle amber top accent — appears on hover */
@@ -5026,7 +5324,7 @@ body.no-scroll {
   font-size: 1.25rem;
   line-height: 1.2;
   letter-spacing: -0.012em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
 }
 
 .home-welcome__card-body {
@@ -5045,13 +5343,13 @@ body.no-scroll {
   padding: 0.5rem 0;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-dark, #394548);
+  border-bottom: 1px solid var(--color-text, #394548);
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 0.92rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-decoration: none;
   transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
               color 0.22s ease,
@@ -5126,7 +5424,7 @@ body.no-scroll {
   font-size: clamp(1.8rem, 4vw + 0.4rem, 3.4rem);
   line-height: 1.05;
   letter-spacing: -0.02em;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-transform: uppercase;
 }
 
@@ -5220,6 +5518,15 @@ body.no-scroll {
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Dark mode: flip the frosted-white pill to a frosted-dark pill so it
+   still reads against varied photo content + dark page chrome. */
+@media (prefers-color-scheme: dark) {
+  .hg-feature__tag {
+    background: rgba(20, 30, 35, 0.72);
+    color: #f0f5f7;
+  }
+}
+
 /* Kill the on-click halo on iOS/Android but keep keyboard focus visible */
 .hg-feature:focus { outline: none; }
 .hg-feature:focus-visible { outline: 2px solid var(--color-secondary); outline-offset: 4px; border-radius: var(--radius-lg, 1rem); }
@@ -5261,7 +5568,7 @@ body.no-scroll {
   font-size: clamp(1.5rem, 2.2vw + 0.5rem, 2.1rem);
   line-height: 1.15;
   letter-spacing: -0.012em;
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .hg-side__count {
@@ -5338,13 +5645,13 @@ body.no-scroll {
   padding: 0.5rem 0;
   background: transparent;
   border: 0;
-  border-bottom: 1px solid var(--color-dark, #394548);
+  border-bottom: 1px solid var(--color-text, #394548);
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 0.92rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   text-decoration: none;
   transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
               color 0.22s ease,
@@ -5489,7 +5796,7 @@ body.no-scroll {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  color: var(--color-black);
+  color: var(--color-text);
   font-size: var(--fs-3xl);
   font-family: var(--font-lexend);
   font-weight: var(--fw-extrabold);
@@ -5504,7 +5811,7 @@ body.no-scroll {
   font-family: var(--font-lexend);
   font-weight: var(--fw-light);
   padding-bottom: 1rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .crown-thorns {
@@ -5542,7 +5849,7 @@ body.no-scroll {
   font-weight: var(--fw-bold);
   text-align: center;
   margin-bottom: var(--mg-lg);
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .accordion-faq__item {
@@ -5585,7 +5892,7 @@ body.no-scroll {
   overflow: hidden;
   padding: 0 var(--btn-pd-x);
   opacity: 0;
-  color: var(--color-black);
+  color: var(--color-text);
   transition:
     max-height 0.5s ease,
     opacity 0.5s ease,
@@ -5616,7 +5923,7 @@ body.no-scroll {
 .section-divider__text {
   font-size: var(--fs-xl);
   font-weight: var(--fw-bold);
-  color: var(--color-black);
+  color: var(--color-text);
   font-family: var(--font-Geist);
   white-space: nowrap;
 }
@@ -5716,7 +6023,7 @@ body.no-scroll {
 /* Verse body — restrained typography, serif feel for editorial weight */
 .versiculo p {
   margin: 0;
-  color: var(--color-dark, #394548);
+  color: var(--color-text, #394548);
   font-size: clamp(1.2rem, 1.5vw + 0.8rem, 1.65rem);
   font-family: var(--font-Signika);
   font-weight: 500;
@@ -5738,7 +6045,7 @@ body.no-scroll {
 }
 
 .versiculo h5 {
-  color: var(--color-dark);
+  color: var(--color-text);
   font-size: 1rem;
   font-family: var(--font-Geist);
   font-weight: var(--fw-semibold);
@@ -5762,7 +6069,7 @@ body.no-scroll {
 
 @media (prefers-color-scheme: dark) {
   .logo-svg {
-    color: var(--color-black);
+    color: var(--color-text);
   }
 }
 /* -- pages admin auth-animation -- */
@@ -9382,19 +9689,27 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 /* -- pages calendar day-sheet -- */
 /* calendar/day-sheet.css
-   Mobile bottom drawer — shown when a day cell is tapped.
-   Shared between public calendar and admin.
-   CalendarGrid injects this into the DOM automatically. */
+   Centered popup modal — shown when a day cell is tapped.
+   Replaces the old mobile bottom-drawer pattern with a single unified
+   popup that works the same on every viewport. CalendarGrid injects this
+   into the DOM automatically. */
 
 .day-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(2px);
-  z-index: var(--z-overlay);
+  background: rgba(0, 0, 0, 0.48);
+  -webkit-backdrop-filter: blur(6px);
+          backdrop-filter: blur(6px);
+  /* Above WhatsApp FAB (998) + mobile action bar (90). Matches the
+     desktop calendar modal at css/pages/calendar/modal.css. */
+  z-index: var(--z-max);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
+  transition: opacity 0.22s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .day-sheet-backdrop.open {
@@ -9402,47 +9717,80 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   pointer-events: all;
 }
 
+/* ── The popup itself ─────────────────────────────────────────────── */
 .day-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  max-height: min(82vh, 720px);
   background: var(--color-white);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: 1rem 1.25rem 2.5rem;
-  max-height: 80vh;
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1.5rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom));
   overflow-y: auto;
-  transform: translateY(100%);
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15);
+  overscroll-behavior: contain;
+  opacity: 0;
+  transform: scale(0.94) translateY(8px);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   0.22s ease;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.32),
+    0 8px 20px rgba(0, 0, 0, 0.20);
 }
 
-.day-sheet-backdrop.open .day-sheet { transform: translateY(0); }
-
-.day-sheet__handle {
-  width: 40px;
-  height: 4px;
-  background: var(--gray-80, #d0d0d0);
-  border-radius: var(--radius-sm);
-  margin: 0 auto 0.9rem;
+.day-sheet-backdrop.open .day-sheet {
+  opacity: 1;
+  transform: none;
 }
+
+/* The grab handle isn't meaningful for a centered popup — hide it. The
+   JS still renders it for legacy/backward-compat. */
+.day-sheet__handle { display: none; }
 
 .day-sheet__date {
-  font-size: var(--fs-sm);
+  font-size: 0.74rem;
   font-weight: var(--fw-bold);
-  margin-bottom: 0.85rem;
-  color: var(--color-15);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+  color: var(--color-muted);
 }
 
+/* ── Event row — unified for all events (public + admin) ─────────── */
 .day-sheet__ev {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  padding: 0.65rem 0;
+  gap: 0.9rem;
+  padding: 0.95rem 0.25rem;
+  border-bottom: 1px solid var(--gray-30, #f0f0f0);
+  /* Reset anchor / button styles so <a> and <button> look identical */
+  background: transparent;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: default;
+  width: 100%;
+}
+.day-sheet__ev:last-child { border-bottom: none; }
+
+.day-sheet__ev--clickable {
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+  border-radius: var(--radius-md);
+  padding: 0.95rem 0.7rem;
+  margin: 0 -0.7rem;
   border-bottom: 1px solid var(--gray-30, #f0f0f0);
 }
 
-.day-sheet__ev:last-child { border-bottom: none; }
+.day-sheet__ev--clickable:hover,
+.day-sheet__ev--clickable:focus-visible {
+  background: rgba(57, 69, 72, 0.05);
+  outline: none;
+}
 
 .day-sheet__ev-thumb {
   width: 48px;
@@ -9453,17 +9801,20 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 
 .day-sheet__ev-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: var(--radius-full);
   flex-shrink: 0;
 }
 
-.day-sheet__ev-info  { flex: 1; min-width: 0; }
+.day-sheet__ev-info { flex: 1; min-width: 0; }
 
 .day-sheet__ev-title {
-  font-weight: var(--fw-semibold);
-  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  font-size: 1rem;
+  color: var(--color-text);
+  letter-spacing: -0.005em;
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9475,38 +9826,50 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 
 .day-sheet__ev-cancelled-badge {
-  font-size: var(--fs-xxs);
+  display: inline-block;
+  font-size: 0.62rem;
   font-weight: var(--fw-bold);
   background: var(--cat-especial, #fde8ea);
   color: var(--cat-especial-t, #b02030);
-  padding: 1px 5px;
+  padding: 2px 7px;
   border-radius: var(--radius-full);
-  margin-left: 0.3rem;
+  margin-left: 0.4rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .day-sheet__ev-time {
-  font-size: var(--fs-xxs);
+  font-size: 0.82rem;
   color: var(--color-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* "Ver detalles →" affordance on every public row */
 .day-sheet__ev-link {
-  font-size: var(--fs-xxs);
-  font-weight: var(--fw-semibold);
-  color: var(--color-dark);
-  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
   white-space: nowrap;
   flex-shrink: 0;
+  transition: color 0.18s ease, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.day-sheet__ev-link:hover { text-decoration: underline; }
-
-.day-sheet__ev-chevron {
-  color: var(--gray-100, #ccc);
-  font-size: 0.85rem;
-  flex-shrink: 0;
+.day-sheet__ev--clickable:hover .day-sheet__ev-link,
+.day-sheet__ev--clickable:focus-visible .day-sheet__ev-link {
+  color: var(--color-text);
+  transform: translateX(2px);
 }
 
+/* Admin action buttons (kept) */
 .day-sheet__ev-actions {
   display: flex;
   gap: 0.3rem;
@@ -9518,6 +9881,29 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   color: var(--color-muted);
   opacity: 0.6;
 }
+
+/* ── Dark mode ──────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .day-sheet {
+    background: #1e272b;
+    box-shadow:
+      0 24px 60px rgba(0, 0, 0, 0.6),
+      0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+  .day-sheet__ev { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .day-sheet__ev--clickable { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .day-sheet__ev--clickable:hover,
+  .day-sheet__ev--clickable:focus-visible {
+    background: rgba(255, 255, 255, 0.04);
+  }
+}
+
+/* ── Tiny viewports: keep popup readable, allow full-width with margin ── */
+@media (max-width: 400px) {
+  .day-sheet-backdrop { padding: 0.6rem; }
+  .day-sheet { padding: 1.25rem 1rem calc(1.5rem + env(safe-area-inset-bottom)); }
+}
+
 /* -- pages calendar grid -- */
 /* calendar/grid.css
    The calendar grid: container, weekday headers, day cells,
@@ -9591,7 +9977,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .cal-day__num {
   font-size: 13px;
   font-weight: var(--fw-semibold);
-  color: var(--color-dark);
+  color: var(--color-text);
   line-height: 26px;
   width: 26px;
   height: 26px;
@@ -9611,6 +9997,17 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 
 .cal-day--past .cal-day__num  { color: var(--gray-120); }
 .cal-day--empty .cal-day__num { visibility: hidden; }
+
+/* ── Neighbor-month cells (iOS-style "ghost" days at the edges) ─── */
+.cal-day--neighbor {
+  background: var(--gray-10);
+  cursor: default;
+}
+.cal-day--neighbor .cal-day__num {
+  color: var(--gray-110);
+  opacity: 0.65;
+}
+.cal-day--neighbor:hover { background: var(--gray-10); }
 
 /* ── Event pills (desktop) ───────────────────────────── */
 .cal-day__events {
@@ -9642,7 +10039,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 
 .cal-day__more {
   font-size: 10px;
-  color: var(--color-dark);
+  color: var(--color-text);
   font-weight: var(--fw-semibold);
   margin-top: 1px;
   cursor: pointer;
@@ -9716,6 +10113,59 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .dot--evangelizacion { background: #e07c18; }
 .dot--especial       { background: #d63045; }
 .dot--otro           { background: #999;    }
+
+/* ── Dark mode: invert the pill treatment ─────────────────────────────
+   Light pastel bg + saturated text doesn't read on a dark page. Switch
+   to translucent saturated bg + lighter text (same hue family), keeping
+   the category identity but flipping the contrast. */
+@media (prefers-color-scheme: dark) {
+  /* Calendar surface: solid card on the dark page (not translucent — looks
+     muddy when blended). Slightly lighter than the page bg so it reads as
+     a distinct surface. */
+  .cal-grid-wrap {
+    background: #1e272b;
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.45);
+  }
+  .cal-grid {
+    background: #1e272b;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+  }
+
+  /* Day cells: distinct enough from the wrap to read as a grid */
+  .cal-day {
+    background: #232d31;
+    border-right-color: rgba(255, 255, 255, 0.05);
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+  .cal-day--past  { background: #1c2528; }
+  .cal-day--empty { background: #1a2225; }
+  .cal-day--has-events:hover { background: #2a363b; }
+
+  /* Neighbor-month cells in dark mode */
+  .cal-day--neighbor { background: #1a2225; }
+  .cal-day--neighbor:hover { background: #1a2225; }
+  .cal-day--neighbor .cal-day__num { color: rgba(230, 236, 238, 0.32); }
+
+  /* Day number — readable light text */
+  .cal-day__num { color: #e6ecee; }
+
+  /* Today: keep the solid blue circle on the number (already works in dark
+     since #2563eb is high-contrast on light text). The cell tint switches
+     to a translucent blue accent. */
+  .cal-day--today { background: rgba(37, 99, 235, 0.20); }
+  .cal-day--today.cal-day--has-events:hover { background: rgba(37, 99, 235, 0.30); }
+
+  /* Category pills — SOLID darker bg + bright readable text (not faded) */
+  .cat--servicio       { background: #1f3d3a; color: #74cfbe; }
+  .cat--estudio        { background: #1f2f54; color: #9ab3ed; }
+  .cat--oracion        { background: #2a224b; color: #bba6ed; }
+  .cat--evangelizacion { background: #3d2a16; color: #f4b372; }
+  .cat--especial       { background: #3a1f24; color: #f29ba8; }
+  .cat--otro           { background: rgba(255, 255, 255, 0.10); color: rgba(255, 255, 255, 0.82); }
+
+  /* Weekday header row already uses --color-dark which is correct in both modes */
+}
 
 /* ── Mobile overrides ────────────────────────────────── */
 @media (max-width: 480px) {
@@ -9808,8 +10258,8 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: inherit;
 }
 
-.cal-tab.active          { color: var(--color-dark); border-bottom-color: var(--color-dark); }
-.cal-tab:hover:not(.active) { color: var(--color-dark); }
+.cal-tab.active             { color: var(--color-text); border-bottom-color: var(--color-secondary, #c89858); font-weight: var(--fw-bold); }
+.cal-tab:hover:not(.active) { color: var(--color-text); }
 
 .cal-tab-panel[hidden] { display: none; }
 
@@ -9821,9 +10271,9 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .cal-list__title {
   font-size: var(--fs-md);
   font-weight: var(--fw-bold);
-  color: var(--color-black);
+  color: var(--color-text);
   padding: 1rem 0;
-  border-bottom: 2px solid var(--color-dark);
+  border-bottom: 2px solid var(--color-text);
   text-transform: capitalize;
 }
 
@@ -9928,7 +10378,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .cal-list__name {
   font-size: var(--fs-sm);
   font-weight: var(--fw-semibold);
-  color: var(--color-dark);
+  color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -9951,6 +10401,13 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   border-radius: var(--radius-full);
   margin-left: 0.4rem;
   vertical-align: middle;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cal-list__cancelled-badge {
+    background: rgba(214, 48, 69, 0.22);
+    color: #f29ba8;
+  }
 }
 
 .cal-list__meta {
@@ -10147,7 +10604,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--color-dark);
+  color: var(--color-text);
   transition: background 0.15s;
 }
 
@@ -10196,7 +10653,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .cal-modal__title {
   font-size: var(--fs-xl);
   font-weight: var(--fw-extrabold);
-  color: var(--color-dark);
+  color: var(--color-text);
   line-height: 1.25;
   margin-bottom: 1rem;
 }
@@ -10218,7 +10675,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   align-items: flex-start;
   gap: 0.7rem;
   font-size: var(--fs-sm);
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .cal-modal__row-icon {
@@ -10271,14 +10728,14 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--color-dark);
+  color: var(--color-text);
   transition: background 0.35s, border-color 0.35s, color 0.35s;
 }
 
 .cal-nav__btn:hover {
-  background: var(--color-dark);
-  border-color: var(--color-dark);
-  color: var(--color-white);
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-bg-light);
 }
 
 .cal-nav__btn svg {
@@ -10294,8 +10751,12 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .cal-nav__label {
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
-  color: var(--static-black);
+  color: var(--color-text);
   text-transform: capitalize;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cal-nav__btn { border-color: rgba(255, 255, 255, 0.22); }
 }
 /* -- pages calendar page -- */
 /* calendar/page.css
@@ -10416,7 +10877,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .sermon-header__title {
   font-size: var(--fs-lg);
   font-weight: 700;
-  color: var(--color-dark);
+  color: var(--color-text);
   display: flex;
   align-items: center;
   gap: 0.8rem;
@@ -10574,7 +11035,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-size: 1.2rem;
   font-weight: 700;
   line-height: 1.35;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .sermon-player__meta {
@@ -10586,7 +11047,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .sermon-player__desc {
   font-size: 0.9rem;
   line-height: 1.65;
-  color: var(--color-dark);
+  color: var(--color-text);
   max-width: 720px;
 }
 
@@ -10734,7 +11195,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-dark);
+  color: var(--color-text);
 
   background: rgba(0, 120, 255, 0.08);
   border: 1px solid rgba(0, 120, 255, 0.18);
@@ -10823,7 +11284,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-lg);
-  color: var(--color-dark);
+  color: var(--color-text);
   margin: 0;
   letter-spacing: -0.01em;
 }
@@ -10921,7 +11382,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-size: clamp(3rem, 2rem + 2.5vw, 4.5rem);
   line-height: 0.9;
   letter-spacing: -0.05em;
-  color: var(--color-dark);
+  color: var(--color-text);
   margin: 0 0 0.3rem;
 }
 
@@ -10929,7 +11390,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-md);
-  color: var(--color-black);
+  color: var(--color-text);
   margin: 0 0 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -10990,7 +11451,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-md);
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .dscp-group {
@@ -11041,9 +11502,9 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 
 .dscp-group__status--open        { color: var(--color-success); }
-.dscp-group__status--active      { color: var(--color-dark); }
+.dscp-group__status--active      { color: var(--color-text); }
 .dscp-group__status--full        { color: var(--color-warn); }
-.dscp-group__status--in_progress { color: var(--color-dark); }
+.dscp-group__status--in_progress { color: var(--color-text); }
 .dscp-group__status--completed   { color: var(--color-muted);  opacity: 0.7; }
 .dscp-group__status--cancelled   { color: var(--color-danger); }
 
@@ -11066,7 +11527,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 
 .dscp-cap__count strong {
-  color: var(--color-dark);
+  color: var(--color-text);
   font-weight: var(--fw-bold);
   font-size: var(--fs-sm);
 }
@@ -11107,13 +11568,13 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-weight: var(--fw-semibold);
 }
 
-.dscp-group__cta--muted:hover { color: var(--color-dark); }
+.dscp-group__cta--muted:hover { color: var(--color-text); }
 
 .dscp-group__name {
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-lg);
-  color: var(--color-dark);
+  color: var(--color-text);
   margin: 0;
   letter-spacing: -0.01em;
   line-height: 1.2;
@@ -11195,7 +11656,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-size: var(--fs-xs);
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-dark);
+  color: var(--color-text);
   text-align: center;
 }
 
@@ -11279,7 +11740,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   background: var(--color-bg-light);
   border: 1px solid var(--gray-30);
   border-radius: var(--radius-md, 0.625rem);
-  color: var(--color-black);
+  color: var(--color-text);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
 }
@@ -11372,7 +11833,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 
 .dg-back:hover {
-  color: var(--color-dark);
+  color: var(--color-text);
   gap: 0.7rem;
 }
 
@@ -11405,7 +11866,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: clamp(1.5rem, 1rem + 2vw, 2.25rem);
-  color: var(--color-dark);
+  color: var(--color-text);
   letter-spacing: -0.01em;
   line-height: 1.15;
 }
@@ -11447,7 +11908,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   gap: 0.4rem;
   font-family: var(--font-Geist);
   font-size: var(--fs-sm);
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .dg-card__meta-value i { color: var(--color-secondary); width: 14px; }
@@ -11493,7 +11954,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Geist);
   font-weight: var(--fw-black);
   font-size: clamp(1.25rem, 0.5rem + 2vw, 1.85rem);
-  color: var(--color-dark);
+  color: var(--color-text);
   letter-spacing: -0.02em;
 }
 
@@ -11518,18 +11979,18 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   margin: 0;
   font-family: var(--font-Geist);
   font-size: var(--fs-sm);
-  color: var(--color-dark);
+  color: var(--color-text);
   line-height: 1.5;
 }
 
-.dg-capacity-card__text strong { color: var(--color-dark); }
+.dg-capacity-card__text strong { color: var(--color-text); }
 
 /* Form sections */
 .dg-form__section {
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-md);
-  color: var(--color-dark);
+  color: var(--color-text);
   letter-spacing: -0.005em;
   margin: 0 0 0.85rem;
 }
@@ -11568,7 +12029,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   border-radius: 999px;
   font-family: var(--font-Geist);
   font-size: var(--fs-sm);
-  color: var(--color-dark);
+  color: var(--color-text);
   cursor: pointer;
   transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
@@ -11630,7 +12091,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-size: clamp(1.75rem, 1rem + 3vw, 2.75rem);
   line-height: 1.15;
   letter-spacing: -0.01em;
-  color: var(--color-dark);
+  color: var(--color-text);
   margin: 0 0 1rem;
   text-wrap: balance;
 }
@@ -11639,7 +12100,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Geist);
   font-size: clamp(1.05rem, 0.6rem + 1.2vw, 1.35rem);
   line-height: 1.45;
-  color: var(--color-dark);
+  color: var(--color-text);
   margin: 0 0 2rem;
   font-weight: var(--fw-medium);
 }
@@ -11754,7 +12215,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .ed-status {
   text-align: center;
   padding: 4rem 1rem;
-  color: var(--color-black);
+  color: var(--color-text);
 }
 
 .ed-status h2 {
@@ -11797,7 +12258,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-base);
   font-size: clamp(1.75rem, 4vw, 2.75rem);
   font-weight: 800;
-  color: var(--color-black);
+  color: var(--color-text);
   line-height: 1.15;
   letter-spacing: -0.5px;
 }
@@ -11824,13 +12285,13 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   align-items: center;
   gap: 0.6rem;
   font-size: var(--fs-base, 1rem);
-  color: var(--color-black);
+  color: var(--color-text);
   font-family: var(--font-base);
 }
 
 .ed-info__row svg {
   flex: 0 0 18px;
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .ed-info__actions {
@@ -11857,7 +12318,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 
 .ed-section__heading {
   font-weight: 700;
-  color: var(--color-dark);
+  color: var(--color-text);
   margin-bottom: 0.75rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -11868,7 +12329,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-size: var(--fs-base, 1rem);
   font-family: var(--font-base);
   font-weight: 400;
-  color: var(--color-black);
+  color: var(--color-text);
   line-height: 1.75;
 }
 
@@ -11990,7 +12451,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Geist);
   font-size: 0.92rem;
   font-weight: var(--fw-medium);
-  color: var(--color-dark);
+  color: var(--color-text);
   cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
 }
@@ -12024,7 +12485,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 .gal-fbtn__badge[hidden] { display: none; }
 
-.gal-fbtn--year strong { color: var(--color-dark); font-weight: var(--fw-bold); }
+.gal-fbtn--year strong { color: var(--color-text); font-weight: var(--fw-bold); }
 
 /* ── Filter / year modal ─────────────────────────────────────────────── */
 .gal-modal {
@@ -12079,7 +12540,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 1.1rem;
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 .gal-modal__close {
   width: 32px; height: 32px;
@@ -12132,7 +12593,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 }
 .gal-search input {
   flex: 1; border: 0; outline: 0; background: transparent;
-  font-family: var(--font-Geist); font-size: 0.95rem; color: var(--color-dark);
+  font-family: var(--font-Geist); font-size: 0.95rem; color: var(--color-text);
 }
 
 /* Type checkboxes */
@@ -12170,7 +12631,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   width: 18px; text-align: center;
   color: var(--color-secondary); font-size: 0.9rem;
 }
-.gal-check__label { font-family: var(--font-Geist); font-size: 0.95rem; color: var(--color-dark); }
+.gal-check__label { font-family: var(--font-Geist); font-size: 0.95rem; color: var(--color-text); }
 
 /* Modal buttons */
 .gal-btn {
@@ -12187,7 +12648,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 .gal-btn--solid { background: var(--color-dark); color: var(--color-white); }
 .gal-btn--solid:hover { filter: brightness(1.1); }
 .gal-btn--ghost { background: transparent; border-color: var(--gray-30); color: var(--color-muted); }
-.gal-btn--ghost:hover { border-color: var(--color-dark); color: var(--color-dark); }
+.gal-btn--ghost:hover { border-color: var(--color-dark); color: var(--color-text); }
 .gal-btn--full { flex: 1 1 100%; }
 
 /* ── iOS-style year wheel ────────────────────────────────────────────── */
@@ -12223,7 +12684,7 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   transition: color 0.15s ease, font-size 0.15s ease, font-weight 0.15s ease;
 }
 .gal-wheel__item.is-active {
-  color: var(--color-dark);
+  color: var(--color-text);
   font-weight: var(--fw-bold);
   font-size: 1.3rem;
 }
@@ -12287,7 +12748,7 @@ body.gal-modal-open { overflow: hidden; }
   font-weight: var(--fw-light);
   font-size: clamp(2rem, 1rem + 3vw, 3rem);
   letter-spacing: -0.04em;
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .gal-year-block__num { display: inline-block; }
@@ -12371,7 +12832,7 @@ body.gal-modal-open { overflow: hidden; }
   left: 0.7rem;
   padding: 0.25rem 0.7rem;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--color-dark);
+  color: var(--color-text);
   font-family: var(--font-Signika);
   font-size: 0.68rem;
   font-weight: var(--fw-bold);
@@ -12408,7 +12869,7 @@ body.gal-modal-open { overflow: hidden; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: 1.05rem;
-  color: var(--color-dark);
+  color: var(--color-text);
   line-height: 1.25;
   letter-spacing: -0.01em;
 }
@@ -12429,7 +12890,7 @@ body.gal-modal-open { overflow: hidden; }
 
 .gal-album__count {
   font-weight: var(--fw-semibold);
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 
 .gal-album__desc {
@@ -12523,7 +12984,7 @@ body.gal-modal-open { overflow: hidden; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: clamp(1.6rem, 1rem + 2vw, 2.3rem);
-  color: var(--color-dark);
+  color: var(--color-text);
   letter-spacing: -0.012em;
 }
 
@@ -13055,7 +13516,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-family: var(--font-Signika);
   font-weight: var(--fw-bold);
   font-size: var(--fs-md);
-  color: var(--color-black);
+  color: var(--color-text);
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -13065,7 +13526,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-family: var(--font-Lexend);
   font-weight: var(--fw-light);
   font-size: var(--fs-sm);
-  color: var(--color-black);
+  color: var(--color-text);
   opacity: 0.8;
   line-height: 1.6;
 }

@@ -19,14 +19,14 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: var(--color-dark);
+  color: var(--color-text);
   transition: background 0.35s, border-color 0.35s, color 0.35s;
 }
 
 .cal-nav__btn:hover {
-  background: var(--color-dark);
-  border-color: var(--color-dark);
-  color: var(--color-white);
+  background: var(--color-text);
+  border-color: var(--color-text);
+  color: var(--color-bg-light);
 }
 
 .cal-nav__btn svg {
@@ -42,6 +42,10 @@
 .cal-nav__label {
   font-size: var(--fs-lg);
   font-weight: var(--fw-bold);
-  color: var(--static-black);
+  color: var(--color-text);
   text-transform: capitalize;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cal-nav__btn { border-color: rgba(255, 255, 255, 0.22); }
 }

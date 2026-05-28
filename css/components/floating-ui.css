@@ -1,0 +1,114 @@
+/* =============================================================================
+   FLOATING UI — dismiss × button + peek tab + reduced-motion fallback
+   ─────────────────────────────────────────────────────────────────────────
+   The show/hide *transform* logic for .whatsapp-fab and .mobile-bar lives
+   in their own component files (whatsapp-fab.css and mobile-bar.css) —
+   those files own the base hidden state + body.floating-ui--past-hero /
+   floating-ui--dismissed overrides.
+   This file owns just:
+     • the × dismiss button injected on the FAB
+     • the peek tab shown while dismissed
+     • the prefers-reduced-motion override
+   ============================================================================= */
+
+/* ── Dismiss × on the FAB ─────────────────────────────────────────── */
+.floating-ui__dismiss {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(20, 30, 35, 0.92);
+  color: var(--color-white);
+  border: 1.5px solid var(--color-white);
+  cursor: pointer;
+  padding: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+  z-index: 1;
+}
+
+.floating-ui__dismiss svg {
+  width: 11px;
+  height: 11px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+}
+
+.floating-ui__dismiss:hover,
+.floating-ui__dismiss:focus-visible {
+  transform: scale(1.1);
+  background: var(--color-dark, #394548);
+  outline: none;
+}
+
+/* ── Peek tab — only shown while dismissed AND past the hero ──────── */
+.floating-ui__peek {
+  position: fixed;
+  right: clamp(0.5rem, 1.2vw, 1rem);
+  bottom: calc(0.4rem + env(safe-area-inset-bottom));
+  width: 44px;
+  height: 28px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px 14px 4px 4px;
+  background: var(--color-dark, #394548);
+  color: var(--color-white);
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  z-index: 997;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  transform: translateY(60%);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   0.26s ease,
+    background-color 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.floating-ui__peek svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.floating-ui--past-hero.floating-ui--dismissed .floating-ui__peek {
+  display: inline-flex;
+  opacity: 1;
+  transform: none;
+}
+
+.floating-ui__peek:hover,
+.floating-ui__peek:focus-visible {
+  background: var(--color-secondary, #c89858);
+  outline: none;
+}
+
+/* Kill the pulsing halo on the FAB while it's dismissed */
+body.floating-ui--dismissed .whatsapp-fab { animation: none; }
+
+/* ── Reduced motion: no slide, just opacity ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab,
+  .mobile-bar,
+  .floating-ui__peek {
+    transform: none !important;
+    transition: opacity 0.18s ease;
+  }
+}
