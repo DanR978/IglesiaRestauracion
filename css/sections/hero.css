@@ -10,7 +10,15 @@
   z-index: 0;
   overflow: hidden;
   inset: 0;
+  border: 0;
+  outline: 0;
 }
+
+/* While the <img> has no real src yet (JS sets it in include.js), browsers
+   render a placeholder box with a faint outline over the black backdrop.
+   Hide it until it actually has a src to load. */
+.hero:not([src]),
+.hero[src=""] { visibility: hidden; }
 
 /* ── Hero video — optional, injected by include.js when the <header> has
    `data-hero-video="<mp4 url>"`. Sits over the poster .hero image; the

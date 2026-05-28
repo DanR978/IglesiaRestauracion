@@ -168,8 +168,11 @@
   }
 
   async function onHeader(host) {
-    const heroURL      = host.getAttribute("data-hero");
-    const heroVideoURL = host.getAttribute("data-hero-video");
+    const heroURL             = host.getAttribute("data-hero");
+    const heroVideoDesktopURL = host.getAttribute("data-hero-video-desktop");
+    const heroVideoMobileURL  = host.getAttribute("data-hero-video-mobile");
+    // Back-compat: single `data-hero-video` still works (used on both desktop + mobile).
+    const heroVideoFallbackURL = host.getAttribute("data-hero-video");
     const heroImg      = host.querySelector(".hero");
     const headerGrid   = host.querySelector(".header-grid");
 
@@ -185,20 +188,26 @@
       heroImg.src = heroURL;
     }
 
-    // OPTIONAL hero video: data-hero-video="<mp4 url>" on <header id="header">.
+    // OPTIONAL hero video. Two flavors per viewport:
+    //   data-hero-video-desktop="<full-quality mp4>"  → loaded on >768px
+    //   data-hero-video-mobile="<compressed mp4>"     → loaded on ≤768px
+    //   data-hero-video="<mp4>"                       → legacy single-URL fallback
     // The <video> is injected dynamically — pages without it pay nothing.
+    const narrowViewport = window.matchMedia?.("(max-width: 768px)").matches;
+    const heroVideoURL =
+      (narrowViewport ? heroVideoMobileURL : heroVideoDesktopURL) ||
+      heroVideoFallbackURL ||
+      (narrowViewport ? heroVideoDesktopURL : heroVideoMobileURL); // last-resort: whichever was set
     if (heroVideoURL && headerGrid && !headerGrid.querySelector(".hero-video")) {
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      // Skip the video on phones, narrow viewports, and constrained networks.
-      // The poster image is enough — the cinematic loop is a desktop moment,
-      // not worth tens of megabytes on cellular.
-      const narrowViewport = window.matchMedia?.("(max-width: 768px)").matches;
+      // Still skip on save-data / 2G / 3G — even the mobile-optimized file is
+      // tens of megabytes, and constrained connections shouldn't pay for it.
       const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
       const slowNetwork = !!conn && (
         conn.saveData === true ||
         /^(slow-2g|2g|3g)$/i.test(conn.effectiveType || "")
       );
-      if (!reducedMotion && !narrowViewport && !slowNetwork) {
+      if (!reducedMotion && !slowNetwork) {
         // Defer injection until the page is idle so the video never competes
         // with critical resources (CSS, fonts, hero image). The poster image
         // shows immediately; the video fades in once everything else is ready.
