@@ -241,6 +241,28 @@
           source.type = "video/mp4";
           video.appendChild(source);
 
+          // Legacy single-URL fallback — used if the per-viewport file doesn't
+          // exist yet on the CDN (404). Most browsers fall through <source>
+          // elements on network errors; the explicit `error` handler below
+          // covers the few that don't (older Safari).
+          if (heroVideoFallbackURL && heroVideoFallbackURL !== heroVideoURL) {
+            const legacy = document.createElement("source");
+            legacy.src = heroVideoFallbackURL;
+            legacy.type = "video/mp4";
+            video.appendChild(legacy);
+
+            video.addEventListener("error", () => {
+              if (video.dataset.heroFallbackTried) return;
+              video.dataset.heroFallbackTried = "1";
+              while (video.firstChild) video.removeChild(video.firstChild);
+              const onlyFallback = document.createElement("source");
+              onlyFallback.src = heroVideoFallbackURL;
+              onlyFallback.type = "video/mp4";
+              video.appendChild(onlyFallback);
+              video.load();
+            });
+          }
+
           // Cross-fade the video in only once it's actually playing — until
           // then the poster image shows through with zero flash.
           video.addEventListener("playing", () => {
