@@ -4395,15 +4395,7 @@ body.no-scroll {
   z-index: 0;
   overflow: hidden;
   inset: 0;
-  border: 0;
-  outline: 0;
 }
-
-/* While the <img> has no real src yet (JS sets it in include.js), browsers
-   render a placeholder box with a faint outline over the black backdrop.
-   Hide it until it actually has a src to load. */
-.hero:not([src]),
-.hero[src=""] { visibility: hidden; }
 
 /* Hero Content */
 .hero-content {
