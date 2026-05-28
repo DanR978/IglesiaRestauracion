@@ -1,0 +1,177 @@
+/* =============================================================================
+   HOMEPAGE — Pastor / leadership trust block
+   A photo + a personal quote signed by the pastor. Most important trust
+   signal on the page. Subtle background tint to break the section rhythm.
+   ============================================================================= */
+
+.home-pastor {
+  background:
+    radial-gradient(ellipse 80% 70% at 90% 0%, rgba(200, 152, 88, 0.05), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 0% 100%, rgba(57, 69, 72, 0.04), transparent 70%),
+    var(--color-bg-light, #fff);
+  padding: clamp(4.5rem, 8vw + 1rem, 7.5rem) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-pastor__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 760px) {
+  .home-pastor__inner {
+    grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.4fr);
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+}
+
+/* ── Photo ──────────────────────────────────────────────────────────── */
+.home-pastor__media {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg, 1rem);
+  overflow: hidden;
+  background: var(--gray-20);
+  box-shadow:
+    0 30px 80px rgba(8, 20, 26, 0.16),
+    0 10px 28px rgba(8, 20, 26, 0.10);
+}
+
+/* The <picture> element wrapping the <img> must fill the container —
+   otherwise the img's `height: 100%` resolves to the picture's natural
+   height (whatever it is) instead of the container's height. */
+.home-pastor__media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.home-pastor__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;  /* favor the face when cropping */
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-pastor:hover .home-pastor__media img { transform: scale(1.03); }
+
+/* Fallback icon shown when the pastor photo hasn't been uploaded yet */
+.home-pastor__media-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-100);
+  font-size: 4rem;
+  background: var(--gray-20);
+}
+.home-pastor__media--empty .home-pastor__media-fallback { display: flex; }
+
+/* ── Copy block ─────────────────────────────────────────────────────── */
+.home-pastor__body { padding: 0; }
+
+.home-pastor__kicker {
+  display: inline-block;
+  margin: 0 0 1.2rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
+}
+
+.home-pastor__quote {
+  margin: 0 0 1.6rem;
+  padding: 0 0 0 1.1rem;
+  border: 0;
+  /* Thin amber accent rule on the left — the editorial "pull-quote" pattern
+     without the orphan decorative quote mark. */
+  border-left: 2px solid var(--color-secondary, #c89858);
+  position: relative;
+}
+
+.home-pastor__quote p {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1.5vw + 0.8rem, 1.7rem);
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  color: var(--color-dark, #394548);
+}
+
+.home-pastor__sign {
+  margin: 0 0 2rem;
+  font-family: var(--font-Geist);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.home-pastor__sign strong {
+  display: block;
+  font-weight: 700;
+  color: var(--color-dark, #394548);
+  letter-spacing: 0.005em;
+}
+
+.home-pastor__sign span {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* CTA matches the family across the homepage */
+.home-pastor__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-dark, #394548);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dark, #394548);
+  text-decoration: none;
+  transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.22s ease,
+              border-color 0.22s ease;
+}
+
+.home-pastor__cta svg {
+  width: 26px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-pastor__cta:hover,
+.home-pastor__cta:focus-visible {
+  color: var(--color-secondary, #c89858);
+  border-bottom-color: var(--color-secondary, #c89858);
+  gap: 1.35rem;
+  text-decoration: none;
+}
+
+.home-pastor__cta:hover svg,
+.home-pastor__cta:focus-visible svg { transform: translateX(4px); }

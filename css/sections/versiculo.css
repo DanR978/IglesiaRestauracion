@@ -3,37 +3,55 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
+/* Verse body — restrained typography, serif feel for editorial weight */
 .versiculo p {
-  align-items: center;
-  color: var(--color-black);
-  font-size: var(--fs-md);
-  font-family: var(--font-Geist);
-  font-weight: var(--fw-semibold);
+  margin: 0;
+  color: var(--color-dark, #394548);
+  font-size: clamp(1.2rem, 1.5vw + 0.8rem, 1.65rem);
+  font-family: var(--font-Signika);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
   text-align: center;
-  letter-spacing: 0.5px;
+}
+
+.versiculo p:last-child {
+  /* Reference line ("– Juan 3:16") sits below the verse */
+  margin-top: 1rem;
+  font-style: normal;
+  font-weight: var(--fw-bold);
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
 }
 
 .versiculo h5 {
-  color: var(--color-black);
+  color: var(--color-dark);
   font-size: 1rem;
   font-family: var(--font-Geist);
   font-weight: var(--fw-semibold);
   text-align: center;
 }
 
+/* Replaces the old cursive Carattere font. Same class name so the homepage
+   markup doesn't have to change — but now matches the system kicker style
+   (small uppercase + amber + heavy tracking). */
 .cursive-subheading {
-  color: var(--color-black); 
-  padding-top: var(--pd-lg);
-  font-family: var(--font-Carattere);
-  font-size: 2rem;
-}
-
-@media (max-width: 768px) {
-  .versiculo p {
-    font-size: var(--fs-lg);
-  }
+  display: inline-block;
+  margin: 0 0 1.5rem;
+  padding-top: 0.6rem;
+  color: var(--color-secondary, #c89858);
+  font-family: var(--font-Signika);
+  font-size: 0.78rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
 }
 
 @media (prefers-color-scheme: dark) {

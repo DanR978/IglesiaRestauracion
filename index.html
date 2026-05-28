@@ -100,17 +100,66 @@
     <script type="module" src="/js/components/splash.js"></script>
     <header id="header"
       data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/content/caida.webp"></header>
-    <div class="hero-content animate-fade-in" data-threshold="0.8">
-      <p class="hero-kicker">BIENVENIDO A</p>
-      <h1 class="hero-title">Iglesia Restauracion Divina</h1>
-      <div class="buttons animate-fade-in" data-threshold="1">
-        <a href="visitanos" class="ird-btn ird-btn--orange">VISITANOS</a>
-        <a href="proximos-pasos" class="ird-btn ird-btn--teal">PROXIMOS
-          PASOS</a>
+    <div class="hero-content hero-content--v2 animate-fade-in" data-threshold="0.8">
+      <p class="hero-kicker">UNA FAMILIA PARA TI EN LEXINGTON</p>
+      <h1 class="hero-title">Iglesia Restauración Divina</h1>
+
+      <div class="hero-cta scroll-fade-up">
+        <a href="visitanos" class="hero-cta__primary">
+          <span>PLANEA TU VISITA</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+        </a>
       </div>
     </div>
 
     <main>
+
+      <!-- ─── PRIMERA VEZ AQUÍ — 3 blocks for first-time visitors ──────── -->
+      <section class="home-welcome" aria-labelledby="homeWelcomeTitle">
+        <div class="home-welcome__inner">
+          <h5 class="home-welcome__kicker scroll-fade-up">PRIMERA VEZ AQUÍ</h5>
+          <h2 id="homeWelcomeTitle" class="home-welcome__title scroll-fade-up">
+            Qué esperar este domingo
+          </h2>
+
+          <ul class="home-welcome__grid reveal-stagger">
+            <li class="home-welcome__card scroll-fade-up">
+              <div class="home-welcome__icon" aria-hidden="true">
+                <i class="far fa-clock"></i>
+              </div>
+              <h3 class="home-welcome__card-title">Dos horas, sin prisa</h3>
+              <p class="home-welcome__card-body">
+                Adoración, oración y un mensaje claro de la Palabra. Vístete cómodo — aquí lo importante eres tú, no tu ropa.
+              </p>
+            </li>
+
+            <li class="home-welcome__card scroll-fade-up">
+              <div class="home-welcome__icon" aria-hidden="true">
+                <i class="fas fa-people-roof"></i>
+              </div>
+              <h3 class="home-welcome__card-title">Una familia, no un evento</h3>
+              <p class="home-welcome__card-body">
+                Te recibimos con un café y un saludo, no con un formulario. Si vienes solo o con tu familia, hay un lugar para ti.
+              </p>
+            </li>
+
+            <li class="home-welcome__card scroll-fade-up">
+              <div class="home-welcome__icon" aria-hidden="true">
+                <i class="fas fa-child-reaching"></i>
+              </div>
+              <h3 class="home-welcome__card-title">Tus hijos, bien cuidados</h3>
+              <p class="home-welcome__card-body">
+                Ministerio infantil durante todo el servicio, con personal capacitado y un espacio seguro para que crezcan en la fe.
+              </p>
+            </li>
+          </ul>
+
+          <a href="visitanos" class="home-welcome__cta scroll-fade-up">
+            <span>Conoce más antes de venir</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          </a>
+        </div>
+      </section>
 
       <section class="column-container image-swipe-reveal">
         <div class="mission-wrapper">
@@ -138,6 +187,43 @@
             <div class="animate-fade-in" data-threshold="1"><a
                 href="quienes-somos" class="ird-btn ird-btn--teal">QUIENES
                 SOMOS</a></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── PASTOR / LEADERSHIP — trust signal ───────────────────────── -->
+      <section class="home-pastor" aria-labelledby="homePastorTitle">
+        <div class="home-pastor__inner">
+          <div class="home-pastor__media scroll-fade-scale">
+            <!-- TODO: replace with real pastor photo upload (Supabase web-images/pastor.jpg) -->
+            <picture>
+              <img loading="lazy" decoding="async"
+                   src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/pastor.jpg"
+                   alt="Pastor de Iglesia Restauración Divina"
+                   onerror="this.style.display='none';this.parentElement.parentElement.classList.add('home-pastor__media--empty')">
+            </picture>
+            <div class="home-pastor__media-fallback" aria-hidden="true">
+              <i class="fas fa-user"></i>
+            </div>
+          </div>
+
+          <div class="home-pastor__body">
+            <h5 class="home-pastor__kicker scroll-fade-up">NUESTRO PASTOR</h5>
+            <blockquote id="homePastorTitle" class="home-pastor__quote scroll-fade-up">
+              <p>
+                Si esta es tu primera vez visitando una iglesia, o si llevas
+                años caminando con Cristo — aquí encontrarás un lugar donde
+                eres recibido, no juzgado.
+              </p>
+            </blockquote>
+            <p class="home-pastor__sign scroll-fade-up">
+              <strong>Pastor Raúl García</strong>
+              <span>Pastor principal · Iglesia Restauración Divina</span>
+            </p>
+            <a href="quienes-somos" class="home-pastor__cta scroll-fade-up">
+              <span>Conoce más sobre nosotros</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+            </a>
           </div>
         </div>
       </section>
@@ -234,22 +320,28 @@
         </div>
       </section>
 
-      <section class="column-container">
-        <div class="info-container wrapper">
-          <div class="row-default ">
-            <div class="column-default ">
-              <div class="service-content ">
-                <h2 class="service-subheading animate-fade-in"
-                  data-threshold="1">Apoya a esparcir las Buenas Nuevas</h4>
-              </div>
-              <div class="content">
-                <p class="service-time">Gracias por tu generosidad!</p>
-                <a href="donacion"
-                  class="ird-btn ird-btn--white-empty ird-btn--outline">VER
-                  MÁS</a>
-              </div>
-            </div>
-          </div>
+      <!-- ─── DONACIÓN — single CTA, no amount suggestions ──────────────── -->
+      <section class="home-give" aria-labelledby="homeGiveTitle">
+        <div class="home-give__inner">
+          <h5 class="home-give__kicker scroll-fade-up">TU APORTE</h5>
+          <h2 id="homeGiveTitle" class="home-give__title scroll-fade-up">
+            Cada ofrenda<br>transforma vidas
+          </h2>
+          <p class="home-give__lead scroll-fade-up">
+            Tu generosidad hace posible que sigamos sirviendo a familias en
+            Lexington, alcanzando vidas con el Evangelio y discipulando a los
+            que Dios trae a la iglesia.
+          </p>
+
+          <a href="donacion" class="home-give__primary scroll-fade-up">
+            <span>Donar ahora</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
+          </a>
+
+          <p class="home-give__trust scroll-fade-up">
+            <i class="fas fa-lock" aria-hidden="true"></i>
+            Donación segura · Recibo automático
+          </p>
         </div>
       </section>
 
@@ -263,6 +355,8 @@
     <script type="module" src="js/components/missionSlideShow.js"></script>
     <script type="module" src="/js/pages/home/latest-sermon.js"></script>
     <script type="module" src="/js/pages/home/latest-gallery.js"></script>
+    <script type="module" src="/js/components/live-embed.js"></script>
+    <script type="module" src="/js/app/scroll-reveal.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>
     <script type="module" src="/js/include.js"></script>
     <script type="module" src="/js/components/page-transition.js"></script>

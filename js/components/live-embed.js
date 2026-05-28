@@ -31,27 +31,44 @@
     }
   }
 
+  /** Update the homepage hero "Ver en línea" → "EN VIVO" when streaming. */
+  function reflectLiveOnHero(isLive) {
+    const dot = document.getElementById('heroLiveDot');
+    const label = document.getElementById('heroWatchLabel');
+    if (!dot || !label) return;
+    if (isLive) {
+      dot.hidden = false;
+      label.textContent = 'EN VIVO';
+    } else {
+      dot.hidden = true;
+      label.textContent = 'Ver en línea';
+    }
+  }
+
   function initLiveEmbed() {
     const liveEmbed = document.getElementById('liveEmbed');
     const iframe = document.getElementById('liveIframe');
     const placeholder = document.getElementById('livePlaceholder');
 
-    if (!liveEmbed || !iframe || !placeholder) return;
+    // The hero indicator runs on every page that has #heroLiveDot, even when
+    // the full live-embed widget isn't on the page.
+    const heroOnly = !liveEmbed || !iframe || !placeholder;
 
-    showPlaceholder();
+    if (!heroOnly) showPlaceholder();
 
     fetch(FUNCTION_URL)
       .then((res) => res.json())
       .then((data) => {
-        if (data.videoId) {
-          showIframe(data.videoId);
-        } else {
-          showPlaceholder();
-        }
+        const isLive = !!data.videoId;
+        reflectLiveOnHero(isLive);
+        if (heroOnly) return;
+        if (isLive) showIframe(data.videoId);
+        else        showPlaceholder();
       })
       .catch((err) => {
         console.error('Error checking live status:', err);
-        showPlaceholder();
+        reflectLiveOnHero(false);
+        if (!heroOnly) showPlaceholder();
       });
   }
 

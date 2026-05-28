@@ -1429,6 +1429,103 @@ button:active {
         color: var(--color-25);
     }
 }
+/* -- components mobile-bar -- */
+/* =============================================================================
+   COMPONENT — Mobile bottom action bar
+   Phone-only. Three persistent CTAs: Ver (online) / Donar / Visítanos.
+   Pattern lifted from Life.Church, Elevation, etc. — keeps the highest-
+   value actions one tap away regardless of scroll position.
+   ============================================================================= */
+
+.mobile-bar {
+  display: none;     /* shown only on mobile via media query below */
+}
+
+@media (max-width: 768px) {
+  .mobile-bar {
+    position: fixed;
+    left: 0.6rem;
+    right: 0.6rem;
+    bottom: calc(0.6rem + env(safe-area-inset-bottom));
+    z-index: 90;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.4rem;
+    background: rgba(28, 36, 39, 0.86);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    box-shadow:
+      0 18px 40px rgba(0, 0, 0, 0.36),
+      0 6px 16px rgba(0, 0, 0, 0.24),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    pointer-events: auto;
+  }
+
+  /* Hide the bar when the mobile menu overlay is open (it'd float on top) */
+  body:has(#mainNav.open) .mobile-bar { display: none; }
+
+  .mobile-bar__btn {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-family: var(--font-Signika);
+    font-weight: var(--fw-bold);
+    font-size: 0.74rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    background: transparent;
+    transition: background-color 0.22s ease, color 0.22s ease, transform 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-bar__btn i { font-size: 0.85rem; opacity: 0.85; }
+
+  .mobile-bar__btn:active {
+    background: rgba(255, 255, 255, 0.10);
+    transform: scale(0.97);
+  }
+
+  /* Primary CTA — solid amber fill, the visual anchor */
+  .mobile-bar__btn--primary {
+    background: var(--color-secondary, #c89858);
+    color: var(--color-white);
+    box-shadow:
+      0 6px 16px rgba(200, 152, 88, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .mobile-bar__btn--primary:active {
+    background: var(--color-secondary, #c89858);
+    color: var(--color-white);
+    transform: scale(0.97);
+    box-shadow: 0 4px 10px rgba(200, 152, 88, 0.42);
+  }
+
+  .mobile-bar__btn--primary i { opacity: 1; }
+
+  /* Tiny phones: drop the labels, just the icons */
+  @media (max-width: 360px) {
+    .mobile-bar__label { display: none; }
+    .mobile-bar__btn { padding: 0.7rem 0.6rem; }
+  }
+}
+
+/* Add bottom padding to <main> on mobile so the bar doesn't cover content */
+@media (max-width: 768px) {
+  body main { padding-bottom: 6rem; }
+}
+
 /* -- components page-transition -- */
 /* ═══════════════════════════════════════════════
    IRD Page Transition
@@ -1796,6 +1893,84 @@ button:active {
     }
   }
 }
+/* -- components whatsapp-fab -- */
+/* =============================================================================
+   COMPONENT — Floating WhatsApp button
+   Spanish-speaking audience uses WhatsApp ~5-10x more than email. This is
+   a tiny but disproportionately high-impact lead-capture move.
+   ============================================================================= */
+
+.whatsapp-fab {
+  position: fixed;
+  right: clamp(1rem, 2vw, 1.5rem);
+  bottom: clamp(1rem, 2vw, 1.5rem);
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #25d366;
+  color: var(--color-white);
+  text-decoration: none;
+  z-index: 998;     /* below modal, above content */
+  box-shadow:
+    0 12px 30px rgba(37, 211, 102, 0.42),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.22s ease;
+}
+
+.whatsapp-fab svg {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+}
+
+.whatsapp-fab:hover,
+.whatsapp-fab:focus-visible {
+  transform: translateY(-3px) scale(1.04);
+  color: var(--color-white);
+  text-decoration: none;
+  box-shadow:
+    0 18px 40px rgba(37, 211, 102, 0.52),
+    0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.whatsapp-fab:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+}
+
+/* Pulsing halo for the first 2 visits (handled by CSS animation; subtle) */
+@keyframes whatsappPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0.5),
+                       0 12px 30px rgba(37, 211, 102, 0.42),
+                       0 4px 12px rgba(0, 0, 0, 0.18); }
+  70%  { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0),
+                       0 12px 30px rgba(37, 211, 102, 0.42),
+                       0 4px 12px rgba(0, 0, 0, 0.18); }
+  100% { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0),
+                       0 12px 30px rgba(37, 211, 102, 0.42),
+                       0 4px 12px rgba(0, 0, 0, 0.18); }
+}
+
+.whatsapp-fab { animation: whatsappPulse 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab { animation: none; }
+}
+
+/* Lift the FAB above the mobile bar on phones so they don't overlap */
+@media (max-width: 768px) {
+  .whatsapp-fab {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    width: 52px;
+    height: 52px;
+  }
+  .whatsapp-fab svg { width: 26px; height: 26px; }
+}
+
 /* -- sections contact-form -- */
 .contact-wrapper {
   display: flex;
@@ -4163,6 +4338,115 @@ body.no-scroll {
   }
 }
 
+/* =============================================================================
+   HERO v2 — service info + primary CTA + EN VIVO indicator
+   ============================================================================= */
+.hero-content--v2 {
+  /* GCC-style minimal hero — kicker + title + one CTA. No clutter. */
+  top: 70%;
+  width: min(92vw, 760px);
+  gap: 0;
+}
+
+/* Premium kicker — primary (slate) color, sits on a frosted pill so it
+   stays readable on any hero photo. */
+.hero-content--v2 .hero-kicker {
+  display: inline-block;
+  font-family: var(--font-Signika);
+  font-size: 0.74rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-dark, #394548);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0.42rem 1rem;
+  border-radius: 999px;
+  margin-bottom: 1.1rem;
+  text-shadow: none;
+}
+
+.hero-content--v2 .hero-title {
+  white-space: normal;          /* let it wrap on small screens */
+  overflow: visible;
+  text-overflow: clip;
+  max-width: 100%;
+  text-transform: none;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+  font-size: clamp(2rem, 4vw + 1rem, 4rem);
+  margin-bottom: 1.4rem;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+}
+
+/* ── CTA wrap (single primary pill — GCC-style minimal hero) ──────── */
+.hero-cta {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.hero-cta__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.05rem 2.25rem;
+  min-width: 240px;
+  width: auto;             /* override any inherited width */
+  max-width: 92vw;
+  white-space: nowrap;     /* keep "PLANEA TU VISITA" on a single line */
+  border-radius: 999px;
+  background: var(--color-secondary, #c89858);
+  color: var(--color-white);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.92rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 0;
+  box-shadow:
+    0 14px 36px rgba(200, 152, 88, 0.42),
+    0 4px 12px rgba(200, 152, 88, 0.30);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.22s ease,
+              gap 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-cta__primary > span {
+  /* The label span — kept on one line, no shrinking */
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hero-cta__primary svg {
+  width: 24px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.hero-cta__primary:hover,
+.hero-cta__primary:focus-visible {
+  transform: translateY(-2px);
+  color: var(--color-white);
+  text-decoration: none;
+  gap: 0.95rem;
+  box-shadow:
+    0 18px 44px rgba(200, 152, 88, 0.52),
+    0 6px 16px rgba(200, 152, 88, 0.38);
+}
+
+.hero-cta__primary:hover svg,
+.hero-cta__primary:focus-visible svg { transform: translateX(3px); }
+
 /* Clamp the mount element — beats include.js inline min-height:100svh */
 [data-hero-size="page"] {
   height: 30vh !important;
@@ -4301,6 +4585,500 @@ body.no-scroll {
   .home-dscp-statement__cta,
   .home-dscp-statement__cta svg { transition: none; }
 }
+
+/* -- sections home-give -- */
+/* =============================================================================
+   HOMEPAGE — Tu aporte (donation)
+   Single primary CTA — no amount suggestions. We don't tell people what to
+   give; we tell them the impact and let them decide.
+   ============================================================================= */
+
+.home-give {
+  background: var(--color-dark, #394548);
+  color: var(--color-white);
+  padding: clamp(4.5rem, 8vw + 1rem, 7.5rem) 0;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* Subtle warm ambient glow at the top — depth without noise */
+.home-give::before {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  width: 90%;
+  max-width: 1200px;
+  aspect-ratio: 3 / 1;
+  background: radial-gradient(ellipse at center, rgba(200, 152, 88, 0.20), transparent 60%);
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(50px);
+}
+
+.home-give__inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.home-give__kicker {
+  display: inline-block;
+  margin: 0 0 1rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
+}
+
+.home-give__title {
+  margin: 0 auto 1.4rem;
+  max-width: 18ch;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(2rem, 4vw + 0.5rem, 3.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--color-white);
+}
+
+.home-give__lead {
+  margin: 0 auto 2.75rem;
+  max-width: 58ch;
+  font-family: var(--font-Geist);
+  font-size: clamp(0.96rem, 0.4vw + 0.88rem, 1.08rem);
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+/* ── Primary CTA — amber pill, matches the hero CTA's family ──────── */
+.home-give__primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.05rem 2.25rem;
+  min-width: 240px;
+  margin: 0 0 1.5rem;
+  border-radius: 999px;
+  background: var(--color-secondary, #c89858);
+  color: var(--color-white);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.92rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 14px 36px rgba(200, 152, 88, 0.42),
+    0 4px 12px rgba(200, 152, 88, 0.28);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.22s ease,
+              gap 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-give__primary svg {
+  width: 24px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-give__primary:hover,
+.home-give__primary:focus-visible {
+  transform: translateY(-2px);
+  color: var(--color-white);
+  text-decoration: none;
+  gap: 1rem;
+  box-shadow:
+    0 18px 44px rgba(200, 152, 88, 0.52),
+    0 6px 16px rgba(200, 152, 88, 0.36);
+}
+
+.home-give__primary:hover svg,
+.home-give__primary:focus-visible svg { transform: translateX(3px); }
+
+/* Trust line at the bottom */
+.home-give__trust {
+  margin: 0;
+  font-family: var(--font-Geist);
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.52);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.home-give__trust i {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* -- sections home-pastor -- */
+/* =============================================================================
+   HOMEPAGE — Pastor / leadership trust block
+   A photo + a personal quote signed by the pastor. Most important trust
+   signal on the page. Subtle background tint to break the section rhythm.
+   ============================================================================= */
+
+.home-pastor {
+  background:
+    radial-gradient(ellipse 80% 70% at 90% 0%, rgba(200, 152, 88, 0.05), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 0% 100%, rgba(57, 69, 72, 0.04), transparent 70%),
+    var(--color-bg-light, #fff);
+  padding: clamp(4.5rem, 8vw + 1rem, 7.5rem) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.home-pastor__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  align-items: center;
+}
+
+@media (min-width: 760px) {
+  .home-pastor__inner {
+    grid-template-columns: minmax(220px, 0.85fr) minmax(0, 1.4fr);
+    gap: clamp(2.5rem, 5vw, 4.5rem);
+  }
+}
+
+/* ── Photo ──────────────────────────────────────────────────────────── */
+.home-pastor__media {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius-lg, 1rem);
+  overflow: hidden;
+  background: var(--gray-20);
+  box-shadow:
+    0 30px 80px rgba(8, 20, 26, 0.16),
+    0 10px 28px rgba(8, 20, 26, 0.10);
+}
+
+/* The <picture> element wrapping the <img> must fill the container —
+   otherwise the img's `height: 100%` resolves to the picture's natural
+   height (whatever it is) instead of the container's height. */
+.home-pastor__media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.home-pastor__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 20%;  /* favor the face when cropping */
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-pastor:hover .home-pastor__media img { transform: scale(1.03); }
+
+/* Fallback icon shown when the pastor photo hasn't been uploaded yet */
+.home-pastor__media-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-100);
+  font-size: 4rem;
+  background: var(--gray-20);
+}
+.home-pastor__media--empty .home-pastor__media-fallback { display: flex; }
+
+/* ── Copy block ─────────────────────────────────────────────────────── */
+.home-pastor__body { padding: 0; }
+
+.home-pastor__kicker {
+  display: inline-block;
+  margin: 0 0 1.2rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
+}
+
+.home-pastor__quote {
+  margin: 0 0 1.6rem;
+  padding: 0 0 0 1.1rem;
+  border: 0;
+  /* Thin amber accent rule on the left — the editorial "pull-quote" pattern
+     without the orphan decorative quote mark. */
+  border-left: 2px solid var(--color-secondary, #c89858);
+  position: relative;
+}
+
+.home-pastor__quote p {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1.5vw + 0.8rem, 1.7rem);
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  color: var(--color-dark, #394548);
+}
+
+.home-pastor__sign {
+  margin: 0 0 2rem;
+  font-family: var(--font-Geist);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.home-pastor__sign strong {
+  display: block;
+  font-weight: 700;
+  color: var(--color-dark, #394548);
+  letter-spacing: 0.005em;
+}
+
+.home-pastor__sign span {
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+/* CTA matches the family across the homepage */
+.home-pastor__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-dark, #394548);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dark, #394548);
+  text-decoration: none;
+  transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.22s ease,
+              border-color 0.22s ease;
+}
+
+.home-pastor__cta svg {
+  width: 26px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-pastor__cta:hover,
+.home-pastor__cta:focus-visible {
+  color: var(--color-secondary, #c89858);
+  border-bottom-color: var(--color-secondary, #c89858);
+  gap: 1.35rem;
+  text-decoration: none;
+}
+
+.home-pastor__cta:hover svg,
+.home-pastor__cta:focus-visible svg { transform: translateX(4px); }
+
+/* -- sections home-welcome -- */
+/* =============================================================================
+   HOMEPAGE — "Primera vez aquí" (Qué esperar)
+   Three-block "what to expect" section. Sits right after the hero so a
+   first-time visitor's #1 question ("what is it like?") is answered before
+   anything else. Light, editorial, consistent with discipulado/gallery.
+   ============================================================================= */
+
+.home-welcome {
+  background: var(--color-bg-light, #fff);
+  padding: clamp(4rem, 7vw + 1rem, 7rem) 0;
+  position: relative;
+}
+
+.home-welcome__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 var(--pd-md, 1.25rem);
+  text-align: center;
+}
+
+.home-welcome__kicker {
+  display: inline-block;
+  margin: 0 0 1rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
+}
+
+.home-welcome__title {
+  margin: 0 auto clamp(2.5rem, 4vw + 0.5rem, 4rem);
+  max-width: 22ch;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.8rem, 3.8vw + 0.5rem, 3.2rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: var(--color-dark, #394548);
+}
+
+/* 3-column grid on desktop, stacks on mobile */
+.home-welcome__grid {
+  list-style: none;
+  margin: 0 0 3rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+  text-align: left;
+}
+
+@media (min-width: 760px) {
+  .home-welcome__grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.home-welcome__card {
+  position: relative;
+  padding: 2.25rem 1.75rem 2rem;
+  background: var(--color-white);
+  border: 1px solid var(--gray-30);
+  border-radius: var(--radius-lg, 1rem);
+  transition:
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.32s ease,
+    border-color 0.32s ease;
+  overflow: hidden;
+}
+
+/* Subtle amber top accent — appears on hover */
+.home-welcome__card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-secondary, #c89858);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (hover: hover) {
+  .home-welcome__card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 18px 40px rgba(20, 30, 35, 0.08),
+      0 6px 14px rgba(20, 30, 35, 0.05);
+    border-color: var(--gray-40);
+  }
+  .home-welcome__card:hover::before { transform: scaleX(1); }
+}
+
+/* Icon "chip" */
+.home-welcome__icon {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: rgba(200, 152, 88, 0.12);
+  color: var(--color-secondary, #c89858);
+  font-size: 1.25rem;
+  margin-bottom: 1.4rem;
+}
+
+.home-welcome__card-title {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+  color: var(--color-dark, #394548);
+}
+
+.home-welcome__card-body {
+  margin: 0;
+  font-family: var(--font-Geist);
+  font-size: 0.96rem;
+  line-height: 1.6;
+  color: var(--color-muted, #736960);
+}
+
+/* CTA echoes the discipulado/gallery underline-arrow style */
+.home-welcome__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.5rem 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-dark, #394548);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.92rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-dark, #394548);
+  text-decoration: none;
+  transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.22s ease,
+              border-color 0.22s ease;
+}
+
+.home-welcome__cta svg {
+  width: 26px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-welcome__cta:hover,
+.home-welcome__cta:focus-visible {
+  color: var(--color-secondary, #c89858);
+  border-bottom-color: var(--color-secondary, #c89858);
+  gap: 1.3rem;
+  text-decoration: none;
+}
+
+.home-welcome__cta:hover svg,
+.home-welcome__cta:focus-visible svg { transform: translateX(4px); }
 
 /* -- sections latest-gallery -- */
 /* =============================================================================
@@ -4931,37 +5709,55 @@ body.no-scroll {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
+/* Verse body — restrained typography, serif feel for editorial weight */
 .versiculo p {
-  align-items: center;
-  color: var(--color-black);
-  font-size: var(--fs-md);
-  font-family: var(--font-Geist);
-  font-weight: var(--fw-semibold);
+  margin: 0;
+  color: var(--color-dark, #394548);
+  font-size: clamp(1.2rem, 1.5vw + 0.8rem, 1.65rem);
+  font-family: var(--font-Signika);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.45;
+  letter-spacing: -0.005em;
   text-align: center;
-  letter-spacing: 0.5px;
+}
+
+.versiculo p:last-child {
+  /* Reference line ("– Juan 3:16") sits below the verse */
+  margin-top: 1rem;
+  font-style: normal;
+  font-weight: var(--fw-bold);
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-secondary, #c89858);
 }
 
 .versiculo h5 {
-  color: var(--color-black);
+  color: var(--color-dark);
   font-size: 1rem;
   font-family: var(--font-Geist);
   font-weight: var(--fw-semibold);
   text-align: center;
 }
 
+/* Replaces the old cursive Carattere font. Same class name so the homepage
+   markup doesn't have to change — but now matches the system kicker style
+   (small uppercase + amber + heavy tracking). */
 .cursive-subheading {
-  color: var(--color-black); 
-  padding-top: var(--pd-lg);
-  font-family: var(--font-Carattere);
-  font-size: 2rem;
-}
-
-@media (max-width: 768px) {
-  .versiculo p {
-    font-size: var(--fs-lg);
-  }
+  display: inline-block;
+  margin: 0 0 1.5rem;
+  padding-top: 0.6rem;
+  color: var(--color-secondary, #c89858);
+  font-family: var(--font-Signika);
+  font-size: 0.78rem;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -12614,5 +13410,78 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   100% {
     opacity: 0;
     transform: scale(.9) rotate(720deg);
+  }
+}
+/* -- utilities scroll-reveal -- */
+/* =============================================================================
+   SCROLL REVEAL — modern, premium feel
+   ───────────────────────────────────────────────────────────────────────────
+   Drop the class on any element; the IntersectionObserver in
+   js/app/scroll-reveal.js will add `.is-visible` when ~15% of the element
+   enters the viewport. Stagger is automatic for siblings inside a parent
+   marked `.reveal-stagger` (each child waits N*80ms longer than the last).
+   ============================================================================= */
+
+/* ── Base reveal variants ─────────────────────────────────────────── */
+.scroll-fade-up,
+.scroll-fade,
+.scroll-fade-left,
+.scroll-fade-right,
+.scroll-fade-scale,
+.scroll-blur-in {
+  opacity: 0;
+  will-change: opacity, transform, filter;
+  transition:
+    opacity   0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.85s cubic-bezier(0.22, 1, 0.36, 1),
+    filter    0.85s ease;
+  transition-delay: var(--reveal-delay, 0s);
+}
+
+.scroll-fade-up      { transform: translate3d(0, 28px, 0); }
+.scroll-fade-left    { transform: translate3d(-28px, 0, 0); }
+.scroll-fade-right   { transform: translate3d(28px, 0, 0); }
+.scroll-fade-scale   { transform: scale(0.94); }
+.scroll-blur-in      { filter: blur(8px); transform: scale(1.015); }
+
+/* ── Resting state when scrolled into view ────────────────────────── */
+.scroll-fade-up.is-visible,
+.scroll-fade.is-visible,
+.scroll-fade-left.is-visible,
+.scroll-fade-right.is-visible,
+.scroll-fade-scale.is-visible,
+.scroll-blur-in.is-visible {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* ── Stagger helper ───────────────────────────────────────────────── */
+/* When a parent has `.reveal-stagger`, each direct child gets an
+   incremental delay computed by the observer. Up to 12 items handled
+   here purely in CSS as a fallback (no JS needed for the first 12). */
+.reveal-stagger > *:nth-child(1)  { --reveal-delay: 0.04s; }
+.reveal-stagger > *:nth-child(2)  { --reveal-delay: 0.12s; }
+.reveal-stagger > *:nth-child(3)  { --reveal-delay: 0.20s; }
+.reveal-stagger > *:nth-child(4)  { --reveal-delay: 0.28s; }
+.reveal-stagger > *:nth-child(5)  { --reveal-delay: 0.36s; }
+.reveal-stagger > *:nth-child(6)  { --reveal-delay: 0.44s; }
+.reveal-stagger > *:nth-child(7)  { --reveal-delay: 0.52s; }
+.reveal-stagger > *:nth-child(8)  { --reveal-delay: 0.60s; }
+.reveal-stagger > *:nth-child(9)  { --reveal-delay: 0.68s; }
+.reveal-stagger > *:nth-child(10) { --reveal-delay: 0.76s; }
+
+/* ── Accessibility ────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-fade-up,
+  .scroll-fade,
+  .scroll-fade-left,
+  .scroll-fade-right,
+  .scroll-fade-scale,
+  .scroll-blur-in {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    transition: none !important;
   }
 }

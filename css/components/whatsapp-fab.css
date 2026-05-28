@@ -1,0 +1,76 @@
+/* =============================================================================
+   COMPONENT — Floating WhatsApp button
+   Spanish-speaking audience uses WhatsApp ~5-10x more than email. This is
+   a tiny but disproportionately high-impact lead-capture move.
+   ============================================================================= */
+
+.whatsapp-fab {
+  position: fixed;
+  right: clamp(1rem, 2vw, 1.5rem);
+  bottom: clamp(1rem, 2vw, 1.5rem);
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #25d366;
+  color: var(--color-white);
+  text-decoration: none;
+  z-index: 998;     /* below modal, above content */
+  box-shadow:
+    0 12px 30px rgba(37, 211, 102, 0.42),
+    0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.22s ease;
+}
+
+.whatsapp-fab svg {
+  width: 28px;
+  height: 28px;
+  fill: currentColor;
+}
+
+.whatsapp-fab:hover,
+.whatsapp-fab:focus-visible {
+  transform: translateY(-3px) scale(1.04);
+  color: var(--color-white);
+  text-decoration: none;
+  box-shadow:
+    0 18px 40px rgba(37, 211, 102, 0.52),
+    0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.whatsapp-fab:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 4px;
+}
+
+/* Pulsing halo for the first 2 visits (handled by CSS animation; subtle) */
+@keyframes whatsappPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0.5),
+                       0 12px 30px rgba(37, 211, 102, 0.42),
+                       0 4px 12px rgba(0, 0, 0, 0.18); }
+  70%  { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0),
+                       0 12px 30px rgba(37, 211, 102, 0.42),
+                       0 4px 12px rgba(0, 0, 0, 0.18); }
+  100% { box-shadow: 0 0 0 0   rgba(37, 211, 102, 0),
+                       0 12px 30px rgba(37, 211, 102, 0.42),
+                       0 4px 12px rgba(0, 0, 0, 0.18); }
+}
+
+.whatsapp-fab { animation: whatsappPulse 2.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .whatsapp-fab { animation: none; }
+}
+
+/* Lift the FAB above the mobile bar on phones so they don't overlap */
+@media (max-width: 768px) {
+  .whatsapp-fab {
+    bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    width: 52px;
+    height: 52px;
+  }
+  .whatsapp-fab svg { width: 26px; height: 26px; }
+}
