@@ -342,8 +342,9 @@
   border: 0 solid #e5e7eb;
 }
 
-#header { 
-  min-height: 100svh; 
+#header {
+  min-height: 100svh;
+  background-color: #000;        /* black backdrop until poster/video paints */
 }
 
 html {

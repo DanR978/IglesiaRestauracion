@@ -189,38 +189,67 @@
     // The <video> is injected dynamically — pages without it pay nothing.
     if (heroVideoURL && headerGrid && !headerGrid.querySelector(".hero-video")) {
       const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      if (!reducedMotion) {
-        const video = document.createElement("video");
-        video.className = "hero-video";
-        video.muted = true;
-        video.autoplay = true;
-        video.loop = true;
-        video.playsInline = true;                         // iOS inline autoplay
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.setAttribute("aria-hidden", "true");        // decorative
-        video.preload = "metadata";                       // don't waste bandwidth
-        video.disablePictureInPicture = true;
-        if (heroURL) video.poster = heroURL;
+      // Skip the video on phones, narrow viewports, and constrained networks.
+      // The poster image is enough — the cinematic loop is a desktop moment,
+      // not worth tens of megabytes on cellular.
+      const narrowViewport = window.matchMedia?.("(max-width: 768px)").matches;
+      const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const slowNetwork = !!conn && (
+        conn.saveData === true ||
+        /^(slow-2g|2g|3g)$/i.test(conn.effectiveType || "")
+      );
+      if (!reducedMotion && !narrowViewport && !slowNetwork) {
+        // Defer injection until the page is idle so the video never competes
+        // with critical resources (CSS, fonts, hero image). The poster image
+        // shows immediately; the video fades in once everything else is ready.
+        const injectHeroVideo = () => {
+          const video = document.createElement("video");
+          video.className = "hero-video";
+          video.muted = true;
+          video.autoplay = true;
+          video.loop = true;
+          video.playsInline = true;                         // iOS inline autoplay
+          video.setAttribute("playsinline", "");
+          video.setAttribute("webkit-playsinline", "");
+          video.setAttribute("aria-hidden", "true");        // decorative
+          video.preload = "auto";                           // we deferred — now fetch
+          video.disablePictureInPicture = true;
+          if (heroURL) video.poster = heroURL;
 
-        const source = document.createElement("source");
-        source.src = heroVideoURL;
-        source.type = "video/mp4";
-        video.appendChild(source);
+          // AV1 first (smallest, modern browsers), H.264 fallback (universal).
+          // Convention: re-encoded sibling lives next to the .mp4 as `.av1.mp4`.
+          const av1URL = heroVideoURL.replace(/\.mp4($|\?)/i, ".av1.mp4$1");
+          if (av1URL !== heroVideoURL) {
+            const av1 = document.createElement("source");
+            av1.src = av1URL;
+            av1.type = 'video/mp4; codecs="av01.0.05M.08"';
+            video.appendChild(av1);
+          }
+          const source = document.createElement("source");
+          source.src = heroVideoURL;
+          source.type = "video/mp4";
+          video.appendChild(source);
 
-        // Cross-fade the video in only once it's actually playing — until
-        // then the poster image shows through with zero flash.
-        video.addEventListener("playing", () => {
-          video.classList.add("is-playing");
-        }, { once: true });
+          // Cross-fade the video in only once it's actually playing — until
+          // then the poster image shows through with zero flash.
+          video.addEventListener("playing", () => {
+            video.classList.add("is-playing");
+          }, { once: true });
 
-        // Insert the video right after the .hero img so it paints on top
-        // (both at z-index 0; later-in-DOM wins). The img stays in place
-        // as the poster + fallback if the video fails.
-        if (heroImg && heroImg.parentNode) {
-          heroImg.parentNode.insertBefore(video, heroImg.nextSibling);
+          // Insert the video right after the .hero img so it paints on top
+          // (both at z-index 0; later-in-DOM wins). The img stays in place
+          // as the poster + fallback if the video fails.
+          if (heroImg && heroImg.parentNode) {
+            heroImg.parentNode.insertBefore(video, heroImg.nextSibling);
+          } else {
+            headerGrid.appendChild(video);
+          }
+        };
+
+        if ("requestIdleCallback" in window) {
+          requestIdleCallback(injectHeroVideo, { timeout: 2500 });
         } else {
-          headerGrid.appendChild(video);
+          setTimeout(injectHeroVideo, 1500);
         }
       }
     }
