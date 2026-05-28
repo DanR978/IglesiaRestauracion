@@ -189,11 +189,13 @@
     }
 
     // OPTIONAL hero video. Two flavors per viewport:
-    //   data-hero-video-desktop="<full-quality mp4>"  → loaded on >768px
-    //   data-hero-video-mobile="<compressed mp4>"     → loaded on ≤768px
+    //   data-hero-video-desktop="<full-quality mp4>"  → loaded on >600px (incl. iPads)
+    //   data-hero-video-mobile="<compressed mp4>"     → loaded on ≤600px (phones only)
     //   data-hero-video="<mp4>"                       → legacy single-URL fallback
     // The <video> is injected dynamically — pages without it pay nothing.
-    const narrowViewport = window.matchMedia?.("(max-width: 768px)").matches;
+    // Threshold is 600px (not 768px) so iPad-sized screens get the
+    // desktop-quality file — anything bigger than a phone can handle it.
+    const narrowViewport = window.matchMedia?.("(max-width: 600px)").matches;
     const heroVideoURL =
       (narrowViewport ? heroVideoMobileURL : heroVideoDesktopURL) ||
       heroVideoFallbackURL ||

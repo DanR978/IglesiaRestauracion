@@ -3734,12 +3734,15 @@ body.no-scroll {
    re-show inside the mobile @media block. */
 .submenu__head { display: none; }
 
-/* MOBILE MENU - nested panes, true horizontal swipe.   (max-width: 768px)
+/* MOBILE MENU - nested panes, true horizontal swipe.   (max-width: 1024px)
    Pattern: Southland Christian / iOS Settings.
    - Root pane shows category names only
    - Tapping a category slides root out left, sub-pane in from right
-   - Back button returns to root */
-@media (max-width: 768px) {
+   - Back button returns to root
+   Why 1024px: iPad mini (768/1024) and iPad regular (820/1180) hit the burger;
+   iPad Pro 11" (834/1194) and 12.9" (1024/1366) get the desktop nav in
+   landscape (their primary keyboard-attached orientation). */
+@media (max-width: 1024px) {
 
   /* Burger button */
   .burger {
