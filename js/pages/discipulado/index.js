@@ -4,15 +4,18 @@
 //   • Renders the 5 levels grid (static content, but driven from lib/discipleship.js)
 //   • Loads & renders open/active groups from Supabase
 //   • Builds the 7-day schedule strip from those groups
-//   • Wires the interest form submission with toast feedback
+//
+// Signup happens per-group, via the wizard popup on /discipulado/grupo/.
+// There is no generic interest form on this hub page.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
-  LEVELS, WEEKDAYS, STATUS_LABEL,
+  LEVELS, WEEKDAYS,
   DISPLAY_STATUS_LABEL, displayStatus, spotsRemaining,
-  fetchPublicGroups, submitInterest, subscribeGroups,
-  formatSchedule, formatDateRange, levelMeta, groupPublicUrl,
+  fetchPublicGroups, subscribeGroups,
+  formatSchedule, formatDateRange, levelMeta,
 } from '/js/lib/discipleship.js';
+import { openInterestPopup } from './interest-popup.js';
 
 /* ── Levels grid ──────────────────────────────────────────────────────────── */
 function renderLevels() {
@@ -118,71 +121,6 @@ function renderSchedule(groups) {
   }).join('');
 }
 
-/* ── Interest form ────────────────────────────────────────────────────────── */
-function wireForm() {
-  const form  = document.getElementById('dscpInterestForm');
-  const btn   = document.getElementById('dscpSubmit');
-  const fbEl  = document.getElementById('dscpFormFeedback');
-  const card  = form?.closest('.dscp-signup__card');
-  if (!form || !card) return;
-
-  const setFeedback = (msg, kind = '') => {
-    fbEl.textContent = msg || '';
-    fbEl.className = 'dscp-form__feedback' + (kind ? ` dscp-form__feedback--${kind}` : '');
-  };
-
-  const renderSuccess = (name) => {
-    const firstName = (name || '').trim().split(/\s+/)[0];
-    card.innerHTML = `
-      <div class="dscp-thanks" role="status" aria-live="polite">
-        <div class="dscp-thanks__icon" aria-hidden="true">
-          <i class="fas fa-heart"></i>
-        </div>
-        <h2 class="dscp-thanks__title">
-          ¡Gracias${firstName ? `, ${escapeHtml(firstName)}` : ''} por tu interés!
-        </h2>
-        <p class="dscp-thanks__body">
-          Estaremos en contacto contigo pronto.
-        </p>
-        <p class="dscp-thanks__verse">
-          "Confía en Jehová de todo tu corazón, y no te apoyes en tu propia prudencia."
-          <br><span class="dscp-thanks__ref">— Proverbios 3:5</span>
-        </p>
-      </div>
-    `;
-    // Smooth-scroll into view so the message is what the user sees
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    setFeedback('Enviando...', '');
-    btn.disabled = true;
-    btn.dataset.busy = '1';
-
-    const payload = {
-      full_name:        form.full_name.value,
-      email:            form.email.value,
-      phone:            form.phone.value,
-      preferred_day:    form.preferred_day.value || null,
-      preferred_time:   form.preferred_time.value || null,
-      experience_level: form.experience_level.value || null,
-      message:          form.message.value,
-    };
-
-    const { data, error } = await submitInterest(payload);
-    btn.disabled = false;
-    btn.dataset.busy = '';
-
-    if (error) {
-      setFeedback(typeof error === 'string' ? error : 'No pudimos enviar tu solicitud. Inténtalo de nuevo.', 'error');
-      return;
-    }
-
-    renderSuccess(payload.full_name);
-  });
-}
-
 /* ── Utilities ────────────────────────────────────────────────────────────── */
 function escapeHtml(s) {
   return String(s ?? '')
@@ -203,7 +141,9 @@ async function refreshGroups() {
 document.addEventListener('DOMContentLoaded', async () => {
   renderLevels();
   await refreshGroups();
-  wireForm();
+
+  // "Estoy interesado" CTA — opens the simple interest popup
+  document.getElementById('dscpInterestBtn')?.addEventListener('click', () => openInterestPopup());
 
   // Realtime: re-render if pastor publishes/edits a group while user is on the page
   subscribeGroups(refreshGroups);

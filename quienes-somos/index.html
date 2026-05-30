@@ -49,17 +49,27 @@
 
 
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "AboutPage",
-        "name": "¿Quiénes Somos?",
-        "url": "https://www.irdlex.org/quienes-somos",
-        "mainEntity": {
-          "@type": "Organization",
-          "name": "Iglesia Restauración Divina",
-          "description": "Conoce más sobre nuestra historia, misión, visión y liderazgo espiritual."
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "AboutPage",
+          "@id": "https://www.irdlex.org/quienes-somos/#aboutpage",
+          "url": "https://www.irdlex.org/quienes-somos/",
+          "name": "Quiénes Somos | Iglesia Restauración Divina",
+          "inLanguage": "es",
+          "isPartOf": { "@id": "https://www.irdlex.org/#website" },
+          "about": { "@id": "https://www.irdlex.org/#church" }
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio",        "item": "https://www.irdlex.org/" },
+            { "@type": "ListItem", "position": 2, "name": "Quiénes Somos", "item": "https://www.irdlex.org/quienes-somos/" }
+          ]
         }
-      }
+      ]
+    }
     </script>
     <!-- Google Analytics 4 -->
   <script defer src="/js/lib/analytics.js"></script>
@@ -87,9 +97,11 @@
                         NOSOTROS
                     </button>
                     <ul class="submenu">
-                        <li><a href="/vision-valores">Visión y Valores</a></li>
-                        <li><a href="/doctrina">Doctrina</a></li>
-                        <li><a href="mailto:contactanos@irdlex.org">Contáctanos</a></li>
+                        <li><a href="/quienes-somos/">Quiénes Somos</a></li>
+                        <li><a href="/pastor/">Nuestro Pastor</a></li>
+                        <li><a href="/vision-valores/">Visión y Valores</a></li>
+                        <li><a href="/doctrina/">Doctrina</a></li>
+                        <li><a href="/contacto/">Contáctanos</a></li>
                     </ul>
                 </li>
 
@@ -170,6 +182,70 @@
           <h2 class="centered-text-block__title animate-fade-in" data-threshold="1">
             NOSOTROS EXISTIMOS PARA ADORAR A DIOS <br> AMAR A NUESTRO PROJIMO Y COMPARTIR LAS BUENAS NUEVAS
           </h2>
+        </div>
+      </section>
+
+      <section class="about-body">
+        <div class="about-body__inner">
+
+          <p class="about-body__lead">
+            <strong>Iglesia Restauración Divina</strong> es una iglesia
+            hispana en Lexington, KY. Nos reunimos cada domingo a las
+            2:00 PM en 2601 Clays Mill Rd para adorar en español, escuchar
+            la Palabra de Dios y vivir como una familia de fe. Si eres
+            nuevo en la ciudad, recién llegado al país, o simplemente
+            buscas una iglesia donde te reciban como en casa — planea
+            tu visita.
+          </p>
+
+          <article class="about-body__block">
+            <h3 class="about-body__section-title">Lo que creemos</h3>
+            <p>
+              Creemos en Jesucristo como el Hijo de Dios y único Salvador,
+              en la autoridad de la Biblia, en el bautismo en agua por
+              inmersión, y en la obra continua del Espíritu Santo en la
+              vida del creyente. Como iglesia pentecostal, valoramos la
+              oración, la enseñanza clara de la Palabra y la experiencia
+              personal con Dios.
+            </p>
+          </article>
+
+          <article class="about-body__block">
+            <h3 class="about-body__section-title">Nuestra afiliación</h3>
+            <p>
+              Estamos afiliados al
+              <strong>Kentucky Ministry Network</strong>, la red hispana
+              de las <strong>Asambleas de Dios</strong> en Kentucky.
+              Esta conexión nos da rendición de cuentas pastoral,
+              una doctrina alineada con la fe histórica pentecostal,
+              y una red más amplia de iglesias hermanas en el estado.
+            </p>
+          </article>
+
+          <article class="about-body__block">
+            <h3 class="about-body__section-title">Nuestro liderazgo</h3>
+            <p>
+              El <strong>Pastor Raúl García Guerra</strong> sirve como
+              pastor principal. Predica cada domingo, dirige el
+              discipulado, y supervisa los grupos en hogares que se reúnen
+              semanalmente.
+            </p>
+          </article>
+
+          <article class="about-body__block about-body__block--list">
+            <h3 class="about-body__section-title">Cuándo y dónde nos reunimos</h3>
+            <ul class="about-body__list">
+              <li><strong>Servicio dominical:</strong> Domingos 2:00 PM (ET)</li>
+              <li><strong>Estudio bíblico:</strong> Martes 7:00 PM (ET)</li>
+              <li><strong>Servicio de oración:</strong> Viernes 7:00 PM (ET)</li>
+              <li><strong>Dirección:</strong> 2601 Clays Mill Rd, Lexington, KY 40503</li>
+            </ul>
+          </article>
+
+          <div class="about-body__cta-row">
+            <a href="/visitanos/" class="ird-btn ird-btn--teal">PLANEA TU VISITA</a>
+            <a href="/proximos-pasos/" class="ird-btn ird-btn--teal ird-btn--outline">PRÓXIMOS PASOS</a>
+          </div>
         </div>
       </section>
 
@@ -562,9 +638,11 @@
           <nav class="footer-section" aria-labelledby="footer-nosotros">
             <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
             <ul>
-              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores">VISIÓN Y VALORES</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina">DOCTRINA</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="mailto:contactanos@irdlex.org">CONTÁCTANOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/quienes-somos/">QUIÉNES SOMOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/pastor/">NUESTRO PASTOR</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores/">VISIÓN Y VALORES</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina/">DOCTRINA</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/contacto/">CONTÁCTANOS</a></li>
             </ul>
           </nav>
 
@@ -637,7 +715,7 @@
           </p>
 
           <nav class="item social text-left animate-fade-in" data-threshold="1" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.facebook.com/iglesiarestauracionlex1/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
             <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           </nav>
@@ -652,6 +730,7 @@
     <script type="module" src="/js/main.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>
     <script type="module" src="/js/include.js"></script>
+    <script type="module" src="/js/app/scroll-reveal.js"></script>
     <script type="module" src="/js/components/page-transition.js"></script>
 
   </body>

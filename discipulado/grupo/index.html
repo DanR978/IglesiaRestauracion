@@ -60,9 +60,11 @@
                         NOSOTROS
                     </button>
                     <ul class="submenu">
-                        <li><a href="/vision-valores">Visión y Valores</a></li>
-                        <li><a href="/doctrina">Doctrina</a></li>
-                        <li><a href="mailto:contactanos@irdlex.org">Contáctanos</a></li>
+                        <li><a href="/quienes-somos/">Quiénes Somos</a></li>
+                        <li><a href="/pastor/">Nuestro Pastor</a></li>
+                        <li><a href="/vision-valores/">Visión y Valores</a></li>
+                        <li><a href="/doctrina/">Doctrina</a></li>
+                        <li><a href="/contacto/">Contáctanos</a></li>
                     </ul>
                 </li>
 
@@ -155,151 +157,21 @@
       </section>
 
       <!-- Signup form (filled in / shown only when group loads) -->
-      <section class="dscp-signup" id="dgSignupWrap" hidden>
-
-        <div class="container--centered-text-block">
-          <div class="centered-text-block__inner">
-            <h5 class="centered-text-block__subtitle animate-fade-in" data-threshold="1">DA EL PASO</h5>
-            <h2 class="centered-text-block__title animate-fade-in" data-threshold="1">
-              CUÉNTANOS DE TI
-            </h2>
-          </div>
+      <!-- ─── Signup CTA — opens the multi-step wizard popup ───────────── -->
+      <section class="dg-signup-cta" id="dgSignupWrap" hidden>
+        <div class="dg-signup-cta__inner">
+          <h2 class="dg-signup-cta__title">¿Listo para unirte?</h2>
+          <p class="dg-signup-cta__lead">
+            Llena un formulario corto y el pastor se pondrá en contacto contigo.
+          </p>
+          <button type="button" class="ird-btn ird-btn--teal" id="dgSubmit">
+            <i class="fas fa-hand-holding-heart"></i>
+            <span>Quiero unirme a este grupo</span>
+          </button>
+          <p class="dg-signup-cta__legal">
+            Tu información solo la verá el pastor y el liderazgo de la iglesia.
+          </p>
         </div>
-
-        <div class="dscp-signup__card glass-card">
-
-          <form id="dgInterestForm" class="dscp-form" novalidate>
-            <input type="hidden" name="target_group_id" id="dgTargetGroupId">
-
-            <h3 class="dg-form__section">Tus datos</h3>
-
-            <div class="dscp-form__grid">
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgName">Nombre completo *</label>
-                <input type="text" id="dgName" name="full_name" autocomplete="name" required />
-              </div>
-
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgEmail">E-mail</label>
-                <input type="email" id="dgEmail" name="email" autocomplete="email" />
-              </div>
-
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgPhone">Teléfono *</label>
-                <input type="tel" id="dgPhone" name="phone" autocomplete="tel" inputmode="numeric" required />
-              </div>
-
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgAge">Tu etapa de vida</label>
-                <select id="dgAge" name="age_range">
-                  <option value="">— Prefiero no decir —</option>
-                  <option value="teen">Adolescente (13–17)</option>
-                  <option value="young-adult">Joven adulto (18–29)</option>
-                  <option value="adult">Adulto (30–59)</option>
-                  <option value="senior">Adulto mayor (60+)</option>
-                </select>
-              </div>
-
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgGender">Género</label>
-                <select id="dgGender" name="gender">
-                  <option value="">— Prefiero no decir —</option>
-                  <option value="masculino">Masculino</option>
-                  <option value="femenino">Femenino</option>
-                  <option value="no-especifica">Prefiero no decir</option>
-                </select>
-              </div>
-
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgLevel">¿Has hecho discipulado antes?</label>
-                <select id="dgLevel" name="experience_level">
-                  <option value="">No estoy seguro</option>
-                  <option value="1">Nunca — es mi primera vez</option>
-                  <option value="2">Estoy comenzando en la fe</option>
-                  <option value="3">Tengo algo de tiempo caminando con Cristo</option>
-                  <option value="4">Ya he sido discipulado antes</option>
-                  <option value="5">Quiero crecer para discipular a otros</option>
-                </select>
-              </div>
-
-              <div class="dscp-field animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgFamily">¿Vienes con familia?</label>
-                <input type="text" id="dgFamily" name="bringing_family" placeholder="ej. esposo + 2 niños"/>
-              </div>
-            </div>
-
-            <hr class="dg-form__rule">
-
-            <h3 class="dg-form__section">Para ayudar al pastor a planear</h3>
-            <p class="dg-form__hint">
-              Estas preguntas son completamente opcionales. Nos ayudan a armar grupos que funcionen
-              para todos sin tener que preguntar incómodamente persona por persona.
-            </p>
-
-            <div class="dscp-form__grid">
-
-              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1">
-                <span class="dscp-form__label">¿Podrías ofrecer tu casa para una reunión semanal?</span>
-                <div class="dg-radio-row" role="radiogroup" aria-label="¿Podrías ofrecer tu casa?">
-                  <label class="dg-radio">
-                    <input type="radio" name="can_host" value="yes">
-                    <span>Sí, sin problema</span>
-                  </label>
-                  <label class="dg-radio">
-                    <input type="radio" name="can_host" value="maybe">
-                    <span>Tal vez, pregúntenme</span>
-                  </label>
-                  <label class="dg-radio">
-                    <input type="radio" name="can_host" value="no" checked>
-                    <span>Prefiero no hospedar</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1" id="dgAddressField" hidden>
-                <label class="dscp-form__label" for="dgAddress">
-                  Dirección donde podrías hospedar (solo el pastor la ve)
-                </label>
-                <input type="text" id="dgAddress" name="home_address" autocomplete="street-address"
-                  placeholder="ej. 1234 Maple St, Lexington, KY 40503"/>
-              </div>
-
-              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1">
-                <span class="dscp-form__label">¿Tienes transporte para llegar?</span>
-                <div class="dg-radio-row" role="radiogroup" aria-label="Transporte">
-                  <label class="dg-radio">
-                    <input type="radio" name="has_transportation" value="yes" checked>
-                    <span>Sí, tengo cómo llegar</span>
-                  </label>
-                  <label class="dg-radio">
-                    <input type="radio" name="has_transportation" value="no">
-                    <span>Necesito ayuda con transporte</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="dscp-field dscp-field--full animate-fade-in" data-threshold="1">
-                <label class="dscp-form__label" for="dgMessage">Cuéntanos algo más (opcional)</label>
-                <textarea id="dgMessage" name="message" rows="4" maxlength="600"
-                  placeholder="Cualquier cosa que quieras compartir con el pastor antes del primer encuentro."></textarea>
-              </div>
-            </div>
-
-            <div class="dscp-form__feedback" id="dgFormFeedback" role="status" aria-live="polite"></div>
-
-            <div class="form-submit">
-              <button type="submit" class="ird-btn ird-btn--teal animate-fade-in" data-threshold="1" id="dgSubmit">
-                <i class="fas fa-hand-holding-heart"></i> Quiero unirme a este grupo
-              </button>
-            </div>
-
-            <p class="dscp-form__legal">
-              Tu información solo la verá el pastor y el liderazgo de la iglesia.
-              No la compartimos con nadie más.
-            </p>
-          </form>
-        </div>
-
       </section>
 
     </main>
@@ -344,9 +216,11 @@
           <nav class="footer-section" aria-labelledby="footer-nosotros">
             <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
             <ul>
-              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores">VISIÓN Y VALORES</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina">DOCTRINA</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="mailto:contactanos@irdlex.org">CONTÁCTANOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/quienes-somos/">QUIÉNES SOMOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/pastor/">NUESTRO PASTOR</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores/">VISIÓN Y VALORES</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina/">DOCTRINA</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/contacto/">CONTÁCTANOS</a></li>
             </ul>
           </nav>
 
@@ -419,7 +293,7 @@
           </p>
 
           <nav class="item social text-left animate-fade-in" data-threshold="1" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.facebook.com/iglesiarestauracionlex1/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
             <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           </nav>

@@ -50,23 +50,64 @@
 
 
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "ContactPage",
-        "name": "Visítanos",
-        "url": "https://www.irdlex.org/visitanos",
-        "mainEntity": {
-          "@type": "Place",
-          "name": "Iglesia Restauración Divina",
-          "address": {
-            "@type": "PostalAddress",
-            "streetAddress": "2601 Clays Mill Rd",
-            "addressLocality": "Lexington",
-            "addressRegion": "KY",
-            "postalCode": "40503"
-          }
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "ContactPage",
+          "@id": "https://www.irdlex.org/visitanos/#contactpage",
+          "url": "https://www.irdlex.org/visitanos/",
+          "name": "Visítanos | Iglesia Restauración Divina",
+          "inLanguage": "es",
+          "isPartOf": { "@id": "https://www.irdlex.org/#website" },
+          "about":   { "@id": "https://www.irdlex.org/#church" }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "¿Qué denominación es Iglesia Restauración Divina?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Iglesia Restauración Divina (IRDLex) está afiliada al Kentucky Ministry Network — la red hispana de las Asambleas de Dios. Creemos en la enseñanza sólida de la Biblia y en la fe histórica pentecostal."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Tienen clases dominicales para niños?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sí. Tenemos clases para niños y jóvenes los domingos después del tiempo de adoración. La escuela dominical para niños es de 3:00 a 4:00 PM, con personal capacitado en un espacio seguro."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Cuáles son los horarios de servicio?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Servicio dominical: Domingos 2:00 PM. Estudio bíblico: Martes 7:00 PM. Servicio de oración: Viernes 7:00 PM. Todos en 2601 Clays Mill Rd, Lexington, KY."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "¿Dónde se encuentra la iglesia?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Nos reunimos en 2601 Clays Mill Rd, Lexington, KY 40503. Hay estacionamiento disponible en las instalaciones."
+              }
+            }
+          ]
+        },
+        {
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio",    "item": "https://www.irdlex.org/" },
+            { "@type": "ListItem", "position": 2, "name": "Visítanos", "item": "https://www.irdlex.org/visitanos/" }
+          ]
         }
-      }
+      ]
+    }
     </script>
 
     <!-- Google Analytics 4 -->
@@ -95,9 +136,11 @@
                         NOSOTROS
                     </button>
                     <ul class="submenu">
-                        <li><a href="/vision-valores">Visión y Valores</a></li>
-                        <li><a href="/doctrina">Doctrina</a></li>
-                        <li><a href="mailto:contactanos@irdlex.org">Contáctanos</a></li>
+                        <li><a href="/quienes-somos/">Quiénes Somos</a></li>
+                        <li><a href="/pastor/">Nuestro Pastor</a></li>
+                        <li><a href="/vision-valores/">Visión y Valores</a></li>
+                        <li><a href="/doctrina/">Doctrina</a></li>
+                        <li><a href="/contacto/">Contáctanos</a></li>
                     </ul>
                 </li>
 
@@ -186,7 +229,7 @@
             <div class="list-block__item">
               <h4 class="list-block__heading animate-fade-in" data-threshold="1">Estudio Biblico</h4>
               <div class="list-block__body animate-fade-in" data-threshold="1">
-                <h5 class="animate-fade-in" data-threshold="1">2601 Clays Mill Road<br>Lexington, KY</h6>
+                <h5 class="animate-fade-in" data-threshold="1">2601 Clays Mill Road<br>Lexington, KY</h5>
                 <p class="animate-fade-in" data-threshold="1">Martes a las 7:00 PM (ET)</p>
               </div>
             </div>
@@ -194,7 +237,7 @@
             <div class="list-block__item">
               <h4 class="list-block__heading animate-fade-in" data-threshold="1">Domingos de adoración</h4>
               <div class="list-block__body animate-fade-in" data-threshold="1">
-                <h5 class="animate-fade-in" data-threshold="1">2601 Clays Mill Road<br>Lexington, KY</h6>
+                <h5 class="animate-fade-in" data-threshold="1">2601 Clays Mill Road<br>Lexington, KY</h5>
                 <p class="animate-fade-in" data-threshold="1">Domingo a las 2:00 PM (ET)</p>
               </div>
             </div>
@@ -202,7 +245,7 @@
             <div class="list-block__item">
                 <h4 class="list-block__heading animate-fade-in" data-threshold="1">Servicio de oración</h4>
                 <div class="list-block__body animate-fade-in" data-threshold="1">
-                  <h5 class="animate-fade-in" data-threshold="1">2601 Clays Mill Road<br>Lexington, KY</h6>
+                  <h5 class="animate-fade-in" data-threshold="1">2601 Clays Mill Road<br>Lexington, KY</h5>
                   <p class="animate-fade-in" data-threshold="1">Viernes a las 7:00 PM (ET)</p>
                 </div>
             </div>
@@ -674,9 +717,11 @@
           <nav class="footer-section" aria-labelledby="footer-nosotros">
             <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
             <ul>
-              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores">VISIÓN Y VALORES</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina">DOCTRINA</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="mailto:contactanos@irdlex.org">CONTÁCTANOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/quienes-somos/">QUIÉNES SOMOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/pastor/">NUESTRO PASTOR</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores/">VISIÓN Y VALORES</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina/">DOCTRINA</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/contacto/">CONTÁCTANOS</a></li>
             </ul>
           </nav>
 
@@ -749,7 +794,7 @@
           </p>
 
           <nav class="item social text-left animate-fade-in" data-threshold="1" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.facebook.com/iglesiarestauracionlex1/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
             <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           </nav>

@@ -1,0 +1,127 @@
+/* =========================================================
+   PAGE: QUIENES SOMOS  (/quienes-somos/)
+   Editorial about-body. Same visual language as /pastor/
+   so the two pages feel like part of the same section.
+   ========================================================= */
+
+.about-body {
+  padding: clamp(3.5rem, 6vw + 1rem, 6.5rem) var(--pd-md, 1.25rem);
+  background: var(--color-bg-light, #fff);
+}
+
+@media (prefers-color-scheme: dark) {
+  .about-body {
+    background: var(--color-bg-light, #121c1f);
+  }
+}
+
+.about-body__inner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* --- Lead paragraph -------------------------------------------------- */
+.about-body__lead {
+  margin: 0 0 2.4rem;
+  font-family: var(--font-Lexend);
+  font-weight: 400;
+  font-size: clamp(1.05rem, 0.5vw + 0.95rem, 1.2rem);
+  line-height: 1.7;
+  color: var(--color-text, #394548);
+}
+
+.about-body__lead strong { font-weight: 600; }
+
+/* Shared inline-link treatment */
+.about-body__lead a,
+.about-body__block a {
+  color: var(--color-text, #394548);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-secondary, #c89858);
+  transition: color 0.22s ease, border-color 0.22s ease;
+}
+
+.about-body__lead a:hover,
+.about-body__block a:hover {
+  color: var(--color-secondary, #c89858);
+}
+
+/* --- Section blocks -------------------------------------------------- */
+.about-body__block {
+  margin: 0 0 2rem;
+  padding: 0 0 0 1.25rem;
+  border-left: 2px solid rgba(200, 152, 88, 0.35);
+}
+
+.about-body__section-title {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-Signika);
+  font-weight: 600;
+  font-size: clamp(1.15rem, 0.8vw + 0.9rem, 1.4rem);
+  letter-spacing: -0.005em;
+  color: var(--color-text, #394548);
+}
+
+.about-body__block p {
+  margin: 0;
+  font-family: var(--font-Lexend);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--color-text, #394548);
+}
+
+/* --- List block (service times) ------------------------------------- */
+.about-body__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-Lexend);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.9;
+  color: var(--color-text, #394548);
+}
+
+.about-body__list li {
+  position: relative;
+  padding-left: 1.4rem;
+}
+
+.about-body__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.78em;
+  width: 8px;
+  height: 8px;
+  background: var(--color-secondary, #c89858);
+  border-radius: 50%;
+}
+
+.about-body__list strong { font-weight: 600; }
+
+/* --- CTA row --------------------------------------------------------- */
+.about-body__cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 2.6rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(57, 69, 72, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .about-body__cta-row {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  .about-body__block { border-left-color: rgba(200, 152, 88, 0.5); }
+}
+
+/* --- Mobile ---------------------------------------------------------- */
+@media (max-width: 600px) {
+  .about-body { padding-inline: 1.1rem; }
+  .about-body__block { padding-left: 0.9rem; }
+  .about-body__cta-row { flex-direction: column; }
+  .about-body__cta-row .ird-btn { width: 100%; text-align: center; }
+}

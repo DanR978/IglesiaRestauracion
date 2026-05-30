@@ -1,16 +1,17 @@
 // js/pages/discipulado/grupo.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Group detail page — reads ?slug=... or ?id=... from the URL, fetches the
-// group, renders details, and submits an extended interest form with host /
-// transport / family fields tagged to that group.
+// group, renders details, and (via a multi-step popup wizard) lets visitors
+// sign up specifically to this group.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import {
-  fetchPublicGroupBy, submitInterest,
-  formatSchedule, formatDateRange, levelMeta, STATUS_LABEL,
+  fetchPublicGroupBy,
+  formatSchedule, formatDateRange, levelMeta,
   displayStatus, DISPLAY_STATUS_LABEL, spotsRemaining,
   subscribeGroups,
 } from '/js/lib/discipleship.js';
+import { openSignupWizard } from './signup-wizard.js';
 
 const params = new URLSearchParams(location.search);
 const SLUG = params.get('slug') || '';
@@ -111,21 +112,23 @@ function renderDetail(g) {
     </div>
   `;
 
-  // Reveal the signup form (unless completed/cancelled — pointless then)
+  // Reveal the signup CTA (unless completed/cancelled — pointless then)
   const wrap = $('dgSignupWrap');
   if (wrap) wrap.hidden = (display === 'completed' || display === 'cancelled');
-  $('dgTargetGroupId').value = g.id;
 
-  // Adjust the submit button label based on state
+  // Adjust the submit button label based on group state
   const submitBtn = $('dgSubmit');
   if (submitBtn) {
+    let labelHtml;
     if (display === 'full') {
-      submitBtn.innerHTML = '<i class="fas fa-bell"></i> Avísenme cuando haya cupo';
+      labelHtml = '<i class="fas fa-bell"></i> <span>Avísenme cuando haya cupo</span>';
     } else if (display === 'in_progress') {
-      submitBtn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Contactar al pastor';
+      labelHtml = '<i class="fas fa-hand-holding-heart"></i> <span>Contactar al pastor</span>';
     } else {
-      submitBtn.innerHTML = '<i class="fas fa-hand-holding-heart"></i> Quiero unirme a este grupo';
+      labelHtml = '<i class="fas fa-hand-holding-heart"></i> <span>Quiero unirme a este grupo</span>';
     }
+    submitBtn.innerHTML = labelHtml;
+    submitBtn.dataset.displayState = display;
   }
 }
 
@@ -143,95 +146,22 @@ function renderNotFound(reason = 'No encontramos este grupo.') {
   `;
 }
 
-/* ── Form: extended interest signup ─────────────────────────────────────── */
-function wireForm() {
-  const form = $('dgInterestForm');
-  const btn  = $('dgSubmit');
-  const fb   = $('dgFormFeedback');
-  if (!form) return;
-
-  // Toggle the "address" field based on the host radio selection
-  form.addEventListener('change', (e) => {
-    if (e.target.name !== 'can_host') return;
-    const addr = $('dgAddressField');
-    if (!addr) return;
-    addr.hidden = e.target.value === 'no';
-  });
-
-  const setFeedback = (msg, kind = '') => {
-    fb.textContent = msg || '';
-    fb.className = 'dscp-form__feedback' + (kind ? ` dscp-form__feedback--${kind}` : '');
-  };
-
-  const renderSuccess = (name) => {
-    const card = form.closest('.dscp-signup__card');
-    const firstName = (name || '').trim().split(/\s+/)[0];
-    if (!card) return;
-    card.innerHTML = `
-      <div class="dscp-thanks" role="status" aria-live="polite">
-        <div class="dscp-thanks__icon" aria-hidden="true"><i class="fas fa-heart"></i></div>
-        <h2 class="dscp-thanks__title">
-          ¡Gracias${firstName ? `, ${escapeHtml(firstName)}` : ''} por tu interés!
-        </h2>
-        <p class="dscp-thanks__body">
-          El pastor recibió tu solicitud y se pondrá en contacto contigo pronto.
-        </p>
-        <p class="dscp-thanks__verse">
-          "Confía en Jehová de todo tu corazón, y no te apoyes en tu propia prudencia."
-          <br><span class="dscp-thanks__ref">— Proverbios 3:5</span>
-        </p>
-        <p style="margin-top:2rem">
-          <a href="/discipulado" class="ird-btn ird-btn--white-empty ird-btn--outline">Ver otros grupos</a>
-        </p>
-      </div>
-    `;
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    setFeedback('Enviando…', '');
-    btn.disabled = true;
-
-    const fd = new FormData(form);
-    const canHostRaw = fd.get('can_host');
-    const transportRaw = fd.get('has_transportation');
-
-    const payload = {
-      full_name:          fd.get('full_name')        || '',
-      email:              fd.get('email')            || '',
-      phone:              fd.get('phone')            || '',
-      experience_level:   fd.get('experience_level') || null,
-      bringing_family:    fd.get('bringing_family')  || '',
-      age_range:          fd.get('age_range')        || null,
-      gender:             fd.get('gender')           || null,
-      message:            fd.get('message')          || '',
-      target_group_id:    fd.get('target_group_id')  || null,
-      can_host:           canHostRaw === 'yes' ? true : canHostRaw === 'no' ? false : null,
-      home_address:       fd.get('home_address')     || '',
-      has_transportation: transportRaw === 'yes' ? true : transportRaw === 'no' ? false : null,
-      source:             'group_detail_form',
-    };
-
-    if (!payload.full_name.trim()) {
-      setFeedback('Por favor escribe tu nombre.', 'error');
-      btn.disabled = false;
-      return;
-    }
-    if (!payload.phone.trim() && !payload.email.trim()) {
-      setFeedback('Necesitamos al menos un teléfono o correo para contactarte.', 'error');
-      btn.disabled = false;
-      return;
-    }
-
-    const { data, error } = await submitInterest(payload);
-    btn.disabled = false;
-
-    if (error) {
-      setFeedback(typeof error === 'string' ? error : 'No pudimos enviar tu solicitud. Inténtalo de nuevo.', 'error');
-      return;
-    }
-    renderSuccess(payload.full_name);
+/* ── Wire the CTA button to open the multi-step signup wizard ──────────── */
+function wireSignupButton() {
+  const btn = $('dgSubmit');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    if (!_currentGroup) return;
+    const display = btn.dataset.displayState || displayStatus(_currentGroup);
+    const submitLabel =
+      display === 'full'        ? 'Apuntarme a la lista de espera'  :
+      display === 'in_progress' ? 'Enviar solicitud al pastor'      :
+                                  'Quiero unirme a este grupo';
+    openSignupWizard({
+      groupId:   _currentGroup.id,
+      groupName: _currentGroup.name,
+      submitLabel,
+    });
   });
 }
 
@@ -251,7 +181,7 @@ async function boot() {
     return;
   }
   renderDetail(g);
-  wireForm();
+  wireSignupButton();
 
   // Realtime: when member_count changes (member added/removed), re-render capacity
   subscribeGroups(refreshFromDb);

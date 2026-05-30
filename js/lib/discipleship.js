@@ -270,6 +270,21 @@ export async function removeMember(id) {
   return { ok: true };
 }
 
+// Move a member from one group to another by updating their group_id.
+// Used by the admin member-card kebab menu.
+export async function moveMember(memberId, newGroupId) {
+  if (!sb) return { error: 'no-supabase' };
+  if (!memberId || !newGroupId) return { error: 'invalid-args' };
+  const { data, error } = await sb
+    .from('discipleship_members')
+    .update({ group_id: newGroupId })
+    .eq('id', memberId)
+    .select()
+    .single();
+  if (error) return { error: error.message };
+  return { data };
+}
+
 /* ── Messages ──────────────────────────────────────────────────────────────── */
 
 export async function fetchMessages(groupId, limit = 25) {
@@ -349,4 +364,22 @@ export function formatDateRange(group) {
 
 export function levelMeta(n) {
   return LEVELS.find(l => l.n === Number(n)) ?? LEVELS[0];
+}
+
+// Format a raw phone string as a US-style number.
+//   "6173200354"      → "(617) 320-0354"
+//   "16173200354"     → "+1 (617) 320-0354"
+//   "+52 55 1234 5678" → "+52 5512345678" (anything not 10/11-digit US-style returns digits-grouped)
+//   Falls back to the input untouched when nothing reasonable can be inferred.
+export function formatPhone(input) {
+  if (!input) return '';
+  const raw = String(input).trim();
+  const digits = raw.replace(/\D+/g, '');
+  if (digits.length === 10) {
+    return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  }
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `+1 (${digits.slice(1,4)}) ${digits.slice(4,7)}-${digits.slice(7)}`;
+  }
+  return raw;
 }

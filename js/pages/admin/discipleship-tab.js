@@ -10,10 +10,10 @@ import {
   fetchAllGroups, fetchPublicGroups, fetchGroupById,
   upsertGroup, deleteGroup,
   fetchInterests, updateInterestStatus,
-  fetchMembers, addMember, removeMember,
+  fetchMembers, addMember, removeMember, moveMember,
   fetchMessages, sendMessage,
   subscribeGroups, subscribeInterests,
-  formatSchedule, formatDateRange, groupPublicUrl,
+  formatSchedule, formatDateRange, formatPhone, groupPublicUrl, levelMeta,
 } from '/js/lib/discipleship.js';
 
 import { toast, openModal, closeModal, confirm } from './ui.js';
@@ -97,11 +97,7 @@ function boot() {
     refreshInterests();
   });
 
-  // Bulk action bar
-  document.getElementById('dscpBulkClear')?.addEventListener('click', () => {
-    selectedInterests.clear();
-    refreshInterests();
-  });
+  // Bulk action bar — deselect happens by unchecking the checkbox, no clear-all button.
   document.getElementById('dscpBulkFormGroup')?.addEventListener('click', formGroupFromSelection);
 
   // "Crear grupo" → opens the step-by-step wizard (creation only; editing still uses the modal below)
@@ -438,14 +434,18 @@ async function openMembersInline(groupId) {
     ${members.length
       ? `<ul class="dscp-members-panel__list">
           ${members.map(m => `
-            <li>
+            <li class="dscp-member" data-member-id="${m.id}">
               <span class="dscp-member__role">${roleLabel(m.role)}</span>
-              <span class="dscp-member__name">${escapeHtml(m.full_name)}</span>
-              ${m.email ? `<span class="dscp-member__email">${escapeHtml(m.email)}</span>` : ''}
-              ${m.phone ? `<span class="dscp-member__phone">${escapeHtml(m.phone)}</span>` : ''}
-              <button class="btn btn--ghost" data-dscp-rm-member="${m.id}">
-                <i class="fas fa-times"></i>
-              </button>
+              <div class="dscp-member__main">
+                <span class="dscp-member__name">${escapeHtml(m.full_name)}</span>
+                ${m.phone ? `<a class="dscp-member__phone" href="tel:${escapeHtml(String(m.phone).replace(/\D+/g, ''))}"><i class="fas fa-phone"></i> ${escapeHtml(formatPhone(m.phone))}</a>` : ''}
+                ${m.email ? `<a class="dscp-member__email" href="mailto:${escapeHtml(m.email)}"><i class="fas fa-envelope"></i> ${escapeHtml(m.email)}</a>` : ''}
+              </div>
+              <div class="dscp-member__menu-wrap">
+                <button class="dscp-member__menu-btn" data-dscp-menu="${m.id}" aria-label="Opciones" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-ellipsis-vertical"></i>
+                </button>
+              </div>
             </li>
           `).join('')}
         </ul>`
@@ -453,17 +453,127 @@ async function openMembersInline(groupId) {
     }
   `;
 
-  panel.querySelectorAll('[data-dscp-rm-member]').forEach(b =>
-    b.addEventListener('click', async () => {
-      const ok = await confirm('Remover miembro', '¿Sacar a esta persona del grupo?');
+  wireMemberMenus(panel, members, groupId);
+}
+
+/* ── Member kebab menu — move-to-group / create-new-group / remove ────── */
+function wireMemberMenus(panel, members, currentGroupId) {
+  panel.querySelectorAll('[data-dscp-menu]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const memberId = btn.dataset.dscpMenu;
+      const member   = members.find(m => m.id === memberId);
+      if (!member) return;
+      toggleMemberMenu(btn, member, currentGroupId);
+    });
+  });
+}
+
+let _openMenu = null;
+function closeOpenMenu() {
+  if (!_openMenu) return;
+  _openMenu.popover.remove();
+  _openMenu.btn.setAttribute('aria-expanded', 'false');
+  document.removeEventListener('click', _openMenu.onDocClick, true);
+  document.removeEventListener('keydown', _openMenu.onKey, true);
+  _openMenu = null;
+}
+
+function toggleMemberMenu(btn, member, currentGroupId) {
+  if (_openMenu && _openMenu.btn === btn) { closeOpenMenu(); return; }
+  closeOpenMenu();
+
+  const others = (groupsCache || []).filter(g => g.id !== currentGroupId);
+  const moveItems = others.length
+    ? others.map(g => `
+        <button type="button" class="dscp-member-pop__item" data-action="move" data-target-group="${g.id}">
+          <i class="fas fa-arrow-right-arrow-left"></i>
+          <span class="dscp-member-pop__main">
+            <span class="dscp-member-pop__title">${escapeHtml(g.name)}</span>
+            <span class="dscp-member-pop__sub">Nivel ${g.level} · ${escapeHtml(levelMeta(g.level)?.label || '')}</span>
+          </span>
+        </button>`).join('')
+    : `<div class="dscp-member-pop__empty">No hay otros grupos todavía.</div>`;
+
+  const pop = document.createElement('div');
+  pop.className = 'dscp-member-pop';
+  pop.setAttribute('role', 'menu');
+  pop.innerHTML = `
+    <div class="dscp-member-pop__section-label">Mover a otro grupo</div>
+    ${moveItems}
+    <button type="button" class="dscp-member-pop__item dscp-member-pop__item--accent" data-action="create-and-move">
+      <i class="fas fa-plus"></i>
+      <span class="dscp-member-pop__main">
+        <span class="dscp-member-pop__title">Crear nuevo grupo y mover aquí</span>
+      </span>
+    </button>
+    <div class="dscp-member-pop__divider"></div>
+    <button type="button" class="dscp-member-pop__item dscp-member-pop__item--danger" data-action="remove">
+      <i class="fas fa-user-minus"></i>
+      <span class="dscp-member-pop__main">
+        <span class="dscp-member-pop__title">Remover del grupo</span>
+      </span>
+    </button>
+  `;
+  btn.closest('.dscp-member__menu-wrap').appendChild(pop);
+  btn.setAttribute('aria-expanded', 'true');
+
+  const onDocClick = (ev) => { if (!pop.contains(ev.target) && ev.target !== btn) closeOpenMenu(); };
+  const onKey      = (ev) => { if (ev.key === 'Escape') closeOpenMenu(); };
+  document.addEventListener('click', onDocClick, true);
+  document.addEventListener('keydown', onKey, true);
+  _openMenu = { btn, popover: pop, onDocClick, onKey };
+
+  pop.addEventListener('click', async (ev) => {
+    const item = ev.target.closest('[data-action]');
+    if (!item) return;
+    ev.stopPropagation();
+    const action = item.dataset.action;
+
+    if (action === 'move') {
+      const targetGroupId = item.dataset.targetGroup;
+      const targetName    = (groupsCache.find(g => g.id === targetGroupId) || {}).name || 'otro grupo';
+      closeOpenMenu();
+      const ok = await confirm('Mover miembro', `¿Mover a ${member.full_name} a "${targetName}"?`);
       if (!ok) return;
-      const { error } = await removeMember(b.dataset.dscpRmMember);
+      const { error } = await moveMember(member.id, targetGroupId);
+      if (error) { toast(error, 'error'); return; }
+      toast(`Movido a ${targetName}`, 'success');
+      reopenMembers(currentGroupId);
+      return;
+    }
+
+    if (action === 'create-and-move') {
+      closeOpenMenu();
+      openDscpWizard({
+        onCreated: async (newGroup) => {
+          if (!newGroup?.id) return;
+          const { error } = await moveMember(member.id, newGroup.id);
+          if (error) { toast(error, 'error'); return; }
+          toast(`Grupo creado · ${member.full_name} movido`, 'success');
+          await refreshGroups();        // pull the new group into cache
+          reopenMembers(currentGroupId); // re-render the panel
+        },
+      });
+      return;
+    }
+
+    if (action === 'remove') {
+      closeOpenMenu();
+      const ok = await confirm('Remover miembro', `¿Sacar a ${member.full_name} del grupo?`);
+      if (!ok) return;
+      const { error } = await removeMember(member.id);
       if (error) { toast(error, 'error'); return; }
       toast('Miembro removido', 'success');
-      openMembersInline(groupId); // toggle off
-      openMembersInline(groupId); // re-open with fresh data
-    })
-  );
+      reopenMembers(currentGroupId);
+    }
+  });
+}
+
+function reopenMembers(groupId) {
+  // Toggle off (removes current panel) then re-open with fresh data.
+  openMembersInline(groupId);
+  openMembersInline(groupId);
 }
 
 function roleLabel(r) {

@@ -9,10 +9,10 @@
     <meta name="keywords"
       content="iglesia en Lexington KY, iglesia cristiana Lexington, Restauración Divina, iglesia evangélica, Jesús, comunidad cristiana, adoración, salvación, iglesia latina en Kentucky, Iglesia hispana, iglesia pentecostal, iglesia cerca de mi">
 
-    <title>Iglesia Restauración Divina</title>
+    <title>IRDLex · Iglesia Restauración Divina · Lexington, KY</title>
+    <meta name="application-name" content="IRDLex">
     <meta name="description"
-      content="Bienvenido a Iglesia Restauración Divina en Lexington, KY. 
-    Somos una comunidad cristiana apasionada por compartir el amor de Cristo. Únete a una familia de fe, Cristo te ama y tiene grandes planes para ti" />
+      content="Iglesia Restauración Divina (IRDLex) — iglesia hispana en Lexington, KY. Servicio dominical 2:00 PM, 2601 Clays Mill Rd. Una familia de fe en español; Cristo te ama y tiene grandes planes para ti." />
     <meta name="author" content="Iglesia Restauración Divina" />
     <meta name="google-site-verification"
       content="DBLPZo7AD3yKM0w4TPL3akJtwAL1h7_r5q-5Slt_Xkw" />
@@ -33,20 +33,21 @@
 
     <!-- SOCIAL SHARING PREVIEW-->
     <link rel="canonical" href="https://www.irdlex.org" />
-    <meta property="og:site_name" content="Iglesia Restauración Divina" />
-    <meta property="og:title" content="Iglesia Restauración Divina" />
+    <meta property="og:site_name" content="IRDLex · Iglesia Restauración Divina" />
+    <meta property="og:title" content="IRDLex · Iglesia Restauración Divina · Lexington, KY" />
     <meta property="og:url" content="https://www.irdlex.org" />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="es_US" />
     <meta property="og:description"
-      content="Cristo transforma! Adora con nosotros este domingo.">
+      content="Iglesia hispana en Lexington, KY. Servicio dominical 2:00 PM en 2601 Clays Mill Rd. Cristo transforma — adora con nosotros este domingo.">
     <meta property="og:image"
       content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
 
     <!-- MESSAGING PREVIEW -->
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Ven a Iglesia Restauración Divina" />
+    <meta name="twitter:title" content="IRDLex · Iglesia Restauración Divina" />
     <meta name="twitter:description"
-      content="Cristo transforma! Adora con nosotros este domingo." />
+      content="Iglesia hispana en Lexington, KY. Servicio dominical 2:00 PM. Cristo transforma!" />
     <meta name="twitter:image"
       content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
 
@@ -75,20 +76,71 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Church",
-        "name": "Iglesia Restauración Divina",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "2601 Clays Mill Rd",
-          "addressLocality": "Lexington",
-          "addressRegion": "KY",
-          "postalCode": "40503"
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": ["Church", "PentecostalChurch"],
+          "@id": "https://www.irdlex.org/#church",
+          "name": "Iglesia Restauración Divina",
+          "alternateName": ["IRDLex", "IRD Lex", "Iglesia Restauración Divina Lexington"],
+          "description": "Iglesia hispana cristiana en Lexington, KY. Servicio dominical en español a las 2:00 PM.",
+          "url": "https://www.irdlex.org/",
+          "logo": "https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico",
+          "image": "https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png",
+          "telephone": "+1-859-270-8521",
+          "email": "contactanos@irdlex.org",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "2601 Clays Mill Rd",
+            "addressLocality": "Lexington",
+            "addressRegion": "KY",
+            "postalCode": "40503",
+            "addressCountry": "US"
+          },
+          "geo": { "@type": "GeoCoordinates", "latitude": 38.0086, "longitude": -84.5374 },
+          "areaServed": [
+            { "@type": "City", "name": "Lexington" },
+            { "@type": "AdministrativeArea", "name": "Kentucky" }
+          ],
+          "knowsLanguage": ["es", "en"],
+          "founder":  { "@id": "https://www.irdlex.org/pastor/#pastor" },
+          "employee": { "@id": "https://www.irdlex.org/pastor/#pastor" },
+          "sameAs": [
+            "https://www.facebook.com/iglesiarestauracionlex1/",
+            "https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw",
+            "https://www.instagram.com/iglesiarestauracion.divina",
+            "https://es.kyag.org/find-a-church2"
+          ],
+          "openingHoursSpecification": [
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday",  "opens": "14:00", "closes": "16:00", "name": "Servicio de adoración" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Tuesday", "opens": "19:00", "closes": "20:30", "name": "Estudio bíblico" },
+            { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday",  "opens": "19:00", "closes": "20:30", "name": "Servicio de oración" }
+          ]
         },
-        "telephone": "+1 859 270 8521",
-        "url": "https://www.irdlex.org"
-      }
+        {
+          "@type": "Person",
+          "@id": "https://www.irdlex.org/pastor/#pastor",
+          "name": "Raúl García Guerra",
+          "givenName": "Raúl",
+          "familyName": "García Guerra",
+          "jobTitle": "Pastor principal",
+          "worksFor": { "@id": "https://www.irdlex.org/#church" },
+          "url": "https://www.irdlex.org/pastor/",
+          "knowsLanguage": ["es", "en"],
+          "affiliation": { "@type": "Organization", "name": "Kentucky Ministry Network — Assemblies of God" }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.irdlex.org/#website",
+          "url": "https://www.irdlex.org/",
+          "name": "Iglesia Restauración Divina",
+          "alternateName": "IRDLex",
+          "publisher": { "@id": "https://www.irdlex.org/#church" },
+          "inLanguage": "es"
+        }
+      ]
+    }
     </script>
 
     <!-- Google Analytics 4 -->
@@ -122,9 +174,11 @@
                         NOSOTROS
                     </button>
                     <ul class="submenu">
-                        <li><a href="/vision-valores">Visión y Valores</a></li>
-                        <li><a href="/doctrina">Doctrina</a></li>
-                        <li><a href="mailto:contactanos@irdlex.org">Contáctanos</a></li>
+                        <li><a href="/quienes-somos/">Quiénes Somos</a></li>
+                        <li><a href="/pastor/">Nuestro Pastor</a></li>
+                        <li><a href="/vision-valores/">Visión y Valores</a></li>
+                        <li><a href="/doctrina/">Doctrina</a></li>
+                        <li><a href="/contacto/">Contáctanos</a></li>
                     </ul>
                 </li>
 
@@ -194,7 +248,6 @@
 <!-- /BUILD-INLINE:header -->
 </header>
     <div class="hero-content hero-content--v2 animate-fade-in" data-threshold="0.8">
-      <p class="hero-kicker">UNA FAMILIA PARA TI EN LEXINGTON</p>
       <h1 class="hero-title">Iglesia Restauración Divina</h1>
 
       <div class="hero-cta scroll-fade-up">
@@ -278,7 +331,7 @@
               llamándonos a seguirle con todo el corazón.
             </p>
             <div class="animate-fade-in" data-threshold="1"><a
-                href="vision-valores" class="ird-btn ird-btn--teal">NUESTRA
+                href="/vision-valores/" class="ird-btn ird-btn--teal">NUESTRA
                 VISIÓN</a></div>
           </div>
         </div>
@@ -310,11 +363,11 @@
               </p>
             </blockquote>
             <p class="home-pastor__sign scroll-fade-up">
-              <strong>Pastor Raúl García</strong>
+              <strong>Pastor Raúl García Guerra</strong>
               <span>Pastor principal · Iglesia Restauración Divina</span>
             </p>
-            <a href="vision-valores" class="home-pastor__cta scroll-fade-up">
-              <span>Conoce más sobre nosotros</span>
+            <a href="/pastor/" class="home-pastor__cta scroll-fade-up">
+              <span>Conoce a nuestro pastor</span>
               <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>
             </a>
           </div>
@@ -827,9 +880,11 @@
           <nav class="footer-section" aria-labelledby="footer-nosotros">
             <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
             <ul>
-              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores">VISIÓN Y VALORES</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina">DOCTRINA</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="mailto:contactanos@irdlex.org">CONTÁCTANOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/quienes-somos/">QUIÉNES SOMOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/pastor/">NUESTRO PASTOR</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores/">VISIÓN Y VALORES</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina/">DOCTRINA</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/contacto/">CONTÁCTANOS</a></li>
             </ul>
           </nav>
 
@@ -902,7 +957,7 @@
           </p>
 
           <nav class="item social text-left animate-fade-in" data-threshold="1" aria-label="Redes sociales">
-            <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.facebook.com/iglesiarestauracionlex1/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
             <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
             <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
           </nav>
