@@ -15,10 +15,10 @@
   <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
   <!-- Social / SEO -->
-  <link rel="canonical" href="https://www.irdlex.org/calendario" />
+  <link rel="canonical" href="https://www.irdlex.org/calendario/" />
   <meta property="og:site_name"   content="Iglesia Restauración Divina" />
   <meta property="og:title"       content="Calendario — Iglesia Restauración Divina" />
-  <meta property="og:url"         content="https://www.irdlex.org/calendario" />
+  <meta property="og:url"         content="https://www.irdlex.org/calendario/" />
   <meta property="og:type"        content="website" />
   <meta property="og:description" content="Actividades regulares y eventos especiales de la congregación. Mira qué está pasando esta semana en Iglesia Restauración Divina." />
   <meta property="og:image"       content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_calendar.png" />
@@ -80,7 +80,98 @@
 <body>
 
   <header id="header" data-hero-size="page"
-    data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_calendar.png"></header>
+    data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_calendar.png">
+<!-- BUILD-INLINE:header -->
+<div class="header-grid">
+    <img class="hero" alt="" />
+    <div class="overlay"></div>
+    <div class="nav-container animate-fade-in" data-threshold="1">
+        <a href="https://www.irdlex.org" class="logo">IGLESIA RESTAURACIÓN DIVINA</a>
+
+        <nav id="mainNav" class="nav" aria-label="Menú principal">
+            <ul class="menu">
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        NOSOTROS
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/vision-valores">Visión y Valores</a></li>
+                        <li><a href="/doctrina">Doctrina</a></li>
+                        <li><a href="mailto:contactanos@irdlex.org">Contáctanos</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        CONÉCTATE
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/visitanos">Visítanos</a></li>
+                        <li><a href="/proximos-pasos">Próximos Pasos</a></li>
+                        <li><a href="/discipulado">Discipulado</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        EVENTOS
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/eventos">Próximos eventos</a></li>
+                        <li><a href="/calendario">Calendario</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        MEDIA
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/sermones">Sermones</a></li>
+                        <li><a href="/galeria">Galería</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+            <!-- Donate (visible on every breakpoint; styled differently on mobile) -->
+            <div class="menu-donate">
+                <a href="/donacion" class="ird-btn ird-btn--donate">DONAR</a>
+            </div>
+
+        </nav>
+
+        <!-- Burger button (Mobile only) -->
+        <button id="burgerToggle" class="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+    </div>
+</div>
+<!-- /BUILD-INLINE:header -->
+</header>
 
   <div class="hero-content glass-card rg-pd animate-fade-in" data-threshold="0.8">
     <h1 class="hero__page-title">ACTIVIDADES</h1>

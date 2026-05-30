@@ -118,21 +118,27 @@
     if (!host) return; // mount not on this page
     if (!once(host, "included")) return;
 
-    const html = await fetchHTML(file, 3);
-    const frag = document.createRange().createContextualFragment(html);
-    reexecuteScripts(frag);
-    host.replaceChildren(frag);
+    // If the host already has element children, the content was inlined at
+    // build time (scripts/inline-includes.mjs). Skip the network fetch — the
+    // markup is already correct — but still run the lifecycle so dynamic
+    // behavior (hero video, footer year, contact-form AJAX) wires up.
+    if (host.firstElementChild === null) {
+      const html = await fetchHTML(file, 3);
+      const frag = document.createRange().createContextualFragment(html);
+      reexecuteScripts(frag);
+      host.replaceChildren(frag);
 
-    if (typeof verify === "function") {
-      let ok = verify(host);
-      let attempts = 0;
-      while (!ok && attempts < 2) {
-        await sleep(100);
-        host.replaceChildren(document.createRange().createContextualFragment(html));
-        ok = verify(host);
-        attempts++;
+      if (typeof verify === "function") {
+        let ok = verify(host);
+        let attempts = 0;
+        while (!ok && attempts < 2) {
+          await sleep(100);
+          host.replaceChildren(document.createRange().createContextualFragment(html));
+          ok = verify(host);
+          attempts++;
+        }
+        if (!ok) console.warn(`[include] verification failed for #${id} (${file})`);
       }
-      if (!ok) console.warn(`[include] verification failed for #${id} (${file})`);
     }
 
     if (typeof lifecycle === "function") {

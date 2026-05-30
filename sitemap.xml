@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset 
+<urlset
   xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
@@ -10,30 +10,24 @@
   </url>
 
   <url>
-    <loc>https://www.irdlex.org/visitanos</loc>
+    <loc>https://www.irdlex.org/visitanos/</loc>
     <lastmod>2025-08-07</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
 
-  <url>
-    <loc>https://www.irdlex.org/contactanos</loc>
-    <lastmod>2025-08-07</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
   <!-- /quienes-somos removed from sitemap until it has real content -->
+  <!-- /contactanos removed: page does not exist; contact is via mailto link in nav/footer -->
 
   <url>
-    <loc>https://www.irdlex.org/proximos-pasos</loc>
+    <loc>https://www.irdlex.org/proximos-pasos/</loc>
     <lastmod>2025-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.irdlex.org/discipulado</loc>
+    <loc>https://www.irdlex.org/discipulado/</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -41,35 +35,35 @@
 
   <!-- Per-group detail pages are reached via QR codes; not listed individually -->
   <url>
-    <loc>https://www.irdlex.org/discipulado/grupo</loc>
+    <loc>https://www.irdlex.org/discipulado/grupo/</loc>
     <lastmod>2026-05-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://www.irdlex.org/galeria</loc>
+    <loc>https://www.irdlex.org/galeria/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.irdlex.org/galeria/album</loc>
+    <loc>https://www.irdlex.org/galeria/album/</loc>
     <lastmod>2026-05-19</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://www.irdlex.org/donacion</loc>
+    <loc>https://www.irdlex.org/donacion/</loc>
     <lastmod>2025-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://www.irdlex.org/eventos</loc>
+    <loc>https://www.irdlex.org/eventos/</loc>
     <lastmod>2025-08-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

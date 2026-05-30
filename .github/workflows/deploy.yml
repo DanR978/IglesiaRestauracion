@@ -39,6 +39,12 @@ jobs:
           };
           JSEOF
 
+      # Bake header/footer/contact-form into every page's index.html so
+      # non-JS crawlers (ClaudeBot, GPTBot, PerplexityBot) see nav + address
+      # + phone in the initial HTML. Idempotent: src/* is the source of truth.
+      - name: Inline shared HTML fragments
+        run: node scripts/inline-includes.mjs
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

@@ -16,7 +16,7 @@
     <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
     <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
-    <link rel="canonical" href="https://www.irdlex.org/discipulado/grupo" />
+    <link rel="canonical" href="https://www.irdlex.org/discipulado/grupo/" />
     <meta property="og:title" content="Únete al Discipulado — Iglesia Restauración Divina" />
     <meta property="og:description" content="Únete a un grupo de discipulado. Cuéntanos cómo podemos hacer que este sea el mejor lugar para ti." />
     <meta property="og:type" content="website" />
@@ -39,7 +39,98 @@
   <body class="page-discipulado-grupo">
 
     <header id="header" data-hero-size="page"
-      data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/bibleStudy.jpg"></header>
+      data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/bibleStudy.jpg">
+<!-- BUILD-INLINE:header -->
+<div class="header-grid">
+    <img class="hero" alt="" />
+    <div class="overlay"></div>
+    <div class="nav-container animate-fade-in" data-threshold="1">
+        <a href="https://www.irdlex.org" class="logo">IGLESIA RESTAURACIÓN DIVINA</a>
+
+        <nav id="mainNav" class="nav" aria-label="Menú principal">
+            <ul class="menu">
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        NOSOTROS
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/vision-valores">Visión y Valores</a></li>
+                        <li><a href="/doctrina">Doctrina</a></li>
+                        <li><a href="mailto:contactanos@irdlex.org">Contáctanos</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        CONÉCTATE
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/visitanos">Visítanos</a></li>
+                        <li><a href="/proximos-pasos">Próximos Pasos</a></li>
+                        <li><a href="/discipulado">Discipulado</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        EVENTOS
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/eventos">Próximos eventos</a></li>
+                        <li><a href="/calendario">Calendario</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-item has-submenu">
+                    <button class="accordion-toggle" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
+                        </svg>
+                        MEDIA
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="/sermones">Sermones</a></li>
+                        <li><a href="/galeria">Galería</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+            <!-- Donate (visible on every breakpoint; styled differently on mobile) -->
+            <div class="menu-donate">
+                <a href="/donacion" class="ird-btn ird-btn--donate">DONAR</a>
+            </div>
+
+        </nav>
+
+        <!-- Burger button (Mobile only) -->
+        <button id="burgerToggle" class="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+    </div>
+</div>
+<!-- /BUILD-INLINE:header -->
+</header>
 
     <!-- Hero is filled by JS once the group loads -->
     <div class="hero-content glass-card rg-pd animate-fade-in" data-threshold="0.8" id="dgHero">
@@ -213,7 +304,132 @@
 
     </main>
 
-    <footer id="footer"></footer>
+    <footer id="footer">
+<!-- BUILD-INLINE:footer -->
+<!-- ─── Mobile bottom action bar — pinned to bottom on phones only ── -->
+<nav class="mobile-bar" aria-label="Acciones rápidas">
+  <a href="/sermones" class="mobile-bar__btn">
+    <i class="fas fa-play" aria-hidden="true"></i>
+    <span class="mobile-bar__label">Ver</span>
+  </a>
+  <a href="/donacion" class="mobile-bar__btn">
+    <i class="fas fa-hand-holding-heart" aria-hidden="true"></i>
+    <span class="mobile-bar__label">Donar</span>
+  </a>
+  <a href="/visitanos" class="mobile-bar__btn mobile-bar__btn--primary">
+    <i class="fas fa-location-dot" aria-hidden="true"></i>
+    <span class="mobile-bar__label">Visítanos</span>
+  </a>
+</nav>
+
+<!-- ─── Floating WhatsApp button — Spanish-speaking audience prefers WA ── -->
+<a href="https://wa.me/18592708521?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20de%20Iglesia%20Restauraci%C3%B3n%20Divina."
+   class="whatsapp-fab"
+   target="_blank"
+   rel="noopener"
+   aria-label="Contáctanos por WhatsApp">
+  <svg viewBox="0 0 32 32" aria-hidden="true">
+    <path d="M19.11 17.205c-.372 0-1.088 1.39-1.518 1.39a.63.63 0 0 1-.315-.1c-.802-.402-1.504-.817-2.163-1.447-.545-.516-1.146-1.29-1.46-1.963a.426.426 0 0 1-.073-.215c0-.33.99-.945.99-1.49 0-.143-.73-2.09-.832-2.335-.143-.372-.214-.487-.6-.487-.187 0-.36-.043-.53-.043-.302 0-.53.115-.745.315-.688.645-1.032 1.318-1.06 2.264v.114c-.015.99.472 1.977 1.017 2.78 1.23 1.82 2.506 3.41 4.554 4.34.616.287 2.035.888 2.722.888.817 0 2.15-.495 2.49-1.27.158-.355.158-.66.114-1.04-.13-.92-2.6-1.7-2.6-1.7zM16 .5C7.45.5.5 7.45.5 16c0 3.04.857 5.95 2.485 8.45L.5 31.5l7.05-2.486A15.41 15.41 0 0 0 16 31.5c8.55 0 15.5-6.95 15.5-15.5S24.55.5 16 .5zm0 28.395c-2.572 0-5.06-.688-7.265-2.005l-.515-.315-5.36 1.92 1.92-5.36-.315-.515A12.85 12.85 0 0 1 2.605 16C2.605 8.605 8.605 2.605 16 2.605S29.395 8.605 29.395 16 23.395 28.895 16 28.895z"/>
+  </svg>
+</a>
+
+<footer role="contentinfo">
+  <div class="footer-dark">
+    <div>
+      <div class="footer-grid">
+
+        <!-- Left: 4 nav columns mirror the header menu (Nosotros / Conéctate / Eventos / Media) -->
+        <div class="left-group">
+
+          <nav class="footer-section" aria-labelledby="footer-nosotros">
+            <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
+            <ul>
+              <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores">VISIÓN Y VALORES</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/doctrina">DOCTRINA</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="mailto:contactanos@irdlex.org">CONTÁCTANOS</a></li>
+            </ul>
+          </nav>
+
+          <nav class="footer-section" aria-labelledby="footer-connect">
+            <h3 id="footer-connect" class="footer__subheading animate-fade-in" data-threshold="1">CONÉCTATE</h3>
+            <ul>
+              <li class="animate-fade-in" data-threshold="1"><a href="/visitanos">VISÍTANOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/proximos-pasos">PRÓXIMOS PASOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/discipulado">DISCIPULADO</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/donacion">DONACIÓN</a></li>
+            </ul>
+          </nav>
+
+          <nav class="footer-section" aria-labelledby="footer-events">
+            <h3 id="footer-events" class="footer__subheading animate-fade-in" data-threshold="1">EVENTOS</h3>
+            <ul>
+              <li class="animate-fade-in" data-threshold="1"><a href="/eventos">PRÓXIMOS EVENTOS</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/calendario">CALENDARIO</a></li>
+            </ul>
+          </nav>
+
+          <nav class="footer-section" aria-labelledby="footer-media">
+            <h3 id="footer-media" class="footer__subheading animate-fade-in" data-threshold="1">MEDIA</h3>
+            <ul>
+              <li class="animate-fade-in" data-threshold="1"><a href="/sermones">SERMONES</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="/galeria">GALERÍA</a></li>
+              <li class="animate-fade-in" data-threshold="1"><a href="https://www.youtube.com/@Lex.IglesiaRestauracionDivina" target="_blank" rel="noopener">VER EN LÍNEA</a></li>
+            </ul>
+          </nav>
+
+        </div>
+
+        <!-- Center: Iglesia Restauración (content section, not nav) -->
+        <section class="footer-section iglesia">
+          <h3 class="footer__subheading animate-fade-in" data-threshold="1">RESTAURACIÓN DIVINA</h3>
+          <p class="footer__description animate-fade-in" data-threshold="1">
+            Bienvenido a Iglesia Restauración Divina en Lexington, KY.
+            Somos una comunidad cristiana apasionada por compartir el amor de Cristo.
+            Únete a una familia de fe; Cristo te ama y tiene grandes planes para ti.
+          </p>
+        </section>
+
+        <!-- Right: Contact Card -->
+        <section class="footer-section contact-card animate-reveal-text" data-threshold="0.8">
+          <div class="church-logo-svg-white contact-card__logo">
+            <svg aria-hidden="true" height="70px"><use href="#logo-church"></use></svg>
+            <h3 class="footer__subheading-iglesia animate-fade-in" data-threshold="1">
+              RESTAURACIÓN DIVINA<br>
+              <span class="footer__subheading-iglesia--sub">— IGLESIA —</span>
+            </h3>
+          </div>
+          <address class="contact-us-content animate-fade-in" data-threshold="1">
+            <p class="animate-fade-in" data-threshold="1">
+              <i class="fas fa-phone"></i>
+              <a href="tel:+18592708521">(859) 270-8521</a>
+            </p>
+            <p class="animate-fade-in" data-threshold="1">
+              <i class="fas fa-envelope"></i>
+              <a href="mailto:contactanos@irdlex.org">contactanos@irdlex.org</a>
+            </p>
+            <p class="animate-fade-in" data-threshold="1">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>2601 Clays Mill Rd,<br>Lexington, KY 40503</span>
+            </p>
+          </address>
+
+          <p class="copyright animate-fade-in" data-threshold="1">
+            Copyright © <span id="currentYear"></span><br> Iglesia Restauración Divina.<br>
+            All rights reserved.
+          </p>
+
+          <nav class="item social text-left animate-fade-in" data-threshold="1" aria-label="Redes sociales">
+            <a href="https://www.facebook.com/iglesia.restauracion2016/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.youtube.com/channel/UCIrKtgR89PjeEJMHPDuomQw" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://www.instagram.com/iglesiarestauracion.divina" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          </nav>
+        </section>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- /BUILD-INLINE:footer -->
+</footer>
 
     <script type="module" src="/js/main.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>
