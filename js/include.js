@@ -349,6 +349,10 @@
   // --------- boot ---------
   document.addEventListener("DOMContentLoaded", async () => {
     try {
+      // PWA wiring (manifest link + SW registration + install prompt).
+      // Fire-and-forget; the module skips itself on /admin routes.
+      import("/js/lib/pwa.js").catch(() => {});
+
       // NEW: avoid browser restoring scroll before we mount header
       pinScrollTopOnce();
 
