@@ -202,9 +202,15 @@ export async function submitInterest(payload) {
   if (!row.full_name) return { error: 'Por favor escribe tu nombre.' };
   if (!row.email && !row.phone) return { error: 'Necesitamos al menos un correo o teléfono para contactarte.' };
 
-  const { data, error } = await sb.from('discipleship_interests').insert(row).select().single();
+  // No .select() here: this is a public (anon) insert, and by design anon has
+  // no SELECT policy on discipleship_interests (it holds contact info — staff
+  // only). Chaining .select() would force a read-back of the new row, which RLS
+  // denies, surfacing as "violates row-level security policy" even though the
+  // row was saved fine. The public form doesn't need the row back — only that
+  // it succeeded. (return=minimal.)
+  const { error } = await sb.from('discipleship_interests').insert(row);
   if (error) { console.warn('[discipulado] submitInterest:', error.message); return { error: error.message }; }
-  return { data };
+  return { data: row };
 }
 
 /** Public production domain — used for QR codes regardless of where the admin runs. */
