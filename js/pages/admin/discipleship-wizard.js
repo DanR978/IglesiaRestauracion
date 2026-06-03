@@ -5,11 +5,12 @@
 //
 //   Step 1 → Pick level (Nivel 1–5)
 //   Step 2 → Basics: name, leader, capacity, status
-//   Step 3 → Schedule: day, time, start, end
+//   Step 3 → Schedule: day, time, start, end (all optional — pastor may not know yet)
 //   Step 4 → Optional details (description, location) + review + create
 //
-// Required: name, level, status, capacity, meeting_day, meeting_time, starts_on, ends_on, leader_name.
-// Optional: description, location_name, location_address, is_published.
+// Required: name, level, status, capacity, leader_name.
+// Optional: meeting_day, meeting_time, starts_on, ends_on, description,
+//           location_name, location_address, is_published.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { upsertGroup, LEVELS } from '/js/lib/discipleship.js';
@@ -204,29 +205,30 @@ function renderStep3() {
   const c = $('dwizStep3');
   c.innerHTML = `
     <div class="wiz-step-label">¿Cuándo se reúne el grupo?</div>
+    <div class="wiz-hint" style="margin:-.4rem 0 1rem">Todo esto es opcional — déjalo en blanco si aún no lo sabes.</div>
 
     <div class="wiz-row">
       <div class="wiz-field">
-        <label><i class="fas fa-calendar-week" style="margin-right:4px;opacity:.5"></i> Día de reunión *</label>
+        <label><i class="fas fa-calendar-week" style="margin-right:4px;opacity:.5"></i> Día de reunión</label>
         <select id="dwizDay">
           <option value="">— Escoge un día —</option>
           ${DAYS.map(d => `<option value="${d}"${data.day === d ? ' selected' : ''}>${cap(d)}</option>`).join('')}
         </select>
       </div>
       <div class="wiz-field">
-        <label><i class="far fa-clock" style="margin-right:4px;opacity:.5"></i> Hora *</label>
+        <label><i class="far fa-clock" style="margin-right:4px;opacity:.5"></i> Hora</label>
         <input type="time" id="dwizTime" value="${escapeAttr(data.time)}">
       </div>
     </div>
 
     <div class="wiz-row">
       <div class="wiz-field">
-        <label><i class="fas fa-play" style="margin-right:4px;opacity:.5"></i> Inicio *</label>
+        <label><i class="fas fa-play" style="margin-right:4px;opacity:.5"></i> Inicio</label>
         <input type="date" id="dwizStart" value="${escapeAttr(data.start)}">
         <div class="wiz-hint">Primera reunión</div>
       </div>
       <div class="wiz-field">
-        <label><i class="fas fa-flag-checkered" style="margin-right:4px;opacity:.5"></i> Fin *</label>
+        <label><i class="fas fa-flag-checkered" style="margin-right:4px;opacity:.5"></i> Fin</label>
         <input type="date" id="dwizEnd" value="${escapeAttr(data.end)}">
         <div class="wiz-hint">Última reunión</div>
       </div>
@@ -245,11 +247,11 @@ function renderStep3() {
     const start = $('dwizStart').value;
     const end = $('dwizEnd').value;
 
-    if (!day)   { toast('Escoge el día de reunión', 'error'); $('dwizDay').focus(); return; }
-    if (!time)  { toast('Escoge la hora de reunión', 'error'); $('dwizTime').focus(); return; }
-    if (!start) { toast('Define la fecha de inicio', 'error'); $('dwizStart').focus(); return; }
-    if (!end)   { toast('Define la fecha de fin', 'error'); $('dwizEnd').focus(); return; }
-    if (end < start) { toast('La fecha de fin no puede ser antes del inicio', 'error'); $('dwizEnd').focus(); return; }
+    // Schedule is optional (the pastor may not know it yet). The only rule:
+    // if both dates are given, the end can't precede the start.
+    if (start && end && end < start) {
+      toast('La fecha de fin no puede ser antes del inicio', 'error'); $('dwizEnd').focus(); return;
+    }
 
     data.day = day; data.time = time; data.start = start; data.end = end;
     step = 4; renderStep();
@@ -296,8 +298,8 @@ function renderStep4() {
       <div class="dwiz-review__row"><i class="fas fa-user"></i> Líder: ${escapeHtml(data.leader)}</div>
       <div class="dwiz-review__row"><i class="fas fa-users"></i> Cupo: ${data.capacity}</div>
       <div class="dwiz-review__row"><i class="fas fa-flag"></i> ${statusLabel}</div>
-      <div class="dwiz-review__row"><i class="fas fa-calendar-week"></i> ${cap(data.day)} a las ${formatTime(data.time)}</div>
-      <div class="dwiz-review__row"><i class="fas fa-play"></i> Del ${formatDate(data.start)} al ${formatDate(data.end)}</div>
+      <div class="dwiz-review__row"><i class="fas fa-calendar-week"></i> ${reviewSchedule(data.day, data.time)}</div>
+      <div class="dwiz-review__row"><i class="fas fa-play"></i> ${reviewDates(data.start, data.end)}</div>
     </div>
 
     <div class="wiz-nav">
@@ -330,10 +332,12 @@ async function createGroup() {
     description:      data.description?.trim() || null,
     status:           data.status,
     capacity:         Number(data.capacity) || null,
-    meeting_day:      data.day,
-    meeting_time:     data.time,
-    starts_on:        data.start,
-    ends_on:          data.end,
+    // Schedule is optional — send null (not '') so the DB CHECK / date / time
+    // columns accept "not decided yet".
+    meeting_day:      data.day   || null,
+    meeting_time:     data.time  || null,
+    starts_on:        data.start || null,
+    ends_on:          data.end   || null,
     location_name:    data.locName?.trim() || null,
     location_address: data.locAddr?.trim() || null,
     leader_name:      data.leader,
@@ -371,4 +375,16 @@ function formatDate(d) {
   if (!d) return '';
   const [y, mo, da] = d.split('-').map(Number);
   return new Date(y, mo - 1, da).toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+function reviewSchedule(day, time) {
+  if (day && time) return `${cap(day)} a las ${formatTime(time)}`;
+  if (day)         return cap(day);
+  if (time)        return `A las ${formatTime(time)}`;
+  return 'Horario por definir';
+}
+function reviewDates(start, end) {
+  if (start && end) return `Del ${formatDate(start)} al ${formatDate(end)}`;
+  if (start)        return `Desde ${formatDate(start)}`;
+  if (end)          return `Hasta ${formatDate(end)}`;
+  return 'Fechas por definir';
 }
