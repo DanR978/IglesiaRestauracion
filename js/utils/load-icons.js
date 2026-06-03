@@ -8,7 +8,13 @@
   if (document.getElementById('svg-sprite-holder')) return; // already injected
 
   try {
-    const res = await fetch(URL_SPRITE, { cache: 'no-store' });
+    // NOTE: no `cache: 'no-store'` here. When the PWA service worker is active
+    // (phones/installed app), a no-store request re-issued from inside the SW
+    // can fail on iOS, which would drop the whole sprite and silently hide every
+    // <use> icon (e.g. the footer church logo). A normal fetch lets the SW's
+    // stale-while-revalidate serve it reliably; the sprite is also precached in
+    // the app shell. Cache-busting on real changes is handled by CACHE_VERSION.
+    const res = await fetch(URL_SPRITE);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const sprite = await res.text();
 

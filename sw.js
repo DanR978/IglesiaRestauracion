@@ -11,7 +11,7 @@
 //
 // Bumping CACHE_VERSION invalidates everything on the next install.
 
-const CACHE_VERSION = 'ird-v1';
+const CACHE_VERSION = 'ird-v2';
 const CACHE_NAME    = `ird-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -21,6 +21,7 @@ const APP_SHELL = [
   '/js/include.js',
   '/js/utils/load-icons.js',
   '/js/app/scroll-reveal.js',
+  '/resources/icons/icons.svg',  // SVG sprite — footer logo + <use> icons
   '/src/header.html',
   '/src/footer.html',
 ];
