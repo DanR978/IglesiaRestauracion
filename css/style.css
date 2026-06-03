@@ -12044,11 +12044,16 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
   min-width: 220px;
 }
 
-/* At very wide widths, force exactly 5 in a row */
+/* Desktop: all 5 on one row, stretched to fill. Use a basis well under a fifth
+   (180px) so all five always fit, then flex-grow distributes the slack evenly —
+   instead of an exact 1/5 cap that wraps the 5th card the moment sub-pixel
+   rounding / the 1px borders push it past 100%. No max-width, so the cards
+   actually fill the row rather than leaving a gap. */
 @media (min-width: 1100px) {
   .dscp-levels__grid > .dscp-level {
-    flex: 1 1 calc((100% - 4rem) / 5);
-    max-width: calc((100% - 4rem) / 5);
+    flex-basis: 180px;
+    min-width: 0;
+    max-width: none;
   }
 }
 
