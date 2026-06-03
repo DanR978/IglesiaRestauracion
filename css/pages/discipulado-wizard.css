@@ -94,6 +94,12 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
+  /* Override the global .ird-btn clamp width so the label never wraps —
+     size to content and stay on one line at every breakpoint. */
+  width: auto;
+  max-width: 100%;
+  white-space: nowrap;
+  padding: 0.85em 1.9em;
 }
 
 @media (prefers-color-scheme: dark) {
