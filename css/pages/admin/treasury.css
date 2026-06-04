@@ -108,6 +108,20 @@
 /* Report table footer */
 .trez-report tfoot th { padding: 0.8rem 0.85rem; border-top: 2px solid var(--gray-50); color: var(--color-dark); font-size: 0.82rem; text-transform: none; letter-spacing: 0; }
 
+/* Report month drill-down */
+.trez-report__row[data-rep] { cursor: pointer; }
+.trez-report__chev { font-size: 0.7rem; color: var(--color-muted); transition: transform .2s ease; margin-right: 0.2rem; }
+.trez-report__row.open .trez-report__chev { transform: rotate(90deg); }
+.trez-report__detail > td { background: rgba(57,69,72,.025); padding: 0.6rem 1rem 0.9rem; }
+.trez-report__cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.trez-report__cols h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.35rem; }
+.trez-report__cols h4 i { font-size: 0.7rem; }
+.trez-report__cols .muted { font-size: 0.82rem; }
+.trez-report__line { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.82rem; padding: 0.25rem 0; border-bottom: 1px dashed var(--gray-40); }
+.trez-report__line:last-child { border-bottom: none; }
+.trez-report__line span:first-child { color: var(--color-dark); }
+@media (max-width: 600px) { .trez-report__cols { grid-template-columns: 1fr; gap: 0.9rem; } }
+
 /* Pills */
 .trez-pill { display: inline-block; padding: 0.18rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
 .trez-pill--paid    { background: rgba(30,107,97,.12);  color: #1e6b61; }

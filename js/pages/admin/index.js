@@ -77,4 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
   initUserModal();
   initMinistryModal();
   initAccountModal();
+
+  // ── Mobile burger drawer ───────────────────────────────────────────────────
+  const burger   = document.getElementById('admBurger');
+  const backdrop = document.getElementById('admNavBackdrop');
+  const nav      = document.getElementById('admNav');
+  const closeNav = () => {
+    document.body.classList.remove('adm-nav-open');
+    burger?.setAttribute('aria-expanded', 'false');
+  };
+  burger?.addEventListener('click', () => {
+    const open = document.body.classList.toggle('adm-nav-open');
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  backdrop?.addEventListener('click', closeNav);
+  // Pick a tab → close the drawer
+  nav?.addEventListener('click', (e) => { if (e.target.closest('.tab-btn')) closeNav(); });
 });

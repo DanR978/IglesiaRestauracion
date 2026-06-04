@@ -5,6 +5,7 @@ import { sb, ministries, setMinistries, isAdmin, currentProfile } from './state.
 import { buildFilterChecks } from './filters.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
 import { autoBalance } from './grid-balance.js';
+import { showActionSheet } from '/js/components/action-sheet.js';
 
 function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, c =>
@@ -44,8 +45,8 @@ export function renderMinistriesTab() {
     <div class="ministry-card">
       <div class="ministry-card__dot" style="background:${m.color || '#888'}"></div>
       <div class="ministry-card__name">${esc(m.name)}</div>
-      <button class="adm-icon-btn" data-min-edit="${m.id}" title="Editar ministerio">
-        <i class="fas fa-pen"></i>
+      <button class="adm-icon-btn" data-min-kebab="${m.id}" title="Acciones" aria-label="Acciones">
+        <i class="fas fa-ellipsis-vertical"></i>
       </button>
     </div>`).join('');
   autoBalance(el);
@@ -95,7 +96,10 @@ async function saveMinistry() {
 }
 
 async function deleteMinistry() {
-  const id = document.getElementById('minId').value;
+  await deleteMinistryById(document.getElementById('minId').value, setErr);
+}
+
+async function deleteMinistryById(id, onErr) {
   if (!id) return;
   const ok = await confirm('Eliminar ministerio',
     '¿Eliminar este ministerio? Esta acción no se puede deshacer.');
@@ -103,9 +107,10 @@ async function deleteMinistry() {
 
   const { error } = await sb.from('ministries').delete().eq('id', id);
   if (error) {
-    setErr(/foreign key|violates|referenced/i.test(error.message)
+    const msg = /foreign key|violates|referenced/i.test(error.message)
       ? 'No se puede eliminar: hay eventos o usuarios asignados a este ministerio.'
-      : error.message);
+      : error.message;
+    if (onErr) onErr(msg); else toast(msg, 'error');
     return;
   }
   toast('Ministerio eliminado', 'success');
@@ -120,11 +125,19 @@ export function initMinistryModal() {
   document.getElementById('ministryModalClose')?.addEventListener('click',  () => closeModal('ministryModal'));
   document.getElementById('ministryModalCancel')?.addEventListener('click', () => closeModal('ministryModal'));
 
-  // Delegated — survives renderMinistriesTab() re-renders
+  // Delegated — survives renderMinistriesTab() re-renders. One ⋮ per card.
   document.getElementById('ministriesList')?.addEventListener('click', e => {
-    const btn = e.target.closest('[data-min-edit]');
+    const btn = e.target.closest('[data-min-kebab]');
     if (!btn) return;
-    const m = ministries.find(x => x.id === btn.dataset.minEdit);
-    if (m) openMinistryModal(m);
+    const m = ministries.find(x => x.id === btn.dataset.minKebab);
+    if (!m) return;
+    showActionSheet({
+      trigger: btn,
+      title: m.name,
+      actions: [
+        { label: 'Editar', icon: 'fa-pen', onClick: () => openMinistryModal(m) },
+        { label: 'Eliminar', icon: 'fa-trash', variant: 'danger', onClick: () => deleteMinistryById(m.id) },
+      ],
+    });
   });
 }

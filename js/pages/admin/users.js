@@ -9,6 +9,7 @@
 
 import { sb, ministries, currentUser } from './state.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
+import { showActionSheet } from '/js/components/action-sheet.js';
 
 const ROLE_LABEL = { admin: 'Administrador', ministry_leader: 'Líder de ministerio', treasurer: 'Tesorero' };
 
@@ -98,12 +99,8 @@ function renderActive(u) {
       </div>
       <div class="user-row__badges">${roleBadge(u.role)} ${mfaBadge}</div>
       <div class="user-row__actions">
-        <button class="adm-icon-btn" data-act="edit" data-id="${u.id}" title="Editar rol">
-          <i class="fas fa-user-pen"></i></button>
-        <button class="adm-icon-btn" data-act="reset-mfa" data-id="${u.id}" title="Restablecer 2FA">
-          <i class="fas fa-shield-halved"></i></button>
-        ${isSelf ? '' : `<button class="adm-icon-btn adm-icon-btn--danger" data-act="delete" data-id="${u.id}" title="Eliminar cuenta">
-          <i class="fas fa-trash"></i></button>`}
+        <button class="adm-icon-btn" data-act="kebab" data-id="${u.id}" title="Acciones" aria-label="Acciones">
+          <i class="fas fa-ellipsis-vertical"></i></button>
       </div>
     </div>`;
 }
@@ -119,61 +116,58 @@ function renderPending(u) {
       </div>
       <div class="user-row__badges">${roleBadge(u.role)}</div>
       <div class="user-row__actions">
-        <button class="adm-icon-btn" data-act="resend" data-id="${u.id}" title="Reenviar invitación">
-          <i class="fas fa-rotate"></i></button>
-        <button class="adm-icon-btn adm-icon-btn--danger" data-act="revoke" data-id="${u.id}" title="Cancelar invitación">
-          <i class="fas fa-xmark"></i></button>
+        <button class="adm-icon-btn" data-act="kebab" data-id="${u.id}" title="Acciones" aria-label="Acciones">
+          <i class="fas fa-ellipsis-vertical"></i></button>
       </div>
     </div>`;
 }
 
-// ── Row actions ──────────────────────────────────────────────────────────────
+// ── Row actions — one ⋮ per row opens an action sheet ─────────────────────────
 function wireActions() {
-  document.querySelectorAll('#tab-users [data-act]').forEach(btn => {
-    btn.addEventListener('click', () => handleAction(btn.dataset.act, btn.dataset.id));
+  document.querySelectorAll('#tab-users [data-act="kebab"]').forEach(btn => {
+    btn.addEventListener('click', () => openRowMenu(btn));
   });
 }
 
-async function handleAction(act, id) {
-  const u = _cachedUsers.find(x => x.id === id);
+function openRowMenu(trigger) {
+  const u = _cachedUsers.find(x => x.id === trigger.dataset.id);
   if (!u) return;
+  const isSelf = u.id === currentUser?.id;
+  const actions = u.confirmed
+    ? [
+        { label: 'Editar rol / ministerio', icon: 'fa-user-pen', onClick: () => openEdit(u) },
+        { label: 'Restablecer 2FA', icon: 'fa-shield-halved', onClick: () => doResetMfa(u) },
+        ...(isSelf ? [] : [{ label: 'Eliminar cuenta', icon: 'fa-trash', variant: 'danger', onClick: () => doDelete(u) }]),
+      ]
+    : [
+        { label: 'Reenviar invitación', icon: 'fa-rotate', onClick: () => doResend(u) },
+        { label: 'Cancelar invitación', icon: 'fa-xmark', variant: 'danger', onClick: () => doRevoke(u) },
+      ];
+  showActionSheet({ trigger, title: u.display_name || u.email, subtitle: u.email, actions });
+}
+
+async function doResetMfa(u) {
   const who = u.display_name || u.email;
-  try {
-    if (act === 'edit') return openEdit(u);
-
-    if (act === 'reset-mfa') {
-      if (!await confirm('Restablecer 2FA',
-        `Se eliminará la verificación en dos pasos de ${who}. Tendrá que configurarla de nuevo ` +
-        `la próxima vez que inicie sesión. ¿Continuar?`)) return;
-      await callAdmin('reset-mfa', { user_id: id });
-      toast('Verificación 2FA restablecida', 'success');
-      return loadUsers();
-    }
-
-    if (act === 'delete') {
-      if (!await confirm('Eliminar cuenta',
-        `Se eliminará la cuenta de ${who} de forma permanente. ¿Continuar?`)) return;
-      await callAdmin('delete', { user_id: id });
-      toast('Cuenta eliminada', 'success');
-      return loadUsers();
-    }
-
-    if (act === 'resend') {
-      await callAdmin('resend', { user_id: id });
-      toast('Invitación reenviada a ' + u.email, 'success');
-      return loadUsers();
-    }
-
-    if (act === 'revoke') {
-      if (!await confirm('Cancelar invitación',
-        `Se cancelará la invitación de ${u.email}. ¿Continuar?`)) return;
-      await callAdmin('revoke', { user_id: id });
-      toast('Invitación cancelada', 'success');
-      return loadUsers();
-    }
-  } catch (e) {
-    toast(e.message, 'error');
-  }
+  if (!await confirm('Restablecer 2FA',
+    `Se eliminará la verificación en dos pasos de ${who}. Tendrá que configurarla de nuevo ` +
+    `la próxima vez que inicie sesión. ¿Continuar?`)) return;
+  try { await callAdmin('reset-mfa', { user_id: u.id }); toast('Verificación 2FA restablecida', 'success'); loadUsers(); }
+  catch (e) { toast(e.message, 'error'); }
+}
+async function doDelete(u) {
+  const who = u.display_name || u.email;
+  if (!await confirm('Eliminar cuenta', `Se eliminará la cuenta de ${who} de forma permanente. ¿Continuar?`)) return;
+  try { await callAdmin('delete', { user_id: u.id }); toast('Cuenta eliminada', 'success'); loadUsers(); }
+  catch (e) { toast(e.message, 'error'); }
+}
+async function doResend(u) {
+  try { await callAdmin('resend', { user_id: u.id }); toast('Invitación reenviada a ' + u.email, 'success'); loadUsers(); }
+  catch (e) { toast(e.message, 'error'); }
+}
+async function doRevoke(u) {
+  if (!await confirm('Cancelar invitación', `Se cancelará la invitación de ${u.email}. ¿Continuar?`)) return;
+  try { await callAdmin('revoke', { user_id: u.id }); toast('Invitación cancelada', 'success'); loadUsers(); }
+  catch (e) { toast(e.message, 'error'); }
 }
 
 // ── Invite / edit modal ──────────────────────────────────────────────────────

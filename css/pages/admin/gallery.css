@@ -48,6 +48,11 @@
   gap: 0.85rem;
 }
 
+/* On phones, let album cards span the full width (no 300px cap / side gap). */
+@media (max-width: 600px) {
+  .gal-admin__list { grid-template-columns: 1fr; }
+}
+
 .gal-adm-card {
   display: flex;
   flex-direction: column;
