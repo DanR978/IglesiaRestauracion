@@ -351,3 +351,14 @@
   margin-right: .35rem;
   color: var(--color-secondary);
 }
+
+/* ═══════════════════════════════════════════════
+   Generic form wizard (form-wizard.js)
+   ═══════════════════════════════════════════════ */
+.fw-money { display: flex; align-items: center; gap: .45rem; }
+.fw-money span { font-size: 1.4rem; font-weight: 700; color: var(--color-muted); }
+.fw-money input { font-size: 1.4rem; font-weight: 700; padding: .65rem .8rem; }
+.fw-err { color: #b02030; font-size: .85rem; font-weight: 600; min-height: 1.1em; margin-top: .7rem; }
+/* Bigger, friendlier choice cards in the generic wizard */
+.fw-choice .wiz-cat-card { padding: 1.15rem .8rem; }
+.fw-choice .wiz-cat-card__title { font-size: .98rem; }

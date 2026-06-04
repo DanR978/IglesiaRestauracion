@@ -8,6 +8,9 @@
   border-radius: 8px; font-family: inherit; font-size: 0.88rem; background: var(--color-white); color: var(--color-dark);
 }
 
+.trez-addbar { margin-bottom: 1.1rem; }
+.trez-addbar .btn { width: auto; }
+
 .trez-lead { font-size: 0.9rem; color: var(--color-muted); margin: 0 0 1.1rem; line-height: 1.5; max-width: 70ch; }
 .trez-hint { font-size: 0.82rem; color: var(--color-muted); margin: 0 0 1rem; }
 
@@ -167,4 +170,5 @@
 
   .trez-budset__row { flex-wrap: wrap; }
   .trez-notes { grid-template-columns: 1fr; }
+  .trez-addbar .btn { width: 100%; }
 }

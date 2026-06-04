@@ -9595,6 +9595,9 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
   border-radius: 8px; font-family: inherit; font-size: 0.88rem; background: var(--color-white); color: var(--color-dark);
 }
 
+.trez-addbar { margin-bottom: 1.1rem; }
+.trez-addbar .btn { width: auto; }
+
 .trez-lead { font-size: 0.9rem; color: var(--color-muted); margin: 0 0 1.1rem; line-height: 1.5; max-width: 70ch; }
 .trez-hint { font-size: 0.82rem; color: var(--color-muted); margin: 0 0 1rem; }
 
@@ -9754,6 +9757,7 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 
   .trez-budset__row { flex-wrap: wrap; }
   .trez-notes { grid-template-columns: 1fr; }
+  .trez-addbar .btn { width: 100%; }
 }
 
 /* -- pages admin users -- */
@@ -10332,6 +10336,17 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
   margin-right: .35rem;
   color: var(--color-secondary);
 }
+
+/* ═══════════════════════════════════════════════
+   Generic form wizard (form-wizard.js)
+   ═══════════════════════════════════════════════ */
+.fw-money { display: flex; align-items: center; gap: .45rem; }
+.fw-money span { font-size: 1.4rem; font-weight: 700; color: var(--color-muted); }
+.fw-money input { font-size: 1.4rem; font-weight: 700; padding: .65rem .8rem; }
+.fw-err { color: #b02030; font-size: .85rem; font-weight: 600; min-height: 1.1em; margin-top: .7rem; }
+/* Bigger, friendlier choice cards in the generic wizard */
+.fw-choice .wiz-cat-card { padding: 1.15rem .8rem; }
+.fw-choice .wiz-cat-card__title { font-size: .98rem; }
 /* -- pages calendar day-sheet -- */
 /* calendar/day-sheet.css
    Centered popup modal — shown when a day cell is tapped.
