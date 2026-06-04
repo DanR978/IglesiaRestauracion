@@ -200,6 +200,12 @@ body.is-admin .adm-nav__group[data-admin-only] { display: block; }
 .tab-btn[data-admin-only]               { display: none; }
 body.is-admin .tab-btn[data-admin-only] { display: flex; }
 
+/* Finance roles (admin OR treasurer) see the Tesorería group */
+.adm-nav__group[data-finance-only],
+.tab-btn[data-finance-only]               { display: none; }
+body.is-finance .adm-nav__group[data-finance-only] { display: block; }
+body.is-finance .tab-btn[data-finance-only]         { display: flex; }
+
 .tab-panel {
   display: none;
   padding: 1.9rem 2rem;
