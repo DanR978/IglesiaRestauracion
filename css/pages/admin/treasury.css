@@ -151,6 +151,20 @@
 .trez-note:hover .trez-note__del { opacity: 1; }
 
 @media (max-width: 600px) {
+  /* Tidy, even 2-column grid of pills — every section visible, no swiping. */
+  .trez-subnav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .trez-subnav__btn {
+    justify-content: flex-start;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+    border-radius: 12px;
+  }
+  .trez-subnav__btn i { width: 18px; text-align: center; font-size: 0.95rem; }
+
   .trez-budset__row { flex-wrap: wrap; }
   .trez-notes { grid-template-columns: 1fr; }
 }

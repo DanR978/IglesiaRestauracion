@@ -475,8 +475,10 @@ function addForm(key, ed, fields) {
 }
 function table(heads, rowsHtml, emptyMsg) {
   if (!rowsHtml) return `<div class="empty-state"><i class="fas fa-inbox"></i><p>${emptyMsg}</p></div>`;
+  // Right-align numeric column headers so "Monto" lines up with its amounts.
+  const heading = h => `<th${/^(monto|ingresos|gastos|balance|acumulado)$/i.test(h) ? ' class="num"' : ''}>${h}</th>`;
   return `<div class="trez-tablewrap"><table class="trez-table">
-    <thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+    <thead><tr>${heads.map(heading).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
 }
 function statusPill(s) {
   return s === 'paid' ? '<span class="trez-pill trez-pill--paid">Pagado</span>' : '<span class="trez-pill trez-pill--pending">Pendiente</span>';
