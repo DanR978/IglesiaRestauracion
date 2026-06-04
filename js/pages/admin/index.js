@@ -21,6 +21,9 @@ import { initDscpWizard } from './discipleship-wizard.js';
 import { initGalleryWizard } from './gallery-wizard.js';
 import { loadDiscipulado } from './discipleship-tab.js';
 import { loadGallery } from './gallery-tab.js';
+import { loadAnalytics } from './analytics-tab.js';
+import { loadActivity } from './activity-tab.js';
+import { loadSettings } from './settings-tab.js';
 import { confirmResolve } from './state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -43,6 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
     onUsers:        loadUsers,
     onDiscipulado:  loadDiscipulado,
     onGaleria:      loadGallery,
+    onAnalytics:    loadAnalytics,
+    onActivity:     loadActivity,
+    onSettings:     loadSettings,
   });
 
   // ── Calendar nav + add button ──────────────────────────────────────────────

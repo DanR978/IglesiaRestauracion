@@ -17,6 +17,7 @@ import { loadMinistries } from './ministries.js';
 import { loadUpcoming }   from './events-tab.js';
 import { loadDashboard }  from './dashboard.js';
 import { initForms }      from './event-form.js';
+import { initNotifications } from './notifications.js';
 import { toast }          from './ui.js';
 import * as mfa           from './mfa.js';
 
@@ -281,6 +282,7 @@ async function bootApp() {
   await loadUpcoming();
   loadDashboard();
   initForms();
+  initNotifications();   // bell (no-op for non-admins)
 }
 
 // ─── Logout ──────────────────────────────────────────────────────────────────

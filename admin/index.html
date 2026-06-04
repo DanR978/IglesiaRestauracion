@@ -133,6 +133,20 @@
   <div class="topbar">
     <div class="topbar__title">IRD Admin <span id="topbarMinistry"></span></div>
     <div class="topbar__right">
+      <!-- Notification bell (admins) -->
+      <div class="notif" id="notifPanel">
+        <button type="button" class="topbar__bell admin-only" id="notifBell" title="Notificaciones" style="display:none">
+          <i class="fas fa-bell"></i>
+          <span class="notif-badge" id="notifBadge" style="display:none"></span>
+        </button>
+        <div class="notif-dropdown">
+          <div class="notif-dropdown__head">
+            <span>Notificaciones</span>
+            <button type="button" class="notif-markall" id="notifMarkAll">Marcar leídas</button>
+          </div>
+          <div class="notif-list" id="notifList"></div>
+        </div>
+      </div>
       <button type="button" class="topbar__user" id="topbarUser" title="Mi cuenta"></button>
       <button class="topbar__logout" id="logoutBtn" title="Cerrar sesión">
         <i class="fas fa-sign-out-alt"></i>
@@ -150,6 +164,9 @@
     <button class="tab-btn" data-tab="galeria" data-admin-only><i class="fas fa-images"></i> Galería</button>
     <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> Ministerios</button>
     <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
+    <button class="tab-btn" data-tab="analytics" data-admin-only><i class="fas fa-chart-line"></i> Analíticas</button>
+    <button class="tab-btn" data-tab="activity" data-admin-only><i class="fas fa-clock-rotate-left"></i> Actividad</button>
+    <button class="tab-btn" data-tab="settings" data-admin-only><i class="fas fa-gear"></i> Configuración</button>
   </div>
 
   <!-- ── INICIO (Dashboard) ─────────────────────────────────────────────────── -->
@@ -447,6 +464,27 @@
     <div id="ministriesList" class="card-grid">
       <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
     </div>
+  </div>
+
+  <!-- ── ANALÍTICAS ─────────────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-analytics">
+    <div class="action-bar"><h2>Analíticas</h2></div>
+    <div id="analyticsBody"></div>
+  </div>
+
+  <!-- ── ACTIVIDAD ──────────────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-activity">
+    <div class="action-bar">
+      <h2>Actividad</h2>
+      <span class="action-bar__hint">Registro de cambios — quién hizo qué y cuándo.</span>
+    </div>
+    <div id="activityList" class="act-list"></div>
+  </div>
+
+  <!-- ── CONFIGURACIÓN ──────────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-settings">
+    <div class="action-bar"><h2>Configuración</h2></div>
+    <div id="settingsBody"></div>
   </div>
 
   <!-- ── DISCIPULADO ────────────────────────────────────────────────────────── -->
