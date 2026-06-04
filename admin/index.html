@@ -154,20 +154,27 @@
     </div>
   </div>
 
-  <!-- Main tab bar -->
-  <div class="tabs">
-    <button class="tab-btn active" data-tab="inicio"><i class="fas fa-house"></i> Inicio</button>
-    <button class="tab-btn" data-tab="upcoming"><i class="fas fa-calendar-day"></i> Próximos</button>
-    <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> Pasados</button>
-    <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> Calendario</button>
-    <button class="tab-btn" data-tab="discipulado" data-admin-only><i class="fas fa-hand-holding-heart"></i> Discipulado</button>
-    <button class="tab-btn" data-tab="galeria" data-admin-only><i class="fas fa-images"></i> Galería</button>
-    <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> Ministerios</button>
-    <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> Usuarios</button>
-    <button class="tab-btn" data-tab="analytics" data-admin-only><i class="fas fa-chart-line"></i> Analíticas</button>
-    <button class="tab-btn" data-tab="activity" data-admin-only><i class="fas fa-clock-rotate-left"></i> Actividad</button>
-    <button class="tab-btn" data-tab="settings" data-admin-only><i class="fas fa-gear"></i> Configuración</button>
-  </div>
+  <!-- Sidebar navigation -->
+  <nav class="adm-nav" aria-label="Navegación del panel">
+    <div class="adm-nav__group">Principal</div>
+    <button class="tab-btn active" data-tab="inicio"><i class="fas fa-house"></i> <span>Inicio</span></button>
+    <button class="tab-btn" data-tab="analytics" data-admin-only><i class="fas fa-chart-line"></i> <span>Analíticas</span></button>
+
+    <div class="adm-nav__group">Eventos</div>
+    <button class="tab-btn" data-tab="upcoming"><i class="fas fa-calendar-day"></i> <span>Próximos</span></button>
+    <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> <span>Pasados</span></button>
+    <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> <span>Calendario</span></button>
+
+    <div class="adm-nav__group" data-admin-only>Comunidad</div>
+    <button class="tab-btn" data-tab="discipulado" data-admin-only><i class="fas fa-hand-holding-heart"></i> <span>Discipulado</span></button>
+    <button class="tab-btn" data-tab="galeria" data-admin-only><i class="fas fa-images"></i> <span>Galería</span></button>
+    <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> <span>Ministerios</span></button>
+
+    <div class="adm-nav__group" data-admin-only>Administración</div>
+    <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> <span>Usuarios</span></button>
+    <button class="tab-btn" data-tab="activity" data-admin-only><i class="fas fa-clock-rotate-left"></i> <span>Actividad</span></button>
+    <button class="tab-btn" data-tab="settings" data-admin-only><i class="fas fa-gear"></i> <span>Configuración</span></button>
+  </nav>
 
   <!-- ── INICIO (Dashboard) ─────────────────────────────────────────────────── -->
   <div class="tab-panel active" id="tab-inicio">

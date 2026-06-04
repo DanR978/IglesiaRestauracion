@@ -123,82 +123,89 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   TAB BAR — refined segmented look with smooth animated indicator
+   SIDEBAR NAV — grouped vertical navigation (professional admin shell)
    ═══════════════════════════════════════════════════════════════ */
-.tabs {
-  display: flex;
+#app { --adm-sb-w: 238px; }
+
+.adm-nav {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  bottom: 0;
+  width: var(--adm-sb-w);
   background: var(--color-white);
-  border-bottom: 1px solid var(--gray-50);
-  padding: 0 1.5rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-right: 1px solid var(--gray-50);
+  padding: 1.1rem 0.8rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  z-index: 40;
 }
-.tabs::-webkit-scrollbar { display: none; }
+
+.adm-nav__group {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--color-muted);
+  padding: 0.5rem 0.7rem 0.3rem;
+  margin-top: 0.7rem;
+}
+.adm-nav__group:first-child            { margin-top: 0; }
+.adm-nav__group[data-admin-only]       { display: none; }
+body.is-admin .adm-nav__group[data-admin-only] { display: block; }
 
 .tab-btn {
-  position: relative;
-  padding: 0.95rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
   background: none;
   border: none;
-  font-size: 0.84rem;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 0.875rem;
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
   color: var(--color-muted);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  text-align: left;
   white-space: nowrap;
-  font-family: inherit;
-  transition: color 0.18s ease;
+  transition: background-color 0.16s ease, color 0.16s ease;
 }
 
 .tab-btn i {
-  font-size: 0.82rem;
+  width: 18px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.92rem;
   opacity: 0.7;
-  transition: opacity 0.18s ease, color 0.18s ease;
+  transition: opacity 0.16s ease, color 0.16s ease;
 }
 
-/* Animated indicator at the bottom of each tab */
-.tab-btn::after {
-  content: "";
-  position: absolute;
-  left: 1rem;
-  right: 1rem;
-  bottom: 0;
-  height: 2px;
-  background: var(--color-dark);
-  border-radius: 999px 999px 0 0;
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.tab-btn:hover:not(.active) { color: var(--color-dark); }
+.tab-btn:hover:not(.active)   { background: rgba(57, 69, 72, 0.055); color: var(--color-dark); }
 .tab-btn:hover:not(.active) i { opacity: 1; }
 
-.tab-btn.active {
-  color: var(--color-dark);
-}
-.tab-btn.active i {
-  opacity: 1;
-  color: var(--color-secondary, #c89858);
-}
-.tab-btn.active::after {
-  transform: scaleX(1);
-}
+.tab-btn.active   { background: var(--color-dark); color: var(--color-white); }
+.tab-btn.active i { opacity: 1; color: var(--color-secondary, #c89858); }
 
 .tab-btn:focus-visible {
   outline: 2px solid var(--color-secondary, #c89858);
-  outline-offset: -4px;
-  border-radius: 4px;
+  outline-offset: 2px;
 }
 
 .tab-btn[data-admin-only]               { display: none; }
-body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
+body.is-admin .tab-btn[data-admin-only] { display: flex; }
 
-.tab-panel        { display: none; padding: 1.75rem 1.5rem; max-width: 1320px; margin: 0 auto; }
+.tab-panel {
+  display: none;
+  padding: 1.9rem 2rem;
+  margin-left: var(--adm-sb-w);
+  max-width: 1200px;
+}
 .tab-panel.active { display: block; }
 
 /* ── View switcher (list / form / bulk) ──────────────── */
@@ -306,12 +313,31 @@ body.is-admin .tab-btn[data-admin-only] { display: inline-flex; }
 /* ═══════════════════════════════════════════════════════════════
    MOBILE
    ═══════════════════════════════════════════════════════════════ */
+/* On narrow screens the sidebar collapses to a horizontal scroller under the
+   topbar — keeps the same buttons, no drawer needed. */
+@media (max-width: 900px) {
+  .adm-nav {
+    position: static;
+    top: auto; bottom: auto;
+    width: auto;
+    flex-direction: row;
+    gap: 0.3rem;
+    padding: 0.55rem 0.85rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--gray-50);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .adm-nav::-webkit-scrollbar { display: none; }
+  .adm-nav__group { display: none !important; }
+  .tab-btn        { width: auto; padding: 0.55rem 0.85rem; }
+  .tab-panel      { margin-left: 0; max-width: none; }
+}
+
 @media (max-width: 640px) {
-  .topbar       { padding: 0 1rem; height: 56px; }
+  .topbar        { padding: 0 1rem; height: 56px; }
   .topbar__title { font-size: 0.88rem; }
-  .topbar__user { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
-  .tabs         { padding: 0 0.75rem; }
-  .tab-btn      { padding: 0.85rem 0.85rem; font-size: 0.82rem; }
-  .tab-btn::after { left: 0.85rem; right: 0.85rem; }
-  .tab-panel    { padding: 1.25rem 1rem; }
+  .topbar__user  { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+  .tab-btn       { font-size: 0.82rem; }
+  .tab-panel     { padding: 1.25rem 1rem; }
 }
