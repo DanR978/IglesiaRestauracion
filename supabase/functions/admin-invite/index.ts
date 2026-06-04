@@ -128,7 +128,7 @@ async function invite(admin: Sb, callerId: string, body: Sb): Promise<Response> 
   const displayName = String(body.display_name ?? "").trim() || null;
 
   if (!EMAIL_RE.test(email)) return json({ error: "Correo electrónico inválido." }, 400);
-  if (role !== "admin" && role !== "ministry_leader") {
+  if (role !== "admin" && role !== "ministry_leader" && role !== "treasurer") {
     return json({ error: "Rol inválido." }, 400);
   }
   if (role === "ministry_leader" && !ministryId) {
@@ -147,7 +147,7 @@ async function invite(admin: Sb, callerId: string, body: Sb): Promise<Response> 
     .insert({
       email,
       role,
-      ministry_id: role === "admin" ? null : ministryId,
+      ministry_id: role === "ministry_leader" ? ministryId : null,
       display_name: displayName,
       invited_by: callerId,
       status: "pending",
@@ -218,7 +218,7 @@ async function setRole(admin: Sb, body: Sb): Promise<Response> {
   const ministryId = body.ministry_id ? String(body.ministry_id) : null;
 
   if (!userId) return json({ error: "Falta el usuario." }, 400);
-  if (role !== "admin" && role !== "ministry_leader") {
+  if (role !== "admin" && role !== "ministry_leader" && role !== "treasurer") {
     return json({ error: "Rol inválido." }, 400);
   }
   if (role === "ministry_leader" && !ministryId) {
@@ -234,7 +234,7 @@ async function setRole(admin: Sb, body: Sb): Promise<Response> {
   }
 
   const { error } = await admin.from("profiles")
-    .update({ role, ministry_id: role === "admin" ? null : ministryId })
+    .update({ role, ministry_id: role === "ministry_leader" ? ministryId : null })
     .eq("id", userId);
   if (error) return json({ error: error.message }, 400);
   return json({ ok: true });

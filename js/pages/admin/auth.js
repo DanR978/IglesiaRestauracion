@@ -265,12 +265,15 @@ async function bootApp() {
   setCurrentProfile(profile);
 
   document.getElementById('topbarUser').textContent = profile.display_name || user.email;
-  document.body.classList.remove('is-admin', 'is-staff');
+  document.body.classList.remove('is-admin', 'is-staff', 'is-finance', 'is-treasurer');
 
   if (profile.role === 'admin') {
-    document.body.classList.add('is-admin', 'is-staff');
+    document.body.classList.add('is-admin', 'is-staff', 'is-finance');
     document.getElementById('topbarMinistry').textContent = '— Admin';
     document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
+  } else if (profile.role === 'treasurer') {
+    document.body.classList.add('is-finance', 'is-staff', 'is-treasurer');
+    document.getElementById('topbarMinistry').textContent = '— Tesorería';
   } else {
     document.getElementById('topbarMinistry').textContent =
       `— ${profile.ministries?.name || 'Ministerio'}`;

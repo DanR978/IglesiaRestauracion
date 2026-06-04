@@ -26,6 +26,12 @@ const ENTITY = {
   gallery_albums:         'un álbum de galería',
   app_settings:           'la configuración',
   invitations:            'una invitación',
+  fin_income:             'un ingreso',
+  fin_expenses:           'un gasto',
+  fin_budgets:            'un presupuesto',
+  fin_payables:           'una cuenta por pagar',
+  fin_recurring:          'un pago recurrente',
+  fin_notes:              'una nota de tesorería',
 };
 
 function timeAgo(iso) {

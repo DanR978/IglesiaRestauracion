@@ -10,7 +10,7 @@
 import { sb, ministries, currentUser } from './state.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
 
-const ROLE_LABEL = { admin: 'Administrador', ministry_leader: 'Líder de ministerio' };
+const ROLE_LABEL = { admin: 'Administrador', ministry_leader: 'Líder de ministerio', treasurer: 'Tesorero' };
 
 let _cachedUsers = [];
 

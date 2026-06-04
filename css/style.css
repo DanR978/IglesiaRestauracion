@@ -9317,6 +9317,12 @@ body.is-admin .adm-nav__group[data-admin-only] { display: block; }
 .tab-btn[data-admin-only]               { display: none; }
 body.is-admin .tab-btn[data-admin-only] { display: flex; }
 
+/* Finance roles (admin OR treasurer) see the Tesorería group */
+.adm-nav__group[data-finance-only],
+.tab-btn[data-finance-only]               { display: none; }
+body.is-finance .adm-nav__group[data-finance-only] { display: block; }
+body.is-finance .tab-btn[data-finance-only]         { display: flex; }
+
 .tab-panel {
   display: none;
   padding: 1.9rem 2rem;
@@ -9549,6 +9555,150 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
   .row-actions { gap: 0.3rem; }
   .icon-btn    { width: 28px; height: 28px; font-size: 0.78rem; }
 }
+/* -- pages admin treasury -- */
+/* admin/treasury.css — "Tesorería" finance module
+   Shares the dashboard token palette. Green = money in, red = money out. */
+
+.trez-period { display: flex; align-items: center; gap: 0.5rem; }
+.trez-period label { font-size: 0.8rem; font-weight: 600; color: var(--color-muted); }
+.trez-period select {
+  height: 2.3rem; padding: 0 0.6rem; border: 1px solid var(--gray-40);
+  border-radius: 8px; font-family: inherit; font-size: 0.88rem; background: var(--color-white); color: var(--color-dark);
+}
+
+.trez-lead { font-size: 0.9rem; color: var(--color-muted); margin: 0 0 1.1rem; line-height: 1.5; max-width: 70ch; }
+.trez-hint { font-size: 0.82rem; color: var(--color-muted); margin: 0 0 1rem; }
+
+/* Sub-nav (pills) */
+.trez-subnav {
+  display: flex; flex-wrap: wrap; gap: 0.4rem;
+  margin-bottom: 1.4rem; padding-bottom: 1rem; border-bottom: 1px solid var(--gray-50);
+}
+.trez-subnav__btn {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.5rem 0.9rem; border: 1px solid var(--gray-40); border-radius: 999px;
+  background: var(--color-white); color: var(--color-muted);
+  font-family: inherit; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  transition: background-color .15s, color .15s, border-color .15s;
+}
+.trez-subnav__btn i { font-size: 0.8rem; opacity: 0.8; }
+.trez-subnav__btn:hover { color: var(--color-dark); border-color: var(--color-dark); }
+.trez-subnav__btn.active { background: var(--color-dark); color: var(--color-white); border-color: var(--color-dark); }
+
+/* Tiles */
+.trez-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.9rem; margin-bottom: 1.3rem; }
+.trez-tile {
+  background: var(--color-white); border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem); padding: 1.15rem 1.15rem; display: flex; flex-direction: column;
+}
+.trez-tile__icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; margin-bottom: 0.5rem; }
+.trez-tile__num { font-size: 1.55rem; font-weight: 800; color: var(--color-dark); line-height: 1; letter-spacing: -0.02em; }
+.trez-tile__label { font-size: 0.76rem; font-weight: 600; color: var(--color-muted); margin-top: 0.3rem; }
+.trez-tile--in  .trez-tile__icon { background: rgba(30,107,97,.12);  color: #1e6b61; }
+.trez-tile--out .trez-tile__icon { background: rgba(176,32,48,.10);  color: #b02030; }
+.trez-tile--owe .trez-tile__icon { background: rgba(200,152,88,.16); color: #a05a10; }
+
+/* Cards */
+.trez-card {
+  background: var(--color-white); border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem); padding: 1.3rem 1.3rem; margin-bottom: 1.25rem;
+}
+.trez-card__title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.98rem; font-weight: 800; color: var(--color-dark); margin: 0 0 1rem; }
+.trez-card__title i { color: var(--color-secondary, #c89858); }
+
+/* Budget rows (resumen) */
+.trez-budtable { display: flex; flex-direction: column; gap: 1rem; }
+.trez-budrow__head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.4rem; }
+.trez-budrow__name { font-weight: 600; font-size: 0.9rem; color: var(--color-dark); }
+.trez-budrow__nums { font-size: 0.88rem; font-weight: 700; color: var(--color-dark); }
+.trez-budrow__nums .muted, .muted { color: var(--color-muted); font-weight: 500; }
+.trez-budbar { height: 8px; background: var(--gray-30); border-radius: 999px; overflow: hidden; }
+.trez-budbar__fill { height: 100%; background: #1e6b61; border-radius: 999px; transition: width .4s ease; }
+.trez-budbar__fill.over { background: #b02030; }
+.trez-budrow__rem { font-size: 0.76rem; color: var(--color-muted); margin-top: 0.3rem; }
+.trez-budrow__rem.neg { color: #b02030; font-weight: 600; }
+
+/* Add/edit form */
+.trez-add {
+  background: var(--color-white); border: 1px solid var(--gray-40); border-radius: var(--radius-lg, 1rem);
+  padding: 1.1rem 1.2rem; margin-bottom: 1.2rem;
+}
+.trez-add.editing { border-color: var(--color-secondary, #c89858); box-shadow: 0 0 0 3px rgba(200,152,88,.12); }
+.trez-add__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem 0.9rem; margin-bottom: 0.9rem; }
+.trez-field { display: flex; flex-direction: column; }
+.trez-field--full { grid-column: 1 / -1; }
+.trez-field label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-muted); margin-bottom: 0.3rem; }
+.trez-field input, .trez-field select {
+  height: 2.5rem; padding: 0 0.7rem; border: 1px solid var(--gray-40); border-radius: 8px;
+  font-family: inherit; font-size: 0.88rem; color: var(--color-dark); background: var(--color-white); box-sizing: border-box;
+}
+.trez-field input:focus, .trez-field select:focus { outline: none; border-color: var(--color-secondary, #c89858); box-shadow: 0 0 0 3px rgba(200,152,88,.12); }
+.trez-add__err { color: #b02030; font-size: 0.82rem; font-weight: 600; min-height: 1em; margin-bottom: 0.5rem; }
+.trez-add__actions { display: flex; gap: 0.5rem; }
+.trez-check { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--color-dark); height: 2.5rem; }
+.trez-check input { width: auto; }
+
+.btn--sm { padding: 0.5rem 0.95rem; font-size: 0.82rem; }
+
+/* Totals */
+.trez-total { font-size: 0.9rem; color: var(--color-muted); margin: 0 0.25rem 0.7rem; }
+.trez-total strong { color: var(--color-dark); font-size: 1.05rem; }
+.pos { color: #1e6b61 !important; }
+.neg { color: #b02030 !important; }
+
+/* Tables */
+.trez-tablewrap { overflow-x: auto; background: var(--color-white); border: 1px solid var(--gray-40); border-radius: var(--radius-lg, 1rem); }
+.trez-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.trez-table th {
+  text-align: left; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--color-muted); padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--gray-50); white-space: nowrap;
+}
+.trez-table td { padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--gray-50); color: var(--color-dark); vertical-align: top; }
+.trez-table tbody tr:last-child td { border-bottom: none; }
+.trez-table tbody tr:hover { background: rgba(57,69,72,.02); }
+.trez-table .num { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; white-space: nowrap; }
+.trez-table th.num { text-align: right; }
+.trez-sub { display: block; font-size: 0.74rem; color: var(--color-muted); margin-top: 0.15rem; }
+.trez-table tr.is-paid { opacity: 0.55; }
+.trez-table tr.is-muted td { color: var(--color-muted); }
+.row-act { white-space: nowrap; text-align: right; }
+
+/* Report table footer */
+.trez-report tfoot th { padding: 0.8rem 0.85rem; border-top: 2px solid var(--gray-50); color: var(--color-dark); font-size: 0.82rem; text-transform: none; letter-spacing: 0; }
+
+/* Pills */
+.trez-pill { display: inline-block; padding: 0.18rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; }
+.trez-pill--paid    { background: rgba(30,107,97,.12);  color: #1e6b61; }
+.trez-pill--pending { background: rgba(200,152,88,.16); color: #a05a10; }
+.trez-pill--owe     { background: rgba(176,32,48,.10);  color: #b02030; }
+
+/* Budget setter */
+.trez-budset { display: flex; flex-direction: column; gap: 0.6rem; }
+.trez-budset__row { display: flex; align-items: center; gap: 0.8rem; }
+.trez-budset__name { flex: 1; font-weight: 600; font-size: 0.9rem; color: var(--color-dark); }
+.trez-budset__input { display: flex; align-items: center; gap: 0.3rem; }
+.trez-budset__input span { color: var(--color-muted); font-weight: 600; }
+.trez-budset__input input { width: 130px; height: 2.4rem; padding: 0 0.6rem; border: 1px solid var(--gray-40); border-radius: 8px; font-family: inherit; font-size: 0.88rem; text-align: right; box-sizing: border-box; }
+.trez-budset__input input:focus { outline: none; border-color: var(--color-secondary, #c89858); }
+
+/* Notes */
+.trez-notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; }
+.trez-note {
+  position: relative; background: var(--color-white); border: 1px solid var(--gray-40);
+  border-radius: 12px; padding: 1rem 1rem 0.8rem;
+}
+.trez-note.pinned { border-color: var(--color-secondary, #c89858); background: rgba(200,152,88,.05); }
+.trez-note__pin { position: absolute; top: 0.7rem; right: 0.7rem; color: var(--color-secondary, #c89858); font-size: 0.75rem; }
+.trez-note__body { font-size: 0.9rem; color: var(--color-dark); line-height: 1.45; padding-right: 1.2rem; }
+.trez-note__meta { font-size: 0.72rem; color: var(--color-muted); margin-top: 0.6rem; }
+.trez-note__del { position: absolute; bottom: 0.5rem; right: 0.5rem; opacity: 0; transition: opacity .15s; }
+.trez-note:hover .trez-note__del { opacity: 1; }
+
+@media (max-width: 600px) {
+  .trez-budset__row { flex-wrap: wrap; }
+  .trez-notes { grid-template-columns: 1fr; }
+}
+
 /* -- pages admin users -- */
 /* admin/users.css
    Users tab list and ministry cards. */

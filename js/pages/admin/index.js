@@ -24,6 +24,7 @@ import { loadGallery } from './gallery-tab.js';
 import { loadAnalytics } from './analytics-tab.js';
 import { loadActivity } from './activity-tab.js';
 import { loadSettings } from './settings-tab.js';
+import { loadTreasury } from './treasury-tab.js';
 import { confirmResolve } from './state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onAnalytics:    loadAnalytics,
     onActivity:     loadActivity,
     onSettings:     loadSettings,
+    onTreasury:     loadTreasury,
   });
 
   // ── Calendar nav + add button ──────────────────────────────────────────────

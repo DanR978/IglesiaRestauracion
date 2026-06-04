@@ -165,6 +165,9 @@
     <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> <span>Pasados</span></button>
     <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> <span>Calendario</span></button>
 
+    <div class="adm-nav__group" data-finance-only>Finanzas</div>
+    <button class="tab-btn" data-tab="treasury" data-finance-only><i class="fas fa-coins"></i> <span>Tesorería</span></button>
+
     <div class="adm-nav__group" data-admin-only>Comunidad</div>
     <button class="tab-btn" data-tab="discipulado" data-admin-only><i class="fas fa-hand-holding-heart"></i> <span>Discipulado</span></button>
     <button class="tab-btn" data-tab="galeria" data-admin-only><i class="fas fa-images"></i> <span>Galería</span></button>
@@ -471,6 +474,19 @@
     <div id="ministriesList" class="card-grid">
       <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
     </div>
+  </div>
+
+  <!-- ── TESORERÍA ──────────────────────────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-treasury">
+    <div class="action-bar">
+      <h2>Tesorería</h2>
+      <div class="trez-period">
+        <label for="trezYear">Año</label>
+        <select id="trezYear"></select>
+      </div>
+    </div>
+    <div class="trez-subnav" id="trezSubnav"></div>
+    <div id="treasuryBody"></div>
   </div>
 
   <!-- ── ANALÍTICAS ─────────────────────────────────────────────────────────── -->
@@ -1009,6 +1025,7 @@
         <label>Rol</label>
         <select id="invRole">
           <option value="ministry_leader">Líder de ministerio — solo su ministerio</option>
+          <option value="treasurer">Tesorero — control financiero total</option>
           <option value="admin">Administrador — acceso total</option>
         </select>
       </div>
