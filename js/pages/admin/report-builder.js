@@ -24,7 +24,7 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); ret
 function fmtDate(d) { if (!d) return ''; const [y,m,day] = String(d).split('-').map(Number); return new Date(y,m-1,day).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' }); }
 
 const SECTIONS = [
-  { k: 'cover', label: 'Portada' }, { k: 'insights', label: 'Insights y recomendaciones' },
+  { k: 'cover', label: 'Portada' },
   { k: 'summary', label: 'Resumen (totales)' }, { k: 'chart', label: 'Gráfica del período' },
   { k: 'monthly', label: 'Tabla por período' }, { k: 'byIncome', label: 'Ingresos por categoría' },
   { k: 'byExpense', label: 'Gastos por categoría' }, { k: 'detail', label: 'Detalle de transacciones' },
@@ -40,7 +40,7 @@ export async function mountReportBuilder(root) {
     period: 'year', year: now.getFullYear(), quarter: Math.floor(now.getMonth()/3)+1,
     month: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, weekDate: isoDate(now),
     sample: false, title: 'Reporte de Tesorería',
-    sections: { cover:true, insights:true, summary:true, chart:true, monthly:true, byIncome:true, byExpense:true, detail:false },
+    sections: { cover:true, summary:true, chart:true, monthly:true, byIncome:true, byExpense:true, detail:false },
     accent: '#394548', density: 'comfortable', paper: 'letter', orientation: 'portrait',
   };
   ensureReportStyles();
@@ -195,8 +195,6 @@ function buildDoc() {
     <h1 class="rb-cover__title">${esc(config.title || 'Reporte de Tesorería')}</h1>
     <div class="rb-cover__meta">Generado el ${today}</div></section>`);
 
-  if (s.insights) body.push(insightsSection(bal));
-
   if (s.summary) body.push(`<section class="rb-sec"><h2 class="rb-h2">Resumen · ${esc(r.label)}</h2>
     <div class="rb-kpis">${kpi('Ingresos', fmt(data.totIn), 'pos')}${kpi('Gastos', fmt(data.totOut), 'neg')}${kpi('Balance', fmt(bal), bal<0?'neg':'pos')}</div></section>`);
 
@@ -226,8 +224,12 @@ function buildDoc() {
       <table class="rb-table"><thead><tr><th>${esc(r.col)}</th><th class="r">Ingresos</th><th class="r">Gastos</th><th class="r">Balance</th><th class="r">Acumulado</th></tr></thead>
       <tbody>${rows}</tbody><tfoot><tr><th>Total</th><th class="r pos">${fmt(data.totIn)}</th><th class="r neg">${fmt(data.totOut)}</th><th class="r">${fmt(bal)}</th><th></th></tr></tfoot></table></section>`);
   }
-  if (s.byIncome) body.push(breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos'));
-  if (s.byExpense) body.push(breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg'));
+  if (s.byIncome && s.byExpense) {
+    body.push(`<div class="rb-cols2">${breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos')}${breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg')}</div>`);
+  } else {
+    if (s.byIncome) body.push(breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos'));
+    if (s.byExpense) body.push(breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg'));
+  }
 
   const inner = body.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
   return `<div class="rb-watermark"><img src="${LOGO}" alt=""></div>
@@ -243,42 +245,6 @@ function breakdown(title, rows, total, cls) {
     <div class="rb-break__row"><span class="rb-break__lbl">${esc(r.label)}</span>
       <span class="rb-break__track"><span class="rb-break__fill ${cls}" style="width:${Math.round(r.total/max*100)}%"></span></span>
       <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${total?Math.round(r.total/total*100):0}%</span></div>`).join('')}</div></section>`;
-}
-
-/* ── Smart insights + recommendations (rules-based) ────────────────────────── */
-function insightsSection(bal) {
-  const ins = [];
-  const { totIn, totOut, byIncome, byExpense, buckets, range } = data;
-  const rate = totIn ? bal / totIn : 0;
-  const neg = buckets.filter(b => (b.in || b.out) && (b.in - b.out) < 0).length;
-  const active = buckets.filter(b => b.in || b.out).length;
-
-  if (!totIn && !totOut) ins.push({ k:'info', t:'No hay movimientos en este período. Activa “Datos de ejemplo” para ver cómo se vería el reporte.' });
-  else {
-    ins.push(bal >= 0
-      ? { k:'good', t:`Balance positivo: entró ${fmt(totIn)} y salió ${fmt(totOut)}, quedando ${fmt(bal)} a favor.` }
-      : { k:'warn', t:`Gastaste ${fmt(-bal)} más de lo que entró (ingresos ${fmt(totIn)}, gastos ${fmt(totOut)}).` });
-
-    if (totIn) ins.push(rate >= 0.2 ? { k:'good', t:`Buen ahorro: guardaste el ${Math.round(rate*100)}% de los ingresos.` }
-      : rate >= 0 ? { k:'info', t:`Ahorro del ${Math.round(rate*100)}%. Una meta sana ronda el 10–20%.` }
-      : { k:'warn', t:`Sin ahorro este período — los gastos superaron los ingresos.` });
-
-    if (byExpense[0] && totOut) { const p = Math.round(byExpense[0].total/totOut*100); ins.push({ k: p>=40?'warn':'info', t:`El gasto más grande fue “${byExpense[0].label}”: ${fmt(byExpense[0].total)} (${p}% del total).` }); }
-    if (byIncome[0] && totIn) { const p = Math.round(byIncome[0].total/totIn*100); if (p >= 70) ins.push({ k:'info', t:`La mayoría de los ingresos (${p}%) viene de “${byIncome[0].label}”. Diversificar da más estabilidad.` }); }
-    if (neg) ins.push({ k:'warn', t:`${neg} de ${active} ${range.col.toLowerCase()}s cerraron en negativo.` });
-
-    // Recommendations
-    const recs = [];
-    if (bal < 0) recs.push(`Revisa “${byExpense[0]?.label || 'los gastos mayores'}” o busca ingresos adicionales para equilibrar.`);
-    if (rate >= 0.2) recs.push('Considera apartar el excedente en un fondo de reserva o de construcción.');
-    if (byExpense[0] && totOut && byExpense[0].total/totOut >= 0.4) recs.push(`Concentras mucho en “${byExpense[0].label}”. Confirma que sea sostenible mes a mes.`);
-    if (!recs.length) recs.push('Las finanzas lucen equilibradas. Mantén el registro al día para reportes precisos.');
-    recs.forEach(t => ins.push({ k:'rec', t }));
-  }
-
-  const icon = { good:'fa-circle-check', warn:'fa-triangle-exclamation', info:'fa-circle-info', rec:'fa-lightbulb' };
-  return `<section class="rb-sec"><h2 class="rb-h2">Insights y recomendaciones</h2>
-    <div class="rb-insights">${ins.map(i=>`<div class="rb-insight rb-insight--${i.k}"><i class="fas ${icon[i.k]}"></i><span>${esc(i.t)}</span></div>`).join('')}</div></section>`;
 }
 
 /* ── PDF export ────────────────────────────────────────────────────────────── */
@@ -302,56 +268,60 @@ function ensureReportStyles() {
 
 const REPORT_CSS = `
 .rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
-.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.12; pointer-events:none; z-index:0; }
-.rb-watermark img{ width:62%; max-width:420px; }
-.rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:14px; font-weight:600; }
+.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.05; pointer-events:none; z-index:0; }
+.rb-watermark img{ width:55%; max-width:360px; }
+.rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:16px; font-weight:600; letter-spacing:.01em; }
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
 .rb-doc__body{ position:relative; z-index:1; }
-.rb-sec{ margin:0 0 22px; break-inside:avoid; }
-.rb-cover{ text-align:center; padding:54px 20px 40px; border-bottom:3px solid var(--rb-accent); margin-bottom:24px; break-after:avoid; }
-.rb-cover__title{ font-size:30px; font-weight:800; margin:0 0 8px; letter-spacing:-.01em; }
-.rb-cover__meta{ font-size:12px; color:#8a979c; }
-.rb-h2{ font-size:15px; font-weight:800; color:var(--rb-accent); margin:0 0 12px; padding-bottom:6px; border-bottom:2px solid color-mix(in srgb,var(--rb-accent) 22%, transparent); }
-.rb-kpis{ display:flex; gap:12px; }
-.rb-kpi{ flex:1; border:1px solid #e2e7e9; border-radius:10px; padding:14px 16px; }
-.rb-kpi__v{ font-size:22px; font-weight:800; } .rb-kpi__l{ font-size:11px; color:#6a767b; font-weight:600; margin-top:3px; }
-.rb-chart{ display:flex; align-items:flex-end; gap:6px; height:150px; }
+.rb-sec{ margin:0 0 18px; }
+.rb-h2{ font-size:12.5px; font-weight:800; color:var(--rb-accent); margin:0 0 9px; padding-bottom:5px; border-bottom:1.5px solid color-mix(in srgb,var(--rb-accent) 28%, #e2e7e9); text-transform:uppercase; letter-spacing:.05em; break-after:avoid; }
+/* Cover masthead — compact, flows straight into the content */
+.rb-cover{ text-align:center; padding:4px 0 16px; margin:0 0 20px; border-bottom:2.5px solid var(--rb-accent); }
+.rb-cover__title{ font-size:25px; font-weight:800; margin:0 0 4px; letter-spacing:-.01em; }
+.rb-cover__meta{ font-size:11px; color:#8a979c; }
+/* KPIs */
+.rb-kpis{ display:flex; gap:10px; }
+.rb-kpi{ flex:1; border:1px solid #e4e9ea; border-left:3px solid var(--rb-accent); border-radius:8px; padding:11px 14px; break-inside:avoid; }
+.rb-kpi__v{ font-size:20px; font-weight:800; letter-spacing:-.02em; }
+.rb-kpi__l{ font-size:10px; color:#6a767b; font-weight:700; margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }
+/* Chart */
+.rb-chart{ display:flex; align-items:flex-end; gap:6px; height:140px; break-inside:avoid; }
 .rb-chart__col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; min-width:0; }
 .rb-chart__bars{ flex:1; width:100%; display:flex; align-items:flex-end; justify-content:center; gap:3px; }
-.rb-chart__bar{ width:42%; max-width:13px; min-height:2px; border-radius:3px 3px 0 0; }
+.rb-chart__bar{ width:42%; max-width:12px; min-height:2px; border-radius:2px 2px 0 0; }
 .rb-chart__bar.in{ background:var(--rb-accent); } .rb-chart__bar.out{ background:#b02030; }
-.rb-chart__lbl{ font-size:9px; color:#8a979c; white-space:nowrap; }
-.rb-legend{ display:flex; gap:18px; justify-content:center; margin-top:10px; font-size:11px; color:#6a767b; }
-.rb-legend i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; }
+.rb-chart__lbl{ font-size:8.5px; color:#8a979c; white-space:nowrap; }
+.rb-legend{ display:flex; gap:18px; justify-content:center; margin-top:9px; font-size:10.5px; color:#6a767b; break-inside:avoid; }
+.rb-legend i{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; }
 .rb-legend i.in{ background:var(--rb-accent); } .rb-legend i.out{ background:#b02030; }
-.rb-table{ width:100%; border-collapse:collapse; font-size:11.5px; }
-.rb-table th,.rb-table td{ padding:6px 9px; border-bottom:1px solid #e9edee; text-align:left; }
+/* Tables — repeat the header across pages, tabular figures, tinted head */
+.rb-table{ width:100%; border-collapse:collapse; font-size:11px; }
+.rb-table thead{ display:table-header-group; }
+.rb-table thead th{ background:color-mix(in srgb,var(--rb-accent) 8%, white); font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:#5f6c71; padding:7px 9px; border-bottom:1.5px solid color-mix(in srgb,var(--rb-accent) 28%, #d8dee0); text-align:left; }
+.rb-table td{ padding:5px 9px; border-bottom:1px solid #eef2f2; text-align:left; }
 .rb-table th.r,.rb-table td.r{ text-align:right; font-variant-numeric:tabular-nums; }
-.rb-table thead th{ font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:#7a868b; }
-.rb-table tfoot th{ border-top:2px solid #cfd6d8; font-size:11.5px; }
-.rb-detail td{ background:#f8fafa; font-size:10.5px; color:#5a6a70; padding:3px 9px; border-bottom:1px solid #eef2f2; }
-.rb-detail td:first-child{ padding-left:18px; }
-.rb-break{ display:flex; flex-direction:column; gap:8px; }
-.rb-break__row{ display:flex; align-items:center; gap:10px; }
-.rb-break__lbl{ width:34%; font-size:11.5px; }
-.rb-break__track{ flex:1; height:14px; background:#eef1f2; border-radius:99px; overflow:hidden; }
+.rb-table tbody tr{ break-inside:avoid; }
+.rb-mrow td{ font-weight:600; }
+.rb-table tfoot th{ border-top:2px solid #cfd6d8; padding:7px 9px; font-size:11px; text-align:left; }
+.rb-table tfoot th.r{ text-align:right; font-variant-numeric:tabular-nums; }
+.rb-detail td{ background:#fafcfc; font-size:10px; font-weight:400; color:#6a767b; padding:3px 9px; border-bottom:1px solid #f1f5f5; }
+.rb-detail td:first-child{ padding-left:20px; }
+/* Category breakdowns — two columns side by side */
+.rb-cols2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:0 0 18px; }
+.rb-cols2 .rb-sec{ margin:0; break-inside:avoid; }
+.rb-break{ display:flex; flex-direction:column; gap:6px; }
+.rb-break__row{ display:flex; align-items:center; gap:9px; break-inside:avoid; }
+.rb-break__lbl{ width:40%; font-size:10.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.rb-break__track{ flex:1; height:11px; background:#eef1f2; border-radius:99px; overflow:hidden; }
 .rb-break__fill{ display:block; height:100%; border-radius:99px; }
 .rb-break__fill.pos{ background:var(--rb-accent); } .rb-break__fill.neg{ background:#b02030; }
-.rb-break__val{ width:88px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums; }
-.rb-break__pct{ width:38px; text-align:right; font-size:10.5px; color:#8a979c; }
-.rb-insights{ display:flex; flex-direction:column; gap:8px; }
-.rb-insight{ display:flex; gap:10px; align-items:flex-start; padding:10px 13px; border-radius:9px; font-size:12px; border:1px solid #e6eaeb; background:#fafbfb; }
-.rb-insight i{ margin-top:1px; }
-.rb-insight--good{ border-color:#bfe3dc; background:#f1f9f7; } .rb-insight--good i{ color:#1e6b61; }
-.rb-insight--warn{ border-color:#f0cdd2; background:#fcf3f4; } .rb-insight--warn i{ color:#b02030; }
-.rb-insight--info i{ color:#2a4a9e; }
-.rb-insight--rec{ border-color:color-mix(in srgb,var(--rb-accent) 30%, transparent); background:color-mix(in srgb,var(--rb-accent) 6%, white); } .rb-insight--rec i{ color:var(--rb-accent); }
+.rb-break__val{ width:72px; text-align:right; font-weight:700; font-size:10px; font-variant-numeric:tabular-nums; }
+.rb-break__pct{ width:28px; text-align:right; font-size:9.5px; color:#8a979c; }
 .rb-doc .pos{ color:#1e6b61; } .rb-doc .neg{ color:#b02030; }
 .rb-empty{ color:#8a979c; font-size:12px; }
-.rb-density-compact .rb-sec{ margin-bottom:14px; } .rb-density-compact .rb-table th,.rb-density-compact .rb-table td{ padding:4px 8px; } .rb-density-compact .rb-cover{ padding:28px 20px 22px; }
 @media print {
   .rb-watermark{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; }
-  .rb-runhead{ position:fixed; top:8mm; left:14mm; right:14mm; margin:0; border-bottom:1px solid #d8dee0; padding-bottom:4px; }
-  .rb-doc__body{ padding-top:4mm; }
+  .rb-runhead{ position:fixed; top:8mm; left:14mm; right:14mm; margin:0; }
+  .rb-doc__body{ padding-top:3mm; }
 }
 `;
