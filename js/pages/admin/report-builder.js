@@ -52,6 +52,7 @@ export async function mountReportBuilder(root) {
   renderControls();
   await loadData();
   renderPreview();
+  if (!mountReportBuilder._bound) { mountReportBuilder._bound = true; window.addEventListener('resize', fitPreview, { passive: true }); }
 }
 
 /* ── Period → range + buckets ──────────────────────────────────────────────── */
@@ -149,14 +150,14 @@ function renderControls() {
       </div>
       <div style="margin-top:.5rem">${periodSub}</div>
     </div>
-    <div class="rb-grp">
-      <label class="rb-check"><input type="checkbox" id="rbSample"${config.sample?' checked':''}><span><strong>Datos de ejemplo</strong> — ver cómo se vería</span></label>
-    </div>
     <div class="rb-grp"><label class="rb-grp__t">Título</label>
       <input type="text" id="rbTitle" class="rb-input" value="${esc(config.title)}" placeholder="Reporte de Tesorería">
     </div>
-    <div class="rb-grp"><label class="rb-grp__t">Secciones</label>
-      ${SECTIONS.map(s=>`<label class="rb-check"><input type="checkbox" data-sec="${s.k}"${config.sections[s.k]?' checked':''}><span>${s.label}</span></label>`).join('')}
+    <div class="rb-grp">
+      <button type="button" class="rb-filterbtn" id="rbSecBtn"><span><i class="fas fa-sliders"></i> Secciones</span><i class="fas fa-chevron-down rb-filterbtn__chev"></i></button>
+      <div class="rb-filterpanel" id="rbSecPanel" hidden>
+        ${SECTIONS.map(s=>`<label class="rb-check"><input type="checkbox" data-sec="${s.k}"${config.sections[s.k]?' checked':''}><span>${s.label}</span></label>`).join('')}
+      </div>
     </div>
     <button class="btn btn--primary rb-export" id="rbExport"><i class="fas fa-file-pdf"></i> Descargar PDF</button>`;
 
@@ -164,8 +165,9 @@ function renderControls() {
   c.querySelector('#rbYear')?.addEventListener('change', e => { config.year = +e.target.value; reload(); });
   c.querySelector('#rbMonth')?.addEventListener('change', e => { config.month = e.target.value; reload(); });
   c.querySelector('#rbWeek')?.addEventListener('change', e => { config.weekDate = e.target.value; reload(); });
-  c.querySelector('#rbSample')?.addEventListener('change', e => { config.sample = e.target.checked; reload(); });
   c.querySelector('#rbTitle').addEventListener('input', e => { config.title = e.target.value; renderPreview(); });
+  const secBtn = c.querySelector('#rbSecBtn'), secPanel = c.querySelector('#rbSecPanel');
+  secBtn?.addEventListener('click', () => { secPanel.hidden = !secPanel.hidden; secBtn.classList.toggle('open', !secPanel.hidden); });
   c.querySelectorAll('[data-sec]').forEach(cb => cb.addEventListener('change', () => { config.sections[cb.dataset.sec] = cb.checked; renderPreview(); }));
   c.querySelectorAll('[data-seg]').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
     const key = seg.dataset.seg, val = key === 'quarter' ? +b.dataset.val : b.dataset.val;
@@ -186,6 +188,20 @@ function renderPreview() {
   // The accent var must live ON the captured element (not just the parent paper),
   // or var(--rb-accent) resolves to nothing in the PDF canvas → invisible bars.
   paper.innerHTML = `<div class="rb-doc" style="--rb-accent:${config.accent}">${buildDoc()}</div>`;
+  fitPreview();
+}
+
+// On narrow screens, zoom the whole page down so it fits the width (no scroll).
+function fitPreview() {
+  const paper = document.getElementById('rbPaper');
+  const wrap = paper?.parentElement;
+  if (!paper || !wrap) return;
+  if (window.matchMedia('(max-width: 900px)').matches) {
+    const avail = wrap.clientWidth;
+    paper.style.zoom = avail > 0 ? Math.min(1, avail / 700) : 1;
+  } else {
+    paper.style.zoom = '';
+  }
 }
 
 /* ── Document generator ────────────────────────────────────────────────────── */

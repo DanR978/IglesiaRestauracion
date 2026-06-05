@@ -142,7 +142,6 @@ async function renderResumen(root) {
   ];
 
   root.innerHTML = `
-    <p class="trez-lead">Tesorería de toda la iglesia — entrada de dinero y su asignación por línea, para ${monthLbl()}.</p>
     <div class="trez-tiles">
       ${tiles.map(t => `<div class="trez-tile trez-tile--${t.cls}">
         <span class="trez-tile__icon"><i class="fas ${t.icon}"></i></span>
@@ -279,7 +278,6 @@ async function renderConfig(root) {
   await loadFundData();
   cache.funds = FUNDS; cache.incomeCats = INCOME_CATS; cache.expenseCats = EXPENSE_CATS;
   root.innerHTML = `
-    <p class="trez-lead">Configura los fondos y las categorías de tu iglesia. Se usan al registrar el dinero.</p>
     ${confCard('funds', 'fa-vault', 'Fondos (dónde está el dinero)', FUNDS,
       f => `${esc(f.name)}${f.restricted ? ' <span class="trez-pill trez-pill--owe">Restringido</span>' : ''}${f.opening_balance ? ` <span class="muted">· saldo inicial ${fmt(f.opening_balance)}</span>` : ''}`)}
     ${confCard('incomeCats', 'fa-arrow-down', 'Categorías de ingreso', INCOME_CATS, c => esc(c.name))}
@@ -344,7 +342,6 @@ async function renderRecurring(root) {
   cache.recurring = data || [];
   const FREQ = { monthly: 'Mensual', weekly: 'Semanal', yearly: 'Anual' };
   root.innerHTML = `
-    <p class="trez-lead">Pagos que se repiten — estipendios (ej. el del pastor), renta, suscripciones. Se agregan a Gastos automáticamente cada mes mientras estén activos. Desactívalo para detenerlo.</p>
     ${addBtn('Agregar pago recurrente')}
     ${table(['Pagado a', 'Asignado a', 'Monto', 'Frecuencia', 'Activo', ''], (data || []).map(r => `
       <tr class="${r.active ? '' : 'is-paid'}"><td>${esc(r.payee)}${cleanNote(r.note) ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>

@@ -9154,6 +9154,22 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 .rb-check { display: flex; align-items: center; gap: 0.55rem; font-size: 0.88rem; color: var(--color-dark); padding: 0.18rem 0; cursor: pointer; }
 .rb-check input { width: auto; }
 
+/* Secciones — compact filter button + collapsible panel */
+.rb-filterbtn {
+  display: flex; align-items: center; justify-content: space-between; width: 100%;
+  padding: 0.6rem 0.75rem; border: 1px solid var(--gray-40); border-radius: 8px;
+  background: var(--color-white); font-family: inherit; font-size: 0.85rem; font-weight: 600;
+  color: var(--color-dark); cursor: pointer;
+}
+.rb-filterbtn:hover { border-color: var(--color-dark); }
+.rb-filterbtn > span { display: inline-flex; align-items: center; gap: 0.45rem; }
+.rb-filterbtn__chev { font-size: 0.7rem; color: var(--color-muted); transition: transform 0.2s ease; }
+.rb-filterbtn.open .rb-filterbtn__chev { transform: rotate(180deg); }
+.rb-filterpanel {
+  margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.1rem;
+  padding: 0.5rem 0.4rem; border: 1px solid var(--gray-50); border-radius: 8px; background: var(--color-white);
+}
+
 .rb-swatches { display: flex; gap: 0.45rem; flex-wrap: wrap; }
 .rb-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
 .rb-swatch.on { border-color: var(--color-dark); box-shadow: inset 0 0 0 2px #fff; }
@@ -9194,10 +9210,9 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 @media (max-width: 900px) {
   .rb { grid-template-columns: 1fr; }
   .rb-controls { position: static; }
-  /* The report is a real page — show it at proper proportions and let it scroll
-     horizontally instead of clipping the KPIs/table. */
+  /* The page is zoomed to fit the width (fitPreview), so it sits centered with
+     no scroll. overflow-x is just a fallback for browsers without `zoom`. */
   .rb-stage { padding: 0.8rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .rb-paperwrap { justify-content: flex-start; min-width: min-content; }
   .rb-paper { width: 700px; max-width: none; flex: 0 0 auto; padding: 32px 34px; }
 }
 
