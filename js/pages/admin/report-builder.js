@@ -23,11 +23,6 @@ const parseISO = s => { const [y,m,d] = s.split('-').map(Number); return new Dat
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
 function fmtDate(d) { if (!d) return ''; const [y,m,day] = String(d).split('-').map(Number); return new Date(y,m-1,day).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' }); }
 
-const ACCENTS = [
-  { v: '#345a65', label: 'Verde azulado' }, { v: '#2a4a9e', label: 'Azul' },
-  { v: '#1e6b61', label: 'Verde' }, { v: '#5c3d9c', label: 'Morado' },
-  { v: '#a05a10', label: 'Ámbar' }, { v: '#394548', label: 'Carbón' },
-];
 const SECTIONS = [
   { k: 'cover', label: 'Portada' }, { k: 'insights', label: 'Insights y recomendaciones' },
   { k: 'summary', label: 'Resumen (totales)' }, { k: 'chart', label: 'Gráfica del período' },
@@ -44,9 +39,9 @@ export async function mountReportBuilder(root) {
   if (!config) config = {
     period: 'year', year: now.getFullYear(), quarter: Math.floor(now.getMonth()/3)+1,
     month: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, weekDate: isoDate(now),
-    sample: false, title: 'Reporte de Tesorería', subtitle: '',
+    sample: false, title: 'Reporte de Tesorería',
     sections: { cover:true, insights:true, summary:true, chart:true, monthly:true, byIncome:true, byExpense:true, detail:false },
-    accent: '#345a65', density: 'comfortable', paper: 'letter', orientation: 'portrait',
+    accent: '#394548', density: 'comfortable', paper: 'letter', orientation: 'portrait',
   };
   ensureReportStyles();
   root.innerHTML = `<div class="rb">
@@ -158,22 +153,9 @@ function renderControls() {
     </div>
     <div class="rb-grp"><label class="rb-grp__t">Título</label>
       <input type="text" id="rbTitle" class="rb-input" value="${esc(config.title)}" placeholder="Reporte de Tesorería">
-      <input type="text" id="rbSub" class="rb-input" value="${esc(config.subtitle)}" placeholder="Subtítulo (opcional)" style="margin-top:.4rem">
     </div>
     <div class="rb-grp"><label class="rb-grp__t">Secciones</label>
       ${SECTIONS.map(s=>`<label class="rb-check"><input type="checkbox" data-sec="${s.k}"${config.sections[s.k]?' checked':''}><span>${s.label}</span></label>`).join('')}
-    </div>
-    <div class="rb-grp"><label class="rb-grp__t">Color de acento</label>
-      <div class="rb-swatches">${ACCENTS.map(a=>`<button type="button" class="rb-swatch${config.accent===a.v?' on':''}" data-accent="${a.v}" style="background:${a.v}" title="${a.label}" aria-label="${a.label}"></button>`).join('')}</div>
-    </div>
-    <div class="rb-grp"><label class="rb-grp__t">Densidad</label>
-      <div class="rb-seg" data-seg="density"><button type="button" data-val="comfortable" class="${config.density==='comfortable'?'on':''}">Cómodo</button><button type="button" data-val="compact" class="${config.density==='compact'?'on':''}">Compacto</button></div>
-    </div>
-    <div class="rb-grp"><label class="rb-grp__t">Papel</label>
-      <div class="rb-seg" data-seg="paper"><button type="button" data-val="letter" class="${config.paper==='letter'?'on':''}">Carta</button><button type="button" data-val="a4" class="${config.paper==='a4'?'on':''}">A4</button></div>
-    </div>
-    <div class="rb-grp"><label class="rb-grp__t">Orientación</label>
-      <div class="rb-seg" data-seg="orientation"><button type="button" data-val="portrait" class="${config.orientation==='portrait'?'on':''}">Vertical</button><button type="button" data-val="landscape" class="${config.orientation==='landscape'?'on':''}">Horizontal</button></div>
     </div>
     <button class="btn btn--primary rb-export" id="rbExport"><i class="fas fa-file-pdf"></i> Descargar PDF</button>`;
 
@@ -183,12 +165,10 @@ function renderControls() {
   c.querySelector('#rbWeek')?.addEventListener('change', e => { config.weekDate = e.target.value; reload(); });
   c.querySelector('#rbSample')?.addEventListener('change', e => { config.sample = e.target.checked; reload(); });
   c.querySelector('#rbTitle').addEventListener('input', e => { config.title = e.target.value; renderPreview(); });
-  c.querySelector('#rbSub').addEventListener('input', e => { config.subtitle = e.target.value; renderPreview(); });
   c.querySelectorAll('[data-sec]').forEach(cb => cb.addEventListener('change', () => { config.sections[cb.dataset.sec] = cb.checked; renderPreview(); }));
-  c.querySelectorAll('[data-accent]').forEach(b => b.addEventListener('click', () => { config.accent = b.dataset.accent; renderControls(); renderPreview(); }));
   c.querySelectorAll('[data-seg]').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
-    const key = seg.dataset.seg, val = seg.dataset.seg === 'quarter' ? +b.dataset.val : b.dataset.val;
-    config[key === 'quarter' ? 'quarter' : key] = val;
+    const key = seg.dataset.seg, val = key === 'quarter' ? +b.dataset.val : b.dataset.val;
+    config[key] = val;
     renderControls();
     if (key === 'period' || key === 'quarter') await loadData();
     renderPreview();
@@ -212,10 +192,7 @@ function buildDoc() {
   const body = [];
 
   if (s.cover) body.push(`<section class="rb-sec rb-cover">
-    <div class="rb-cover__brand">${esc(CHURCH)}</div>
     <h1 class="rb-cover__title">${esc(config.title || 'Reporte de Tesorería')}</h1>
-    ${config.subtitle ? `<div class="rb-cover__sub">${esc(config.subtitle)}</div>` : ''}
-    <div class="rb-cover__period">${esc(r.label)}</div>
     <div class="rb-cover__meta">Generado el ${today}</div></section>`);
 
   if (s.insights) body.push(insightsSection(bal));
@@ -237,11 +214,13 @@ function buildDoc() {
     let acc = 0;
     const rows = data.buckets.map(b => {
       const d = b.in - b.out; acc += d; const has = b.in || b.out;
-      const detail = (s.detail && has) ? `<tr class="rb-detail"><td colspan="5">
-        ${b.income.map(x=>`<div class="rb-ln"><span>+ ${fmtDate(x.occurred_on)} · ${esc(x.source||'')}</span><span class="pos">${fmt(x.amount)}</span></div>`).join('')}
-        ${b.expense.map(x=>`<div class="rb-ln"><span>− ${fmtDate(x.occurred_on)} · ${esc(x.payee||x.category||'—')}</span><span class="neg">${fmt(x.amount)}</span></div>`).join('')}
-      </td></tr>` : '';
-      return `<tr><td>${esc(b.label)}</td><td class="r pos">${b.in?fmt(b.in):'—'}</td><td class="r neg">${b.out?fmt(b.out):'—'}</td><td class="r">${has?fmt(d):'—'}</td><td class="r">${fmt(acc)}</td></tr>${detail}`;
+      // Detail rows align into the real columns: income under Ingresos,
+      // expense under Gastos.
+      const detail = (s.detail && has) ? (
+        b.income.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.source||'')}</td><td class="r pos">${fmt(x.amount)}</td><td></td><td></td><td></td></tr>`).join('') +
+        b.expense.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.payee||x.category||'—')}</td><td></td><td class="r neg">${fmt(x.amount)}</td><td></td><td></td></tr>`).join('')
+      ) : '';
+      return `<tr class="rb-mrow"><td>${esc(b.label)}</td><td class="r pos">${b.in?fmt(b.in):'—'}</td><td class="r neg">${b.out?fmt(b.out):'—'}</td><td class="r">${has?fmt(d):'—'}</td><td class="r">${fmt(acc)}</td></tr>${detail}`;
     }).join('');
     body.push(`<section class="rb-sec"><h2 class="rb-h2">Detalle por ${r.col.toLowerCase()}</h2>
       <table class="rb-table"><thead><tr><th>${esc(r.col)}</th><th class="r">Ingresos</th><th class="r">Gastos</th><th class="r">Balance</th><th class="r">Acumulado</th></tr></thead>
@@ -253,7 +232,6 @@ function buildDoc() {
   const inner = body.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
   return `<div class="rb-watermark"><img src="${LOGO}" alt=""></div>
     <header class="rb-runhead"><span>${esc(CHURCH)}</span><span class="rb-runhead__r">${esc(r.headRight)}</span></header>
-    <footer class="rb-runfoot"><span>${esc(CHURCH)}</span><span>Generado el ${today}</span></footer>
     <div class="rb-doc__body">${inner}</div>`;
 }
 
@@ -307,7 +285,7 @@ function insightsSection(bal) {
 function exportPDF() {
   const size = config.paper === 'a4' ? 'A4' : 'letter';
   const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(config.title)} · ${esc(data.range.label)}</title>
-    <style>@page{ size:${size} ${config.orientation}; margin:20mm 14mm 16mm; } html,body{margin:0} body{ --rb-accent:${config.accent}; } ${REPORT_CSS}</style></head>
+    <style>@page{ size:${size} ${config.orientation}; margin:20mm 14mm 14mm; } html,body{margin:0} body{ --rb-accent:${config.accent}; } ${REPORT_CSS}</style></head>
     <body class="rb-print rb-density-${config.density}"><div class="rb-doc">${buildDoc()}</div>
     <script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>`;
   const w = window.open('', '_blank');
@@ -326,18 +304,13 @@ const REPORT_CSS = `
 .rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
 .rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.12; pointer-events:none; z-index:0; }
 .rb-watermark img{ width:62%; max-width:420px; }
-.rb-runhead,.rb-runfoot{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; }
-.rb-runhead{ border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:14px; font-weight:600; }
+.rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:14px; font-weight:600; }
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
-.rb-runfoot{ border-top:1px solid #e2e7e9; padding-top:6px; margin-top:14px; }
 .rb-doc__body{ position:relative; z-index:1; }
 .rb-sec{ margin:0 0 22px; break-inside:avoid; }
-.rb-cover{ text-align:center; padding:54px 20px 36px; border-bottom:3px solid var(--rb-accent); margin-bottom:24px; break-after:avoid; }
-.rb-cover__brand{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--rb-accent); font-weight:700; }
-.rb-cover__title{ font-size:28px; font-weight:800; margin:12px 0 4px; }
-.rb-cover__sub{ font-size:14px; color:#5a6a70; }
-.rb-cover__period{ font-size:30px; font-weight:800; color:var(--rb-accent); margin:16px 0 2px; }
-.rb-cover__meta{ font-size:11px; color:#8a979c; }
+.rb-cover{ text-align:center; padding:54px 20px 40px; border-bottom:3px solid var(--rb-accent); margin-bottom:24px; break-after:avoid; }
+.rb-cover__title{ font-size:30px; font-weight:800; margin:0 0 8px; letter-spacing:-.01em; }
+.rb-cover__meta{ font-size:12px; color:#8a979c; }
 .rb-h2{ font-size:15px; font-weight:800; color:var(--rb-accent); margin:0 0 12px; padding-bottom:6px; border-bottom:2px solid color-mix(in srgb,var(--rb-accent) 22%, transparent); }
 .rb-kpis{ display:flex; gap:12px; }
 .rb-kpi{ flex:1; border:1px solid #e2e7e9; border-radius:10px; padding:14px 16px; }
@@ -356,8 +329,8 @@ const REPORT_CSS = `
 .rb-table th.r,.rb-table td.r{ text-align:right; font-variant-numeric:tabular-nums; }
 .rb-table thead th{ font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:#7a868b; }
 .rb-table tfoot th{ border-top:2px solid #cfd6d8; font-size:11.5px; }
-.rb-detail td{ background:#f7f9f9; padding:5px 16px; }
-.rb-ln{ display:flex; justify-content:space-between; gap:12px; font-size:10.5px; color:#5a6a70; padding:2px 0; }
+.rb-detail td{ background:#f8fafa; font-size:10.5px; color:#5a6a70; padding:3px 9px; border-bottom:1px solid #eef2f2; }
+.rb-detail td:first-child{ padding-left:18px; }
 .rb-break{ display:flex; flex-direction:column; gap:8px; }
 .rb-break__row{ display:flex; align-items:center; gap:10px; }
 .rb-break__lbl{ width:34%; font-size:11.5px; }
@@ -379,7 +352,6 @@ const REPORT_CSS = `
 @media print {
   .rb-watermark{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; }
   .rb-runhead{ position:fixed; top:8mm; left:14mm; right:14mm; margin:0; border-bottom:1px solid #d8dee0; padding-bottom:4px; }
-  .rb-runfoot{ position:fixed; bottom:8mm; left:14mm; right:14mm; margin:0; }
   .rb-doc__body{ padding-top:4mm; }
 }
 `;
