@@ -452,8 +452,23 @@ async function renderReports(root) {
   }).join('');
   const totIn = sum(inc.data), totOut = sum(exp.data);
 
+  const chartMax = Math.max(1, ...months.map(m => Math.max(m.in, m.out)));
+  const chart = `<div class="trez-rchart">${months.map((m, i) => `
+    <div class="trez-rchart__col">
+      <div class="trez-rchart__bars">
+        <div class="trez-rchart__bar in"  style="height:${Math.round((m.in  / chartMax) * 100)}%" title="Ingresos ${fmt(m.in)}"></div>
+        <div class="trez-rchart__bar out" style="height:${Math.round((m.out / chartMax) * 100)}%" title="Gastos ${fmt(m.out)}"></div>
+      </div>
+      <span class="trez-rchart__lbl">${MONTHS[i].slice(0,3)}</span>
+    </div>`).join('')}</div>
+    <div class="trez-rchart__legend"><span><i class="dot in"></i> Ingresos</span><span><i class="dot out"></i> Gastos</span></div>`;
+
   root.innerHTML = `
-    <p class="trez-lead">Reporte mensual de ${year()} — toca un mes para ver las entradas con sus fechas. Cambia el mes arriba para otro año.</p>
+    <div class="trez-rtoolbar">
+      <p class="trez-lead" style="margin:0">Reporte de ${year()} — toca un mes para ver las entradas con fechas.</p>
+      <button class="btn btn--ghost btn--sm" id="trezPdf"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
+    </div>
+    <div class="trez-card">${chart}</div>
     <div class="trez-tablewrap"><table class="trez-table trez-report">
       <thead><tr><th>Mes</th><th class="num">Ingresos</th><th class="num">Gastos</th><th class="num">Balance</th><th class="num">Acumulado</th></tr></thead>
       <tbody>${body}</tbody>
@@ -465,6 +480,48 @@ async function renderReports(root) {
     if (det) det.hidden = !det.hidden;
     row.classList.toggle('open', det && !det.hidden);
   }));
+  document.getElementById('trezPdf')?.addEventListener('click', () => printReport(months, totIn, totOut, year()));
+}
+
+// Open a clean print window → the browser's "Guardar como PDF" does the rest.
+function printReport(months, totIn, totOut, yr) {
+  let ytd = 0;
+  const rows = months.map((m, i) => {
+    const bal = m.in - m.out; ytd += bal; const has = m.in || m.out;
+    const detail = has ? `
+      <tr class="sub"><td colspan="5">
+        ${m.income.map(r => `<div class="ln"><span>+ ${fmtDate(r.occurred_on)} · ${esc(r.source)}</span><span class="p">${fmt(r.amount)}</span></div>`).join('')}
+        ${m.expense.map(r => `<div class="ln"><span>− ${fmtDate(r.occurred_on)} · ${esc(r.payee || allocName(r))}</span><span class="n">${fmt(r.amount)}</span></div>`).join('')}
+      </td></tr>` : '';
+    return `<tr><td><b>${MONTHS[i]}</b></td><td class="r p">${m.in?fmt(m.in):'—'}</td><td class="r n">${m.out?fmt(m.out):'—'}</td>
+      <td class="r">${has?fmt(bal):'—'}</td><td class="r">${fmt(ytd)}</td></tr>${detail}`;
+  }).join('');
+
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>Tesorería ${yr}</title>
+    <style>
+      body{font-family:-apple-system,Segoe UI,Arial,sans-serif;color:#222;margin:32px;}
+      h1{font-size:18px;margin:0 0 2px} h2{font-size:13px;font-weight:500;color:#666;margin:0 0 18px}
+      table{width:100%;border-collapse:collapse;font-size:12px}
+      th,td{padding:6px 8px;border-bottom:1px solid #ddd;text-align:left}
+      th.r,td.r{text-align:right;font-variant-numeric:tabular-nums}
+      tfoot th{border-top:2px solid #444}
+      .p{color:#1e6b61}.n{color:#b02030}
+      .sub td{background:#fafafa;padding:4px 16px}
+      .ln{display:flex;justify-content:space-between;font-size:11px;color:#555;padding:2px 0}
+      @media print{ .noprint{display:none} }
+    </style></head><body>
+    <h1>Iglesia Restauración Divina — Tesorería</h1>
+    <h2>Reporte anual ${yr}</h2>
+    <table><thead><tr><th>Mes</th><th class="r">Ingresos</th><th class="r">Gastos</th><th class="r">Balance</th><th class="r">Acumulado</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr><th>Total ${yr}</th><th class="r p">${fmt(totIn)}</th><th class="r n">${fmt(totOut)}</th><th class="r">${fmt(totIn-totOut)}</th><th></th></tr></tfoot>
+    </table>
+    <p class="noprint" style="margin-top:18px"><button onclick="window.print()" style="padding:8px 16px;font-size:14px">Imprimir / Guardar PDF</button></p>
+    <script>window.onload=function(){setTimeout(function(){window.print()},300)}<\/script>
+    </body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { toast('Permite las ventanas emergentes para descargar el PDF.', 'error'); return; }
+  w.document.write(html); w.document.close();
 }
 
 /* ── Notas ─────────────────────────────────────────────────────────────────── */
