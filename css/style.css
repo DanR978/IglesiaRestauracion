@@ -9194,8 +9194,11 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 @media (max-width: 900px) {
   .rb { grid-template-columns: 1fr; }
   .rb-controls { position: static; }
-  .rb-stage { padding: 0.9rem; }
-  .rb-paper { padding: 26px 22px; }
+  /* The report is a real page — show it at proper proportions and let it scroll
+     horizontally instead of clipping the KPIs/table. */
+  .rb-stage { padding: 0.8rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .rb-paperwrap { justify-content: flex-start; min-width: min-content; }
+  .rb-paper { width: 700px; max-width: none; flex: 0 0 auto; padding: 32px 34px; }
 }
 
 /* -- pages admin shell -- */
@@ -9857,7 +9860,23 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
   }
   .trez-subnav__btn i { width: 18px; text-align: center; font-size: 0.95rem; }
 
-  .trez-budset__row { flex-wrap: wrap; }
+  /* Budget rows: name on its own line, then input + Guardar — consistent
+     regardless of how long the ministry name is. */
+  .trez-budset__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name name" "input save";
+    gap: 0.4rem 0.6rem;
+    align-items: center;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--gray-50);
+  }
+  .trez-budset__row:last-child { border-bottom: none; padding-bottom: 0; }
+  .trez-budset__name  { grid-area: name; }
+  .trez-budset__input { grid-area: input; }
+  .trez-budset__input input { width: 100%; }
+  .trez-budset__row > .btn { grid-area: save; }
+
   .trez-notes { grid-template-columns: 1fr; }
   .trez-addbar .btn { width: 100%; }
 }

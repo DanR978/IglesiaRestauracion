@@ -72,6 +72,9 @@
 @media (max-width: 900px) {
   .rb { grid-template-columns: 1fr; }
   .rb-controls { position: static; }
-  .rb-stage { padding: 0.9rem; }
-  .rb-paper { padding: 26px 22px; }
+  /* The report is a real page — show it at proper proportions and let it scroll
+     horizontally instead of clipping the KPIs/table. */
+  .rb-stage { padding: 0.8rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .rb-paperwrap { justify-content: flex-start; min-width: min-content; }
+  .rb-paper { width: 700px; max-width: none; flex: 0 0 auto; padding: 32px 34px; }
 }
