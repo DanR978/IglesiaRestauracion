@@ -1,152 +1,198 @@
 // js/pages/admin/report-builder.js
 // ─────────────────────────────────────────────────────────────────────────────
-// Treasury Report Builder — customizable report with a live paper preview and
-// WYSIWYG multi-page PDF export.
-//   • Left: controls (period, sections, chart, density, paper, orientation,
-//     accent colour, custom titles).
-//   • Right: live "paper" preview that updates on every change.
-//   • Export: opens a print window built from the SAME document generator +
-//     the SAME stylesheet, so the PDF matches the preview exactly. @page rules
-//     handle real multi-page pagination.
+// Treasury Report Builder — customizable report, live paper preview, WYSIWYG
+// multi-page PDF. Periods: semana / mes / trimestre / año. Word-style running
+// header + footer, faint logo watermark, optional sample data, and smart
+// insights + recommendations. Preview and PDF share one document generator and
+// one stylesheet, so the export matches the preview exactly.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { sb } from './state.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
-function fmtDate(d) {
-  if (!d) return '';
-  const [y, m, day] = String(d).split('-').map(Number);
-  return new Date(y, m - 1, day).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const CHURCH = 'Iglesia Restauración Divina';
+const LOGO = 'https://www.irdlex.org/resources/email-logo.png';
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
+const pad = n => String(n).padStart(2, '0');
+const lastDay = (y, m) => new Date(y, m, 0).getDate();
+const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseISO = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
+function fmtDate(d) { if (!d) return ''; const [y,m,day] = String(d).split('-').map(Number); return new Date(y,m-1,day).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' }); }
 
 const ACCENTS = [
-  { v: '#345a65', label: 'Verde azulado' },
-  { v: '#2a4a9e', label: 'Azul' },
-  { v: '#1e6b61', label: 'Verde' },
-  { v: '#5c3d9c', label: 'Morado' },
-  { v: '#a05a10', label: 'Ámbar' },
-  { v: '#394548', label: 'Carbón' },
+  { v: '#345a65', label: 'Verde azulado' }, { v: '#2a4a9e', label: 'Azul' },
+  { v: '#1e6b61', label: 'Verde' }, { v: '#5c3d9c', label: 'Morado' },
+  { v: '#a05a10', label: 'Ámbar' }, { v: '#394548', label: 'Carbón' },
 ];
-
 const SECTIONS = [
-  { k: 'cover',     label: 'Portada' },
-  { k: 'summary',   label: 'Resumen (totales)' },
-  { k: 'chart',     label: 'Gráfica mensual' },
-  { k: 'monthly',   label: 'Tabla mensual' },
-  { k: 'byIncome',  label: 'Ingresos por categoría' },
-  { k: 'byExpense', label: 'Gastos por categoría' },
-  { k: 'detail',    label: 'Detalle de transacciones' },
+  { k: 'cover', label: 'Portada' }, { k: 'insights', label: 'Insights y recomendaciones' },
+  { k: 'summary', label: 'Resumen (totales)' }, { k: 'chart', label: 'Gráfica del período' },
+  { k: 'monthly', label: 'Tabla por período' }, { k: 'byIncome', label: 'Ingresos por categoría' },
+  { k: 'byExpense', label: 'Gastos por categoría' }, { k: 'detail', label: 'Detalle de transacciones' },
 ];
 
-let config = null;
-let data = null;       // { year, months, totIn, totOut, byIncome, byExpense }
-let host = null;
+let config = null, data = null, host = null;
+const sampleCache = {};
 
 export async function mountReportBuilder(root) {
   host = root;
+  const now = new Date();
   if (!config) config = {
-    year: new Date().getFullYear(),
-    title: 'Reporte de Tesorería',
-    subtitle: '',
-    sections: { cover: true, summary: true, chart: true, monthly: true, byIncome: true, byExpense: true, detail: false },
-    accent: '#345a65',
-    density: 'comfortable',
-    paper: 'letter',
-    orientation: 'portrait',
+    period: 'year', year: now.getFullYear(), quarter: Math.floor(now.getMonth()/3)+1,
+    month: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, weekDate: isoDate(now),
+    sample: false, title: 'Reporte de Tesorería', subtitle: '',
+    sections: { cover:true, insights:true, summary:true, chart:true, monthly:true, byIncome:true, byExpense:true, detail:false },
+    accent: '#345a65', density: 'comfortable', paper: 'letter', orientation: 'portrait',
   };
   ensureReportStyles();
-  root.innerHTML = `
-    <div class="rb">
-      <aside class="rb-controls" id="rbControls"></aside>
-      <div class="rb-stage"><div class="rb-paperwrap"><div class="rb-paper" id="rbPaper"></div></div></div>
-    </div>`;
+  root.innerHTML = `<div class="rb">
+    <aside class="rb-controls" id="rbControls"></aside>
+    <div class="rb-stage"><div class="rb-paperwrap"><div class="rb-paper" id="rbPaper"></div></div></div>
+  </div>`;
   renderControls();
   await loadData();
   renderPreview();
 }
 
+/* ── Period → range + buckets ──────────────────────────────────────────────── */
+function periodRange() {
+  const C = config;
+  if (C.period === 'quarter') {
+    const m0 = (C.quarter - 1) * 3;
+    const buckets = [0,1,2].map(k => { const m = m0+k+1; return { label: MONTHS[m-1], short: MONTHS[m-1].slice(0,3), start: `${C.year}-${pad(m)}-01`, end: `${C.year}-${pad(m)}-${pad(lastDay(C.year,m))}` }; });
+    return { start: buckets[0].start, end: buckets[2].end, buckets, col: 'Mes', label: `Trimestre ${C.quarter} · ${C.year}`, headRight: `T${C.quarter} ${C.year}` };
+  }
+  if (C.period === 'month') {
+    const [y,m] = C.month.split('-').map(Number); const ld = lastDay(y,m);
+    const buckets = [];
+    for (let d=1; d<=ld; d+=7) { const e = Math.min(d+6, ld); buckets.push({ label: `${d}–${e}`, short: `${d}–${e}`, start: `${C.month}-${pad(d)}`, end: `${C.month}-${pad(e)}` }); }
+    return { start: `${C.month}-01`, end: `${C.month}-${pad(ld)}`, buckets, col: 'Semana', label: `${MONTHS[m-1]} ${y}`, headRight: `${MONTHS[m-1]} ${y}` };
+  }
+  if (C.period === 'week') {
+    const base = parseISO(C.weekDate); const sun = addDays(base, -base.getDay());
+    const buckets = Array.from({length:7}, (_,i) => { const d = addDays(sun,i); return { label: `${DAYS[i]} ${d.getDate()}`, short: DAYS[i].slice(0,3), start: isoDate(d), end: isoDate(d) }; });
+    return { start: isoDate(sun), end: isoDate(addDays(sun,6)), buckets, col: 'Día', label: `Semana del ${fmtDate(isoDate(sun))}`, headRight: `Semana ${fmtDate(isoDate(sun))}` };
+  }
+  const buckets = Array.from({length:12}, (_,i) => ({ label: MONTHS[i], short: MONTHS[i].slice(0,3), start: `${C.year}-${pad(i+1)}-01`, end: `${C.year}-${pad(i+1)}-${pad(lastDay(C.year,i+1))}` }));
+  return { start: `${C.year}-01-01`, end: `${C.year}-12-31`, buckets, col: 'Mes', label: `Año ${C.year}`, headRight: `${C.year}` };
+}
+
+/* ── Data ──────────────────────────────────────────────────────────────────── */
 async function loadData() {
-  const y = config.year;
-  const yStart = `${y}-01-01`, yEnd = `${y}-12-31`;
-  const [inc, exp] = await Promise.all([
-    sb.from('fin_income').select('occurred_on,source,fund,amount').gte('occurred_on', yStart).lte('occurred_on', yEnd).order('occurred_on'),
-    sb.from('fin_expenses').select('occurred_on,payee,category,ministry_id,label,amount').gte('occurred_on', yStart).lte('occurred_on', yEnd).order('occurred_on'),
-  ]);
-  const incRows = inc.data || [], expRows = exp.data || [];
-  const months = Array.from({ length: 12 }, () => ({ in: 0, out: 0, income: [], expense: [] }));
-  incRows.forEach(r => { const i = +r.occurred_on.slice(5, 7) - 1; months[i].in += +r.amount || 0; months[i].income.push(r); });
-  expRows.forEach(r => { const i = +r.occurred_on.slice(5, 7) - 1; months[i].out += +r.amount || 0; months[i].expense.push(r); });
-  const group = (rows, keyFn) => {
-    const m = {}; rows.forEach(r => { const k = keyFn(r) || '—'; m[k] = (m[k] || 0) + (+r.amount || 0); });
-    return Object.entries(m).map(([label, total]) => ({ label, total })).sort((a, b) => b.total - a.total);
-  };
+  const r = periodRange();
+  let incRows, expRows;
+  if (config.sample) {
+    const s = sampleYear(config.year);
+    incRows = s.income.filter(x => x.occurred_on >= r.start && x.occurred_on <= r.end);
+    expRows = s.expense.filter(x => x.occurred_on >= r.start && x.occurred_on <= r.end);
+  } else {
+    const [inc, exp] = await Promise.all([
+      sb.from('fin_income').select('occurred_on,source,fund,amount').gte('occurred_on', r.start).lte('occurred_on', r.end).order('occurred_on'),
+      sb.from('fin_expenses').select('occurred_on,payee,category,label,amount').gte('occurred_on', r.start).lte('occurred_on', r.end).order('occurred_on'),
+    ]);
+    incRows = inc.data || []; expRows = exp.data || [];
+  }
+  const buckets = r.buckets.map(b => ({ ...b, in: 0, out: 0, income: [], expense: [] }));
+  const place = (row, arr, key) => { const b = buckets.find(b => row.occurred_on >= b.start && row.occurred_on <= b.end); if (b) { b[key] += +row.amount || 0; b[key === 'in' ? 'income' : 'expense'].push(row); } };
+  incRows.forEach(r2 => place(r2, null, 'in')); expRows.forEach(r2 => place(r2, null, 'out'));
+  const grp = (rows, kf) => { const m = {}; rows.forEach(r2 => { const k = kf(r2) || '—'; m[k] = (m[k]||0) + (+r2.amount||0); }); return Object.entries(m).map(([label,total]) => ({label,total})).sort((a,b)=>b.total-a.total); };
   data = {
-    year: y, months,
-    totIn: incRows.reduce((a, r) => a + (+r.amount || 0), 0),
-    totOut: expRows.reduce((a, r) => a + (+r.amount || 0), 0),
-    byIncome: group(incRows, r => r.source),
-    byExpense: group(expRows, r => r.category || (r.label === 'Pastor' ? 'Pastor' : '')),
+    range: r, buckets,
+    totIn: incRows.reduce((a,x)=>a+(+x.amount||0),0),
+    totOut: expRows.reduce((a,x)=>a+(+x.amount||0),0),
+    byIncome: grp(incRows, x => x.source),
+    byExpense: grp(expRows, x => x.category || (x.label==='Pastor' ? 'Pastor' : '')),
   };
+}
+
+function sampleYear(y) {
+  if (sampleCache[y]) return sampleCache[y];
+  const rnd = (a,b) => Math.round((a + Math.random()*(b-a)) / 5) * 5;
+  const income = [], expense = [];
+  for (let m = 1; m <= 12; m++) {
+    const ld = lastDay(y, m);
+    for (let d = 1; d <= ld; d++) {
+      const dow = new Date(y, m-1, d).getDay(); const date = `${y}-${pad(m)}-${pad(d)}`;
+      if (dow === 0) { income.push({ occurred_on: date, source: 'Ofrenda domingos', fund: 'General', amount: rnd(280,620) }); income.push({ occurred_on: date, source: 'Diezmos', fund: 'General', amount: rnd(400,900) }); }
+      if (dow === 2) income.push({ occurred_on: date, source: 'Ofrenda martes', fund: 'General', amount: rnd(90,240) });
+    }
+    if (Math.random() < 0.5) income.push({ occurred_on: `${y}-${pad(m)}-15`, source: 'Otros (donaciones)', fund: 'General', amount: rnd(100,600) });
+    expense.push({ occurred_on: `${y}-${pad(m)}-01`, payee: 'Arrendador', category: 'Renta', amount: 850 });
+    expense.push({ occurred_on: `${y}-${pad(m)}-05`, payee: 'Pastor', category: 'Sueldo del pastor', label: 'Pastor', amount: 1200 });
+    expense.push({ occurred_on: `${y}-${pad(m)}-06`, payee: 'Limpieza', category: 'Pago de la limpieza', amount: 220 });
+    expense.push({ occurred_on: `${y}-${pad(m)}-10`, payee: 'Servicios', category: 'Luz / agua / internet', amount: rnd(240,360) });
+    if (Math.random() < 0.6) expense.push({ occurred_on: `${y}-${pad(m)}-18`, payee: 'Ministerio', category: ['Niños','Alabanza','Evangelismo','Eventos especiales'][Math.floor(Math.random()*4)], amount: rnd(80,400) });
+    if (Math.random() < 0.3) expense.push({ occurred_on: `${y}-${pad(m)}-22`, payee: 'Ayuda', category: 'Benevolencia', amount: rnd(100,500) });
+  }
+  return (sampleCache[y] = { income, expense });
 }
 
 /* ── Controls ──────────────────────────────────────────────────────────────── */
 function renderControls() {
   const c = document.getElementById('rbControls');
   const y0 = new Date().getFullYear();
+  const periodSub = {
+    year:    `<select id="rbYear" class="rb-input">${[y0+1,y0,y0-1,y0-2,y0-3].map(y=>`<option value="${y}"${y===config.year?' selected':''}>${y}</option>`).join('')}</select>`,
+    quarter: `<select id="rbYear" class="rb-input">${[y0+1,y0,y0-1,y0-2].map(y=>`<option value="${y}"${y===config.year?' selected':''}>${y}</option>`).join('')}</select>
+              <div class="rb-seg" data-seg="quarter" style="margin-top:.4rem">${[1,2,3,4].map(q=>`<button type="button" data-val="${q}" class="${config.quarter===q?'on':''}">T${q}</button>`).join('')}</div>`,
+    month:   `<input type="month" id="rbMonth" class="rb-input" value="${config.month}">`,
+    week:    `<input type="date" id="rbWeek" class="rb-input" value="${config.weekDate}">`,
+  }[config.period];
+
   c.innerHTML = `
-    <div class="rb-grp">
-      <label class="rb-grp__t">Año</label>
-      <select id="rbYear" class="rb-input">${[y0+1,y0,y0-1,y0-2,y0-3].map(y => `<option value="${y}"${y===config.year?' selected':''}>${y}</option>`).join('')}</select>
+    <div class="rb-grp"><label class="rb-grp__t">Período</label>
+      <div class="rb-seg rb-seg--wrap" data-seg="period">
+        <button type="button" data-val="week" class="${config.period==='week'?'on':''}">Semana</button>
+        <button type="button" data-val="month" class="${config.period==='month'?'on':''}">Mes</button>
+        <button type="button" data-val="quarter" class="${config.period==='quarter'?'on':''}">Trimestre</button>
+        <button type="button" data-val="year" class="${config.period==='year'?'on':''}">Año</button>
+      </div>
+      <div style="margin-top:.5rem">${periodSub}</div>
     </div>
     <div class="rb-grp">
-      <label class="rb-grp__t">Título</label>
+      <label class="rb-check"><input type="checkbox" id="rbSample"${config.sample?' checked':''}><span><strong>Datos de ejemplo</strong> — ver cómo se vería</span></label>
+    </div>
+    <div class="rb-grp"><label class="rb-grp__t">Título</label>
       <input type="text" id="rbTitle" class="rb-input" value="${esc(config.title)}" placeholder="Reporte de Tesorería">
       <input type="text" id="rbSub" class="rb-input" value="${esc(config.subtitle)}" placeholder="Subtítulo (opcional)" style="margin-top:.4rem">
     </div>
-    <div class="rb-grp">
-      <label class="rb-grp__t">Secciones</label>
-      ${SECTIONS.map(s => `<label class="rb-check"><input type="checkbox" data-sec="${s.k}"${config.sections[s.k]?' checked':''}><span>${s.label}</span></label>`).join('')}
+    <div class="rb-grp"><label class="rb-grp__t">Secciones</label>
+      ${SECTIONS.map(s=>`<label class="rb-check"><input type="checkbox" data-sec="${s.k}"${config.sections[s.k]?' checked':''}><span>${s.label}</span></label>`).join('')}
     </div>
-    <div class="rb-grp">
-      <label class="rb-grp__t">Color de acento</label>
-      <div class="rb-swatches">${ACCENTS.map(a => `<button type="button" class="rb-swatch${config.accent===a.v?' on':''}" data-accent="${a.v}" style="background:${a.v}" title="${a.label}" aria-label="${a.label}"></button>`).join('')}</div>
+    <div class="rb-grp"><label class="rb-grp__t">Color de acento</label>
+      <div class="rb-swatches">${ACCENTS.map(a=>`<button type="button" class="rb-swatch${config.accent===a.v?' on':''}" data-accent="${a.v}" style="background:${a.v}" title="${a.label}" aria-label="${a.label}"></button>`).join('')}</div>
     </div>
-    <div class="rb-grp">
-      <label class="rb-grp__t">Densidad</label>
-      <div class="rb-seg" data-seg="density">
-        <button type="button" data-val="comfortable" class="${config.density==='comfortable'?'on':''}">Cómodo</button>
-        <button type="button" data-val="compact" class="${config.density==='compact'?'on':''}">Compacto</button>
-      </div>
+    <div class="rb-grp"><label class="rb-grp__t">Densidad</label>
+      <div class="rb-seg" data-seg="density"><button type="button" data-val="comfortable" class="${config.density==='comfortable'?'on':''}">Cómodo</button><button type="button" data-val="compact" class="${config.density==='compact'?'on':''}">Compacto</button></div>
     </div>
-    <div class="rb-grp">
-      <label class="rb-grp__t">Papel</label>
-      <div class="rb-seg" data-seg="paper">
-        <button type="button" data-val="letter" class="${config.paper==='letter'?'on':''}">Carta</button>
-        <button type="button" data-val="a4" class="${config.paper==='a4'?'on':''}">A4</button>
-      </div>
+    <div class="rb-grp"><label class="rb-grp__t">Papel</label>
+      <div class="rb-seg" data-seg="paper"><button type="button" data-val="letter" class="${config.paper==='letter'?'on':''}">Carta</button><button type="button" data-val="a4" class="${config.paper==='a4'?'on':''}">A4</button></div>
     </div>
-    <div class="rb-grp">
-      <label class="rb-grp__t">Orientación</label>
-      <div class="rb-seg" data-seg="orientation">
-        <button type="button" data-val="portrait" class="${config.orientation==='portrait'?'on':''}">Vertical</button>
-        <button type="button" data-val="landscape" class="${config.orientation==='landscape'?'on':''}">Horizontal</button>
-      </div>
+    <div class="rb-grp"><label class="rb-grp__t">Orientación</label>
+      <div class="rb-seg" data-seg="orientation"><button type="button" data-val="portrait" class="${config.orientation==='portrait'?'on':''}">Vertical</button><button type="button" data-val="landscape" class="${config.orientation==='landscape'?'on':''}">Horizontal</button></div>
     </div>
     <button class="btn btn--primary rb-export" id="rbExport"><i class="fas fa-file-pdf"></i> Descargar PDF</button>`;
 
-  c.querySelector('#rbYear').addEventListener('change', async e => { config.year = +e.target.value; await loadData(); renderPreview(); });
+  const reload = async () => { await loadData(); renderPreview(); };
+  c.querySelector('#rbYear')?.addEventListener('change', e => { config.year = +e.target.value; reload(); });
+  c.querySelector('#rbMonth')?.addEventListener('change', e => { config.month = e.target.value; reload(); });
+  c.querySelector('#rbWeek')?.addEventListener('change', e => { config.weekDate = e.target.value; reload(); });
+  c.querySelector('#rbSample')?.addEventListener('change', e => { config.sample = e.target.checked; reload(); });
   c.querySelector('#rbTitle').addEventListener('input', e => { config.title = e.target.value; renderPreview(); });
   c.querySelector('#rbSub').addEventListener('input', e => { config.subtitle = e.target.value; renderPreview(); });
   c.querySelectorAll('[data-sec]').forEach(cb => cb.addEventListener('change', () => { config.sections[cb.dataset.sec] = cb.checked; renderPreview(); }));
   c.querySelectorAll('[data-accent]').forEach(b => b.addEventListener('click', () => { config.accent = b.dataset.accent; renderControls(); renderPreview(); }));
-  c.querySelectorAll('[data-seg]').forEach(seg => seg.querySelectorAll('button').forEach(b =>
-    b.addEventListener('click', () => { config[seg.dataset.seg] = b.dataset.val; renderControls(); renderPreview(); })));
+  c.querySelectorAll('[data-seg]').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
+    const key = seg.dataset.seg, val = seg.dataset.seg === 'quarter' ? +b.dataset.val : b.dataset.val;
+    config[key === 'quarter' ? 'quarter' : key] = val;
+    renderControls();
+    if (key === 'period' || key === 'quarter') await loadData();
+    renderPreview();
+  })));
   c.querySelector('#rbExport').addEventListener('click', exportPDF);
 }
 
@@ -159,124 +205,149 @@ function renderPreview() {
   paper.innerHTML = `<div class="rb-doc">${buildDoc()}</div>`;
 }
 
-/* ── Shared document generator (preview + PDF use this) ─────────────────────── */
+/* ── Document generator (shared by preview + PDF) ──────────────────────────── */
 function buildDoc() {
-  const s = config.sections;
-  const out = [];
-  const bal = data.totIn - data.totOut;
+  const s = config.sections, r = data.range, bal = data.totIn - data.totOut;
+  const today = new Date().toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
+  const body = [];
 
-  if (s.cover) {
-    const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
-    out.push(`<section class="rb-sec rb-cover">
-      <div class="rb-cover__brand">${esc(CHURCH)}</div>
-      <h1 class="rb-cover__title">${esc(config.title || 'Reporte de Tesorería')}</h1>
-      ${config.subtitle ? `<div class="rb-cover__sub">${esc(config.subtitle)}</div>` : ''}
-      <div class="rb-cover__year">${data.year}</div>
-      <div class="rb-cover__meta">Generado el ${today}</div>
-    </section>`);
-  }
-  if (s.summary) {
-    out.push(`<section class="rb-sec"><h2 class="rb-h2">Resumen del año ${data.year}</h2>
-      <div class="rb-kpis">
-        ${kpi('Ingresos totales', fmt(data.totIn), 'pos')}
-        ${kpi('Gastos totales', fmt(data.totOut), 'neg')}
-        ${kpi('Balance', fmt(bal), bal < 0 ? 'neg' : 'pos')}
-      </div></section>`);
-  }
+  if (s.cover) body.push(`<section class="rb-sec rb-cover">
+    <div class="rb-cover__brand">${esc(CHURCH)}</div>
+    <h1 class="rb-cover__title">${esc(config.title || 'Reporte de Tesorería')}</h1>
+    ${config.subtitle ? `<div class="rb-cover__sub">${esc(config.subtitle)}</div>` : ''}
+    <div class="rb-cover__period">${esc(r.label)}</div>
+    <div class="rb-cover__meta">Generado el ${today}</div></section>`);
+
+  if (s.insights) body.push(insightsSection(bal));
+
+  if (s.summary) body.push(`<section class="rb-sec"><h2 class="rb-h2">Resumen · ${esc(r.label)}</h2>
+    <div class="rb-kpis">${kpi('Ingresos', fmt(data.totIn), 'pos')}${kpi('Gastos', fmt(data.totOut), 'neg')}${kpi('Balance', fmt(bal), bal<0?'neg':'pos')}</div></section>`);
+
   if (s.chart) {
-    const max = Math.max(1, ...data.months.map(m => Math.max(m.in, m.out)));
-    out.push(`<section class="rb-sec"><h2 class="rb-h2">Ingresos y gastos por mes</h2>
-      <div class="rb-chart">${data.months.map((m, i) => `
-        <div class="rb-chart__col"><div class="rb-chart__bars">
-          <div class="rb-chart__bar in"  style="height:${Math.round(m.in/max*100)}%"></div>
-          <div class="rb-chart__bar out" style="height:${Math.round(m.out/max*100)}%"></div>
-        </div><span class="rb-chart__lbl">${MONTHS[i].slice(0,3)}</span></div>`).join('')}</div>
-      <div class="rb-legend"><span><i class="in"></i> Ingresos</span><span><i class="out"></i> Gastos</span></div>
-    </section>`);
+    const max = Math.max(1, ...data.buckets.map(b => Math.max(b.in, b.out)));
+    body.push(`<section class="rb-sec"><h2 class="rb-h2">Ingresos y gastos por ${r.col.toLowerCase()}</h2>
+      <div class="rb-chart">${data.buckets.map(b => `<div class="rb-chart__col"><div class="rb-chart__bars">
+        <div class="rb-chart__bar in" style="height:${Math.round(b.in/max*100)}%"></div>
+        <div class="rb-chart__bar out" style="height:${Math.round(b.out/max*100)}%"></div></div>
+        <span class="rb-chart__lbl">${esc(b.short)}</span></div>`).join('')}</div>
+      <div class="rb-legend"><span><i class="in"></i> Ingresos</span><span><i class="out"></i> Gastos</span></div></section>`);
   }
-  if (s.monthly) {
-    let ytd = 0;
-    const rows = data.months.map((m, i) => {
-      const b = m.in - m.out; ytd += b; const has = m.in || m.out;
-      const detail = (s.detail && has) ? `<tr class="rb-detail"><td colspan="5">
-        ${m.income.map(r => `<div class="rb-ln"><span>+ ${fmtDate(r.occurred_on)} · ${esc(r.source)}${r.fund?` · ${esc(r.fund)}`:''}</span><span class="pos">${fmt(r.amount)}</span></div>`).join('')}
-        ${m.expense.map(r => `<div class="rb-ln"><span>− ${fmtDate(r.occurred_on)} · ${esc(r.payee || r.category || '—')}</span><span class="neg">${fmt(r.amount)}</span></div>`).join('')}
-      </td></tr>` : '';
-      return `<tr><td>${MONTHS[i]}</td><td class="r pos">${m.in?fmt(m.in):'—'}</td><td class="r neg">${m.out?fmt(m.out):'—'}</td>
-        <td class="r">${has?fmt(b):'—'}</td><td class="r">${fmt(ytd)}</td></tr>${detail}`;
-    }).join('');
-    out.push(`<section class="rb-sec"><h2 class="rb-h2">Detalle mensual</h2>
-      <table class="rb-table"><thead><tr><th>Mes</th><th class="r">Ingresos</th><th class="r">Gastos</th><th class="r">Balance</th><th class="r">Acumulado</th></tr></thead>
-      <tbody>${rows}</tbody>
-      <tfoot><tr><th>Total</th><th class="r pos">${fmt(data.totIn)}</th><th class="r neg">${fmt(data.totOut)}</th><th class="r">${fmt(bal)}</th><th></th></tr></tfoot></table></section>`);
-  }
-  if (s.byIncome) out.push(breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos'));
-  if (s.byExpense) out.push(breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg'));
 
-  return out.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
+  if (s.monthly) {
+    let acc = 0;
+    const rows = data.buckets.map(b => {
+      const d = b.in - b.out; acc += d; const has = b.in || b.out;
+      const detail = (s.detail && has) ? `<tr class="rb-detail"><td colspan="5">
+        ${b.income.map(x=>`<div class="rb-ln"><span>+ ${fmtDate(x.occurred_on)} · ${esc(x.source||'')}</span><span class="pos">${fmt(x.amount)}</span></div>`).join('')}
+        ${b.expense.map(x=>`<div class="rb-ln"><span>− ${fmtDate(x.occurred_on)} · ${esc(x.payee||x.category||'—')}</span><span class="neg">${fmt(x.amount)}</span></div>`).join('')}
+      </td></tr>` : '';
+      return `<tr><td>${esc(b.label)}</td><td class="r pos">${b.in?fmt(b.in):'—'}</td><td class="r neg">${b.out?fmt(b.out):'—'}</td><td class="r">${has?fmt(d):'—'}</td><td class="r">${fmt(acc)}</td></tr>${detail}`;
+    }).join('');
+    body.push(`<section class="rb-sec"><h2 class="rb-h2">Detalle por ${r.col.toLowerCase()}</h2>
+      <table class="rb-table"><thead><tr><th>${esc(r.col)}</th><th class="r">Ingresos</th><th class="r">Gastos</th><th class="r">Balance</th><th class="r">Acumulado</th></tr></thead>
+      <tbody>${rows}</tbody><tfoot><tr><th>Total</th><th class="r pos">${fmt(data.totIn)}</th><th class="r neg">${fmt(data.totOut)}</th><th class="r">${fmt(bal)}</th><th></th></tr></tfoot></table></section>`);
+  }
+  if (s.byIncome) body.push(breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos'));
+  if (s.byExpense) body.push(breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg'));
+
+  const inner = body.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
+  return `<div class="rb-watermark"><img src="${LOGO}" alt=""></div>
+    <header class="rb-runhead"><span>${esc(CHURCH)}</span><span class="rb-runhead__r">${esc(r.headRight)}</span></header>
+    <footer class="rb-runfoot"><span>${esc(CHURCH)}</span><span>Generado el ${today}</span></footer>
+    <div class="rb-doc__body">${inner}</div>`;
 }
-function kpi(label, val, cls) { return `<div class="rb-kpi"><div class="rb-kpi__v ${cls}">${val}</div><div class="rb-kpi__l">${label}</div></div>`; }
+
+function kpi(l, v, cls) { return `<div class="rb-kpi"><div class="rb-kpi__v ${cls}">${v}</div><div class="rb-kpi__l">${l}</div></div>`; }
 function breakdown(title, rows, total, cls) {
   if (!rows.length) return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><p class="rb-empty">Sin datos.</p></section>`;
-  const max = Math.max(1, ...rows.map(r => r.total));
-  return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2>
-    <div class="rb-break">${rows.map(r => `
-      <div class="rb-break__row">
-        <span class="rb-break__lbl">${esc(r.label)}</span>
-        <span class="rb-break__track"><span class="rb-break__fill ${cls}" style="width:${Math.round(r.total/max*100)}%"></span></span>
-        <span class="rb-break__val ${cls}">${fmt(r.total)}</span>
-        <span class="rb-break__pct">${total ? Math.round(r.total/total*100) : 0}%</span>
-      </div>`).join('')}</div></section>`;
+  const max = Math.max(1, ...rows.map(r=>r.total));
+  return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><div class="rb-break">${rows.map(r=>`
+    <div class="rb-break__row"><span class="rb-break__lbl">${esc(r.label)}</span>
+      <span class="rb-break__track"><span class="rb-break__fill ${cls}" style="width:${Math.round(r.total/max*100)}%"></span></span>
+      <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${total?Math.round(r.total/total*100):0}%</span></div>`).join('')}</div></section>`;
 }
 
-/* ── PDF export (same doc + same styles → WYSIWYG) ──────────────────────────── */
+/* ── Smart insights + recommendations (rules-based) ────────────────────────── */
+function insightsSection(bal) {
+  const ins = [];
+  const { totIn, totOut, byIncome, byExpense, buckets, range } = data;
+  const rate = totIn ? bal / totIn : 0;
+  const neg = buckets.filter(b => (b.in || b.out) && (b.in - b.out) < 0).length;
+  const active = buckets.filter(b => b.in || b.out).length;
+
+  if (!totIn && !totOut) ins.push({ k:'info', t:'No hay movimientos en este período. Activa “Datos de ejemplo” para ver cómo se vería el reporte.' });
+  else {
+    ins.push(bal >= 0
+      ? { k:'good', t:`Balance positivo: entró ${fmt(totIn)} y salió ${fmt(totOut)}, quedando ${fmt(bal)} a favor.` }
+      : { k:'warn', t:`Gastaste ${fmt(-bal)} más de lo que entró (ingresos ${fmt(totIn)}, gastos ${fmt(totOut)}).` });
+
+    if (totIn) ins.push(rate >= 0.2 ? { k:'good', t:`Buen ahorro: guardaste el ${Math.round(rate*100)}% de los ingresos.` }
+      : rate >= 0 ? { k:'info', t:`Ahorro del ${Math.round(rate*100)}%. Una meta sana ronda el 10–20%.` }
+      : { k:'warn', t:`Sin ahorro este período — los gastos superaron los ingresos.` });
+
+    if (byExpense[0] && totOut) { const p = Math.round(byExpense[0].total/totOut*100); ins.push({ k: p>=40?'warn':'info', t:`El gasto más grande fue “${byExpense[0].label}”: ${fmt(byExpense[0].total)} (${p}% del total).` }); }
+    if (byIncome[0] && totIn) { const p = Math.round(byIncome[0].total/totIn*100); if (p >= 70) ins.push({ k:'info', t:`La mayoría de los ingresos (${p}%) viene de “${byIncome[0].label}”. Diversificar da más estabilidad.` }); }
+    if (neg) ins.push({ k:'warn', t:`${neg} de ${active} ${range.col.toLowerCase()}s cerraron en negativo.` });
+
+    // Recommendations
+    const recs = [];
+    if (bal < 0) recs.push(`Revisa “${byExpense[0]?.label || 'los gastos mayores'}” o busca ingresos adicionales para equilibrar.`);
+    if (rate >= 0.2) recs.push('Considera apartar el excedente en un fondo de reserva o de construcción.');
+    if (byExpense[0] && totOut && byExpense[0].total/totOut >= 0.4) recs.push(`Concentras mucho en “${byExpense[0].label}”. Confirma que sea sostenible mes a mes.`);
+    if (!recs.length) recs.push('Las finanzas lucen equilibradas. Mantén el registro al día para reportes precisos.');
+    recs.forEach(t => ins.push({ k:'rec', t }));
+  }
+
+  const icon = { good:'fa-circle-check', warn:'fa-triangle-exclamation', info:'fa-circle-info', rec:'fa-lightbulb' };
+  return `<section class="rb-sec"><h2 class="rb-h2">Insights y recomendaciones</h2>
+    <div class="rb-insights">${ins.map(i=>`<div class="rb-insight rb-insight--${i.k}"><i class="fas ${icon[i.k]}"></i><span>${esc(i.t)}</span></div>`).join('')}</div></section>`;
+}
+
+/* ── PDF export ────────────────────────────────────────────────────────────── */
 function exportPDF() {
   const size = config.paper === 'a4' ? 'A4' : 'letter';
-  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(config.title)} ${data.year}</title>
-    <style>
-      @page { size: ${size} ${config.orientation}; margin: 14mm; }
-      html,body{margin:0}
-      body{ --rb-accent:${config.accent}; }
-      ${REPORT_CSS}
-    </style></head>
+  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(config.title)} · ${esc(data.range.label)}</title>
+    <style>@page{ size:${size} ${config.orientation}; margin:20mm 14mm 16mm; } html,body{margin:0} body{ --rb-accent:${config.accent}; } ${REPORT_CSS}</style></head>
     <body class="rb-print rb-density-${config.density}"><div class="rb-doc">${buildDoc()}</div>
-    <script>window.onload=function(){setTimeout(function(){window.print()},350)}<\/script></body></html>`;
+    <script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>`;
   const w = window.open('', '_blank');
   if (!w) { alert('Permite las ventanas emergentes para descargar el PDF.'); return; }
   w.document.write(html); w.document.close();
 }
 
-/* ── Report content CSS (injected for preview + inlined for PDF) ────────────── */
+/* ── Report content CSS (preview + PDF) ────────────────────────────────────── */
 function ensureReportStyles() {
   if (document.getElementById('rb-report-styles')) return;
-  const el = document.createElement('style');
-  el.id = 'rb-report-styles';
-  // All report rules live under .rb-doc, so the preview copy can't leak into
-  // the admin UI. Print reuses the exact same string.
-  el.textContent = REPORT_CSS;
+  const el = document.createElement('style'); el.id = 'rb-report-styles'; el.textContent = REPORT_CSS;
   document.head.appendChild(el);
 }
 
 const REPORT_CSS = `
-.rb-doc{ font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
+.rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
+.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.12; pointer-events:none; z-index:0; }
+.rb-watermark img{ width:62%; max-width:420px; }
+.rb-runhead,.rb-runfoot{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; }
+.rb-runhead{ border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:14px; font-weight:600; }
+.rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
+.rb-runfoot{ border-top:1px solid #e2e7e9; padding-top:6px; margin-top:14px; }
+.rb-doc__body{ position:relative; z-index:1; }
 .rb-sec{ margin:0 0 22px; break-inside:avoid; }
-.rb-cover{ text-align:center; padding:60px 20px 40px; border-bottom:3px solid var(--rb-accent); margin-bottom:26px; break-after:avoid; }
-.rb-cover__brand{ font-size:13px; letter-spacing:.16em; text-transform:uppercase; color:var(--rb-accent); font-weight:700; }
-.rb-cover__title{ font-size:30px; font-weight:800; margin:14px 0 4px; letter-spacing:-.01em; }
-.rb-cover__sub{ font-size:15px; color:#5a6a70; }
-.rb-cover__year{ font-size:52px; font-weight:800; color:var(--rb-accent); margin:18px 0 2px; letter-spacing:-.02em; }
+.rb-cover{ text-align:center; padding:54px 20px 36px; border-bottom:3px solid var(--rb-accent); margin-bottom:24px; break-after:avoid; }
+.rb-cover__brand{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--rb-accent); font-weight:700; }
+.rb-cover__title{ font-size:28px; font-weight:800; margin:12px 0 4px; }
+.rb-cover__sub{ font-size:14px; color:#5a6a70; }
+.rb-cover__period{ font-size:30px; font-weight:800; color:var(--rb-accent); margin:16px 0 2px; }
 .rb-cover__meta{ font-size:11px; color:#8a979c; }
-.rb-h2{ font-size:15px; font-weight:800; color:var(--rb-accent); margin:0 0 12px; padding-bottom:6px; border-bottom:2px solid color-mix(in srgb,var(--rb-accent) 22%,transparent); }
+.rb-h2{ font-size:15px; font-weight:800; color:var(--rb-accent); margin:0 0 12px; padding-bottom:6px; border-bottom:2px solid color-mix(in srgb,var(--rb-accent) 22%, transparent); }
 .rb-kpis{ display:flex; gap:12px; }
 .rb-kpi{ flex:1; border:1px solid #e2e7e9; border-radius:10px; padding:14px 16px; }
-.rb-kpi__v{ font-size:22px; font-weight:800; letter-spacing:-.02em; }
-.rb-kpi__l{ font-size:11px; color:#6a767b; font-weight:600; margin-top:3px; }
+.rb-kpi__v{ font-size:22px; font-weight:800; } .rb-kpi__l{ font-size:11px; color:#6a767b; font-weight:600; margin-top:3px; }
 .rb-chart{ display:flex; align-items:flex-end; gap:6px; height:150px; }
-.rb-chart__col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; }
+.rb-chart__col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; min-width:0; }
 .rb-chart__bars{ flex:1; width:100%; display:flex; align-items:flex-end; justify-content:center; gap:3px; }
 .rb-chart__bar{ width:42%; max-width:13px; min-height:2px; border-radius:3px 3px 0 0; }
 .rb-chart__bar.in{ background:var(--rb-accent); } .rb-chart__bar.out{ background:#b02030; }
-.rb-chart__lbl{ font-size:9px; color:#8a979c; }
+.rb-chart__lbl{ font-size:9px; color:#8a979c; white-space:nowrap; }
 .rb-legend{ display:flex; gap:18px; justify-content:center; margin-top:10px; font-size:11px; color:#6a767b; }
 .rb-legend i{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:5px; }
 .rb-legend i.in{ background:var(--rb-accent); } .rb-legend i.out{ background:#b02030; }
@@ -295,9 +366,20 @@ const REPORT_CSS = `
 .rb-break__fill.pos{ background:var(--rb-accent); } .rb-break__fill.neg{ background:#b02030; }
 .rb-break__val{ width:88px; text-align:right; font-weight:700; font-variant-numeric:tabular-nums; }
 .rb-break__pct{ width:38px; text-align:right; font-size:10.5px; color:#8a979c; }
+.rb-insights{ display:flex; flex-direction:column; gap:8px; }
+.rb-insight{ display:flex; gap:10px; align-items:flex-start; padding:10px 13px; border-radius:9px; font-size:12px; border:1px solid #e6eaeb; background:#fafbfb; }
+.rb-insight i{ margin-top:1px; }
+.rb-insight--good{ border-color:#bfe3dc; background:#f1f9f7; } .rb-insight--good i{ color:#1e6b61; }
+.rb-insight--warn{ border-color:#f0cdd2; background:#fcf3f4; } .rb-insight--warn i{ color:#b02030; }
+.rb-insight--info i{ color:#2a4a9e; }
+.rb-insight--rec{ border-color:color-mix(in srgb,var(--rb-accent) 30%, transparent); background:color-mix(in srgb,var(--rb-accent) 6%, white); } .rb-insight--rec i{ color:var(--rb-accent); }
 .rb-doc .pos{ color:#1e6b61; } .rb-doc .neg{ color:#b02030; }
 .rb-empty{ color:#8a979c; font-size:12px; }
-.rb-density-compact .rb-sec{ margin-bottom:14px; }
-.rb-density-compact .rb-table th,.rb-density-compact .rb-table td{ padding:4px 8px; }
-.rb-density-compact .rb-cover{ padding:30px 20px 24px; }
+.rb-density-compact .rb-sec{ margin-bottom:14px; } .rb-density-compact .rb-table th,.rb-density-compact .rb-table td{ padding:4px 8px; } .rb-density-compact .rb-cover{ padding:28px 20px 22px; }
+@media print {
+  .rb-watermark{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; }
+  .rb-runhead{ position:fixed; top:8mm; left:14mm; right:14mm; margin:0; border-bottom:1px solid #d8dee0; padding-bottom:4px; }
+  .rb-runfoot{ position:fixed; bottom:8mm; left:14mm; right:14mm; margin:0; }
+  .rb-doc__body{ padding-top:4mm; }
+}
 `;

@@ -40,6 +40,10 @@
 .rb-seg button { flex: 1; padding: 0.5rem 0.3rem; border: 0; background: var(--color-white); font-family: inherit; font-size: 0.82rem; color: var(--color-muted); cursor: pointer; }
 .rb-seg button + button { border-left: 1px solid var(--gray-40); }
 .rb-seg button.on { background: var(--color-dark); color: var(--color-white); }
+/* Period chooser as a tidy 2×2 grid */
+.rb-seg--wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; border: 0; overflow: visible; }
+.rb-seg--wrap button { border: 1px solid var(--gray-40); border-radius: 8px; }
+.rb-seg--wrap button + button { border-left: 1px solid var(--gray-40); }
 
 .rb-export { width: 100%; justify-content: center; margin-top: 0.2rem; }
 
