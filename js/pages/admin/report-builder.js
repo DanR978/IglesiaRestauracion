@@ -253,7 +253,7 @@ function breakdown(title, rows, total, cls) {
 }
 
 /* ── PDF export — a real downloadable PDF (no browser print chrome) ─────────── */
-let _h2p = null, _wm = null;
+let _h2p = null;
 function loadHtml2pdf() {
   if (window.html2pdf) return Promise.resolve();
   if (_h2p) return _h2p;
@@ -265,75 +265,34 @@ function loadHtml2pdf() {
   });
   return _h2p;
 }
-function logoDataURL() {
-  if (_wm) return Promise.resolve(_wm);
-  return new Promise((res) => {
-    const img = new Image(); img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      try {
-        const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
-        cv.getContext('2d').drawImage(img, 0, 0);
-        _wm = { url: cv.toDataURL('image/png'), ratio: img.naturalHeight / img.naturalWidth };
-      } catch { _wm = null; }
-      res(_wm);
-    };
-    img.onerror = () => res(null);
-    img.src = LOGO;
-  });
-}
-
 async function exportPDF() {
   const btn = document.getElementById('rbExport');
   const orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando…';
   try {
     await loadHtml2pdf();
-    const wm = await logoDataURL();
-
-    // Off-screen element rendered at content width, styled by the injected CSS.
-    const el = document.createElement('div');
-    el.className = 'rb-doc';
-    el.style.cssText = 'position:fixed; left:-10000px; top:0; width:720px; background:#fff;';
-    el.style.setProperty('--rb-accent', config.accent);
-    el.innerHTML = `<div class="rb-doc__body">${buildBody()}</div>`;
-    document.body.appendChild(el);
-
+    // Capture the actual, visible preview document — it's already laid out and
+    // includes the watermark + header, so the PDF matches it exactly.
+    const el = document.querySelector('#rbPaper .rb-doc');
+    if (!el) throw new Error('Abre un reporte primero.');
     const size = config.paper === 'a4' ? 'a4' : 'letter';
     const fname = `Reporte-Tesoreria-${String(data.range.headRight).replace(/[^0-9A-Za-z]+/g, '-')}.pdf`;
     const opt = {
-      margin: [20, 12, 16, 12],
+      margin: [14, 12, 15, 12],
       filename: fname,
       image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
       jsPDF: { unit: 'mm', format: size, orientation: config.orientation },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['.rb-kpi', '.rb-chart', 'tr', '.rb-break__row', '.rb-cols2'] },
+      pagebreak: { mode: ['css', 'legacy'], avoid: ['.rb-kpi', '.rb-chart', 'tr', '.rb-break__row', '.rb-cols2', '.rb-cover'] },
     };
-
     await window.html2pdf().set(opt).from(el).toPdf().get('pdf').then(pdf => {
       const n = pdf.internal.getNumberOfPages();
       const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
       for (let i = 1; i <= n; i++) {
         pdf.setPage(i);
-        // Faint watermark, centred, every page.
-        if (wm) {
-          try {
-            const ww = W * 0.46, wh = ww * wm.ratio;
-            pdf.setGState(new pdf.GState({ opacity: 0.07 }));
-            pdf.addImage(wm.url, 'PNG', (W - ww) / 2, (H - wh) / 2, ww, wh);
-            pdf.setGState(new pdf.GState({ opacity: 1 }));
-          } catch { /* watermark optional */ }
-        }
-        // Running header + page number.
-        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(125);
-        pdf.text(CHURCH, 12, 11);
-        pdf.setTextColor(57, 69, 72); pdf.setFont('helvetica', 'bold');
-        pdf.text(String(data.range.headRight), W - 12, 11, { align: 'right' });
-        pdf.setDrawColor(220); pdf.line(12, 13.5, W - 12, 13.5);
-        pdf.setFont('helvetica', 'normal'); pdf.setTextColor(150);
-        pdf.text(`${i} / ${n}`, W - 12, H - 8, { align: 'right' });
+        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(155);
+        pdf.text(`${i} / ${n}`, W - 12, H - 7, { align: 'right' });
       }
     }).save();
-
-    el.remove();
   } catch (e) {
     alert('No se pudo generar el PDF: ' + (e?.message || e));
   } finally {
@@ -350,8 +309,8 @@ function ensureReportStyles() {
 
 const REPORT_CSS = `
 .rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
-.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.11; pointer-events:none; z-index:0; }
-.rb-watermark img{ width:64%; max-width:440px; }
+.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.16; pointer-events:none; z-index:0; }
+.rb-watermark img{ width:60%; max-width:420px; }
 .rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:16px; font-weight:600; letter-spacing:.01em; }
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
 .rb-doc__body{ position:relative; z-index:1; }
