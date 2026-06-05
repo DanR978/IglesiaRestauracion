@@ -10,7 +10,8 @@
 import { sb } from './state.js';
 
 const CHURCH = 'Iglesia Restauración Divina';
-const LOGO = 'https://www.irdlex.org/resources/email-logo.png';
+// Same-origin so it renders in the live preview AND can be drawn into the PDF.
+const LOGO = '/resources/report-logo.png';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
@@ -185,8 +186,15 @@ function renderPreview() {
   paper.innerHTML = `<div class="rb-doc">${buildDoc()}</div>`;
 }
 
-/* ── Document generator (shared by preview + PDF) ──────────────────────────── */
+/* ── Document generator ────────────────────────────────────────────────────── */
 function buildDoc() {
+  // Preview wrapper: on-page running header + faint watermark + the body.
+  const r = data.range;
+  return `<div class="rb-watermark"><img src="${LOGO}" alt=""></div>
+    <header class="rb-runhead"><span>${esc(CHURCH)}</span><span class="rb-runhead__r">${esc(r.headRight)}</span></header>
+    <div class="rb-doc__body">${buildBody()}</div>`;
+}
+function buildBody() {
   const s = config.sections, r = data.range, bal = data.totIn - data.totOut;
   const today = new Date().toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
   const body = [];
@@ -231,10 +239,7 @@ function buildDoc() {
     if (s.byExpense) body.push(breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg'));
   }
 
-  const inner = body.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
-  return `<div class="rb-watermark"><img src="${LOGO}" alt=""></div>
-    <header class="rb-runhead"><span>${esc(CHURCH)}</span><span class="rb-runhead__r">${esc(r.headRight)}</span></header>
-    <div class="rb-doc__body">${inner}</div>`;
+  return body.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
 }
 
 function kpi(l, v, cls) { return `<div class="rb-kpi"><div class="rb-kpi__v ${cls}">${v}</div><div class="rb-kpi__l">${l}</div></div>`; }
@@ -247,16 +252,93 @@ function breakdown(title, rows, total, cls) {
       <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${total?Math.round(r.total/total*100):0}%</span></div>`).join('')}</div></section>`;
 }
 
-/* ── PDF export ────────────────────────────────────────────────────────────── */
-function exportPDF() {
-  const size = config.paper === 'a4' ? 'A4' : 'letter';
-  const html = `<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(config.title)} · ${esc(data.range.label)}</title>
-    <style>@page{ size:${size} ${config.orientation}; margin:20mm 14mm 14mm; } html,body{margin:0} body{ --rb-accent:${config.accent}; } ${REPORT_CSS}</style></head>
-    <body class="rb-print rb-density-${config.density}"><div class="rb-doc">${buildDoc()}</div>
-    <script>window.onload=function(){setTimeout(function(){window.print()},400)}<\/script></body></html>`;
-  const w = window.open('', '_blank');
-  if (!w) { alert('Permite las ventanas emergentes para descargar el PDF.'); return; }
-  w.document.write(html); w.document.close();
+/* ── PDF export — a real downloadable PDF (no browser print chrome) ─────────── */
+let _h2p = null, _wm = null;
+function loadHtml2pdf() {
+  if (window.html2pdf) return Promise.resolve();
+  if (_h2p) return _h2p;
+  _h2p = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js';
+    s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar el generador de PDF.'));
+    document.head.appendChild(s);
+  });
+  return _h2p;
+}
+function logoDataURL() {
+  if (_wm) return Promise.resolve(_wm);
+  return new Promise((res) => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const cv = document.createElement('canvas'); cv.width = img.naturalWidth; cv.height = img.naturalHeight;
+        cv.getContext('2d').drawImage(img, 0, 0);
+        _wm = { url: cv.toDataURL('image/png'), ratio: img.naturalHeight / img.naturalWidth };
+      } catch { _wm = null; }
+      res(_wm);
+    };
+    img.onerror = () => res(null);
+    img.src = LOGO;
+  });
+}
+
+async function exportPDF() {
+  const btn = document.getElementById('rbExport');
+  const orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando…';
+  try {
+    await loadHtml2pdf();
+    const wm = await logoDataURL();
+
+    // Off-screen element rendered at content width, styled by the injected CSS.
+    const el = document.createElement('div');
+    el.className = 'rb-doc';
+    el.style.cssText = 'position:fixed; left:-10000px; top:0; width:720px; background:#fff;';
+    el.style.setProperty('--rb-accent', config.accent);
+    el.innerHTML = `<div class="rb-doc__body">${buildBody()}</div>`;
+    document.body.appendChild(el);
+
+    const size = config.paper === 'a4' ? 'a4' : 'letter';
+    const fname = `Reporte-Tesoreria-${String(data.range.headRight).replace(/[^0-9A-Za-z]+/g, '-')}.pdf`;
+    const opt = {
+      margin: [20, 12, 16, 12],
+      filename: fname,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+      jsPDF: { unit: 'mm', format: size, orientation: config.orientation },
+      pagebreak: { mode: ['css', 'legacy'], avoid: ['.rb-kpi', '.rb-chart', 'tr', '.rb-break__row', '.rb-cols2'] },
+    };
+
+    await window.html2pdf().set(opt).from(el).toPdf().get('pdf').then(pdf => {
+      const n = pdf.internal.getNumberOfPages();
+      const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
+      for (let i = 1; i <= n; i++) {
+        pdf.setPage(i);
+        // Faint watermark, centred, every page.
+        if (wm) {
+          try {
+            const ww = W * 0.46, wh = ww * wm.ratio;
+            pdf.setGState(new pdf.GState({ opacity: 0.07 }));
+            pdf.addImage(wm.url, 'PNG', (W - ww) / 2, (H - wh) / 2, ww, wh);
+            pdf.setGState(new pdf.GState({ opacity: 1 }));
+          } catch { /* watermark optional */ }
+        }
+        // Running header + page number.
+        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(125);
+        pdf.text(CHURCH, 12, 11);
+        pdf.setTextColor(57, 69, 72); pdf.setFont('helvetica', 'bold');
+        pdf.text(String(data.range.headRight), W - 12, 11, { align: 'right' });
+        pdf.setDrawColor(220); pdf.line(12, 13.5, W - 12, 13.5);
+        pdf.setFont('helvetica', 'normal'); pdf.setTextColor(150);
+        pdf.text(`${i} / ${n}`, W - 12, H - 8, { align: 'right' });
+      }
+    }).save();
+
+    el.remove();
+  } catch (e) {
+    alert('No se pudo generar el PDF: ' + (e?.message || e));
+  } finally {
+    btn.disabled = false; btn.innerHTML = orig;
+  }
 }
 
 /* ── Report content CSS (preview + PDF) ────────────────────────────────────── */
@@ -274,7 +356,7 @@ const REPORT_CSS = `
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
 .rb-doc__body{ position:relative; z-index:1; }
 .rb-sec{ margin:0 0 18px; }
-.rb-h2{ font-size:12.5px; font-weight:800; color:var(--rb-accent); margin:0 0 9px; padding-bottom:5px; border-bottom:1.5px solid color-mix(in srgb,var(--rb-accent) 28%, #e2e7e9); text-transform:uppercase; letter-spacing:.05em; break-after:avoid; }
+.rb-h2{ font-size:12.5px; font-weight:800; color:var(--rb-accent); margin:0 0 9px; padding-bottom:5px; border-bottom:1.5px solid #ccd4d5; text-transform:uppercase; letter-spacing:.05em; break-after:avoid; }
 /* Cover masthead — compact, flows straight into the content */
 .rb-cover{ text-align:center; padding:4px 0 16px; margin:0 0 20px; border-bottom:2.5px solid var(--rb-accent); }
 .rb-cover__title{ font-size:25px; font-weight:800; margin:0 0 4px; letter-spacing:-.01em; }
@@ -297,7 +379,7 @@ const REPORT_CSS = `
 /* Tables — repeat the header across pages, tabular figures, tinted head */
 .rb-table{ width:100%; border-collapse:collapse; font-size:11px; }
 .rb-table thead{ display:table-header-group; }
-.rb-table thead th{ background:color-mix(in srgb,var(--rb-accent) 8%, white); font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:#5f6c71; padding:7px 9px; border-bottom:1.5px solid color-mix(in srgb,var(--rb-accent) 28%, #d8dee0); text-align:left; }
+.rb-table thead th{ background:#f2f5f5; font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:#5f6c71; padding:7px 9px; border-bottom:1.5px solid #ccd4d5; text-align:left; }
 .rb-table td{ padding:5px 9px; border-bottom:1px solid #eef2f2; text-align:left; }
 .rb-table th.r,.rb-table td.r{ text-align:right; font-variant-numeric:tabular-nums; }
 .rb-table tbody tr{ break-inside:avoid; }
@@ -319,9 +401,4 @@ const REPORT_CSS = `
 .rb-break__pct{ width:28px; text-align:right; font-size:9.5px; color:#8a979c; }
 .rb-doc .pos{ color:#1e6b61; } .rb-doc .neg{ color:#b02030; }
 .rb-empty{ color:#8a979c; font-size:12px; }
-@media print {
-  .rb-watermark{ position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:100%; }
-  .rb-runhead{ position:fixed; top:8mm; left:14mm; right:14mm; margin:0; }
-  .rb-doc__body{ padding-top:3mm; }
-}
 `;
