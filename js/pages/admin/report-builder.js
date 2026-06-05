@@ -183,7 +183,9 @@ function renderPreview() {
   if (!paper || !data) return;
   paper.className = `rb-paper rb-paper--${config.paper} rb-paper--${config.orientation} rb-density-${config.density}`;
   paper.style.setProperty('--rb-accent', config.accent);
-  paper.innerHTML = `<div class="rb-doc">${buildDoc()}</div>`;
+  // The accent var must live ON the captured element (not just the parent paper),
+  // or var(--rb-accent) resolves to nothing in the PDF canvas → invisible bars.
+  paper.innerHTML = `<div class="rb-doc" style="--rb-accent:${config.accent}">${buildDoc()}</div>`;
 }
 
 /* ── Document generator ────────────────────────────────────────────────────── */
@@ -265,19 +267,40 @@ function loadHtml2pdf() {
   });
   return _h2p;
 }
+let _wm;
+function logoDataURL() {
+  if (_wm !== undefined) return Promise.resolve(_wm);
+  return new Promise(res => {
+    const img = new Image(); img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+        c.getContext('2d').drawImage(img, 0, 0);
+        _wm = { url: c.toDataURL('image/png'), ratio: img.naturalHeight / img.naturalWidth };
+      } catch { _wm = null; }
+      res(_wm);
+    };
+    img.onerror = () => { _wm = null; res(null); };
+    img.src = LOGO;
+  });
+}
+
 async function exportPDF() {
   const btn = document.getElementById('rbExport');
   const orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando…';
+  const el = document.querySelector('#rbPaper .rb-doc');
+  const wmEl = el?.querySelector('.rb-watermark');
   try {
     await loadHtml2pdf();
-    // Capture the actual, visible preview document — it's already laid out and
-    // includes the watermark + header, so the PDF matches it exactly.
-    const el = document.querySelector('#rbPaper .rb-doc');
+    const wm = await logoDataURL();
     if (!el) throw new Error('Abre un reporte primero.');
+    el.style.setProperty('--rb-accent', config.accent);
+    if (wmEl) wmEl.style.display = 'none';   // don't let the image distort the capture
+
     const size = config.paper === 'a4' ? 'a4' : 'letter';
     const fname = `Reporte-Tesoreria-${String(data.range.headRight).replace(/[^0-9A-Za-z]+/g, '-')}.pdf`;
     const opt = {
-      margin: [14, 12, 15, 12],
+      margin: [16, 12, 15, 12],
       filename: fname,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
@@ -289,6 +312,14 @@ async function exportPDF() {
       const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
       for (let i = 1; i <= n; i++) {
         pdf.setPage(i);
+        if (wm) {
+          try {
+            const ww = W * 0.5, wh = ww * wm.ratio;
+            pdf.setGState(new pdf.GState({ opacity: 0.10 }));
+            pdf.addImage(wm.url, 'PNG', (W - ww) / 2, (H - wh) / 2, ww, wh);
+            pdf.setGState(new pdf.GState({ opacity: 1 }));
+          } catch { /* watermark optional */ }
+        }
         pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(155);
         pdf.text(`${i} / ${n}`, W - 12, H - 7, { align: 'right' });
       }
@@ -296,6 +327,7 @@ async function exportPDF() {
   } catch (e) {
     alert('No se pudo generar el PDF: ' + (e?.message || e));
   } finally {
+    if (wmEl) wmEl.style.display = '';
     btn.disabled = false; btn.innerHTML = orig;
   }
 }
@@ -309,8 +341,8 @@ function ensureReportStyles() {
 
 const REPORT_CSS = `
 .rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
-.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.16; pointer-events:none; z-index:0; }
-.rb-watermark img{ width:60%; max-width:420px; }
+.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.14; pointer-events:none; z-index:0; overflow:hidden; }
+.rb-watermark img{ width:58%; max-width:420px; max-height:90%; object-fit:contain; }
 .rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:16px; font-weight:600; letter-spacing:.01em; }
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
 .rb-doc__body{ position:relative; z-index:1; }
