@@ -341,7 +341,7 @@ function ensureReportStyles() {
 
 const REPORT_CSS = `
 .rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
-.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.14; pointer-events:none; z-index:0; overflow:hidden; }
+.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.1; pointer-events:none; z-index:0; overflow:hidden; }
 .rb-watermark img{ width:58%; max-width:420px; max-height:90%; object-fit:contain; }
 .rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:16px; font-weight:600; letter-spacing:.01em; }
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
