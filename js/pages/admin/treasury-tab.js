@@ -30,9 +30,12 @@ const sum = (rows, f = r => r.amount) => (rows || []).reduce((a, r) => a + (Numb
 const cleanNote = n => (n && !String(n).startsWith('auto:')) ? n : '';
 
 const PASTOR = 'Pastor';
+// Exclude any ministry literally named "General" — the built-in General option
+// already covers it (would otherwise show twice).
+const realMinistries = () => ministries.filter(m => (m.name || '').trim().toLowerCase() !== 'general');
 function allocChoice() {
   return [{ value: '', label: 'General', icon: 'fa-church' },
-    ...ministries.map(m => ({ value: m.id, label: m.name, icon: 'fa-people-group' })),
+    ...realMinistries().map(m => ({ value: m.id, label: m.name, icon: 'fa-people-group' })),
     { value: 'pastor', label: 'Pastor', icon: 'fa-user-tie' }];
 }
 function allocDecode(v) {
@@ -42,7 +45,7 @@ function allocDecode(v) {
 }
 function allocEncode(row) { return row?.label === PASTOR ? 'pastor' : (row?.ministry_id || ''); }
 function allocName(row) { return row?.label === PASTOR ? 'Pastor' : (row?.ministry_id ? minName(row.ministry_id) : 'General'); }
-function ministrySelectOpts() { return [{ value: '', label: 'General' }, ...ministries.map(m => ({ value: m.id, label: m.name }))]; }
+function ministrySelectOpts() { return [{ value: '', label: 'General' }, ...realMinistries().map(m => ({ value: m.id, label: m.name }))]; }
 
 const SUBS = [
   { k: 'resumen',   label: 'Resumen',      icon: 'fa-chart-pie' },

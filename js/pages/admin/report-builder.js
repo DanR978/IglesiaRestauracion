@@ -247,11 +247,12 @@ function buildBody() {
 function kpi(l, v, cls) { return `<div class="rb-kpi"><div class="rb-kpi__v ${cls}">${v}</div><div class="rb-kpi__l">${l}</div></div>`; }
 function breakdown(title, rows, total, cls) {
   if (!rows.length) return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><p class="rb-empty">Sin datos.</p></section>`;
-  const max = Math.max(1, ...rows.map(r=>r.total));
-  return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><div class="rb-break">${rows.map(r=>`
-    <div class="rb-break__row"><span class="rb-break__lbl">${esc(r.label)}</span>
-      <span class="rb-break__track"><span class="rb-break__fill ${cls}" style="width:${Math.round(r.total/max*100)}%"></span></span>
-      <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${total?Math.round(r.total/total*100):0}%</span></div>`).join('')}</div></section>`;
+  // Bar length = share of the total (matches the % shown).
+  return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><div class="rb-break">${rows.map(r=>{
+    const pct = total ? Math.round(r.total/total*100) : 0;
+    return `<div class="rb-break__row"><span class="rb-break__lbl">${esc(r.label)}</span>
+      <span class="rb-break__track"><span class="rb-break__fill ${cls}" style="width:${pct}%"></span></span>
+      <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${pct}%</span></div>`;}).join('')}</div></section>`;
 }
 
 /* ── PDF export — real vector PDF via pdfmake (proper pagination, repeating
@@ -345,15 +346,15 @@ function monthlyTable(withDetail) {
 function breakCol(title, rows, total, barColor, accent, w) {
   const stack = [ sh(title, accent, w) ];
   if (!rows.length) { stack.push({ text: 'Sin datos.', color: '#8a979c', fontSize: 9 }); return { width: w, stack }; }
-  const max = Math.max(1, ...rows.map(x => x.total)), TRACK = 54;
-  rows.forEach(x => stack.push({ columns: [
+  const TRACK = 54;
+  rows.forEach(x => { const frac = total ? x.total / total : 0; stack.push({ columns: [
     { width: 78, text: x.label, fontSize: 8.5 },
     { width: TRACK, margin: [0, 3, 0, 0], canvas: [
       { type: 'rect', x: 0, y: 0, w: TRACK, h: 7, r: 3.5, color: '#eef1f2' },
-      { type: 'rect', x: 0, y: 0, w: Math.max(2, Math.round(x.total / max * TRACK)), h: 7, r: 3.5, color: barColor } ] },
+      { type: 'rect', x: 0, y: 0, w: Math.max(2, Math.round(frac * TRACK)), h: 7, r: 3.5, color: barColor } ] },
     { width: '*', text: fmt(x.total), fontSize: 8.5, bold: true, alignment: 'right' },
-    { width: 20, text: (total ? Math.round(x.total / total * 100) : 0) + '%', fontSize: 8, color: '#8a979c', alignment: 'right' },
-  ], columnGap: 5, margin: [0, 0, 0, 4] }));
+    { width: 20, text: Math.round(frac * 100) + '%', fontSize: 8, color: '#8a979c', alignment: 'right' },
+  ], columnGap: 5, margin: [0, 0, 0, 4] }); });
   return { width: w, stack };
 }
 function buildPdfContent() {
