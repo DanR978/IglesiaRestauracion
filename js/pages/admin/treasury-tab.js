@@ -26,6 +26,8 @@ function fmtDate(d) {
 }
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const sum = (rows, f = r => r.amount) => (rows || []).reduce((a, r) => a + (Number(f(r)) || 0), 0);
+// Internal linkage tags (auto:budget / auto:recurring) live in `note`; never show them.
+const cleanNote = n => (n && !String(n).startsWith('auto:')) ? n : '';
 
 const PASTOR = 'Pastor';
 function allocChoice() {
@@ -78,10 +80,11 @@ const monthLbl = () => { const [y, m] = monthKey.split('-').map(Number); return 
 
 export async function loadTreasury() {
   await loadFundData();
+  await ensureRecurringForMonth(monthKey);
   const inp = document.getElementById('trezMonth');
   if (inp && !inp.value) {
     inp.value = monthKey;
-    inp.addEventListener('change', () => { monthKey = inp.value || thisMonth(); render(); });
+    inp.addEventListener('change', async () => { monthKey = inp.value || thisMonth(); await ensureRecurringForMonth(monthKey); render(); });
   }
   const nav = document.getElementById('trezSubnav');
   if (nav) {
@@ -326,7 +329,7 @@ async function renderExpenses(root) {
     ${table(['Fecha', 'Asignado a', 'Pagado a', 'Monto', 'Estado', ''], (data || []).map(r => `
       <tr><td>${fmtDate(r.occurred_on)}</td>
         <td>${esc(allocName(r))}${r.category ? `<span class="trez-sub">${esc(r.category)}</span>` : ''}</td>
-        <td>${esc(r.payee || '—')}${r.note ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
+        <td>${esc(r.payee || '—')}${cleanNote(r.note) ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
         <td class="num neg">${fmt(r.amount)}</td><td>${statusPill(r.status)}</td>${kebabCell(r.id)}</tr>`).join(''), 'No hay gastos este mes.')}`;
   bindList(root, 'expenses', 'fin_expenses', WIZ.expenses(), { title: r => r?.payee || allocName(r) });
 }
@@ -338,29 +341,40 @@ async function renderRecurring(root) {
   cache.recurring = data || [];
   const FREQ = { monthly: 'Mensual', weekly: 'Semanal', yearly: 'Anual' };
   root.innerHTML = `
-    <p class="trez-lead">Pagos que se repiten — estipendios (ej. el del pastor), renta, suscripciones. Usa el menú ⋮ → “Registrar este mes” para llevarlo a Gastos.</p>
+    <p class="trez-lead">Pagos que se repiten — estipendios (ej. el del pastor), renta, suscripciones. Se agregan a Gastos automáticamente cada mes mientras estén activos. Desactívalo para detenerlo.</p>
     ${addBtn('Agregar pago recurrente')}
     ${table(['Pagado a', 'Asignado a', 'Monto', 'Frecuencia', 'Activo', ''], (data || []).map(r => `
-      <tr class="${r.active ? '' : 'is-paid'}"><td>${esc(r.payee)}${r.note ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
+      <tr class="${r.active ? '' : 'is-paid'}"><td>${esc(r.payee)}${cleanNote(r.note) ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
         <td>${esc(allocName(r))}</td><td class="num neg">${fmt(r.amount)}</td>
         <td>${FREQ[r.frequency] || r.frequency}${r.day_of_month ? ` · día ${r.day_of_month}` : ''}</td>
         <td>${r.active ? '<span class="trez-pill trez-pill--paid">Sí</span>' : '<span class="trez-pill trez-pill--pending">No</span>'}</td>${kebabCell(r.id)}</tr>`).join(''), 'No hay pagos recurrentes.')}`;
-  bindList(root, 'recurring', 'fin_recurring', WIZ.recurring(), {
-    title: r => r?.payee,
-    extra: r => [{ label: 'Registrar este mes', icon: 'fa-file-circle-plus', onClick: () => postRecurring(r) }],
-  });
+  bindList(root, 'recurring', 'fin_recurring', WIZ.recurring(), { title: r => r?.payee });
 }
-async function postRecurring(r) {
-  if (!r) return;
-  const t = new Date();
-  const day = Math.min(r.day_of_month || t.getDate(), 28);
-  const occ = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-  const { error } = await sb.from('fin_expenses').insert({
-    occurred_on: occ, ministry_id: r.ministry_id, label: r.label, payee: r.payee,
-    category: r.category || 'Recurrente', amount: r.amount, status: 'paid',
-    note: 'Generado de pago recurrente', created_by: currentUser?.id || null });
-  if (error) { toast(error.message, 'error'); return; }
-  toast(`Registrado en gastos: ${fmt(r.amount)} a ${r.payee}`, 'success');
+
+// Active monthly recurring payments auto-appear in Gastos for each month
+// (current + past) — idempotent via an `auto:recurring:<id>:<month>` note tag.
+async function ensureRecurringForMonth(mk) {
+  if (!mk || mk > thisMonth()) return;
+  const [y, m] = mk.split('-').map(Number);
+  const last = new Date(y, m, 0).getDate();
+  const s = `${mk}-01`, e2 = `${mk}-${String(last).padStart(2, '0')}`;
+  const [recRes, expRes] = await Promise.all([
+    sb.from('fin_recurring').select('*').eq('active', true).eq('frequency', 'monthly'),
+    sb.from('fin_expenses').select('note').gte('occurred_on', s).lte('occurred_on', e2).like('note', 'auto:recurring:%'),
+  ]);
+  const recs = recRes.data || [];
+  if (!recs.length) return;
+  const have = new Set((expRes.data || []).map(x => x.note));
+  const rows = [];
+  recs.forEach(r => {
+    if ((r.created_at || '').slice(0, 7) > mk) return;     // not before it existed
+    const tag = `auto:recurring:${r.id}:${mk}`;
+    if (have.has(tag)) return;
+    const day = Math.min(r.day_of_month || 1, last);
+    rows.push({ occurred_on: `${mk}-${String(day).padStart(2, '0')}`, ministry_id: r.ministry_id, label: r.label,
+      payee: r.payee, category: r.category || 'Recurrente', amount: r.amount, status: 'paid', note: tag, created_by: currentUser?.id || null });
+  });
+  if (rows.length) await sb.from('fin_expenses').insert(rows);
 }
 
 /* ── Presupuestos (MONTHLY, lines = ministries + Pastor) ────────────────────── */
@@ -395,9 +409,20 @@ async function renderBudgets(root) {
     const { error: e } = await sb.from('fin_budgets').upsert(
       { line_key: key, label: line.label, ministry_id: line.ministry_id, period: monthKey, amount, updated_at: new Date().toISOString() },
       { onConflict: 'line_key,period' });
+    if (e) { btn.disabled = false; toast(e.message, 'error'); return; }
+    // The budget is money handed to the ministry to spend → reflect it as a
+    // gasto for this month (kept in sync; re-saving replaces it).
+    const tag = `auto:budget:${key}:${monthKey}`;
+    await sb.from('fin_expenses').delete().eq('note', tag);
+    if (amount > 0) {
+      await sb.from('fin_expenses').insert({
+        occurred_on: `${monthKey}-01`, ministry_id: line.ministry_id, label: line.label,
+        payee: line.name, category: 'Asignación de presupuesto', amount, status: 'paid',
+        note: tag, created_by: currentUser?.id || null,
+      });
+    }
     btn.disabled = false;
-    if (e) { toast(e.message, 'error'); return; }
-    toast('Presupuesto guardado', 'success');
+    toast('Presupuesto guardado y reflejado en gastos', 'success');
   }));
 }
 

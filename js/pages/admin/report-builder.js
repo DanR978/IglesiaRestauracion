@@ -41,7 +41,7 @@ export async function mountReportBuilder(root) {
     period: 'year', year: now.getFullYear(), quarter: Math.floor(now.getMonth()/3)+1,
     month: `${now.getFullYear()}-${pad(now.getMonth()+1)}`, weekDate: isoDate(now),
     sample: false, title: 'Reporte de Tesorería',
-    sections: { cover:true, summary:true, chart:true, monthly:true, byIncome:true, byExpense:true, detail:false },
+    sections: { cover:true, summary:true, chart:false, monthly:true, byIncome:true, byExpense:true, detail:true },
     accent: '#394548', density: 'comfortable', paper: 'letter', orientation: 'portrait',
   };
   ensureReportStyles();
@@ -226,7 +226,7 @@ function buildBody() {
       // expense under Gastos.
       const detail = (s.detail && has) ? (
         b.income.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.source||'')}</td><td class="r pos">${fmt(x.amount)}</td><td></td><td></td><td></td></tr>`).join('') +
-        b.expense.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.payee||x.category||'—')}</td><td></td><td class="r neg">${fmt(x.amount)}</td><td></td><td></td></tr>`).join('')
+        b.expense.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.category||'—')}</td><td></td><td class="r neg">${fmt(x.amount)}</td><td></td><td></td></tr>`).join('')
       ) : '';
       return `<tr class="rb-mrow"><td>${esc(b.label)}</td><td class="r pos">${b.in?fmt(b.in):'—'}</td><td class="r neg">${b.out?fmt(b.out):'—'}</td><td class="r">${has?fmt(d):'—'}</td><td class="r">${fmt(acc)}</td></tr>${detail}`;
     }).join('');
@@ -331,7 +331,7 @@ function monthlyTable(withDetail) {
       moneyCell(d, d < 0 ? '#b02030' : '#1e6b61', has, has ? fmt(d) : '—'), { text: fmt(acc), alignment: 'right', fontSize: 9 } ]);
     if (withDetail && has) {
       b.income.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.source || ''), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#1e6b61' }, '', '', '' ]));
-      b.expense.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.payee || x.category || '—'), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, '', { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#b02030' }, '', '' ]));
+      b.expense.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.category || '—'), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, '', { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#b02030' }, '', '' ]));
     }
   });
   body.push([ { text: 'Total', bold: true, fontSize: 9 }, { text: fmt(data.totIn), alignment: 'right', bold: true, fontSize: 9, color: '#1e6b61' },
