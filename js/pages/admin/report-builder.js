@@ -254,18 +254,20 @@ function breakdown(title, rows, total, cls) {
       <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${total?Math.round(r.total/total*100):0}%</span></div>`).join('')}</div></section>`;
 }
 
-/* ── PDF export — a real downloadable PDF (no browser print chrome) ─────────── */
-let _h2p = null;
-function loadHtml2pdf() {
-  if (window.html2pdf) return Promise.resolve();
-  if (_h2p) return _h2p;
-  _h2p = new Promise((res, rej) => {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.2/html2pdf.bundle.min.js';
+/* ── PDF export — real vector PDF via pdfmake (proper pagination, repeating
+   header/footer + page numbers, faint per-page watermark). No screenshots. ─── */
+let _pm = null;
+function loadPdfMake() {
+  if (window.pdfMake && window.pdfMake.vfs) return Promise.resolve();
+  if (_pm) return _pm;
+  const load = src => new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src;
     s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar el generador de PDF.'));
     document.head.appendChild(s);
   });
-  return _h2p;
+  _pm = load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js')
+    .then(() => load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js'));
+  return _pm;
 }
 let _wm;
 function logoDataURL() {
@@ -285,49 +287,128 @@ function logoDataURL() {
   });
 }
 
+const PW = 515;   // content width (pt) — Letter (612) minus 40pt side margins
+
+// Vector bar chart → crisp in the PDF.
+function chartSvg(buckets, accent) {
+  const W = PW, H = 150, base = H - 16, top = 6;
+  const max = Math.max(1, ...buckets.map(b => Math.max(b.in, b.out)));
+  const colW = W / (buckets.length || 1);
+  let g = '';
+  buckets.forEach((b, i) => {
+    const cx = i * colW + colW / 2, bw = Math.min(9, colW * 0.26);
+    const ih = Math.round((b.in / max) * (base - top)), oh = Math.round((b.out / max) * (base - top));
+    g += `<rect x="${(cx - bw - 1).toFixed(1)}" y="${(base - ih).toFixed(1)}" width="${bw.toFixed(1)}" height="${ih}" rx="2" fill="${accent}"/>`;
+    g += `<rect x="${(cx + 1).toFixed(1)}" y="${(base - oh).toFixed(1)}" width="${bw.toFixed(1)}" height="${oh}" rx="2" fill="#b02030"/>`;
+    g += `<text x="${cx.toFixed(1)}" y="${H - 3}" font-size="7" fill="#8a979c" text-anchor="middle">${esc(b.short)}</text>`;
+  });
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
+function sh(t, accent) {
+  return { stack: [
+    { text: t.toUpperCase(), color: accent, bold: true, fontSize: 11, characterSpacing: 0.4 },
+    { canvas: [{ type: 'line', x1: 0, y1: 3, x2: PW, y2: 3, lineWidth: 1, lineColor: '#ccd4d5' }] },
+  ], margin: [0, 6, 0, 8] };
+}
+function kpiBox(label, val, valColor, accent) {
+  return { table: { widths: ['*'], body: [[ { margin: [10, 8, 10, 8], stack: [
+    { text: val, fontSize: 15, bold: true, color: valColor },
+    { text: label.toUpperCase(), fontSize: 8, bold: true, color: '#6a767b', margin: [0, 2, 0, 0] },
+  ] } ]] }, layout: {
+    hLineWidth: () => 1, vLineWidth: i => (i === 0 ? 3 : 1),
+    hLineColor: () => '#e4e9ea', vLineColor: i => (i === 0 ? accent : '#e4e9ea'),
+    paddingLeft: () => 0, paddingRight: () => 0, paddingTop: () => 0, paddingBottom: () => 0,
+  } };
+}
+function th(t, r) { return { text: t.toUpperCase(), bold: true, fontSize: 7.5, color: '#5f6c71', alignment: r ? 'right' : 'left', fillColor: '#f2f5f5' }; }
+function moneyCell(v, color, has, override) { return { text: has ? (override || fmt(v)) : '—', alignment: 'right', fontSize: 9, color: has ? color : '#b9c2c4' }; }
+function monthlyTable(withDetail) {
+  let acc = 0;
+  const body = [[ th('Mes'), th('Ingresos', 1), th('Gastos', 1), th('Balance', 1), th('Acumulado', 1) ]];
+  data.buckets.forEach(b => {
+    const d = b.in - b.out; acc += d; const has = b.in || b.out;
+    body.push([ { text: b.label, bold: true, fontSize: 9 }, moneyCell(b.in, '#1e6b61', b.in), moneyCell(b.out, '#b02030', b.out),
+      moneyCell(d, d < 0 ? '#b02030' : '#1e6b61', has, has ? fmt(d) : '—'), { text: fmt(acc), alignment: 'right', fontSize: 9 } ]);
+    if (withDetail && has) {
+      b.income.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.source || ''), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#1e6b61' }, '', '', '' ]));
+      b.expense.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.payee || x.category || '—'), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, '', { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#b02030' }, '', '' ]));
+    }
+  });
+  body.push([ { text: 'Total', bold: true, fontSize: 9 }, { text: fmt(data.totIn), alignment: 'right', bold: true, fontSize: 9, color: '#1e6b61' },
+    { text: fmt(data.totOut), alignment: 'right', bold: true, fontSize: 9, color: '#b02030' }, { text: fmt(data.totIn - data.totOut), alignment: 'right', bold: true, fontSize: 9 }, {} ]);
+  return { table: { headerRows: 1, widths: ['*', 'auto', 'auto', 'auto', 'auto'], body }, layout: {
+    hLineWidth: (i, node) => (i <= 1 || i >= node.table.body.length - 1) ? 0.8 : 0.4,
+    hLineColor: () => '#e7ecec', vLineWidth: () => 0,
+    paddingTop: () => 3.2, paddingBottom: () => 3.2, paddingLeft: () => 6, paddingRight: () => 6,
+  }, margin: [0, 0, 0, 14] };
+}
+function breakCol(title, rows, total, barColor, accent) {
+  const stack = [ sh(title, accent) ];
+  if (!rows.length) { stack.push({ text: 'Sin datos.', color: '#8a979c', fontSize: 9 }); return { width: '*', stack }; }
+  const max = Math.max(1, ...rows.map(x => x.total)), TRACK = 70;
+  rows.forEach(x => stack.push({ columns: [
+    { width: 70, text: x.label, fontSize: 8.5, noWrap: true },
+    { width: TRACK, margin: [0, 3, 0, 0], canvas: [
+      { type: 'rect', x: 0, y: 0, w: TRACK, h: 7, r: 3.5, color: '#eef1f2' },
+      { type: 'rect', x: 0, y: 0, w: Math.max(2, Math.round(x.total / max * TRACK)), h: 7, r: 3.5, color: barColor } ] },
+    { width: '*', text: fmt(x.total), fontSize: 8.5, bold: true, alignment: 'right' },
+    { width: 22, text: (total ? Math.round(x.total / total * 100) : 0) + '%', fontSize: 8, color: '#8a979c', alignment: 'right' },
+  ], columnGap: 6, margin: [0, 0, 0, 4] }));
+  return { width: '*', stack };
+}
+function buildPdfContent() {
+  const s = config.sections, r = data.range, bal = data.totIn - data.totOut, accent = config.accent;
+  const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  const c = [];
+  if (s.cover) c.push(
+    { text: config.title || 'Reporte de Tesorería', fontSize: 22, bold: true, alignment: 'center', margin: [0, 6, 0, 2] },
+    { text: 'Generado el ' + today, fontSize: 10, color: '#8a979c', alignment: 'center' },
+    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: PW, y2: 0, lineWidth: 2, lineColor: accent }], margin: [0, 10, 0, 16] });
+  if (s.summary) c.push(sh('Resumen · ' + r.label, accent),
+    { columns: [ kpiBox('Ingresos', fmt(data.totIn), '#1e6b61', accent), kpiBox('Gastos', fmt(data.totOut), '#b02030', accent),
+      kpiBox('Balance', fmt(bal), bal < 0 ? '#b02030' : '#1e6b61', accent) ], columnGap: 8, margin: [0, 0, 0, 16] });
+  if (s.chart) c.push(sh('Ingresos y gastos por ' + r.col.toLowerCase(), accent),
+    { svg: chartSvg(data.buckets, accent), width: PW, margin: [0, 0, 0, 6] });
+  if (s.monthly) c.push(sh('Detalle por ' + r.col.toLowerCase(), accent), monthlyTable(s.detail));
+  if (s.byIncome && s.byExpense) c.push({ columns: [
+    breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent),
+    breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent) ], columnGap: 22 });
+  else if (s.byIncome) c.push(...breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent).stack);
+  else if (s.byExpense) c.push(...breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent).stack);
+  return c.length ? c : [{ text: 'Activa al menos una sección.', color: '#8a979c' }];
+}
+
 async function exportPDF() {
   const btn = document.getElementById('rbExport');
   const orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando…';
-  const el = document.querySelector('#rbPaper .rb-doc');
-  const wmEl = el?.querySelector('.rb-watermark');
   try {
-    await loadHtml2pdf();
+    if (!data) throw new Error('Abre un reporte primero.');
+    await loadPdfMake();
     const wm = await logoDataURL();
-    if (!el) throw new Error('Abre un reporte primero.');
-    el.style.setProperty('--rb-accent', config.accent);
-    if (wmEl) wmEl.style.display = 'none';   // don't let the image distort the capture
-
-    const size = config.paper === 'a4' ? 'a4' : 'letter';
+    const accent = config.accent;
     const fname = `Reporte-Tesoreria-${String(data.range.headRight).replace(/[^0-9A-Za-z]+/g, '-')}.pdf`;
-    const opt = {
-      margin: [16, 12, 15, 12],
-      filename: fname,
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false },
-      jsPDF: { unit: 'mm', format: size, orientation: config.orientation },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['.rb-kpi', '.rb-chart', 'tr', '.rb-break__row', '.rb-cols2', '.rb-cover'] },
+    const docDef = {
+      pageSize: config.paper === 'a4' ? 'A4' : 'LETTER',
+      pageOrientation: config.orientation,
+      pageMargins: [40, 58, 40, 44],
+      info: { title: 'Reporte de Tesorería · ' + data.range.label },
+      header: () => ({ margin: [40, 22, 40, 0], stack: [
+        { columns: [ { text: CHURCH, fontSize: 8, color: '#7a868b', bold: true },
+          { text: String(data.range.headRight), fontSize: 8, color: accent, bold: true, alignment: 'right' } ] },
+        { canvas: [{ type: 'line', x1: 0, y1: 5, x2: PW, y2: 5, lineWidth: 0.5, lineColor: '#dde3e4' }] },
+      ] }),
+      footer: (cp, pc) => ({ margin: [40, 4, 40, 0], text: cp + ' / ' + pc, alignment: 'right', fontSize: 8, color: '#9aa6a8' }),
+      content: buildPdfContent(),
+      defaultStyle: { fontSize: 10, color: '#1f2a2e', lineHeight: 1.2 },
     };
-    await window.html2pdf().set(opt).from(el).toPdf().get('pdf').then(pdf => {
-      const n = pdf.internal.getNumberOfPages();
-      const W = pdf.internal.pageSize.getWidth(), H = pdf.internal.pageSize.getHeight();
-      for (let i = 1; i <= n; i++) {
-        pdf.setPage(i);
-        if (wm) {
-          try {
-            const ww = W * 0.5, wh = ww * wm.ratio;
-            pdf.setGState(new pdf.GState({ opacity: 0.10 }));
-            pdf.addImage(wm.url, 'PNG', (W - ww) / 2, (H - wh) / 2, ww, wh);
-            pdf.setGState(new pdf.GState({ opacity: 1 }));
-          } catch { /* watermark optional */ }
-        }
-        pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(155);
-        pdf.text(`${i} / ${n}`, W - 12, H - 7, { align: 'right' });
-      }
-    }).save();
+    if (wm) docDef.background = (cp, pageSize) => {
+      const w = pageSize.width * 0.46, h = w * wm.ratio;
+      return { image: wm.url, width: w, opacity: 0.05, absolutePosition: { x: (pageSize.width - w) / 2, y: (pageSize.height - h) / 2 } };
+    };
+    window.pdfMake.createPdf(docDef).download(fname);
   } catch (e) {
     alert('No se pudo generar el PDF: ' + (e?.message || e));
   } finally {
-    if (wmEl) wmEl.style.display = '';
     btn.disabled = false; btn.innerHTML = orig;
   }
 }
@@ -341,7 +422,7 @@ function ensureReportStyles() {
 
 const REPORT_CSS = `
 .rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
-.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.1; pointer-events:none; z-index:0; overflow:hidden; }
+.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.05; pointer-events:none; z-index:0; overflow:hidden; }
 .rb-watermark img{ width:58%; max-width:420px; max-height:90%; object-fit:contain; }
 .rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:16px; font-weight:600; letter-spacing:.01em; }
 .rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
