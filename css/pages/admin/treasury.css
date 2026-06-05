@@ -11,6 +11,15 @@
 .trez-addbar { margin-bottom: 1.1rem; }
 .trez-addbar .btn { width: auto; }
 
+/* Configurar — editable lists of funds / categories */
+.trez-conf__items { display: flex; flex-direction: column; }
+.trez-conf__item {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+  padding: 0.6rem 0.1rem; border-bottom: 1px solid var(--gray-50);
+  font-size: 0.92rem; color: var(--color-dark);
+}
+.trez-conf__item:last-child { border-bottom: none; }
+
 .trez-lead { font-size: 0.9rem; color: var(--color-muted); margin: 0 0 1.1rem; line-height: 1.5; max-width: 70ch; }
 .trez-hint { font-size: 0.82rem; color: var(--color-muted); margin: 0 0 1rem; }
 

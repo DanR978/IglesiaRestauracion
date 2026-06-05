@@ -50,11 +50,23 @@ const SUBS = [
   { k: 'payables',  label: 'Por pagar',    icon: 'fa-file-invoice-dollar' },
   { k: 'reports',   label: 'Reportes',     icon: 'fa-calendar-days' },
   { k: 'notes',     label: 'Notas',        icon: 'fa-note-sticky' },
+  { k: 'config',    label: 'Configurar',   icon: 'fa-gear' },
 ];
 
 let sub = 'resumen';
 let monthKey = thisMonth();
 const cache = {};
+
+// Church fund-accounting lists (editable in Configurar)
+let FUNDS = [], INCOME_CATS = [], EXPENSE_CATS = [];
+async function loadFundData() {
+  const [f, i, e] = await Promise.all([
+    sb.from('fin_funds').select('*').eq('archived', false).order('sort').order('name'),
+    sb.from('fin_income_categories').select('*').eq('archived', false).order('sort').order('name'),
+    sb.from('fin_expense_categories').select('*').eq('archived', false).order('sort').order('name'),
+  ]);
+  FUNDS = f.data || []; INCOME_CATS = i.data || []; EXPENSE_CATS = e.data || [];
+}
 
 const year   = () => monthKey.slice(0, 4);
 const mStart = () => `${monthKey}-01`;
@@ -64,6 +76,7 @@ const yEnd   = () => `${year()}-12-31`;
 const monthLbl = () => { const [y, m] = monthKey.split('-').map(Number); return `${MONTHS[m-1]} ${y}`; };
 
 export async function loadTreasury() {
+  await loadFundData();
   const inp = document.getElementById('trezMonth');
   if (inp && !inp.value) {
     inp.value = monthKey;
@@ -86,7 +99,8 @@ function render() {
   if (!root) return;
   root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
   ({ resumen: renderResumen, income: renderIncome, expenses: renderExpenses, recurring: renderRecurring,
-     budgets: renderBudgets, payables: renderPayables, reports: renderReports, notes: renderNotes }[sub] || renderResumen)(root);
+     budgets: renderBudgets, payables: renderPayables, reports: renderReports, notes: renderNotes,
+     config: renderConfig }[sub] || renderResumen)(root);
 }
 
 /* ── Resumen (selected month) ──────────────────────────────────────────────── */
@@ -222,7 +236,64 @@ const WIZ = {
     toData: r => ({ body: r.body, ministry_id: r.ministry_id || '', pinned: r.pinned ? 'yes' : 'no' }),
     toPayload: d => ({ body: (d.body || '').trim(), ministry_id: d.ministry_id || null, pinned: d.pinned === 'yes', created_by: currentUser?.id || null }),
   }),
+  // ── Configurar: funds + categories ──
+  fund: () => ({
+    title: 'Nuevo fondo', editTitle: 'Editar fondo', icon: 'fa-vault', submitLabel: 'Guardar fondo',
+    steps: [
+      { label: '¿Cómo se llama el fondo?', fields: [{ id: 'name', label: 'Nombre', type: 'text', required: true, placeholder: 'Misiones' }] },
+      { label: '¿Es de uso restringido?', hint: 'Restringido = el dinero solo se usa para su propósito.', fields: [{ id: 'restricted', type: 'choice', default: 'no', options: [
+        { value: 'no', label: 'No', desc: 'Uso general' }, { value: 'yes', label: 'Sí', desc: 'Solo su propósito' }] }] },
+      { label: 'Saldo inicial (opcional)', hint: 'Cuánto dinero tiene este fondo hoy, antes de empezar a registrar.', fields: [{ id: 'opening_balance', label: 'Saldo inicial', type: 'money' }] },
+    ],
+    toData: r => ({ name: r.name, restricted: r.restricted ? 'yes' : 'no', opening_balance: r.opening_balance }),
+    toPayload: d => ({ name: (d.name || '').trim(), restricted: d.restricted === 'yes', opening_balance: Number(d.opening_balance) || 0 }),
+  }),
+  incomeCat: () => ({
+    title: 'Nueva categoría de ingreso', editTitle: 'Editar categoría', icon: 'fa-arrow-down', submitLabel: 'Guardar',
+    steps: [{ label: '¿Cómo se llama?', fields: [{ id: 'name', label: 'Nombre', type: 'text', required: true, placeholder: 'Ofrenda especial' }] }],
+    toData: r => ({ name: r.name }), toPayload: d => ({ name: (d.name || '').trim() }),
+  }),
+  expenseCat: () => ({
+    title: 'Nueva categoría de gasto', editTitle: 'Editar categoría', icon: 'fa-arrow-up', submitLabel: 'Guardar',
+    steps: [
+      { label: '¿Cómo se llama?', fields: [{ id: 'name', label: 'Nombre', type: 'text', required: true, placeholder: 'Renta' }] },
+      { label: '¿En qué grupo va?', fields: [{ id: 'group_name', type: 'choice', default: 'Otros', options:
+        ['Salario', 'Servicios', 'Ministerios', 'Benevolencia', 'Otros'].map(g => ({ value: g, label: g })) }] },
+    ],
+    toData: r => ({ name: r.name, group_name: r.group_name || 'Otros' }),
+    toPayload: d => ({ name: (d.name || '').trim(), group_name: d.group_name || 'Otros' }),
+  }),
 };
+
+/* ── Configurar (editable funds + categories) ──────────────────────────────── */
+async function renderConfig(root) {
+  await loadFundData();
+  cache.funds = FUNDS; cache.incomeCats = INCOME_CATS; cache.expenseCats = EXPENSE_CATS;
+  root.innerHTML = `
+    <p class="trez-lead">Configura los fondos y las categorías de tu iglesia. Se usan al registrar el dinero.</p>
+    ${confCard('funds', 'fa-vault', 'Fondos (dónde está el dinero)', FUNDS,
+      f => `${esc(f.name)}${f.restricted ? ' <span class="trez-pill trez-pill--owe">Restringido</span>' : ''}${f.opening_balance ? ` <span class="muted">· saldo inicial ${fmt(f.opening_balance)}</span>` : ''}`)}
+    ${confCard('incomeCats', 'fa-arrow-down', 'Categorías de ingreso', INCOME_CATS, c => esc(c.name))}
+    ${confCard('expenseCats', 'fa-arrow-up', 'Categorías de gasto', EXPENSE_CATS,
+      c => `${esc(c.name)}${c.group_name ? ` <span class="muted">· ${esc(c.group_name)}</span>` : ''}`)}`;
+  wireConf(root, 'funds', 'fin_funds', WIZ.fund(), r => r?.name);
+  wireConf(root, 'incomeCats', 'fin_income_categories', WIZ.incomeCat(), r => r?.name);
+  wireConf(root, 'expenseCats', 'fin_expense_categories', WIZ.expenseCat(), r => r?.name);
+}
+function confCard(key, icon, title, items, fmtItem) {
+  return `<div class="trez-card" data-list="${key}">
+    <h3 class="trez-card__title"><i class="fas ${icon}"></i> ${title}</h3>
+    <div class="trez-addbar"><button class="btn btn--primary btn--sm" data-add-btn><i class="fas fa-plus"></i> Agregar</button></div>
+    <div class="trez-conf__items">
+      ${items.length ? items.map(it => `<div class="trez-conf__item"><span>${fmtItem(it)}</span>
+        <button class="adm-icon-btn" data-kebab="${it.id}" title="Acciones" aria-label="Acciones"><i class="fas fa-ellipsis-vertical"></i></button></div>`).join('')
+        : '<p class="muted" style="padding:.5rem 0 0">Aún no hay. Toca “Agregar”.</p>'}
+    </div></div>`;
+}
+function wireConf(root, key, table, wiz, title) {
+  const scope = root.querySelector(`[data-list="${key}"]`);
+  if (scope) bindList(root, key, table, wiz, { scope, title });
+}
 
 /* ── Ingresos ──────────────────────────────────────────────────────────────── */
 async function renderIncome(root) {
@@ -441,8 +512,9 @@ function bindList(root, key, tableName, wiz, opts = {}) {
     onSubmit: (d) => { const p = wiz.toPayload(d); return row ? sb.from(tableName).update(p).eq('id', row.id) : sb.from(tableName).insert(p); },
     onDone: render,
   });
-  root.querySelector('[data-add-btn]')?.addEventListener('click', () => openWiz(null));
-  root.querySelectorAll('[data-kebab]').forEach(btn => btn.addEventListener('click', () => {
+  const scope = opts.scope || root;
+  scope.querySelector('[data-add-btn]')?.addEventListener('click', () => openWiz(null));
+  scope.querySelectorAll('[data-kebab]').forEach(btn => btn.addEventListener('click', () => {
     const row = (cache[key] || []).find(r => r.id === btn.dataset.kebab);
     const actions = [
       { label: 'Editar', icon: 'fa-pen', onClick: () => openWiz(row) },
