@@ -8,6 +8,7 @@ import { sb, ministries, currentUser } from './state.js';
 import { toast, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
 import { openFormWizard } from './form-wizard.js';
+import { mountReportBuilder } from './report-builder.js';
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
 function esc(s) {
@@ -98,8 +99,10 @@ function render() {
   const root = document.getElementById('treasuryBody');
   if (!root) return;
   root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  // Reportes uses the full screen width on desktop.
+  document.getElementById('tab-treasury')?.classList.toggle('trez-wide', sub === 'reports');
   ({ resumen: renderResumen, income: renderIncome, expenses: renderExpenses, recurring: renderRecurring,
-     budgets: renderBudgets, payables: renderPayables, reports: renderReports, notes: renderNotes,
+     budgets: renderBudgets, payables: renderPayables, reports: mountReportBuilder, notes: renderNotes,
      config: renderConfig }[sub] || renderResumen)(root);
 }
 

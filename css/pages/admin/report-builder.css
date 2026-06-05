@@ -1,0 +1,73 @@
+/* admin/report-builder.css — Tesorería report builder (controls + live preview)
+   The report CONTENT styles live in report-builder.js (shared with the PDF).
+   This file is only the builder chrome. */
+
+.rb {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* Controls */
+.rb-controls {
+  position: sticky;
+  top: 76px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  background: var(--color-white);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1.15rem;
+}
+.rb-grp { display: flex; flex-direction: column; gap: 0.45rem; }
+.rb-grp__t { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted); }
+.rb-input {
+  height: 2.4rem; padding: 0 0.7rem;
+  border: 1px solid var(--gray-40); border-radius: 8px;
+  font-family: inherit; font-size: 0.88rem; color: var(--color-dark); background: var(--color-white);
+}
+.rb-input:focus { outline: none; border-color: var(--color-secondary, #c89858); }
+.rb-check { display: flex; align-items: center; gap: 0.55rem; font-size: 0.88rem; color: var(--color-dark); padding: 0.18rem 0; cursor: pointer; }
+.rb-check input { width: auto; }
+
+.rb-swatches { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+.rb-swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.rb-swatch.on { border-color: var(--color-dark); box-shadow: inset 0 0 0 2px #fff; }
+
+.rb-seg { display: flex; border: 1px solid var(--gray-40); border-radius: 8px; overflow: hidden; }
+.rb-seg button { flex: 1; padding: 0.5rem 0.3rem; border: 0; background: var(--color-white); font-family: inherit; font-size: 0.82rem; color: var(--color-muted); cursor: pointer; }
+.rb-seg button + button { border-left: 1px solid var(--gray-40); }
+.rb-seg button.on { background: var(--color-dark); color: var(--color-white); }
+
+.rb-export { width: 100%; justify-content: center; margin-top: 0.2rem; }
+
+/* Stage + paper */
+.rb-stage {
+  background: #e7ecef;
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1.6rem;
+  overflow: auto;
+}
+.rb-paperwrap { display: flex; justify-content: center; }
+.rb-paper {
+  background: #fff;
+  box-shadow: 0 10px 34px rgba(20, 30, 35, 0.16);
+  width: 100%;
+  max-width: 850px;
+  padding: 44px 46px;
+  box-sizing: border-box;
+  border-radius: 2px;
+}
+.rb-paper--landscape { max-width: 1120px; }
+
+/* Reportes uses the full screen width on desktop */
+#tab-treasury.trez-wide { max-width: none; }
+
+@media (max-width: 900px) {
+  .rb { grid-template-columns: 1fr; }
+  .rb-controls { position: static; }
+  .rb-stage { padding: 0.9rem; }
+  .rb-paper { padding: 26px 22px; }
+}
