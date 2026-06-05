@@ -304,10 +304,10 @@ function chartSvg(buckets, accent) {
   });
   return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
 }
-function sh(t, accent) {
+function sh(t, accent, w) {
   return { stack: [
     { text: t.toUpperCase(), color: accent, bold: true, fontSize: 11, characterSpacing: 0.4 },
-    { canvas: [{ type: 'line', x1: 0, y1: 3, x2: PW, y2: 3, lineWidth: 1, lineColor: '#ccd4d5' }] },
+    { canvas: [{ type: 'line', x1: 0, y1: 3, x2: w || PW, y2: 3, lineWidth: 1, lineColor: '#ccd4d5' }] },
   ], margin: [0, 6, 0, 8] };
 }
 function kpiBox(label, val, valColor, accent) {
@@ -342,19 +342,19 @@ function monthlyTable(withDetail) {
     paddingTop: () => 3.2, paddingBottom: () => 3.2, paddingLeft: () => 6, paddingRight: () => 6,
   }, margin: [0, 0, 0, 14] };
 }
-function breakCol(title, rows, total, barColor, accent) {
-  const stack = [ sh(title, accent) ];
-  if (!rows.length) { stack.push({ text: 'Sin datos.', color: '#8a979c', fontSize: 9 }); return { width: '*', stack }; }
-  const max = Math.max(1, ...rows.map(x => x.total)), TRACK = 70;
+function breakCol(title, rows, total, barColor, accent, w) {
+  const stack = [ sh(title, accent, w) ];
+  if (!rows.length) { stack.push({ text: 'Sin datos.', color: '#8a979c', fontSize: 9 }); return { width: w, stack }; }
+  const max = Math.max(1, ...rows.map(x => x.total)), TRACK = 54;
   rows.forEach(x => stack.push({ columns: [
-    { width: 70, text: x.label, fontSize: 8.5, noWrap: true },
+    { width: 78, text: x.label, fontSize: 8.5 },
     { width: TRACK, margin: [0, 3, 0, 0], canvas: [
       { type: 'rect', x: 0, y: 0, w: TRACK, h: 7, r: 3.5, color: '#eef1f2' },
       { type: 'rect', x: 0, y: 0, w: Math.max(2, Math.round(x.total / max * TRACK)), h: 7, r: 3.5, color: barColor } ] },
     { width: '*', text: fmt(x.total), fontSize: 8.5, bold: true, alignment: 'right' },
-    { width: 22, text: (total ? Math.round(x.total / total * 100) : 0) + '%', fontSize: 8, color: '#8a979c', alignment: 'right' },
-  ], columnGap: 6, margin: [0, 0, 0, 4] }));
-  return { width: '*', stack };
+    { width: 20, text: (total ? Math.round(x.total / total * 100) : 0) + '%', fontSize: 8, color: '#8a979c', alignment: 'right' },
+  ], columnGap: 5, margin: [0, 0, 0, 4] }));
+  return { width: w, stack };
 }
 function buildPdfContent() {
   const s = config.sections, r = data.range, bal = data.totIn - data.totOut, accent = config.accent;
@@ -370,11 +370,12 @@ function buildPdfContent() {
   if (s.chart) c.push(sh('Ingresos y gastos por ' + r.col.toLowerCase(), accent),
     { svg: chartSvg(data.buckets, accent), width: PW, margin: [0, 0, 0, 6] });
   if (s.monthly) c.push(sh('Detalle por ' + r.col.toLowerCase(), accent), monthlyTable(s.detail));
+  const HALF = Math.floor((PW - 22) / 2);
   if (s.byIncome && s.byExpense) c.push({ columns: [
-    breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent),
-    breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent) ], columnGap: 22 });
-  else if (s.byIncome) c.push(...breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent).stack);
-  else if (s.byExpense) c.push(...breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent).stack);
+    breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent, HALF),
+    breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent, HALF) ], columnGap: 22 });
+  else if (s.byIncome) c.push(...breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent, PW).stack);
+  else if (s.byExpense) c.push(...breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent, PW).stack);
   return c.length ? c : [{ text: 'Activa al menos una sección.', color: '#8a979c' }];
 }
 
