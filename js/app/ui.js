@@ -31,7 +31,7 @@ export function setupBurgerMenu() {
      current position/size (First), open the sub-pane (Last), then play a
      short transform-only transition from First→Last on the title element. */
   const morphLabelToTitle = (li) => {
-    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    if (!window.matchMedia("(max-width: 1180px)").matches) return;
     const label = li.querySelector(".accordion-toggle");
     if (!label) return;
     const submenu = li.querySelector(".submenu");
@@ -162,7 +162,7 @@ export function setupBurgerMenu() {
   /* ── Category click on mobile → open sub-pane ──────────────── */
   nav.querySelectorAll(".menu-item.has-submenu .accordion-toggle").forEach(btn => {
     btn.addEventListener("click", (e) => {
-      if (window.innerWidth > 768) return;     // desktop: hover handles dropdowns
+      if (window.innerWidth > 1180) return;     // desktop: hover handles dropdowns
       e.preventDefault();
       e.stopPropagation();
       openSubmenu(btn.closest(".menu-item"));
@@ -171,7 +171,7 @@ export function setupBurgerMenu() {
 
   /* ── Tapping a real link inside the panel closes the menu ──── */
   nav.addEventListener("click", (e) => {
-    if (window.innerWidth > 768) return;
+    if (window.innerWidth > 1180) return;
     const a = e.target.closest("a");
     if (a && nav.classList.contains("open")) close();
   });
@@ -185,7 +185,7 @@ export function setupBurgerMenu() {
 
   /* ── Reset everything when crossing the desktop breakpoint ─── */
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > 1180) {
       if (nav.classList.contains("open")) {
         nav.classList.remove("open", "closing");
         burger.classList.remove("open");

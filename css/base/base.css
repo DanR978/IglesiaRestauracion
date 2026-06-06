@@ -20,7 +20,10 @@ html.ready {
 
 body {
   margin: 0;
-  font-family: "General Sans", sans-serif;
+  /* Native system-font stack — matches the body font that Bootstrap's reboot
+     supplied before it was removed (the previous "General Sans" was never
+     loaded, so Bootstrap's stack was what actually rendered). */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   /* Kill any stray horizontal scrollbar caused by descendants overflowing
      (Bootstrap .row -15px margins, edge-of-viewport ambient gradients, etc).
      `clip` behaves like `hidden` but doesn't create a scroll container,

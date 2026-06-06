@@ -730,7 +730,11 @@ body.no-scroll {
    • Items stagger-fade-up from below
    • Item hover: 4px amber accent slides up the left edge + label slides right
    ═══════════════════════════════════════════════════════════════ */
-@media (min-width: 769px) {
+/* Desktop nav (hover dropdowns) starts ABOVE the burger breakpoint (1180px).
+   Previously this was min-width:769px, which overlapped the max-width:1180px
+   burger block — so between 769–1180px the desktop styles won and the mobile
+   menu couldn't open. */
+@media (min-width: 1181px) {
 
   /* ── Card itself (overrides the simple base styling on desktop) ── */
   .submenu {
@@ -927,7 +931,7 @@ body.no-scroll {
   background: var(--orange-40);
 }
 
-@media (max-width: 769px) {
+@media (max-width: 1180px) {
   .icon-btn {
     width: auto;
     padding: 0.5rem 1rem;

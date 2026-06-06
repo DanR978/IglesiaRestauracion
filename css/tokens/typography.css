@@ -1,23 +1,15 @@
 :root {
-    /* ───────────────────────────────────────────────────────────────
-       Fluid type scale — STRICTLY INCREASING in both the min (mobile) and
-       max (desktop) bound, so a "bigger" token is never smaller than a
-       "smaller" one at any viewport. Desktop (max) values are unchanged
-       from the previous scale to avoid regressions; only the broken minimums
-       (which produced inverted, sub-10px text on phones) and --fs-2xl's max
-       (which was smaller than --fs-xl) were corrected.
-       ─────────────────────────────────────────────────────────────── */
-    --fs-xxs:                clamp(0.625rem, 0.60rem + 0.20vw, 0.75rem);   /* 10–12px */
-    --fs-xs:                 clamp(0.75rem,  0.72rem + 0.20vw, 0.875rem);  /* 12–14px */
-    --fs-sm:                 clamp(0.80rem,  0.75rem + 0.25vw, 0.9rem);    /* 13–14px */
-    --fs-base:               clamp(1rem,     0.97rem + 0.15vw, 1.125rem);  /* 16–18px */
-    --fs-md:                 clamp(1rem,     0.90rem + 0.50vw, 1.13rem);   /* 16–18px */
-    --fs-lg:                 clamp(1.125rem, 0.90rem + 1.10vw, 2rem);      /* 18–32px */
-    --fs-xl:                 clamp(1.25rem,  0.95rem + 1.50vw, 2.1875rem); /* 20–35px */
-    --fs-2xl:                clamp(1.5rem,   1.10rem + 2.00vw, 2.25rem);   /* 24–36px */
-    --fs-3xl:                clamp(2.5rem,   2.00rem + 2.50vw, 3rem);      /* 40–48px */
-    --fs-4xl:                clamp(3rem,     2.20rem + 4.00vw, 4rem);      /* 48–64px */
-    --fs-btn:                clamp(0.875rem, 0.5vw + 0.5rem, 1.125rem);    /* 14–18px */
+    --fs-xxs:                clamp(0.625rem, 0.5vw, 0.75rem);           /* 10–12px */
+    --fs-xs:                 clamp(0.75rem, 0.6vw, 0.875rem);           /* 12–14px */
+    --fs-sm:                 clamp(0.55rem, 0.05rem + 1vw, 0.9rem);     /* 14–16px */
+    --fs-base:               clamp(1rem, 0.9vw, 1.125rem);              /* 16–18px */
+    --fs-md:                 clamp(0.69rem, 0.07rem + 1.65vw, 1.13rem); /* 18–20px */
+    --fs-lg:                 clamp(0.88rem, -0.72rem + 4.25vw, 2rem);             /* 20–24px */
+    --fs-xl:                 clamp(1.125rem, -0.2031em + 4.25vw, 2.1875rem);                  /* 24–32px */
+    --fs-2xl:                clamp(1.38rem, -0.66rem + 5.42vw, 2rem);                  /* 32–40px */
+    --fs-3xl:                clamp(2.5rem, 4vw, 3rem);                  /* 40–48px */
+    --fs-4xl:                clamp(3rem, 5vw, 4rem);                    /* 48–64px */
+    --fs-btn:                clamp(0.875rem, 0.5vw + 0.5rem, 1.125rem); /* 14–18px */
 
     --font-Lexend:           "Lexend Deca", sans-serif;
     --font-Helvetica-Neue:   "Helvetica Neue", sans-serif;
