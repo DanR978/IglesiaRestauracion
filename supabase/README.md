@@ -52,3 +52,17 @@ be reviewed or rebuilt from scratch.
 - `functions/youtube-live/` — proxies the YouTube Data API. **Rotate the API key
   that was previously committed in this file's deploy comment** and restrict it to
   the YouTube Data API v3 in Google Cloud.
+
+- `functions/newsletter-subscribe/` — public sign-up. Inserts the subscriber and
+  emails a branded welcome (weekly services + this month's events) via
+  [Resend](https://resend.com). **Setup required before sign-ups send email:**
+  1. Create a Resend account and **verify the `irdlex.org` domain** (add the DNS
+     records Resend gives you). The function sends from `noreply@irdlex.org`.
+  2. Set the secret: `supabase secrets set RESEND_API_KEY=<your-key>`
+  3. Deploy (allow anonymous callers — visitors have no session):
+     `supabase functions deploy newsletter-subscribe --no-verify-jwt`
+  Until then, the table still records subscribers; the email is skipped (logged).
+  Also run the `20260607_newsletter.sql` migration so the table exists.
+  To send to ALL subscribers later (monthly blast), add a separate scheduled
+  function that reads `newsletter_subscribers` and loops Resend — this function
+  only handles the per-signup welcome.

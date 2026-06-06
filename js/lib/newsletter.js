@@ -25,21 +25,20 @@ async function handleSubmit(form) {
   if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
 
   try {
-    const { error } = await sb
-      .from('newsletter_subscribers')
-      .insert({ email, source: location.pathname });
+    // Goes through the edge function so a branded welcome email is sent
+    // (the browser can't send email). The function inserts the subscriber
+    // with the service role and emails this month's activities.
+    const { data, error } = await sb.functions.invoke('newsletter-subscribe', {
+      body: { email },
+    });
+    if (error) throw error;
 
-    if (error) {
-      if (error.code === '23505') {           // already subscribed
-        showToast('Ya estás suscrito. ¡Gracias!');
-        form.reset();
-      } else {
-        throw error;
-      }
+    if (data?.alreadySubscribed) {
+      showToast('Ya estás suscrito. ¡Gracias!');
     } else {
-      showToast('¡Listo! Te avisaremos de los próximos eventos.');
-      form.reset();
+      showToast('¡Listo! Revisa tu correo — te enviamos la bienvenida.');
     }
+    form.reset();
   } catch (err) {
     console.error('[newsletter] subscribe failed', err);
     showToast('No se pudo completar. Inténtalo de nuevo más tarde.', { ok: false });
