@@ -56,24 +56,32 @@ function fmtTime(iso: string) {
   } catch { return ""; }
 }
 
+const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+// A bordered "card" row matching the website's card look. `accent` is the
+// left-stripe colour. title/sub must already be escaped by the caller.
+function itemCard(accent: string, title: string, sub: string) {
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 10px;background-color:#f6f8f8;border:1px solid #e6e9ec;border-left:3px solid ${accent};border-radius:10px;">
+      <tr><td style="padding:13px 16px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+        <div style="font-size:15px;font-weight:700;color:#1a2d32;">${title}</div>
+        ${sub ? `<div style="font-size:13px;color:#736960;margin-top:3px;">${sub}</div>` : ""}
+      </td></tr>
+    </table>`;
+}
+
 function eventsHtml(events: Array<Record<string, unknown>>) {
   if (!events.length) {
     return `<p style="margin:0 0 8px;font-size:15px;line-height:1.6;color:#4b5563;">
       Pronto anunciaremos nuevos eventos especiales. Mientras tanto, te esperamos en nuestros servicios semanales.</p>`;
   }
-  const rows = events.map((e) => {
-    const date = fmtDate(String(e.starts_at));
+  return events.map((e) => {
+    const date = cap(fmtDate(String(e.starts_at)));
     const time = fmtTime(String(e.starts_at));
-    const loc = e.location ? ` · ${esc(String(e.location))}` : "";
-    return `
-      <tr>
-        <td style="padding:12px 0;border-bottom:1px solid #eceef0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-          <div style="font-size:15px;font-weight:700;color:#1a2d32;">${esc(String(e.title || "Evento"))}</div>
-          <div style="font-size:13px;color:#736960;margin-top:3px;text-transform:capitalize;">${esc(date)}${time ? ` · ${esc(time)}` : ""}${loc}</div>
-        </td>
-      </tr>`;
+    const parts = [esc(date), time ? esc(time) : "", e.location ? esc(String(e.location)) : ""]
+      .filter(Boolean);
+    return itemCard("#c89858", esc(String(e.title || "Evento")), parts.join(" · "));
   }).join("");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rows}</table>`;
 }
 
 function welcomeEmail(events: Array<Record<string, unknown>>) {
@@ -99,14 +107,12 @@ function welcomeEmail(events: Array<Record<string, unknown>>) {
             recordatorios de la iglesia. Aquí tienes lo que está sucediendo.
           </p>
 
-          <h2 style="margin:0 0 10px;font-size:13px;font-weight:700;color:#345a65;text-transform:uppercase;letter-spacing:.1em;">Servicios semanales</h2>
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
-            <tr><td style="padding:7px 0;font-size:15px;color:#1a2d32;">🙌 <strong>Domingo</strong> · 2:00 PM — Servicio de adoración</td></tr>
-            <tr><td style="padding:7px 0;font-size:15px;color:#1a2d32;">📖 <strong>Martes</strong> · 7:00 PM — Estudio bíblico</td></tr>
-            <tr><td style="padding:7px 0;font-size:15px;color:#1a2d32;">🙏 <strong>Viernes</strong> · 7:00 PM — Servicio de oración</td></tr>
-          </table>
+          <h2 style="margin:0 0 12px;font-size:13px;font-weight:700;color:#345a65;text-transform:uppercase;letter-spacing:.1em;">Servicios semanales</h2>
+          ${itemCard("#345a65", "Servicio de adoración", "Domingo · 2:00 PM")}
+          ${itemCard("#345a65", "Estudio bíblico", "Martes · 7:00 PM")}
+          ${itemCard("#345a65", "Servicio de oración", "Viernes · 7:00 PM")}
 
-          <h2 style="margin:0 0 10px;font-size:13px;font-weight:700;color:#345a65;text-transform:uppercase;letter-spacing:.1em;">Eventos de ${esc(monthName)}</h2>
+          <h2 style="margin:24px 0 12px;font-size:13px;font-weight:700;color:#345a65;text-transform:uppercase;letter-spacing:.1em;">Eventos de ${esc(cap(monthName))}</h2>
           ${eventsHtml(events)}
 
           <table role="presentation" cellpadding="0" cellspacing="0" style="margin:30px 0 6px;">
