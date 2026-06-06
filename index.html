@@ -67,19 +67,6 @@
     <link rel="stylesheet" href="/css/style.css">
     <meta name="format-detection" content="telephone=no">
 
-    <!-- Splash guard: if the splash already played this session, hide the
-         overlay synchronously (before first paint) so it never flashes when
-         the visitor navigates back to the homepage. Runs before the deferred
-         splash module, which would react too late to prevent the flash. -->
-    <script>
-      try {
-        if (sessionStorage.getItem('ird-splash-shown') &&
-            !location.search.includes('splash')) {
-          document.documentElement.classList.add('splash-seen');
-        }
-      } catch (e) {}
-    </script>
-
     <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -196,8 +183,6 @@
 </head>
 
   <body>
-    <div id="ird-splash"></div>
-    <script type="module" src="/js/components/splash.js"></script>
     <header id="header"
       data-hero-video-desktop="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/hero-desktop.mp4"
       data-hero-video-mobile="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/hero-mobile.mp4"
