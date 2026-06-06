@@ -1,46 +1,52 @@
 /* ═══════════════════════════════════════════════
-   NEWSLETTER — event news & reminders sign-up band
+   NEWSLETTER — event news & reminders sign-up
+   A self-contained card on the page background, so it reads as its own
+   block — clearly separate from the dark donation band above it.
    ═══════════════════════════════════════════════ */
 
 .newsletter {
-  padding: clamp(3rem, 6vw + 1rem, 5.5rem) 1.25rem;
-  /* Distinct teal-blue gradient so it reads as its own section, not a
-     continuation of the slate (--color-dark) donation band above it. */
-  background: linear-gradient(135deg, var(--color-30, #345a65) 0%, var(--color-45, #4e8897) 100%);
-  color: #f0f9ff;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: clamp(3rem, 6vw + 1rem, 5rem) 1.25rem;
+  background: transparent;          /* page background, NOT the dark donation band */
+  color: var(--color-text);
 }
 
 .newsletter__inner {
-  max-width: 620px;
+  max-width: 600px;
   margin: 0 auto;
+  padding: clamp(1.75rem, 4vw, 2.75rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 1.1rem;
+  gap: 1rem;
+  /* The card surface + border + shadow visually contain it. The translucent
+     tint adapts to both light and dark page backgrounds. */
+  background: rgba(57, 69, 72, 0.05);
+  border: 1px solid rgba(57, 69, 72, 0.14);
+  border-radius: 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.07);
 }
 
 .newsletter__title {
   margin: 0;
   font-size: var(--fs-2xl);
   font-weight: var(--fw-bold);
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .newsletter__sub {
   margin: 0;
-  max-width: 46ch;
+  max-width: 44ch;
   font-size: var(--fs-md);
   line-height: 1.55;
-  opacity: 0.82;
+  opacity: 0.72;
 }
 
 .newsletter__form {
   display: flex;
   gap: 0.75rem;
   width: 100%;
-  max-width: 480px;
+  max-width: 460px;
   margin-top: 0.5rem;
 }
 
@@ -48,36 +54,23 @@
   flex: 1;
   min-width: 0;
   padding: 0.85rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(57, 69, 72, 0.25);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
+  background: var(--color-bg-light, #fff);
+  color: var(--color-text);
   font-size: var(--fs-sm);
   opacity: 1;
 }
 
-.newsletter__input::placeholder { color: rgba(255, 255, 255, 0.5); }
+.newsletter__input::placeholder { color: rgba(57, 69, 72, 0.5); }
 
 .newsletter__input:focus-visible {
-  outline: 2px solid var(--orange-55);
+  outline: 2px solid var(--color-secondary, #c89858);
   outline-offset: 1px;
   border-color: transparent;
 }
 
-/* Gold CTA so the button is clearly distinct from the teal background
-   (the default --teal button is the same colour as the band). */
-.newsletter__form .ird-btn {
-  white-space: nowrap;
-  background-color: var(--color-secondary, #c89858);
-  color: #1a2c33;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
-}
-
-.newsletter__form .ird-btn:hover,
-.newsletter__form .ird-btn:focus-visible {
-  color: #1a2c33;
-  filter: brightness(1.06);
-}
+.newsletter__form .ird-btn { white-space: nowrap; }
 
 .newsletter__note {
   margin: 0;
@@ -85,7 +78,7 @@
   opacity: 0.55;
 }
 
-/* Honeypot — visually + aurally hidden, off-screen so bots fill it, humans don't. */
+/* Honeypot — off-screen so bots fill it, humans don't. */
 .newsletter__hp {
   position: absolute;
   left: -9999px;
