@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/gallery-tab.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Admin Galería tab — full CRUD for albums + photos.
@@ -20,9 +21,7 @@ import { toast, confirm } from './ui.js';
 import { openGalleryWizard } from './gallery-wizard.js';
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 
 let booted = false;
 let albumsCache = [];

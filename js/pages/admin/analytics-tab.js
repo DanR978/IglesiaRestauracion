@@ -1,13 +1,11 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/analytics-tab.js
 // "Analíticas" — trends, not just counts. Lightweight CSS bar charts (no lib).
 // Admin-only. Buckets are computed client-side from compact column fetches.
 
 import { sb } from './state.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 const MONTHS_S = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 

@@ -2,7 +2,7 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="robots" content="index, follow" />
 
     <title>Sermones | Iglesia Restauración Divina</title>
@@ -10,10 +10,10 @@
     <meta name="author" content="Iglesia Restauración Divina" />
     
     <!-- LOGO -->
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon"> 
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon"> 
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
     <link rel="canonical" href="https://www.irdlex.org/sermones/" />
 
@@ -31,9 +31,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  </head>
+      <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Dónde puedo ver los sermones?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Aquí mismo en esta página, o en nuestro canal de YouTube, donde publicamos nuestras predicaciones." }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Los sermones están en español?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Sí, todas nuestras predicaciones son en español." }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Puedo ver los servicios en vivo?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Transmitimos en vivo por YouTube durante nuestros servicios. Suscríbete al canal para recibir aviso." }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Puedo ver predicaciones anteriores?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Sí. Tenemos un archivo de series y sermones que puedes ver cuando quieras." }
+        }
+      ]
+    }
+    </script>
+</head>
 
   <body>
 
@@ -60,7 +87,6 @@
                     </button>
                     <ul class="submenu">
                         <li><a href="/quienes-somos/">Quiénes Somos</a></li>
-                        <li><a href="/pastor/">Nuestro Pastor</a></li>
                         <li><a href="/vision-valores/">Visión y Valores</a></li>
                         <li><a href="/doctrina/">Doctrina</a></li>
                         <li><a href="/contacto/">Contáctanos</a></li>
@@ -141,6 +167,85 @@
     <main>
       <div id="sermonBack"></div>
       <div id="sermonContent"></div>
+
+            <!-- FAQ:auto -->
+      <section class="section--accordion-faq">
+        <div class="accordion-faq__wrapper">
+          <div class="section-divider">
+            <hr class="section-divider__line" />
+            <h2 class="section-divider__text animate-fade-in" data-threshold="1">Preguntas Frecuentes</h2>
+            <hr class="section-divider__line" />
+          </div>
+
+          <div class="accordion-faq__item">
+            <button class="accordion-faq__question" aria-expanded="false">
+              ¿Dónde puedo ver los sermones?
+              <span class="accordion-faq__icon" aria-hidden="true">
+                <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+                <svg class="accordion-faq__x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-faq__answer">
+              Aquí mismo en esta página, o en nuestro canal de YouTube, donde publicamos nuestras predicaciones.
+            </div>
+          </div>
+
+          <div class="accordion-faq__item">
+            <button class="accordion-faq__question" aria-expanded="false">
+              ¿Los sermones están en español?
+              <span class="accordion-faq__icon" aria-hidden="true">
+                <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+                <svg class="accordion-faq__x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-faq__answer">
+              Sí, todas nuestras predicaciones son en español.
+            </div>
+          </div>
+
+          <div class="accordion-faq__item">
+            <button class="accordion-faq__question" aria-expanded="false">
+              ¿Puedo ver los servicios en vivo?
+              <span class="accordion-faq__icon" aria-hidden="true">
+                <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+                <svg class="accordion-faq__x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-faq__answer">
+              Transmitimos en vivo por YouTube durante nuestros servicios. Suscríbete al canal para recibir aviso.
+            </div>
+          </div>
+
+          <div class="accordion-faq__item">
+            <button class="accordion-faq__question" aria-expanded="false">
+              ¿Puedo ver predicaciones anteriores?
+              <span class="accordion-faq__icon" aria-hidden="true">
+                <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+                <svg class="accordion-faq__x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-faq__answer">
+              Sí. Tenemos un archivo de series y sermones que puedes ver cuando quieras.
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section id="contact-form">
 <!-- BUILD-INLINE:contact-form -->
@@ -531,7 +636,6 @@
             <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
             <ul>
               <li class="animate-fade-in" data-threshold="1"><a href="/quienes-somos/">QUIÉNES SOMOS</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="/pastor/">NUESTRO PASTOR</a></li>
               <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores/">VISIÓN Y VALORES</a></li>
               <li class="animate-fade-in" data-threshold="1"><a href="/doctrina/">DOCTRINA</a></li>
               <li class="animate-fade-in" data-threshold="1"><a href="/contacto/">CONTÁCTANOS</a></li>

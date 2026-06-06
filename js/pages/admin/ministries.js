@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/ministries.js
 // Ministerios tab — list + full create / edit / delete management.
 
@@ -7,10 +8,7 @@ import { toast, openModal, closeModal, confirm } from './ui.js';
 import { autoBalance } from './grid-balance.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 export async function loadMinistries() {
   const { data } = await sb.from('ministries').select('*').order('name');

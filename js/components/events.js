@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // /js/events.js — dual-mode renderer (simple grid OR month accordion)
 // Usage: window.Rail.setEvents([{ id, title, date:'YYYY-MM-DD', time?, location?, image?, url?, description?, starts_at? }])
 (() => {
@@ -151,21 +152,21 @@
     // Link to event detail page if event has an ID
     const hasLink = !!ev.id;
     const tag = hasLink ? 'a' : 'div';
-    const href = hasLink ? `/eventos/evento.html?id=${ev.id}` : '';
+    const href = hasLink ? `/eventos/evento.html?id=${encodeURIComponent(ev.id)}` : '';
     const hrefAttr = hasLink ? `href="${href}"` : '';
 
     article.innerHTML = `
-      <${tag} class="event__linkwrap" ${hrefAttr} aria-label="${title}">
+      <${tag} class="event__linkwrap" ${hrefAttr} aria-label="${esc(title)}">
         <div class="event__media">
-          <img src="${ev.image || ''}" alt="${title}">
+          <img src="${esc(ev.image || '')}" alt="${esc(title)}" loading="lazy" decoding="async">
         </div>
 
         <div class="event__body">
-          <h3 class="event__title">${title}</h3>
+          <h3 class="event__title">${esc(title)}</h3>
 
-          <div class="event__row">${ICON_CAL}<span>${fmtDate(ev.date)}</span></div>
-          ${ev.time ? `<div class="event__row">${ICON_CLOCK}<span>${ev.time}</span></div>` : ''}
-          ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${ev.location}</span></div>` : ''}
+          <div class="event__row">${ICON_CAL}<span>${esc(fmtDate(ev.date))}</span></div>
+          ${ev.time ? `<div class="event__row">${ICON_CLOCK}<span>${esc(ev.time)}</span></div>` : ''}
+          ${ev.location ? `<div class="event__row">${ICON_LOC}<span>${esc(ev.location)}</span></div>` : ''}
         </div>
       </${tag}>
     `;

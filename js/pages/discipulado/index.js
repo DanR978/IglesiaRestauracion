@@ -1,3 +1,4 @@
+import { escapeHtml } from '/js/utils/escape.js';
 // js/pages/discipulado/index.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public Discipulado page wiring:
@@ -122,14 +123,7 @@ function renderSchedule(groups) {
 }
 
 /* ── Utilities ────────────────────────────────────────────────────────────── */
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+
 
 /* ── Boot ─────────────────────────────────────────────────────────────────── */
 async function refreshGroups() {

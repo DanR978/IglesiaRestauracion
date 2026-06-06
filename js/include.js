@@ -154,8 +154,11 @@
     const url = headerMount.getAttribute("data-hero");
     if (!url) return;
 
-    // Reserve space immediately to avoid layout shifts even before CSS arrives
-    if (!headerMount.style.minHeight) headerMount.style.minHeight = "100svh";
+    // NOTE: hero height is reserved entirely in CSS (base.css `#header` +
+    // `#header[data-hero-size="page"]` in hero.css). The stylesheet is
+    // render-blocking in <head>, so the space is reserved before first paint
+    // with no CLS — no need to set inline geometry here (which previously
+    // forced the CSS to fight back with `!important`).
 
     // Preconnect + preload hero image
     try {
@@ -182,8 +185,7 @@
     const heroImg      = host.querySelector(".hero");
     const headerGrid   = host.querySelector(".header-grid");
 
-    // Fill the reserved area
-    if (!host.style.minHeight) host.style.minHeight = "100svh";
+    // (Height is owned by CSS — see note in preloadHeroFromDataset.)
 
     // Set the hero IMAGE immediately and make it eager.
     // The image always loads — it's the poster + the fallback for when the
@@ -346,6 +348,22 @@
     await emitReady("footer:ready", host);
   }
 
+  // --------- a11y: skip link ---------
+  function ensureSkipLink() {
+    const main = document.querySelector("main");
+    if (main) {
+      if (!main.id) main.id = "main";
+      if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+    }
+    const target = main?.id || "main";
+    if (document.querySelector(".skip-link")) return;
+    const a = document.createElement("a");
+    a.className = "skip-link";
+    a.href = `#${target}`;
+    a.textContent = "Saltar al contenido";
+    document.body.insertBefore(a, document.body.firstChild);
+  }
+
   // --------- boot ---------
   document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -355,6 +373,11 @@
 
       // NEW: avoid browser restoring scroll before we mount header
       pinScrollTopOnce();
+
+      // a11y: inject a "skip to content" link as the first focusable element,
+      // and make <main> a focus target. Shared across every page so it stays
+      // consistent without editing each template.
+      ensureSkipLink();
 
       // NEW: preload hero from #header[data-hero] before fetching header fragment
       preloadHeroFromDataset(document.getElementById("header"));

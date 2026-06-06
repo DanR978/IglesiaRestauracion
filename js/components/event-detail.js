@@ -1,8 +1,13 @@
+import { esc } from '/js/utils/escape.js';
 // /js/components/event-detail.js
 // Reads ?id=<uuid> from URL, fetches event from Supabase, fills the page.
 
 import { sb } from '/js/lib/supabase.js';
+import { buildGoogleCalUrl, downloadICS } from '/js/utils/calendar.js';
+import { isIOS } from '/js/utils/detect-device.js';
 const TZ = "America/New_York";
+
+
 
 // ── Helpers ──────────────────────────────────────────────
 function formatDate(dateStr) {
@@ -41,32 +46,6 @@ function formatTimeRange(startsAt, endsAt) {
   return `${start} – ${end}`;
 }
 
-function buildGoogleCalUrl(event) {
-  const pad = (n) => String(n).padStart(2, "0");
-  const fmtUTC = (d) =>
-    d.getUTCFullYear() +
-    pad(d.getUTCMonth() + 1) +
-    pad(d.getUTCDate()) +
-    "T" +
-    pad(d.getUTCHours()) +
-    pad(d.getUTCMinutes()) +
-    pad(d.getUTCSeconds()) +
-    "Z";
-
-  const start = new Date(event.starts_at);
-  const end = event.ends_at
-    ? new Date(event.ends_at)
-    : new Date(start.getTime() + 3600000);
-
-  const qs = new URLSearchParams({
-    action: "TEMPLATE",
-    text: event.title || "Evento",
-    dates: `${fmtUTC(start)}/${fmtUTC(end)}`,
-    details: event.description || "",
-    location: event.location || "",
-  });
-  return `https://calendar.google.com/calendar/render?${qs.toString()}`;
-}
 
 // ── DOM helpers ──────────────────────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -151,9 +130,18 @@ function renderEvent(event) {
     show("event-location-row");
   }
 
-  // Calendar button
+  // Calendar button — native Apple Calendar (.ics) on iOS/iPadOS, Google elsewhere.
   const calBtn = $("event-calendar-btn");
-  if (calBtn) calBtn.href = buildGoogleCalUrl(event);
+  if (calBtn) {
+    calBtn.href = buildGoogleCalUrl(event);   // fallback + non-iOS behaviour
+    if (isIOS()) {
+      calBtn.removeAttribute("target");
+      calBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        downloadICS(event);
+      });
+    }
+  }
 
   // Description
   if (event.description) {
@@ -163,7 +151,7 @@ function renderEvent(event) {
       .filter(Boolean);
     setHtml(
       "event-description",
-      paragraphs.map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`).join("")
+      paragraphs.map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("")
     );
     show("event-description-section");
   }

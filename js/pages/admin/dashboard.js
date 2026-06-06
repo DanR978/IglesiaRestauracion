@@ -2,13 +2,12 @@
 // "Inicio" — at-a-glance overview tab. Stat cards + next upcoming events.
 // Counts are scoped: a ministry leader only sees their own ministry.
 
+import { html, raw } from '/js/utils/escape.js';
+import { render } from '/js/utils/render.js';
 import { sb, isAdmin, currentProfile, todayISO, MONTHS, DAY_NAMES } from './state.js';
 import { autoBalance } from './grid-balance.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 export async function loadDashboard() {
   const cardsEl = document.getElementById('dashCards');
@@ -21,8 +20,8 @@ export async function loadDashboard() {
     greet.textContent = first ? `Hola, ${first}` : 'Hola';
   }
 
-  cardsEl.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
-  if (nextEl) nextEl.innerHTML = '';
+  render(cardsEl, html`<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>`);
+  if (nextEl) render(nextEl, '');
 
   const admin = isAdmin();
   const mid   = currentProfile?.ministry_id;
@@ -69,45 +68,47 @@ export async function loadDashboard() {
                    num: albums.count ?? 0,    label: 'Álbumes de galería' });
     }
 
-    cardsEl.innerHTML = cards.map(c => `
-      <button class="dash-card${c.alert ? ' dash-card--alert' : ''}" data-goto="${c.goto}">
+    const cardsChanged = render(cardsEl, html`${cards.map(c => html`
+      <button class="dash-card${raw(c.alert ? ' dash-card--alert' : '')}" data-goto="${c.goto}">
         <span class="dash-card__icon"><i class="fas ${c.icon}"></i></span>
         <span class="dash-card__num">${c.num}</span>
         <span class="dash-card__label">${c.label}</span>
-      </button>`).join('');
+      </button>`)}`);
 
-    cardsEl.querySelectorAll('[data-goto]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelector(`.tab-btn[data-tab="${btn.dataset.goto}"]`)?.click();
+    if (cardsChanged) {
+      cardsEl.querySelectorAll('[data-goto]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelector(`.tab-btn[data-tab="${btn.dataset.goto}"]`)?.click();
+        });
       });
-    });
-    autoBalance(cardsEl);   // last row stretches to fill — no orphan cards
+      autoBalance(cardsEl);   // last row stretches to fill — no orphan cards
+    }
 
     const rows = nextRows.data || [];
     if (nextEl) {
-      nextEl.innerHTML = rows.length
-        ? rows.map(ev => {
+      render(nextEl, rows.length
+        ? html`${rows.map(ev => {
             const [y, mo, d] = ev.date.split('-').map(Number);
             const dayName = DAY_NAMES[new Date(y, mo - 1, d).getDay()];
-            return `
-              <div class="dash-next${ev.cancelled ? ' dash-next--off' : ''}">
+            return html`
+              <div class="dash-next${raw(ev.cancelled ? ' dash-next--off' : '')}">
                 <div class="dash-next__date">
                   <span class="dash-next__day">${d}</span>
                   <span class="dash-next__mon">${MONTHS[mo - 1].slice(0, 3)}</span>
                 </div>
                 <div class="dash-next__info">
-                  <div class="dash-next__title">${esc(ev.title)}${
-                    ev.cancelled ? ' <span class="dash-next__badge">Cancelado</span>' : ''}</div>
+                  <div class="dash-next__title">${ev.title}${
+                    raw(ev.cancelled ? ' <span class="dash-next__badge">Cancelado</span>' : '')}</div>
                   <div class="dash-next__meta">${dayName}${
-                    ev.time ? ' · ' + esc(ev.time) : ''}${
-                    ev.ministries?.name ? ' · ' + esc(ev.ministries.name) : ''}</div>
+                    ev.time ? ' · ' + ev.time : ''}${
+                    ev.ministries?.name ? ' · ' + ev.ministries.name : ''}</div>
                 </div>
               </div>`;
-          }).join('')
-        : '<div class="empty-state"><i class="fas fa-calendar-check"></i><p>No hay eventos próximos.</p></div>';
+          })}`
+        : html`<div class="empty-state"><i class="fas fa-calendar-check"></i><p>No hay eventos próximos.</p></div>`);
     }
   } catch (e) {
-    cardsEl.innerHTML =
-      `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(e.message)}</p></div>`;
+    render(cardsEl,
+      html`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${e.message}</p></div>`);
   }
 }

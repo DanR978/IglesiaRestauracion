@@ -6,7 +6,7 @@
 #ird-splash {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-splash);
   overflow: hidden;
 
   background:
@@ -85,3 +85,8 @@
 @media (prefers-reduced-motion: reduce) {
   #ird-splash { display: none !important; }
 }
+
+/* Already shown this session (class set synchronously in <head> before paint),
+   so the overlay never flashes when navigating back to the homepage. The
+   splash only renders on the very first load of the site per session. */
+html.splash-seen #ird-splash { display: none !important; }

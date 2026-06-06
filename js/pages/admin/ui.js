@@ -8,7 +8,12 @@ export function toast(msg, type = 'info') {
   const icon = type === 'success' ? 'check-circle'
              : type === 'error'   ? 'exclamation-circle'
              : 'info-circle';
-  el.innerHTML = `<i class="fas fa-${icon}"></i> ${msg}`;
+  // Build with textContent so dynamic messages (error strings, emails) can't inject HTML.
+  const i = document.createElement('i');
+  i.className = `fas fa-${icon}`;
+  i.setAttribute('aria-hidden', 'true');
+  el.append(i, ` ${msg ?? ''}`);
+  el.setAttribute('role', type === 'error' ? 'alert' : 'status');
   document.getElementById('toast').appendChild(el);
   setTimeout(() => el.remove(), 4000);
 }

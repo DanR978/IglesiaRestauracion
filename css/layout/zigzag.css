@@ -42,7 +42,8 @@
 
 .zigzag-row { display: flex; flex-direction: row; }
 
-.zigzag-card h1 {
+.zigzag-card h1,
+.zigzag-card h2 {
   font-size: var(--fs-3xl);
   font-weight: var(--fw-extrabold);
   letter-spacing: 2px;

@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/users.js
 // ─────────────────────────────────────────────────────────────────────────────
 // "Cuentas y Accesos" tab — invite-only account management.
@@ -37,10 +38,7 @@ function initials(name) {
   return (name || '?').split(' ').filter(Boolean)
     .map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 }
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 // ── Load + render ────────────────────────────────────────────────────────────
 export async function loadUsers() {

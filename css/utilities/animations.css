@@ -290,3 +290,21 @@
     transform: scale(.9) rotate(720deg);
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Global reduced-motion guard (WCAG 2.3.3 / 2.2 §2.3.3).
+ * This central keyframe library (fadeIn, slideIn, spinIn, AutoRotate infinite,
+ * text-appear, view-timeline reveals) previously had no reduced-motion opt-out.
+ * Users who request reduced motion get content shown instantly instead of
+ * animated. Content stays visible — we only neutralise the motion.
+ * ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

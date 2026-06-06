@@ -1,3 +1,4 @@
+import { escapeHtml } from '/js/utils/escape.js';
 // js/pages/discipulado/grupo.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Group detail page — reads ?slug=... or ?id=... from the URL, fetches the
@@ -19,11 +20,7 @@ const ID   = params.get('id')   || '';
 
 const $ = (id) => document.getElementById(id);
 
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+
 
 /* ── Render the detail card (location, schedule, leader, capacity) ──────── */
 let _currentGroup = null;

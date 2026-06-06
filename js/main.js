@@ -50,6 +50,7 @@ import {
   setupDirectionsButton,
 } from "./app/ui.js";
 import { initFloatingUI } from "./app/floating-ui.js";
+import { initNewsletter } from "./lib/newsletter.js";
 
 // Expose namespace for legacy/partials
 const IRD = (window.IRD ||= (IRDns ?? {}));
@@ -73,6 +74,7 @@ function wirePageOnce() {
   initAnimations?.();
   setupFAQAccordion?.();
   setupDirectionsButton?.();
+  initNewsletter?.();
 
   // contact form AJAX wiring (works for injected partial)
   IRD.Forms?.initContactFormWiring?.();

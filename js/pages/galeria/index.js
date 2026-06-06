@@ -1,3 +1,4 @@
+import { escapeHtml } from '/js/utils/escape.js';
 // js/pages/galeria/index.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public Galería page:
@@ -25,9 +26,7 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
-const escapeHtml = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 
 /* ── Filter bar ───────────────────────────────────────────────────────────── */
 

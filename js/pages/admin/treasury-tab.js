@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/treasury-tab.js
 // "Tesorería" — church-wide treasury + per-ministry MONTHLY budgets.
 // Every add/edit is a step-by-step wizard (one question per screen, big
@@ -11,10 +12,7 @@ import { openFormWizard } from './form-wizard.js';
 import { mountReportBuilder } from './report-builder.js';
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
 function todayISO() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
 function thisMonth() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}`; }

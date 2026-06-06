@@ -5,7 +5,7 @@
 #ird-transition {
   position: fixed;
   inset: 0;
-  z-index: 9998;
+  z-index: var(--z-page-transition);
   background: rgba(8, 21, 32, 0.94);
   display: flex;
   align-items: center;

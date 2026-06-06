@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/settings-tab.js
 // "Configuración" — site-wide settings: church info + feature flags.
 // Stored as key/value rows in app_settings (admin-only via RLS).
@@ -5,10 +6,7 @@
 import { sb, currentUser } from './state.js';
 import { toast } from './ui.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 let SETTINGS = { church: {}, features: {} };
 

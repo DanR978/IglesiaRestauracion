@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/home/latest-gallery.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Homepage "Galería" teaser — editorial split feature.
@@ -23,9 +24,7 @@ import {
 
 const THUMB_COUNT = 4;     // supporting thumbnails shown beside the feature
 
-const esc = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 
 function albumUrl(a) {
   return a.slug

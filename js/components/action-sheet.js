@@ -1,3 +1,4 @@
+import { escapeHtml } from '/js/utils/escape.js';
 // js/components/action-sheet.js
 // ─────────────────────────────────────────────────────────────────────────────
 // iOS-style action sheet / context menu.
@@ -153,8 +154,4 @@ function positionPopover(sheet, trigger) {
   sheet.style.visibility = 'visible';
 }
 
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+

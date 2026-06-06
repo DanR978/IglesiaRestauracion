@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/report-builder.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Treasury Report Builder — customizable report, live paper preview, WYSIWYG
@@ -15,7 +16,7 @@ const LOGO = '/resources/report-logo.png';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
-function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
 function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
 const pad = n => String(n).padStart(2, '0');
 const lastDay = (y, m) => new Date(y, m, 0).getDate();

@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/notifications.js
 // Topbar notification bell — unread badge + dropdown inbox, realtime.
 // Reads admin_notifications (admin-only via RLS); rows are created by DB triggers
@@ -5,10 +6,7 @@
 
 import { sb, isAdmin } from './state.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 const TYPE_ICON = {
   discipleship_interest: 'fa-hand-holding-heart',

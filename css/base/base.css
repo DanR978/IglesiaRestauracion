@@ -114,8 +114,38 @@ strong {
   margin-block: 0;
 }
 
-button:focus,
+/* Only suppress the focus ring for pointer interactions; keyboard users
+   (:focus-visible) keep a visible focus indicator (WCAG 2.4.7). */
+button:focus:not(:focus-visible),
 button:active {
   border: none;
+  outline: none;
+}
+
+/* Skip link — first focusable element, visually hidden until focused. */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--z-max, 999);
+  margin: 0.5rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-dark, #1a2c33);
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  transform: translateY(-150%);
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus-visible,
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+main:focus {
   outline: none;
 }

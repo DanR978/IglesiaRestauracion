@@ -219,21 +219,28 @@
 .hero-cta__primary:hover svg,
 .hero-cta__primary:focus-visible svg { transform: translateX(3px); }
 
-/* Clamp the mount element — beats include.js inline min-height:100svh */
-[data-hero-size="page"] {
-  height: 30vh !important;
-  min-height: 30vh !important;
-  max-height: 30vh !important;
-  overflow: hidden !important;
+/* ───────────────────────────────────────────────────────────────
+   INTERIOR PAGE HERO SIZE
+   The home hero is full-height (base.css `#header { min-height:100svh }`).
+   Interior pages opt into a short hero with `data-hero-size="page"`.
+   Scoping these to `#header` (id) gives them higher specificity than the
+   base `#header` / `.header-grid` / `.hero-content` rules, so CSS owns the
+   sizing outright — no inline styles, no `!important` war.
+   ─────────────────────────────────────────────────────────────── */
+#header[data-hero-size="page"] {
+  height: 30vh;
+  min-height: 30vh;
+  max-height: 30vh;
+  overflow: hidden;
 }
 
-/* Clamp the injected .header-grid — THIS is the containing block for
-   .hero-content { position:absolute }, so this is the critical rule */
-[data-hero-size="page"] .header-grid {
-  height: 30vh !important;
-  min-height: 30vh !important;
+/* The injected .header-grid is the containing block for the absolutely
+   positioned .hero-content, so it must be clamped too. */
+#header[data-hero-size="page"] .header-grid {
+  height: 30vh;
+  min-height: 30vh;
 }
 
 #header[data-hero-size="page"] + .hero-content {
-  top: 20% !important;
+  top: 20%;
 }

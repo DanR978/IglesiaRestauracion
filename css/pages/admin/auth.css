@@ -13,7 +13,7 @@
   padding: 1.5rem;
   background: #06101a;
   overflow: hidden;
-  z-index: 9999;
+  z-index: var(--z-splash);
   box-sizing: border-box;
 }
 

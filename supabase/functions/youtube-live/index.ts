@@ -1,6 +1,7 @@
 // supabase/functions/youtube-live/index.ts
 // Deploy: supabase functions deploy youtube-live
-// Set secret: supabase secrets set YOUTUBE_API_KEY=AIzaSyBvV3Gq4sDsX-H32e_mTGA
+// Set secret: supabase secrets set YOUTUBE_API_KEY=<your-key>
+// (Never commit the real key. Restrict it to the YouTube Data API v3 in Google Cloud.)
 //
 // This runs on Supabase's edge (Deno), not in the browser.
 // The API key never leaves the server.

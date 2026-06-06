@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/sermons/index.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Sermons page — SPA-style: playlists grid ↔ video list (no page navigation).
@@ -17,6 +18,8 @@ let _currentView = 'grid';  // 'grid' | 'videos'
 
 // ── DOM refs ────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
+
+
 
 // ── YouTube API helpers ─────────────────────────────────────────────────────
 
@@ -161,15 +164,15 @@ function renderPlaylistGrid(container) {
   container.innerHTML = `
     <div class="sermon-grid">
       ${_playlists.map(p => `
-        <div class="sermon-card animate-fade-in" data-playlist-id="${p.id}" data-threshold="0.1">
+        <div class="sermon-card animate-fade-in" data-playlist-id="${esc(p.id)}" data-threshold="0.1">
           <div class="sermon-card__thumb">
-            <img src="${p.thumbnail}" alt="${p.title}" loading="lazy">
-            <div class="sermon-card__count">${LIST_ICON} ${p.videoCount} videos</div>
+            <img src="${esc(p.thumbnail)}" alt="${esc(p.title)}" loading="lazy">
+            <div class="sermon-card__count">${LIST_ICON} ${esc(p.videoCount)} videos</div>
             <div class="sermon-card__play">${PLAY_ICON}</div>
           </div>
           <div class="sermon-card__body">
-            <div class="sermon-card__title">${p.title}</div>
-            <div class="sermon-card__meta">${p.description.slice(0, 100)}</div>
+            <div class="sermon-card__title">${esc(p.title)}</div>
+            <div class="sermon-card__meta">${esc(p.description.slice(0, 100))}</div>
           </div>
         </div>`).join('')}
     </div>`;
@@ -225,7 +228,7 @@ async function showPlaylistVideos(playlistId, playlistTitle) {
           </button>
 
           <h3 class="sermon-header__title">
-            ${playlistTitle}
+            ${esc(playlistTitle)}
             <span class="sermon-header__count">${videos.length} videos</span>
           </h3>
         </div>
@@ -233,29 +236,29 @@ async function showPlaylistVideos(playlistId, playlistTitle) {
         <div class="sermon-player">
           <div class="sermon-player__frame">
             <iframe
-              src="https://www.youtube.com/embed/${activeVideo.videoId}?autoplay=1&rel=0"
+              src="https://www.youtube.com/embed/${encodeURIComponent(activeVideo.videoId)}?autoplay=1&rel=0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen loading="lazy"></iframe>
           </div>
 
           <div class="sermon-player__content">
-            <h2 class="sermon-player__title">${activeVideo.title}</h2>
-            <p class="sermon-player__meta">${fmtDate(activeVideo.publishedAt)}</p>
-            ${activeVideo.description ? `<p class="sermon-player__desc">${activeVideo.description.slice(0, 400)}</p>` : ''}
+            <h2 class="sermon-player__title">${esc(activeVideo.title)}</h2>
+            <p class="sermon-player__meta">${esc(fmtDate(activeVideo.publishedAt))}</p>
+            ${activeVideo.description ? `<p class="sermon-player__desc">${esc(activeVideo.description.slice(0, 400))}</p>` : ''}
           </div>
         </div>
 
         <div class="sermon-video-list">
           ${videos.map(v => `
             <div class="sermon-video${v.videoId === activeId ? ' sermon-video--active' : ''}"
-                data-vid="${v.videoId}">
+                data-vid="${esc(v.videoId)}">
               <div class="sermon-video__thumb">
-                <img src="${v.thumbnail}" alt="${v.title}" loading="lazy">
+                <img src="${esc(v.thumbnail)}" alt="${esc(v.title)}" loading="lazy">
               </div>
               <div class="sermon-video__info">
-                <div class="sermon-video__title">${v.title}</div>
-                <div class="sermon-video__meta">${fmtDate(v.publishedAt)}</div>
-                ${v.description ? `<div class="sermon-video__desc">${v.description.slice(0, 120)}</div>` : ''}
+                <div class="sermon-video__title">${esc(v.title)}</div>
+                <div class="sermon-video__meta">${esc(fmtDate(v.publishedAt))}</div>
+                ${v.description ? `<div class="sermon-video__desc">${esc(v.description.slice(0, 120))}</div>` : ''}
               </div>
             </div>
           `).join('')}

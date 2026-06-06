@@ -262,7 +262,11 @@
   text-decoration: none;
 }
 
-.events__empty {
+/* `:not([hidden])` so the empty-state respects the `hidden` attribute the
+   renderer toggles. Author `display` would otherwise override the UA
+   `[hidden] { display:none }` rule and the message would show on top of
+   real events. */
+.events__empty:not([hidden]) {
   display: flex;
   justify-content: center;
   align-items: center;

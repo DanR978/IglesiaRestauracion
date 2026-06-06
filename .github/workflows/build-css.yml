@@ -29,6 +29,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add css/style.css
-          git diff --cached --quiet || git commit -m "chore: rebuild style.css [skip ci]"
+          git add css/style.css css/admin.css
+          git diff --cached --quiet || git commit -m "chore: rebuild style.css + admin.css [skip ci]"
           git push

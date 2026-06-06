@@ -1,13 +1,11 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/activity-tab.js
 // "Actividad" — read-only audit feed (who changed what, when).
 // Rows are written automatically by the audit_capture() DB trigger.
 
 import { sb } from './state.js';
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 const ACTION = {
   INSERT: { verb: 'creó',     icon: 'fa-plus',  cls: 'act--add' },

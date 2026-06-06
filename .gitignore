@@ -25,3 +25,6 @@ js/lib/config.js
 node_modules/
 
 migrations/
+# …but Supabase migrations ARE version-controlled (see supabase/README.md).
+!supabase/migrations/
+!supabase/migrations/**

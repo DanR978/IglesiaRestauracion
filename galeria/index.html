@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="index, follow">
     <meta name="keywords"
       content="galería iglesia, fotos iglesia Lexington, memorias iglesia, bautismos, jóvenes, adoración, conferencias, comunidad cristiana, Iglesia Restauración Divina">
@@ -14,10 +14,10 @@
       content="Memorias y momentos especiales de nuestra familia en Cristo. Bautismos, conferencias, noches de adoración, jóvenes, evangelismo y mucho más.">
     <meta name="author" content="Iglesia Restauración Divina" />
 
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
-    <link href="https://raw.githubusercontent.com/DanR978/IglesiaRestauracion/refs/heads/main/resources/media/logo%20icons/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
+    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
 
     <link rel="canonical" href="https://www.irdlex.org/galeria/" />
     <meta property="og:site_name" content="Iglesia Restauración Divina" />
@@ -40,7 +40,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <script type="application/ld+json">
@@ -59,6 +58,24 @@
     </script>
     <!-- Google Analytics 4 -->
   <script defer src="/js/lib/analytics.js"></script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Puedo usar o compartir estas fotos?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Las fotos son para la comunidad de nuestra iglesia. Si deseas usarlas para otro fin, escríbenos." }
+        },
+        {
+          "@type": "Question",
+          "name": "No deseo aparecer en las fotos. ¿Qué hago?",
+          "acceptedAnswer": { "@type": "Answer", "text": "Lo entendemos. Contáctanos y con gusto retiraremos tu imagen de la galería." }
+        }
+      ]
+    }
+    </script>
 </head>
 
   <body>
@@ -86,7 +103,6 @@
                     </button>
                     <ul class="submenu">
                         <li><a href="/quienes-somos/">Quiénes Somos</a></li>
-                        <li><a href="/pastor/">Nuestro Pastor</a></li>
                         <li><a href="/vision-valores/">Visión y Valores</a></li>
                         <li><a href="/doctrina/">Doctrina</a></li>
                         <li><a href="/contacto/">Contáctanos</a></li>
@@ -262,6 +278,51 @@
         <div class="dscp-loading"><i class="fas fa-spinner fa-spin"></i> Cargando galería…</div>
       </section>
 
+          <!-- FAQ:auto -->
+      <section class="section--accordion-faq">
+        <div class="accordion-faq__wrapper">
+          <div class="section-divider">
+            <hr class="section-divider__line" />
+            <h2 class="section-divider__text animate-fade-in" data-threshold="1">Preguntas Frecuentes</h2>
+            <hr class="section-divider__line" />
+          </div>
+
+          <div class="accordion-faq__item">
+            <button class="accordion-faq__question" aria-expanded="false">
+              ¿Puedo usar o compartir estas fotos?
+              <span class="accordion-faq__icon" aria-hidden="true">
+                <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+                <svg class="accordion-faq__x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-faq__answer">
+              Las fotos son para la comunidad de nuestra iglesia. Si deseas usarlas para otro fin, <a href="/contacto/" class="email-link">escríbenos</a>.
+            </div>
+          </div>
+
+          <div class="accordion-faq__item">
+            <button class="accordion-faq__question" aria-expanded="false">
+              No deseo aparecer en las fotos. ¿Qué hago?
+              <span class="accordion-faq__icon" aria-hidden="true">
+                <svg class="accordion-faq__chevron" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+                <svg class="accordion-faq__x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </button>
+            <div class="accordion-faq__answer">
+              Lo entendemos. Contáctanos y con gusto retiraremos tu imagen de la galería.
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <footer id="footer">
@@ -305,7 +366,6 @@
             <h3 id="footer-nosotros" class="footer__subheading animate-fade-in" data-threshold="1">NOSOTROS</h3>
             <ul>
               <li class="animate-fade-in" data-threshold="1"><a href="/quienes-somos/">QUIÉNES SOMOS</a></li>
-              <li class="animate-fade-in" data-threshold="1"><a href="/pastor/">NUESTRO PASTOR</a></li>
               <li class="animate-fade-in" data-threshold="1"><a href="/vision-valores/">VISIÓN Y VALORES</a></li>
               <li class="animate-fade-in" data-threshold="1"><a href="/doctrina/">DOCTRINA</a></li>
               <li class="animate-fade-in" data-threshold="1"><a href="/contacto/">CONTÁCTANOS</a></li>

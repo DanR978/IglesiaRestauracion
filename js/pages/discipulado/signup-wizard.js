@@ -1,3 +1,4 @@
+import { escapeHtml } from '/js/utils/escape.js';
 // js/pages/discipulado/signup-wizard.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public group-signup wizard — multi-step popup for /discipulado/grupo/.
@@ -84,11 +85,7 @@ function el(tag, attrs = {}, children = []) {
   return n;
 }
 
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+
 
 // ─── Modal scaffold (built once, reused) ────────────────────────────────────
 let rootEl = null;

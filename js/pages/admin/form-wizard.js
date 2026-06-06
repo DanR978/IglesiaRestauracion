@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/admin/form-wizard.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Reusable step-by-step wizard — one clear question per screen, big choices,
@@ -26,10 +27,7 @@ import { toast } from './ui.js';
 let root = null;
 let keyHandler = null;
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
+
 
 export function openFormWizard(cfg) {
   close();

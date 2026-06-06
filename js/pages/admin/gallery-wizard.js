@@ -1,3 +1,4 @@
+import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 // js/pages/admin/gallery-wizard.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Step-by-step wizard for creating a gallery album. Mirrors the event &
@@ -256,12 +257,8 @@ async function createAlbum() {
 }
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-function escapeAttr(s) { return escapeHtml(s); }
+
+
 function escapeText(s) { return escapeHtml(s); }
 function truncate(s, n) { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '…' : s; }
 function formatDate(d) {

@@ -1,6 +1,12 @@
 // js/pages/admin/mfa.js
 // Two-factor authentication (TOTP) via Supabase Auth — enrollment + verification.
-// All admin accounts must complete MFA before the panel loads (enforced in auth.js).
+//
+// NOTE: MFA is currently OPTIONAL. `routeAfterLogin()` in auth.js goes straight
+// to the panel and does NOT challenge, so a password alone is sufficient even
+// for accounts that enrolled a factor. Enrollment/challenge here are reachable
+// from "Mi cuenta". To make MFA mandatory, gate `bootApp()` on `mfaStatus()`
+// (route to challenge/enroll when it returns 'challenge'/'enroll') AND enforce
+// `auth.jwt()->>'aal' = 'aal2'` in RLS — client gating alone is bypassable.
 
 import { sb } from './state.js';
 

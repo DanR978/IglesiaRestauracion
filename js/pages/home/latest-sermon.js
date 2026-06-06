@@ -1,9 +1,12 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/home/latest-sermon.js
 // Fetches and displays the most recent video from the channel on the homepage.
 
 import { YT_API_KEY, YT_CHANNEL_HANDLE } from '/js/lib/supabase.js';
 
 const YT_API = 'https://www.googleapis.com/youtube/v3';
+
+
 
 // ── Resolve channel ID from handle ──────────────────────────────────────────
 async function resolveChannelId() {
@@ -142,8 +145,8 @@ function renderLatestSermon(video) {
   playerEl.innerHTML = `
     <div class="latest-sermon__frame">
       <iframe
-        src="https://www.youtube.com/embed/${video.videoId}?rel=0"
-        title="${video.title}"
+        src="https://www.youtube.com/embed/${encodeURIComponent(video.videoId)}?rel=0"
+        title="${esc(video.title)}"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowfullscreen
         loading="lazy"
@@ -151,10 +154,10 @@ function renderLatestSermon(video) {
     </div>`;
 
   infoEl.innerHTML = `
-    <h3 class="latest-sermon__title">${video.title}</h3>
-    <p class="latest-sermon__date">${fmtDate(video.publishedAt)}</p>
+    <h3 class="latest-sermon__title">${esc(video.title)}</h3>
+    <p class="latest-sermon__date">${esc(fmtDate(video.publishedAt))}</p>
     ${video.description
-      ? `<p class="latest-sermon__desc">${video.description.slice(0, 200)}${video.description.length > 200 ? '...' : ''}</p>`
+      ? `<p class="latest-sermon__desc">${esc(video.description.slice(0, 200))}${video.description.length > 200 ? '...' : ''}</p>`
       : ''}
   `;
 }

@@ -1,3 +1,4 @@
+import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 // js/pages/admin/discipleship-tab.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Pastor / Admin dashboard tab for managing discipleship.
@@ -969,9 +970,5 @@ async function sendComposedMessage() {
 }
 
 /* ── HTML escape helpers ───────────────────────────────────────────────── */
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-function escapeAttr(s) { return escapeHtml(s).replace(/\n/g, ' '); }
+
+

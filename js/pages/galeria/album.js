@@ -1,3 +1,4 @@
+import { esc } from '/js/utils/escape.js';
 // js/pages/galeria/album.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public album detail page:
@@ -19,9 +20,7 @@ const SLUG = params.get('slug') || '';
 const ID   = params.get('id')   || '';
 
 const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s ?? '')
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 
 let currentAlbum  = null;
 let currentPhotos = [];

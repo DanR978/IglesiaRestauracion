@@ -38,14 +38,15 @@ append_dir() {
   done
 }
 
-# Append all .css in subdirectories of a parent
+# Append all .css in subdirectories of a parent (optional 3rd arg = subdir to skip)
 append_subdirs() {
-  local prefix="$1" parent="$ROOT/$2"
+  local prefix="$1" parent="$ROOT/$2" exclude="$3"
   [ -d "$parent" ] || return
   for sub in "$parent"/*/; do
     [ -d "$sub" ] || continue
     local dirname
     dirname="$(basename "$sub")"
+    [ -n "$exclude" ] && [ "$dirname" = "$exclude" ] && continue
     for f in "$sub"*.css; do
       [ -f "$f" ] || continue
       local name rel
@@ -56,15 +57,29 @@ append_subdirs() {
   done
 }
 
-# ── Cascade order ──
+# ── Public bundle (css/style.css) — everything EXCEPT the admin page CSS,
+#    which only the /admin route needs and which public visitors shouldn't
+#    have to download. ──
 append_dir    "tokens"      "css/tokens"
 append_dir    "base"        "css/base"
 append_dir    "layout"      "css/layout"
 append_dir    "components"  "css/components"
 append_dir    "sections"    "css/sections"
-append_subdirs "pages"      "css/pages"
+append_subdirs "pages"      "css/pages"   "admin"   # skip css/pages/admin/*
 append_dir    "pages"       "css/pages"
 append_dir    "utilities"   "css/utilities"
+
+echo ""
+echo "Done: $OUT"
+
+# ── Admin-only bundle (css/admin.css) — loaded only by admin/index.html,
+#    layered on top of style.css. ──
+OUT="$ROOT/css/admin.css"
+> "$OUT"
+echo ""
+echo "Building css/admin.css..."
+echo ""
+append_dir "pages admin" "css/pages/admin"
 
 echo ""
 echo "Done: $OUT"

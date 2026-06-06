@@ -1,3 +1,4 @@
+import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 // js/pages/admin/discipleship-wizard.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Step-by-step wizard for creating a discipleship group.
@@ -359,12 +360,8 @@ async function createGroup() {
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-function escapeAttr(s) { return escapeHtml(s); }
+
+
 function escapeText(s) { return escapeHtml(s); }
 function formatTime(t) {
   if (!t) return '';

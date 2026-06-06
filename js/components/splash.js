@@ -40,13 +40,30 @@ if (splash) {
   const force = new URLSearchParams(location.search).has('splash');
   const alreadyShown = (() => { try { return !!sessionStorage.getItem(KEY); } catch (_) { return false; } })();
 
-  if (!force && alreadyShown) {
-    // Already shown this session — wipe the placeholder overlay immediately
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  if ((!force && alreadyShown) || reducedMotion) {
+    // Already shown this session, or the user asked for reduced motion — wipe
+    // the placeholder overlay immediately so it never blocks the hero (LCP).
     splash.remove();
   } else {
     try { sessionStorage.setItem(KEY, '1'); } catch (_) {}
 
-    const MIN_DURATION = 2800;
+    // Keep the brand moment, but don't hold the LCP element hostage. The hero
+    // typically paints well under a second; a short floor keeps the reveal
+    // graceful without the old ~2.8s stall.
+    const MIN_DURATION = 1100;
+
+    // Scale the animated scene down on phones / low-core / data-saver devices,
+    // where it competes with the hero image, video and fonts for the main
+    // thread at the most performance-sensitive moment.
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const lowPower =
+      (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+      window.matchMedia?.('(max-width: 768px)').matches ||
+      (!!conn && (conn.saveData === true || /^(slow-2g|2g|3g)$/i.test(conn.effectiveType || '')));
+    const fishCount = lowPower ? 12 : 30;
+    const bubbleCount = lowPower ? 6 : 14;
 
     // ── Logo ──
     splash.innerHTML = `<div class="splash-logo"><svg viewBox="0 0 236 365" xmlns="http://www.w3.org/2000/svg">
@@ -59,8 +76,8 @@ if (splash) {
     // ── Fish from shared engine ──
     const scene = buildFishScene(splash, {
       prefix: 'sf',
-      fishCount: 30,
-      bubbleCount: 14,
+      fishCount,
+      bubbleCount,
     });
 
     // ── Dismiss ──

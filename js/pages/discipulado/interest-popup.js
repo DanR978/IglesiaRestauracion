@@ -1,3 +1,4 @@
+import { escapeHtml } from '/js/utils/escape.js';
 // js/pages/discipulado/interest-popup.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Single-step "Estoy interesado" popup — for the /discipulado/ hub page.
@@ -33,11 +34,7 @@ function el(tag, attrs = {}, children = []) {
   return n;
 }
 
-function escapeHtml(s) {
-  return String(s ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
+
 
 function ensureRoot() {
   if (rootEl) return rootEl;
