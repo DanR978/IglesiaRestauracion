@@ -1,11 +1,11 @@
 import { esc } from '/js/utils/escape.js';
 // js/pages/admin/report-builder.js
 // ─────────────────────────────────────────────────────────────────────────────
-// Treasury Report Builder — customizable report, live paper preview, WYSIWYG
-// multi-page PDF. Periods: semana / mes / trimestre / año. Word-style running
-// header + footer, faint logo watermark, optional sample data, and smart
-// insights + recommendations. Preview and PDF share one document generator and
-// one stylesheet, so the export matches the preview exactly.
+// Treasury Report Builder — customizable report with a true-document preview.
+// Periods: semana / mes / trimestre / año. Word-style running header + footer,
+// page numbers, faint logo watermark, and optional sample data. The preview
+// renders the SAME pdfmake document shown in the browser's PDF viewer, so what
+// you see is the actual paginated document — byte-for-byte what downloads.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { sb } from './state.js';
@@ -45,15 +45,16 @@ export async function mountReportBuilder(root) {
     sections: { cover:true, summary:true, chart:false, monthly:true, byIncome:true, byExpense:true, detail:true },
     accent: '#394548', density: 'comfortable', paper: 'letter', orientation: 'portrait',
   };
-  ensureReportStyles();
+  loadPdfMake(); loadPdfJs();   // warm both engines so the first preview is quick
   root.innerHTML = `<div class="rb">
     <aside class="rb-controls" id="rbControls"></aside>
-    <div class="rb-stage"><div class="rb-paperwrap"><div class="rb-paper" id="rbPaper"></div></div></div>
+    <div class="rb-stage" id="rbStage">
+      <div class="rb-doc" id="rbDoc"><div class="rb-loading">Generando vista previa…</div></div>
+    </div>
   </div>`;
   renderControls();
   await loadData();
-  renderPreview();
-  if (!mountReportBuilder._bound) { mountReportBuilder._bound = true; window.addEventListener('resize', fitPreview, { passive: true }); }
+  await renderPreview();
 }
 
 /* ── Period → range + buckets ──────────────────────────────────────────────── */
@@ -166,10 +167,10 @@ function renderControls() {
   c.querySelector('#rbYear')?.addEventListener('change', e => { config.year = +e.target.value; reload(); });
   c.querySelector('#rbMonth')?.addEventListener('change', e => { config.month = e.target.value; reload(); });
   c.querySelector('#rbWeek')?.addEventListener('change', e => { config.weekDate = e.target.value; reload(); });
-  c.querySelector('#rbTitle').addEventListener('input', e => { config.title = e.target.value; renderPreview(); });
+  c.querySelector('#rbTitle').addEventListener('input', e => { config.title = e.target.value; requestPreview(); });
   const secBtn = c.querySelector('#rbSecBtn'), secPanel = c.querySelector('#rbSecPanel');
   secBtn?.addEventListener('click', () => { secPanel.hidden = !secPanel.hidden; secBtn.classList.toggle('open', !secPanel.hidden); });
-  c.querySelectorAll('[data-sec]').forEach(cb => cb.addEventListener('change', () => { config.sections[cb.dataset.sec] = cb.checked; renderPreview(); }));
+  c.querySelectorAll('[data-sec]').forEach(cb => cb.addEventListener('change', () => { config.sections[cb.dataset.sec] = cb.checked; requestPreview(); }));
   c.querySelectorAll('[data-seg]').forEach(seg => seg.querySelectorAll('button').forEach(b => b.addEventListener('click', async () => {
     const key = seg.dataset.seg, val = key === 'quarter' ? +b.dataset.val : b.dataset.val;
     config[key] = val;
@@ -180,96 +181,49 @@ function renderControls() {
   c.querySelector('#rbExport').addEventListener('click', exportPDF);
 }
 
-/* ── Preview ───────────────────────────────────────────────────────────────── */
-function renderPreview() {
-  const paper = document.getElementById('rbPaper');
-  if (!paper || !data) return;
-  paper.className = `rb-paper rb-paper--${config.paper} rb-paper--${config.orientation} rb-density-${config.density}`;
-  paper.style.setProperty('--rb-accent', config.accent);
-  // The accent var must live ON the captured element (not just the parent paper),
-  // or var(--rb-accent) resolves to nothing in the PDF canvas → invisible bars.
-  paper.innerHTML = `<div class="rb-doc" style="--rb-accent:${config.accent}">${buildDoc()}</div>`;
-  fitPreview();
-}
+/* ── Preview — render the SAME pdfmake document with pdf.js into page canvases,
+   laid out as white sheets on a grey desk. The preview is the export, drawn as
+   an actual paginated document (no browser PDF chrome, no edge clipping). ───── */
+let _pvTimer = null, _pvSeq = 0;
 
-// On narrow screens, zoom the whole page down so it fits the width (no scroll).
-function fitPreview() {
-  const paper = document.getElementById('rbPaper');
-  const wrap = paper?.parentElement;
-  if (!paper || !wrap) return;
-  if (window.matchMedia('(max-width: 900px)').matches) {
-    const avail = wrap.clientWidth;
-    paper.style.zoom = avail > 0 ? Math.min(1, avail / 700) : 1;
-  } else {
-    paper.style.zoom = '';
+async function renderPreview() {
+  const doc = document.getElementById('rbDoc');
+  if (!doc || !data) return;
+  const seq = ++_pvSeq;                          // ignore stale renders finishing late
+  try {
+    await Promise.all([loadPdfMake(), loadPdfJs()]);
+    const wm = await logoDataURL();
+    if (seq !== _pvSeq) return;
+    const buf = await new Promise(res => window.pdfMake.createPdf(buildDocDef(wm)).getBuffer(res));
+    if (seq !== _pvSeq) return;
+    const pdf = await window.pdfjsLib.getDocument({ data: buf.slice() }).promise;
+    if (seq !== _pvSeq) return;
+    // Render each page wider than it displays, then let CSS scale it down → crisp
+    // at any column width without re-rendering on resize.
+    const RENDER_W = 1640;
+    const frag = document.createDocumentFragment();
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const vp = page.getViewport({ scale: RENDER_W / page.getViewport({ scale: 1 }).width });
+      const canvas = document.createElement('canvas');
+      canvas.className = 'rb-page';
+      canvas.width = Math.round(vp.width); canvas.height = Math.round(vp.height);
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+      if (seq !== _pvSeq) return;               // a newer render superseded this one
+      frag.appendChild(canvas);
+    }
+    doc.replaceChildren(frag);
+  } catch (e) {
+    console.error('No se pudo generar la vista previa:', e);
+    if (seq === _pvSeq) doc.replaceChildren(Object.assign(
+      document.createElement('div'), { className: 'rb-loading', textContent: 'No se pudo generar la vista previa.' }));
   }
 }
 
-/* ── Document generator ────────────────────────────────────────────────────── */
-function buildDoc() {
-  // Preview wrapper: on-page running header + faint watermark + the body.
-  const r = data.range;
-  return `<div class="rb-watermark"><img src="${LOGO}" alt=""></div>
-    <header class="rb-runhead"><span>${esc(CHURCH)}</span><span class="rb-runhead__r">${esc(r.headRight)}</span></header>
-    <div class="rb-doc__body">${buildBody()}</div>`;
-}
-function buildBody() {
-  const s = config.sections, r = data.range, bal = data.totIn - data.totOut;
-  const today = new Date().toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' });
-  const body = [];
-
-  if (s.cover) body.push(`<section class="rb-sec rb-cover">
-    <h1 class="rb-cover__title">${esc(config.title || 'Reporte de Tesorería')}</h1>
-    <div class="rb-cover__meta">Generado el ${today}</div></section>`);
-
-  if (s.summary) body.push(`<section class="rb-sec"><h2 class="rb-h2">Resumen · ${esc(r.label)}</h2>
-    <div class="rb-kpis">${kpi('Ingresos', fmt(data.totIn), 'pos')}${kpi('Gastos', fmt(data.totOut), 'neg')}${kpi('Balance', fmt(bal), bal<0?'neg':'pos')}</div></section>`);
-
-  if (s.chart) {
-    const max = Math.max(1, ...data.buckets.map(b => Math.max(b.in, b.out)));
-    body.push(`<section class="rb-sec"><h2 class="rb-h2">Ingresos y gastos por ${r.col.toLowerCase()}</h2>
-      <div class="rb-chart">${data.buckets.map(b => `<div class="rb-chart__col"><div class="rb-chart__bars">
-        <div class="rb-chart__bar in" style="height:${Math.round(b.in/max*100)}%"></div>
-        <div class="rb-chart__bar out" style="height:${Math.round(b.out/max*100)}%"></div></div>
-        <span class="rb-chart__lbl">${esc(b.short)}</span></div>`).join('')}</div>
-      <div class="rb-legend"><span><i class="in"></i> Ingresos</span><span><i class="out"></i> Gastos</span></div></section>`);
-  }
-
-  if (s.monthly) {
-    let acc = 0;
-    const rows = data.buckets.map(b => {
-      const d = b.in - b.out; acc += d; const has = b.in || b.out;
-      // Detail rows align into the real columns: income under Ingresos,
-      // expense under Gastos.
-      const detail = (s.detail && has) ? (
-        b.income.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.source||'')}</td><td class="r pos">${fmt(x.amount)}</td><td></td><td></td><td></td></tr>`).join('') +
-        b.expense.map(x=>`<tr class="rb-detail"><td>${fmtDate(x.occurred_on)} · ${esc(x.category||'—')}</td><td></td><td class="r neg">${fmt(x.amount)}</td><td></td><td></td></tr>`).join('')
-      ) : '';
-      return `<tr class="rb-mrow"><td>${esc(b.label)}</td><td class="r pos">${b.in?fmt(b.in):'—'}</td><td class="r neg">${b.out?fmt(b.out):'—'}</td><td class="r">${has?fmt(d):'—'}</td><td class="r">${fmt(acc)}</td></tr>${detail}`;
-    }).join('');
-    body.push(`<section class="rb-sec"><h2 class="rb-h2">Detalle por ${r.col.toLowerCase()}</h2>
-      <table class="rb-table"><thead><tr><th>${esc(r.col)}</th><th class="r">Ingresos</th><th class="r">Gastos</th><th class="r">Balance</th><th class="r">Acumulado</th></tr></thead>
-      <tbody>${rows}</tbody><tfoot><tr><th>Total</th><th class="r pos">${fmt(data.totIn)}</th><th class="r neg">${fmt(data.totOut)}</th><th class="r">${fmt(bal)}</th><th></th></tr></tfoot></table></section>`);
-  }
-  if (s.byIncome && s.byExpense) {
-    body.push(`<div class="rb-cols2">${breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos')}${breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg')}</div>`);
-  } else {
-    if (s.byIncome) body.push(breakdown('Ingresos por categoría', data.byIncome, data.totIn, 'pos'));
-    if (s.byExpense) body.push(breakdown('Gastos por categoría', data.byExpense, data.totOut, 'neg'));
-  }
-
-  return body.join('') || '<section class="rb-sec"><p class="rb-empty">Activa al menos una sección.</p></section>';
-}
-
-function kpi(l, v, cls) { return `<div class="rb-kpi"><div class="rb-kpi__v ${cls}">${v}</div><div class="rb-kpi__l">${l}</div></div>`; }
-function breakdown(title, rows, total, cls) {
-  if (!rows.length) return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><p class="rb-empty">Sin datos.</p></section>`;
-  // Bar length = share of the total (matches the % shown).
-  return `<section class="rb-sec"><h2 class="rb-h2">${title}</h2><div class="rb-break">${rows.map(r=>{
-    const pct = total ? Math.round(r.total/total*100) : 0;
-    return `<div class="rb-break__row"><span class="rb-break__lbl">${esc(r.label)}</span>
-      <span class="rb-break__track"><span class="rb-break__fill ${cls}" style="width:${pct}%"></span></span>
-      <span class="rb-break__val ${cls}">${fmt(r.total)}</span><span class="rb-break__pct">${pct}%</span></div>`;}).join('')}</div></section>`;
+// Coalesce rapid edits (typing the title, toggling sections) into one render.
+function requestPreview() {
+  clearTimeout(_pvTimer);
+  _pvTimer = setTimeout(renderPreview, 250);
 }
 
 /* ── PDF export — real vector PDF via pdfmake (proper pagination, repeating
@@ -286,6 +240,24 @@ function loadPdfMake() {
   _pm = load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js')
     .then(() => load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js'));
   return _pm;
+}
+// pdf.js — used only to rasterize the document into the live preview.
+let _pjs = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve();
+  if (_pjs) return _pjs;
+  const V = '3.11.174';
+  _pjs = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${V}/pdf.min.js`;
+    s.onload = () => {
+      try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${V}/pdf.worker.min.js`; } catch {}
+      res();
+    };
+    s.onerror = () => rej(new Error('No se pudo cargar el visor de PDF.'));
+    document.head.appendChild(s);
+  });
+  return _pjs;
 }
 let _wm;
 function logoDataURL() {
@@ -397,6 +369,30 @@ function buildPdfContent() {
   return c.length ? c : [{ text: 'Activa al menos una sección.', color: '#8a979c' }];
 }
 
+// One document definition, shared by the on-screen preview and the download.
+function buildDocDef(wm) {
+  const accent = config.accent;
+  const docDef = {
+    pageSize: config.paper === 'a4' ? 'A4' : 'LETTER',
+    pageOrientation: config.orientation,
+    pageMargins: [40, 58, 40, 44],
+    info: { title: 'Reporte de Tesorería · ' + data.range.label },
+    header: () => ({ margin: [40, 22, 40, 0], stack: [
+      { columns: [ { text: CHURCH, fontSize: 8, color: '#7a868b', bold: true },
+        { text: String(data.range.headRight), fontSize: 8, color: accent, bold: true, alignment: 'right' } ] },
+      { canvas: [{ type: 'line', x1: 0, y1: 5, x2: PW, y2: 5, lineWidth: 0.5, lineColor: '#dde3e4' }] },
+    ] }),
+    footer: (cp, pc) => ({ margin: [40, 4, 40, 0], text: cp + ' / ' + pc, alignment: 'right', fontSize: 8, color: '#9aa6a8' }),
+    content: buildPdfContent(),
+    defaultStyle: { fontSize: 10, color: '#1f2a2e', lineHeight: 1.2 },
+  };
+  if (wm) docDef.background = (cp, pageSize) => {
+    const w = pageSize.width * 0.46, h = w * wm.ratio;
+    return { image: wm.url, width: w, opacity: 0.05, absolutePosition: { x: (pageSize.width - w) / 2, y: (pageSize.height - h) / 2 } };
+  };
+  return docDef;
+}
+
 async function exportPDF() {
   const btn = document.getElementById('rbExport');
   const orig = btn.innerHTML; btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando…';
@@ -404,92 +400,11 @@ async function exportPDF() {
     if (!data) throw new Error('Abre un reporte primero.');
     await loadPdfMake();
     const wm = await logoDataURL();
-    const accent = config.accent;
     const fname = `Reporte-Tesoreria-${String(data.range.headRight).replace(/[^0-9A-Za-z]+/g, '-')}.pdf`;
-    const docDef = {
-      pageSize: config.paper === 'a4' ? 'A4' : 'LETTER',
-      pageOrientation: config.orientation,
-      pageMargins: [40, 58, 40, 44],
-      info: { title: 'Reporte de Tesorería · ' + data.range.label },
-      header: () => ({ margin: [40, 22, 40, 0], stack: [
-        { columns: [ { text: CHURCH, fontSize: 8, color: '#7a868b', bold: true },
-          { text: String(data.range.headRight), fontSize: 8, color: accent, bold: true, alignment: 'right' } ] },
-        { canvas: [{ type: 'line', x1: 0, y1: 5, x2: PW, y2: 5, lineWidth: 0.5, lineColor: '#dde3e4' }] },
-      ] }),
-      footer: (cp, pc) => ({ margin: [40, 4, 40, 0], text: cp + ' / ' + pc, alignment: 'right', fontSize: 8, color: '#9aa6a8' }),
-      content: buildPdfContent(),
-      defaultStyle: { fontSize: 10, color: '#1f2a2e', lineHeight: 1.2 },
-    };
-    if (wm) docDef.background = (cp, pageSize) => {
-      const w = pageSize.width * 0.46, h = w * wm.ratio;
-      return { image: wm.url, width: w, opacity: 0.05, absolutePosition: { x: (pageSize.width - w) / 2, y: (pageSize.height - h) / 2 } };
-    };
-    window.pdfMake.createPdf(docDef).download(fname);
+    window.pdfMake.createPdf(buildDocDef(wm)).download(fname);
   } catch (e) {
     alert('No se pudo generar el PDF: ' + (e?.message || e));
   } finally {
     btn.disabled = false; btn.innerHTML = orig;
   }
 }
-
-/* ── Report content CSS (preview + PDF) ────────────────────────────────────── */
-function ensureReportStyles() {
-  if (document.getElementById('rb-report-styles')) return;
-  const el = document.createElement('style'); el.id = 'rb-report-styles'; el.textContent = REPORT_CSS;
-  document.head.appendChild(el);
-}
-
-const REPORT_CSS = `
-.rb-doc{ position:relative; font-family:-apple-system,"Segoe UI",Arial,sans-serif; color:#1f2a2e; font-size:12px; line-height:1.5; }
-.rb-watermark{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:.05; pointer-events:none; z-index:0; overflow:hidden; }
-.rb-watermark img{ width:58%; max-width:420px; max-height:90%; object-fit:contain; }
-.rb-runhead{ display:flex; justify-content:space-between; align-items:center; font-size:10px; color:#7a868b; border-bottom:1px solid #e2e7e9; padding-bottom:6px; margin-bottom:16px; font-weight:600; letter-spacing:.01em; }
-.rb-runhead__r{ color:var(--rb-accent); font-weight:700; }
-.rb-doc__body{ position:relative; z-index:1; }
-.rb-sec{ margin:0 0 18px; }
-.rb-h2{ font-size:12.5px; font-weight:800; color:var(--rb-accent); margin:0 0 9px; padding-bottom:5px; border-bottom:1.5px solid #ccd4d5; text-transform:uppercase; letter-spacing:.05em; break-after:avoid; }
-/* Cover masthead — compact, flows straight into the content */
-.rb-cover{ text-align:center; padding:4px 0 16px; margin:0 0 20px; border-bottom:2.5px solid var(--rb-accent); }
-.rb-cover__title{ font-size:25px; font-weight:800; margin:0 0 4px; letter-spacing:-.01em; }
-.rb-cover__meta{ font-size:11px; color:#8a979c; }
-/* KPIs */
-.rb-kpis{ display:flex; gap:10px; }
-.rb-kpi{ flex:1; border:1px solid #e4e9ea; border-left:3px solid var(--rb-accent); border-radius:8px; padding:11px 14px; break-inside:avoid; }
-.rb-kpi__v{ font-size:20px; font-weight:800; letter-spacing:-.02em; }
-.rb-kpi__l{ font-size:10px; color:#6a767b; font-weight:700; margin-top:2px; text-transform:uppercase; letter-spacing:.04em; }
-/* Chart */
-.rb-chart{ display:flex; align-items:flex-end; gap:6px; height:140px; break-inside:avoid; }
-.rb-chart__col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; height:100%; min-width:0; }
-.rb-chart__bars{ flex:1; width:100%; display:flex; align-items:flex-end; justify-content:center; gap:3px; }
-.rb-chart__bar{ width:42%; max-width:12px; min-height:2px; border-radius:2px 2px 0 0; }
-.rb-chart__bar.in{ background:var(--rb-accent); } .rb-chart__bar.out{ background:#b02030; }
-.rb-chart__lbl{ font-size:8.5px; color:#8a979c; white-space:nowrap; }
-.rb-legend{ display:flex; gap:18px; justify-content:center; margin-top:9px; font-size:10.5px; color:#6a767b; break-inside:avoid; }
-.rb-legend i{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:5px; }
-.rb-legend i.in{ background:var(--rb-accent); } .rb-legend i.out{ background:#b02030; }
-/* Tables — repeat the header across pages, tabular figures, tinted head */
-.rb-table{ width:100%; border-collapse:collapse; font-size:11px; }
-.rb-table thead{ display:table-header-group; }
-.rb-table thead th{ background:#f2f5f5; font-size:9px; text-transform:uppercase; letter-spacing:.05em; color:#5f6c71; padding:7px 9px; border-bottom:1.5px solid #ccd4d5; text-align:left; }
-.rb-table td{ padding:5px 9px; border-bottom:1px solid #eef2f2; text-align:left; }
-.rb-table th.r,.rb-table td.r{ text-align:right; font-variant-numeric:tabular-nums; }
-.rb-table tbody tr{ break-inside:avoid; }
-.rb-mrow td{ font-weight:600; }
-.rb-table tfoot th{ border-top:2px solid #cfd6d8; padding:7px 9px; font-size:11px; text-align:left; }
-.rb-table tfoot th.r{ text-align:right; font-variant-numeric:tabular-nums; }
-.rb-detail td{ background:#fafcfc; font-size:10px; font-weight:400; color:#6a767b; padding:3px 9px; border-bottom:1px solid #f1f5f5; }
-.rb-detail td:first-child{ padding-left:20px; }
-/* Category breakdowns — two columns side by side */
-.rb-cols2{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:0 0 18px; }
-.rb-cols2 .rb-sec{ margin:0; break-inside:avoid; }
-.rb-break{ display:flex; flex-direction:column; gap:6px; }
-.rb-break__row{ display:flex; align-items:center; gap:9px; break-inside:avoid; }
-.rb-break__lbl{ width:40%; font-size:10.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.rb-break__track{ flex:1; height:11px; background:#eef1f2; border-radius:99px; overflow:hidden; }
-.rb-break__fill{ display:block; height:100%; border-radius:99px; }
-.rb-break__fill.pos{ background:var(--rb-accent); } .rb-break__fill.neg{ background:#b02030; }
-.rb-break__val{ width:72px; text-align:right; font-weight:700; font-size:10px; font-variant-numeric:tabular-nums; }
-.rb-break__pct{ width:28px; text-align:right; font-size:9.5px; color:#8a979c; }
-.rb-doc .pos{ color:#1e6b61; } .rb-doc .neg{ color:#b02030; }
-.rb-empty{ color:#8a979c; font-size:12px; }
-`;

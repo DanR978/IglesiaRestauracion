@@ -3099,24 +3099,36 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 
 .rb-export { width: 100%; justify-content: center; margin-top: 0.2rem; }
 
-/* Stage + paper */
+/* Stage — a grey "desk" that scrolls; the document sits on it as white sheets.
+   Pages are rendered with pdf.js, so this looks like an actual document viewer
+   (no browser PDF chrome, no edge clipping). */
 .rb-stage {
-  background: #e7ecef;
+  background: #54585c;
   border-radius: var(--radius-lg, 1rem);
-  padding: 1.6rem;
   overflow: auto;
+  height: calc(100vh - 130px);
+  min-height: 520px;
+  padding: 1.5rem 0;
 }
-.rb-paperwrap { display: flex; justify-content: center; }
-.rb-paper {
+.rb-doc {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+}
+.rb-page {
+  width: min(816px, 92%);
+  height: auto;
   background: #fff;
-  box-shadow: 0 10px 34px rgba(20, 30, 35, 0.16);
-  width: 100%;
-  max-width: 850px;
-  padding: 44px 46px;
-  box-sizing: border-box;
-  border-radius: 2px;
+  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.4);
+  border-radius: 1px;
 }
-.rb-paper--landscape { max-width: 1120px; }
+.rb-loading {
+  color: #d3d7da;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 3rem 1rem;
+}
 
 /* Reportes uses the full screen width on desktop */
 #tab-treasury.trez-wide { max-width: none; }
@@ -3124,10 +3136,8 @@ body.is-staff [data-staff-only] { display: inline-flex; }
 @media (max-width: 900px) {
   .rb { grid-template-columns: 1fr; }
   .rb-controls { position: static; }
-  /* The page is zoomed to fit the width (fitPreview), so it sits centered with
-     no scroll. overflow-x is just a fallback for browsers without `zoom`. */
-  .rb-stage { padding: 0.8rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .rb-paper { width: 700px; max-width: none; flex: 0 0 auto; padding: 32px 34px; }
+  .rb-stage { height: 78vh; min-height: 460px; padding: 1rem 0; }
+  .rb-page { width: 94%; }
 }
 
 /* -- pages admin shell -- */
