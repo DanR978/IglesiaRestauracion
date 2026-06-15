@@ -12,7 +12,7 @@
     <title>Iglesia Cristiana Hispana en Lexington, KY · Restauración Divina</title>
     <meta name="application-name" content="IRDLex">
     <meta name="description"
-      content="Iglesia Restauración Divina (IRDLex) — iglesia cristiana hispana en Lexington, KY. Servicio dominical 2:00 PM, 2601 Clays Mill Rd. Una familia de fe en español; Cristo te ama y tiene grandes planes para ti." />
+      content="Iglesia Restauración Divina (IRDLex), iglesia cristiana hispana en Lexington, KY. Servicio dominical 2:00 PM, 2601 Clays Mill Rd. Una familia de fe en español; Cristo te ama y tiene grandes planes para ti." />
     <meta name="author" content="Iglesia Restauración Divina" />
     <meta name="google-site-verification"
       content="DBLPZo7AD3yKM0w4TPL3akJtwAL1h7_r5q-5Slt_Xkw" />
@@ -39,7 +39,7 @@
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_US" />
     <meta property="og:description"
-      content="Iglesia hispana en Lexington, KY. Servicio dominical 2:00 PM en 2601 Clays Mill Rd. Cristo transforma — adora con nosotros este domingo.">
+      content="Iglesia hispana en Lexington, KY. Servicio dominical 2:00 PM en 2601 Clays Mill Rd. Cristo transforma. Adora con nosotros este domingo.">
     <meta property="og:image"
       content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png" />
 
@@ -130,7 +130,7 @@
           "worksFor": { "@id": "https://www.irdlex.org/#church" },
           "url": "https://www.irdlex.org/quienes-somos/",
           "knowsLanguage": ["es", "en"],
-          "affiliation": { "@type": "Organization", "name": "Kentucky Ministry Network — Assemblies of God" }
+          "affiliation": { "@type": "Organization", "name": "Kentucky Ministry Network, Assemblies of God" }
         },
         {
           "@type": "WebSite",
@@ -170,7 +170,7 @@
         {
           "@type": "Question",
           "name": "¿Qué puedo esperar en mi primera visita?",
-          "acceptedAnswer": { "@type": "Answer", "text": "Un ambiente cálido y familiar. Ven como estés — no hay código de vestimenta. Aquí eres recibido, no juzgado. Planea tu visita." }
+          "acceptedAnswer": { "@type": "Answer", "text": "Un ambiente cálido y familiar. Ven como estés. No hay código de vestimenta. Aquí eres recibido, no juzgado. Planea tu visita." }
         },
         {
           "@type": "Question",
@@ -308,7 +308,7 @@
               </div>
               <h3 class="home-welcome__card-title">Dos horas, sin prisa</h3>
               <p class="home-welcome__card-body">
-                Adoración, oración y un mensaje claro de la Palabra. Vístete cómodo — aquí lo importante eres tú, no tu ropa.
+                Adoración, oración y un mensaje claro de la Palabra. Vístete cómodo. Aquí lo importante eres tú, no tu ropa.
               </p>
             </li>
 
@@ -391,7 +391,7 @@
             <blockquote id="homePastorTitle" class="home-pastor__quote scroll-fade-up">
               <p>
                 Si esta es tu primera vez visitando una iglesia, o si llevas
-                años caminando con Cristo — aquí encontrarás un lugar donde
+                años caminando con Cristo, aquí encontrarás un lugar donde
                 eres recibido, no juzgado.
               </p>
             </blockquote>
@@ -545,6 +545,69 @@
           </form>
         </div>
       </section>
+      <!-- ─── UBICACIÓN / MAPA — dónde nos reunimos ────────────────────── -->
+      <section class="home-location" id="ubicacion" aria-labelledby="homeLocationTitle">
+        <div class="home-location__inner">
+          <header class="home-location__head">
+            <p class="home-location__kicker animate-fade-in" data-threshold="1">Visítanos</p>
+            <h2 id="homeLocationTitle" class="home-location__title animate-fade-in" data-threshold="1">
+              Te esperamos en Lexington
+            </h2>
+          </header>
+
+          <div class="home-location__card animate-fade-in" data-threshold="0.4">
+            <div class="home-location__panel">
+              <p class="home-location__panel-eyebrow">
+                <i class="fas fa-location-dot" aria-hidden="true"></i> Dónde nos reunimos
+              </p>
+              <address class="home-location__address">
+                2601 Clays Mill Rd<br>
+                Lexington, KY 40503
+              </address>
+              <p class="home-location__note">
+                <i class="fas fa-square-parking" aria-hidden="true"></i>
+                <span>Estacionamiento gratuito en el lugar. Entra con confianza. Alguien te recibirá en la puerta.</span>
+              </p>
+              <div class="home-location__actions">
+                <!-- Default: Google Maps (works without JS, on every device + crawlers).
+                     Enhanced below: Apple Maps on iPhone/iPad. Neither needs a
+                     geolocation prompt; the maps app supplies the user's origin. -->
+                <a id="comoLlegar"
+                   href="https://www.google.com/maps/dir/?api=1&destination=2601%20Clays%20Mill%20Rd%2C%20Lexington%2C%20KY%2040503"
+                   target="_blank" rel="noopener"
+                   class="ird-btn ird-btn--white-fill ird-btn--outline">CÓMO LLEGAR</a>
+              </div>
+              <script>
+                (function () {
+                  var a = document.getElementById('comoLlegar');
+                  if (!a) return;
+                  var isAppleMobile =
+                    /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); /* iPadOS */
+                  if (isAppleMobile) {
+                    a.href = 'https://maps.apple.com/?daddr=' +
+                      encodeURIComponent('2601 Clays Mill Rd, Lexington, KY 40503') + '&dirflg=d';
+                  }
+                })();
+              </script>
+            </div>
+            <!-- Clean, branded map (Leaflet + Carto light tiles), lazy-loaded
+                 by /js/pages/home/map.js. No-JS users get the Google embed. -->
+            <div id="homeMap" class="home-location__map"
+                 aria-label="Mapa de la ubicación: 2601 Clays Mill Rd, Lexington, KY 40503">
+              <noscript>
+                <iframe
+                  class="home-location__map"
+                  title="Mapa de Iglesia Restauración Divina en 2601 Clays Mill Rd, Lexington, KY"
+                  loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps?q=2601+Clays+Mill+Rd,+Lexington,+KY+40503&output=embed"></iframe>
+              </noscript>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- FAQ:auto -->
       <section class="section--accordion-faq">
         <div class="accordion-faq__wrapper">
@@ -618,7 +681,7 @@
               </span>
             </button>
             <div class="accordion-faq__answer">
-              Un ambiente cálido y familiar. Ven como estés — no hay código de vestimenta. Aquí eres recibido, no juzgado. <a href="/visitanos/" class="email-link">Planea tu visita</a>.
+              Un ambiente cálido y familiar. Ven como estés. No hay código de vestimenta. Aquí eres recibido, no juzgado. <a href="/visitanos/" class="email-link">Planea tu visita</a>.
             </div>
           </div>
 
@@ -637,45 +700,6 @@
             <div class="accordion-faq__answer">
               Sí. Tenemos escuela dominical para niños de 3:00 a 4:00 PM, donde aprenden la Palabra de Dios de forma apropiada para su edad.
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ─── UBICACIÓN / MAPA — dónde nos reunimos ────────────────────── -->
-      <section class="home-location" id="ubicacion" aria-labelledby="homeLocationTitle">
-        <div class="home-location__inner">
-          <header class="home-location__head">
-            <p class="home-location__kicker animate-fade-in" data-threshold="1">Visítanos</p>
-            <h2 id="homeLocationTitle" class="home-location__title animate-fade-in" data-threshold="1">
-              Te esperamos en Lexington
-            </h2>
-          </header>
-
-          <div class="home-location__card animate-fade-in" data-threshold="0.4">
-            <div class="home-location__panel">
-              <p class="home-location__panel-eyebrow">
-                <i class="fas fa-location-dot" aria-hidden="true"></i> Dónde nos reunimos
-              </p>
-              <address class="home-location__address">
-                2601 Clays Mill Rd<br>
-                Lexington, KY 40503
-              </address>
-              <p class="home-location__note">
-                <i class="fas fa-square-parking" aria-hidden="true"></i>
-                <span>Estacionamiento gratuito en el lugar. Entra con confianza — alguien te recibirá en la puerta.</span>
-              </p>
-              <div class="home-location__actions">
-                <a href="https://www.google.com/maps/dir/?api=1&destination=2601%20Clays%20Mill%20Rd%2C%20Lexington%2C%20KY%2040503"
-                   target="_blank" rel="noopener"
-                   class="ird-btn ird-btn--white-fill ird-btn--outline">CÓMO LLEGAR</a>
-              </div>
-            </div>
-            <iframe
-              class="home-location__map"
-              title="Mapa de Iglesia Restauración Divina — 2601 Clays Mill Rd, Lexington, KY"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              src="https://www.google.com/maps?q=2601+Clays+Mill+Rd,+Lexington,+KY+40503&output=embed"></iframe>
           </div>
         </div>
       </section>
@@ -1161,6 +1185,7 @@
     <script type="module" src="js/components/missionSlideShow.js"></script>
     <script type="module" src="/js/pages/home/latest-sermon.js"></script>
     <script type="module" src="/js/pages/home/latest-gallery.js"></script>
+    <script type="module" src="/js/pages/home/map.js"></script>
     <script type="module" src="/js/components/live-embed.js"></script>
     <script type="module" src="/js/app/scroll-reveal.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>

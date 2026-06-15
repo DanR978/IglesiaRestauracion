@@ -5057,10 +5057,33 @@ body.no-scroll {
   width: 100%;
   height: 100%;
   min-height: 360px;
+  background: var(--color-90, #ddeaee); /* calm fill while tiles load */
+  z-index: 0; /* keep Leaflet panes/controls under the page chrome */
 }
 
 @media (max-width: 859px) {
   .home-location__map { min-height: 300px; }
+}
+
+/* Branded Leaflet marker — a clean gold dot with a white ring. */
+.ird-pin__dot {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-secondary, #c89858);
+  border: 3px solid #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Leaflet popup — match the site's rounded, soft-shadow surfaces. */
+.home-location__map .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+}
+.home-location__map .leaflet-popup-content {
+  font-family: var(--font-Signika);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 /* -- sections home-pastor -- */
