@@ -1,0 +1,114 @@
+/* =========================================================
+   HOME — LOCATION / MAP
+   A single rounded card: dark-teal info panel beside an
+   embedded map. Fixed dark panel reads premium on both the
+   light and dark page themes.
+   --------------------------------------------------------- */
+.home-location {
+  padding: clamp(3rem, 7vw, 6rem) 1.25rem;
+}
+
+.home-location__inner {
+  max-width: 1120px;
+  margin-inline: auto;
+}
+
+.home-location__head {
+  text-align: center;
+  margin-bottom: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.home-location__kicker {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.74rem;
+  color: var(--color-secondary, #c89858);
+  margin: 0 0 0.7rem;
+}
+
+.home-location__title {
+  font-family: var(--font-lexend);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  line-height: 1.1;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.home-location__card {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--color-dark, #394548);
+  box-shadow: var(--container-shadow, 0 10px 30px rgba(0, 0, 0, 0.25));
+}
+
+@media (min-width: 860px) {
+  .home-location__card { grid-template-columns: 0.92fr 1.08fr; }
+}
+
+.home-location__panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.05rem;
+  padding: clamp(1.9rem, 4vw, 3rem);
+  color: var(--color-white);
+}
+
+.home-location__panel-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--color-secondary, #c89858);
+  margin: 0;
+}
+
+.home-location__address {
+  font-style: normal;
+  font-family: var(--font-lexend);
+  font-weight: var(--fw-semibold);
+  font-size: clamp(1.2rem, 1vw + 1rem, 1.55rem);
+  line-height: 1.4;
+  color: var(--color-white);
+  margin: 0;
+}
+
+.home-location__note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.74);
+  margin: 0;
+}
+
+.home-location__note i {
+  color: var(--color-secondary, #c89858);
+  margin-top: 0.15rem;
+}
+
+.home-location__actions {
+  margin-top: 0.5rem;
+}
+
+.home-location__map {
+  border: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+}
+
+@media (max-width: 859px) {
+  .home-location__map { min-height: 300px; }
+}

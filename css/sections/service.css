@@ -41,3 +41,93 @@
   color: var(--color-white);
   text-align: center;
 }
+
+/* ---------------------------------------------------------
+   SERVICE SCHEDULE — weekly times, elegant on the dark band.
+   Three typographic columns separated by hairline dividers;
+   gold day labels, large white times. Collapses to a stacked
+   list on narrow screens.
+   --------------------------------------------------------- */
+.service-schedule {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.service-schedule__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.service-schedule__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  text-align: center;
+}
+
+/* hairline divider between columns */
+.service-schedule__item + .service-schedule__item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 58%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.22), transparent);
+}
+
+.service-schedule__day {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-size: 0.72rem;
+  color: var(--color-secondary, #c89858);
+}
+
+.service-schedule__time {
+  font-family: var(--font-lexend);
+  font-weight: var(--fw-bold);
+  line-height: 1;
+  font-size: clamp(1.5rem, 1vw + 1.2rem, 2rem);
+  color: var(--color-white);
+}
+
+.service-schedule__name {
+  font-family: var(--font-Signika);
+  font-size: 0.82rem;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.service-schedule__zone {
+  margin: 1.3rem 0 0;
+  text-align: center;
+  font-family: var(--font-Signika);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+@media (max-width: 560px) {
+  .service-schedule__list { grid-template-columns: 1fr; }
+  .service-schedule__item { padding: 0.95rem 1rem; }
+  .service-schedule__item + .service-schedule__item::before {
+    left: 12%;
+    right: 12%;
+    top: 0;
+    width: auto;
+    height: 1px;
+    transform: none;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.18), transparent);
+  }
+}
