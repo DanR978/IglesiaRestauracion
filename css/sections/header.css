@@ -313,8 +313,10 @@ body.no-scroll {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    width: 36px;
-    height: 36px;
+    /* 44x44 hit area (the visible bars stay 26px wide, centered) to meet the
+       44px touch-target guideline. */
+    width: 44px;
+    height: 44px;
     padding: 0;
     background: transparent;
     border: 0;

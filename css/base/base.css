@@ -91,7 +91,10 @@ button {
 }
 
 a {
-  color: var(--color-50);
+  /* --color-40 instead of --color-50: clears 4.5:1 on white (the old #5797a8
+     was 3.28:1). The ramp auto-reverses in dark mode, so this stays readable
+     against dark backgrounds too. */
+  color: var(--color-40);
 }
 
 strong {

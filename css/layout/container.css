@@ -74,7 +74,17 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  background: rgb(0 0 0 / .2);
+  /* Bottom-weighted scrim: keeps the top of the hero bright and airy, but
+     guarantees enough contrast for the white hero title + CTA, which sit in
+     the lower third (.hero-content--v2 starts at top:70%). A flat 20% tint
+     left white text as low as ~1.6:1 over bright photo regions. */
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / .58) 0%,
+    rgb(0 0 0 / .34) 30%,
+    rgb(0 0 0 / .14) 58%,
+    rgb(0 0 0 / .20) 100%
+  );
   z-index: 1;
 }
 

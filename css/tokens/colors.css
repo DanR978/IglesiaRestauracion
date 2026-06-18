@@ -1,6 +1,11 @@
 :root {
   /* --color-primary is intentionally removed. Use --color-dark instead. */
-  --color-secondary: #c89858;
+  /* Brand gold, darkened from #c89858 (2.6:1) to an AA-compliant caramel.
+     At this luminance it clears 4.5:1 BOTH as white-text-on-gold (the DONAR /
+     PLANEA TU VISITA buttons) AND as gold-text-on-white (<strong>, kickers).
+     The bright original lives on as --gold-bright for decorative, non-text use. */
+  --color-secondary: #9a6a2c;
+  --gold-bright: #c89858;
   --color-accent: #be660e;
   --color-info: #2d4e57;
   --color-muted: #736960;
@@ -118,7 +123,10 @@
 @media (prefers-color-scheme: dark) {
   :root {
     /* --color-primary is intentionally removed. Use --color-dark instead. */
-    --color-secondary: #c89858;
+    /* Same AA caramel in dark mode so the gold buttons keep white-text
+       contrast (white on the old bright gold was 2.6:1 here too). */
+    --color-secondary: #9a6a2c;
+    --gold-bright: #c89858;
     --color-accent: #be660e;
     --color-info: #2d4e57;
     --color-muted: #aa9b8c;     /* warmer light brown that reads on dark */
@@ -207,7 +215,7 @@
   }
 
   .theme-image-thorns {
-    content: url("https://raw.githubusercontent.com/DanR978/iglesiaRestauracion/main/resources/media/images/thorns-dark.svg");
+    content: url("https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/thorns-dark.svg");
   }
 
   body {

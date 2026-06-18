@@ -184,8 +184,13 @@
 }
 
 
-.ird-btn:focus,
-.ird-btn:focus-visible {
+/* Mouse focus: no ring (avoids a lingering outline after click). */
+.ird-btn:focus:not(:focus-visible) {
   outline: none;
-  box-shadow: none;
+}
+
+/* Keyboard focus: a clearly visible ring on every button variant. */
+.ird-btn:focus-visible {
+  outline: 3px solid var(--color-dark);
+  outline-offset: 3px;
 }

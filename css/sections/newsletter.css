@@ -39,7 +39,7 @@
   max-width: 44ch;
   font-size: var(--fs-md);
   line-height: 1.55;
-  opacity: 0.72;
+  opacity: 0.85;   /* was 0.72 (~4.4:1); clears AA on the section background */
 }
 
 .newsletter__form {
@@ -62,7 +62,7 @@
   opacity: 1;
 }
 
-.newsletter__input::placeholder { color: rgba(57, 69, 72, 0.5); }
+.newsletter__input::placeholder { color: rgba(57, 69, 72, 0.7); }  /* was 0.5 (~2.9:1) */
 
 .newsletter__input:focus-visible {
   outline: 2px solid var(--color-secondary, #c89858);
@@ -75,7 +75,7 @@
 .newsletter__note {
   margin: 0;
   font-size: var(--fs-xs);
-  opacity: 0.55;
+  opacity: 0.78;   /* was 0.55 (~2.9:1) */
 }
 
 /* Honeypot — off-screen so bots fill it, humans don't. */

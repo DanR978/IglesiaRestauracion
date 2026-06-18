@@ -1,14 +1,16 @@
 export function showToast(msg, { ok = true, ms = 2400 } = {}) {
   // Root
-  const root =
-    document.getElementById("toast-root") ||
-    document.body.appendChild(
-      Object.assign(document.createElement("div"), {
-        id: "toast-root",
-        "aria-live": "polite",
-        "aria-atomic": "true",
-      })
-    );
+  let root = document.getElementById("toast-root");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "toast-root";
+    // setAttribute (not Object.assign): aria-* are HTML attributes, not JS
+    // properties — Object.assign would never create the live region, leaving
+    // every toast silent to screen readers.
+    root.setAttribute("aria-live", "polite");
+    root.setAttribute("aria-atomic", "true");
+    document.body.appendChild(root);
+  }
 
   // Toast element
   const el = document.createElement("div");

@@ -13,6 +13,7 @@ import { toast, confirm, openModal } from './ui.js';
 import { onFilterChange } from './filters.js';
 import { loadUpcoming } from './events-tab.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { esc } from '/js/utils/escape.js';
 
 // Delegated kebab handler for calendar list items (attached once)
 if (!window.__irdCalKebabBound) {
@@ -200,14 +201,13 @@ function _renderTab(container, evs, isSpecial) {
       const color       = CAT_COLORS[ev.category||'otro'] || '#888';
       const isCancelled = ev.cancelled;
       const minName     = ev.ministries?.name || '';
-      const safeTitle   = (ev.title||'').replace(/'/g, "\\'");
 
       // Only repetitive categories (servicio/estudio/oracion) can be cancelled
       const REPETITIVE = ['servicio', 'estudio', 'oracion'];
       const canCancel = REPETITIVE.includes(ev.category);
 
       const imgHtml = isSpecial && ev.image_url
-        ? `<img class="adm-list__thumb" src="${ev.image_url}" alt="" loading="lazy">`
+        ? `<img class="adm-list__thumb" src="${esc(ev.image_url)}" alt="" loading="lazy">`
         : `<span class="adm-list__dot" style="background:${color}"></span>`;
 
       html += `
@@ -215,23 +215,23 @@ function _renderTab(container, evs, isSpecial) {
           ${imgHtml}
           <div class="adm-list__info">
             <div class="adm-list__name">
-              ${ev.title}
+              ${esc(ev.title)}
               ${isCancelled ? '<span class="adm-list__cancelled-badge">Cancelado</span>' : ''}
             </div>
             <div class="adm-list__meta">
-              ${ev.time   ? `<span><i class="far fa-clock" style="margin-right:3px;opacity:.6"></i>${ev.time}</span>` : ''}
-              ${minName   ? `<span>· ${minName}</span>` : ''}
+              ${ev.time   ? `<span><i class="far fa-clock" style="margin-right:3px;opacity:.6"></i>${esc(ev.time)}</span>` : ''}
+              ${minName   ? `<span>· ${esc(minName)}</span>` : ''}
             </div>
           </div>
           <div class="adm-list__actions">
             <button class="kebab-btn" title="Opciones" aria-label="Más opciones"
               onclick="event.stopPropagation()"
-              data-cal-menu="${ev.id}"
-              data-cal-title="${safeTitle.replace(/"/g, '&quot;')}"
+              data-cal-menu="${esc(ev.id)}"
+              data-cal-title="${esc(ev.title)}"
               data-cal-cancelled="${isCancelled ? '1' : '0'}"
               data-cal-cancancel="${canCancel ? '1' : '0'}"
               data-cal-special="${isSpecial ? '1' : '0'}"
-              data-cal-when="${ev.time || ''}">
+              data-cal-when="${esc(ev.time || '')}">
               <i class="fas fa-ellipsis-vertical"></i>
             </button>
           </div>

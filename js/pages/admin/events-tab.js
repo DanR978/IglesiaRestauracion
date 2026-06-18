@@ -8,6 +8,7 @@ import {
   _upcomingSpecial, _upcomingRegular, _pastSpecial, _pastRegular,
 } from './state.js';
 import { toast, confirm, openModal, closeModal } from './ui.js';
+import { esc } from '/js/utils/escape.js';
 import { showView } from './ui.js';
 import { onFilterChange } from './filters.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
@@ -138,7 +139,7 @@ function buildEventsTableHtml(events, isPastTab) {
         ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${ev.ministries.color};margin-right:5px"></span>`
         : '';
       const imgCell  = ev.image_url
-        ? `<img src="${ev.image_url}" alt="" style="width:44px;height:32px;object-fit:cover;border-radius:4px;display:block">`
+        ? `<img src="${esc(ev.image_url)}" alt="" style="width:44px;height:32px;object-fit:cover;border-radius:4px;display:block">`
         : `<div style="width:44px;height:32px;background:#eee;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#aaa">—</div>`;
       const [, mo, d] = ev.date.split('-').map(Number);
       const dateStr = `${mo}/${d}/${String(y).slice(-2)}${ev.time ? ' ' + ev.time : ''}`;
@@ -149,20 +150,20 @@ function buildEventsTableHtml(events, isPastTab) {
       return `
         <tr class="${rowClass}">
           <td>${imgCell}</td>
-          <td><div class="event-title">${ev.title}</div></td>
-          <td style="white-space:nowrap">${dateStr}</td>
-          <td><span class="cat-badge cat--${ev.category || 'otro'}">${CAT_LABELS[ev.category] || ev.category}</span></td>
-          <td>${minDot}${minName}</td>
+          <td><div class="event-title">${esc(ev.title)}</div></td>
+          <td style="white-space:nowrap">${esc(dateStr)}</td>
+          <td><span class="cat-badge cat--${esc(ev.category || 'otro')}">${esc(CAT_LABELS[ev.category] || ev.category)}</span></td>
+          <td>${minDot}${esc(minName)}</td>
           <td>
             <div class="row-actions">
               <button class="kebab-btn" title="Opciones" aria-label="Más opciones"
-                data-ev-menu="${ev.id}"
-                data-ev-title="${(ev.title || '').replace(/"/g, '&quot;')}"
+                data-ev-menu="${esc(ev.id)}"
+                data-ev-title="${esc(ev.title)}"
                 data-ev-cancelled="${ev.cancelled ? '1' : '0'}"
                 data-ev-cancancel="${canCancel ? '1' : '0'}"
                 data-ev-special="${ev.fromEventsTable ? '1' : '0'}"
                 data-ev-past="${isPastTab ? '1' : '0'}"
-                data-ev-when="${dateStr}">
+                data-ev-when="${esc(dateStr)}">
                 <i class="fas fa-ellipsis-vertical"></i>
               </button>
             </div>

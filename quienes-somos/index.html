@@ -2,105 +2,70 @@
 <html lang="es">
 
   <head>
+    <!-- BUILD-HEAD -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="index, follow">
-    <meta name="keywords" content="quiénes somos, visión iglesia, misión iglesia cristiana, creencias cristianas, liderazgo iglesia, pastores Lexington KY, historia iglesia, fe cristiana">
-
-    <title>Quiénes Somos | Iglesia Restauración Divina</title>
+    <title>Quiénes Somos · Iglesia Restauración Divina</title>
     <meta name="description" content="Conoce nuestra visión, misión, liderazgo y lo que creemos como 
     iglesia cristiana en Lexington, KY.">
-    <meta name="author" content="Iglesia Restauración Divina" />
+    <meta name="author" content="Iglesia Restauración Divina">
+    <link rel="canonical" href="https://www.irdlex.org/quienes-somos/">
 
-    <!-- LOGO -->
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon"> 
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+    <!-- Warm up the origin that serves the logo, hero, and every content image. -->
+    <link rel="preconnect" href="https://snqwxgyhfiinouewxgiy.supabase.co" crossorigin>
 
-    <!-- SOCIAL SHARING PREVIEW-->
-    <link rel="canonical" href="https://www.irdlex.org/quienes-somos/" />
-    <meta property="og:site_name" content="Iglesia Restauración Divina"/>
-    <meta property="og:title" content="Quiénes Somos | Iglesia Restauración Divina" />
-    <meta property="og:url" content="https://www.irdlex.org/quienes-somos/"/>
-    <meta property="og:type" content="website"/>
-    <meta property="og:description" content="Cristo transforma! Visitanos este domingo.">
-    <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers.jpg" />
+    <!-- Favicons -->
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" media="(prefers-color-scheme:no-preference)">
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico">
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/apple-touch-icon.png">
 
-    <!-- MESSAGING PREVIEW -->
-    <meta name="twitter:card" content="summary"/>
-    <meta name="twitter:title" content="Iglesia Restauración Divina" />
-    <meta name="twitter:description" content="Cristo transforma! Visitanos este domingo." />
-    <meta name="twitter:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers.jpg" />
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2d4e57">
+    <meta name="application-name" content="IRDLex">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- Social sharing -->
+    <meta property="og:site_name" content="IRDLex · Iglesia Restauración Divina">
+    <meta property="og:title" content="Quiénes Somos · Iglesia Restauración Divina">
+    <meta property="og:description" content="Conoce nuestra visión, misión, liderazgo y lo que creemos como 
+    iglesia cristiana en Lexington, KY.">
+    <meta property="og:url" content="https://www.irdlex.org/quienes-somos/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_US">
+    <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Quiénes Somos · Iglesia Restauración Divina">
+    <meta name="twitter:description" content="Conoce nuestra visión, misión, liderazgo y lo que creemos como 
+    iglesia cristiana en Lexington, KY.">
+    <meta name="twitter:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers.jpg">
 
     <base href="/">
-    <!-- STYLESHEETS -->
-    <link rel="stylesheet" href="css/style.css">
-    <meta name = "format-detection" content = "telephone=no">
 
-    <!-- FONTS -->
+    <!-- Fonts: one render-blocking request for all four families. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Carattere&family=Geist:wght@100..900&family=Lexend+Deca:wght@100..900&family=Signika:wght@300..700&display=swap" rel="stylesheet">
 
-    <!-- BOOTSTRAP -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
+    <!-- Progressive enhancement: the scroll-reveal classes start at opacity:0
+         and only become visible once JS adds .visible/.is-visible. If JS fails
+         to load, this keeps all content visible instead of blank sections. -->
+    <noscript><style>
+      .animate-fade-in,.animate-fade-up,.animate-slide-in-left,.animate-slide-in-right,
+      .animate-reveal-image,.animate-reveal-text,.scroll-blur-in,.scroll-fade,.scroll-fade-up,
+      .scroll-fade-left,.scroll-fade-right,.scroll-fade-scale,.reveal-stagger,.fade-in,
+      .image-swipe-reveal{opacity:1!important;transform:none!important;filter:none!important}
+    </style></noscript>
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "AboutPage",
-          "@id": "https://www.irdlex.org/quienes-somos/#aboutpage",
-          "url": "https://www.irdlex.org/quienes-somos/",
-          "name": "Quiénes Somos | Iglesia Restauración Divina",
-          "inLanguage": "es",
-          "isPartOf": { "@id": "https://www.irdlex.org/#website" },
-          "about": { "@id": "https://www.irdlex.org/#church" },
-          "mainEntity": { "@id": "https://www.irdlex.org/quienes-somos/#pastor" }
-        },
-        {
-          "@type": "Person",
-          "@id": "https://www.irdlex.org/quienes-somos/#pastor",
-          "name": "Raúl García Guerra",
-          "givenName": "Raúl",
-          "familyName": "García Guerra",
-          "jobTitle": "Pastor principal",
-          "url": "https://www.irdlex.org/quienes-somos/",
-          "image": "https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/pastor.jpg",
-          "knowsLanguage": ["es", "en"],
-          "worksFor": { "@id": "https://www.irdlex.org/#church" },
-          "affiliation": {
-            "@type": "Organization",
-            "name": "Kentucky Ministry Network, Assemblies of God",
-            "url": "https://es.kyag.org/"
-          },
-          "workLocation": {
-            "@type": "Place",
-            "address": {
-              "@type": "PostalAddress",
-              "streetAddress": "2601 Clays Mill Rd",
-              "addressLocality": "Lexington",
-              "addressRegion": "KY",
-              "postalCode": "40503",
-              "addressCountry": "US"
-            }
-          }
-        },
-        {
-          "@type": "BreadcrumbList",
-          "itemListElement": [
-            { "@type": "ListItem", "position": 1, "name": "Inicio",        "item": "https://www.irdlex.org/" },
-            { "@type": "ListItem", "position": 2, "name": "Quiénes Somos", "item": "https://www.irdlex.org/quienes-somos/" }
-          ]
-        }
-      ]
-    }
-    </script>
-    <!-- Google Analytics 4 -->
-  <script defer src="/js/lib/analytics.js"></script>
+    <script defer src="/js/lib/analytics.js"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -129,7 +94,18 @@
       ]
     }
     </script>
-</head>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.irdlex.org/" },
+        { "@type": "ListItem", "position": 2, "name": "Quiénes Somos", "item": "https://www.irdlex.org/quienes-somos/" }
+      ]
+    }
+    </script>
+    <!-- /BUILD-HEAD -->
+  </head>
 
   <body>
     <header id="header" data-hero-size="page" data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers_2.jpg">
@@ -144,16 +120,17 @@
             <ul class="menu">
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-nosotros">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         NOSOTROS
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-nosotros">
                         <li><a href="/quienes-somos/">Quiénes Somos</a></li>
+                        <li><a href="/lideres/">Nuestros Líderes</a></li>
                         <li><a href="/vision-valores/">Visión y Valores</a></li>
                         <li><a href="/doctrina/">Doctrina</a></li>
                         <li><a href="/contacto/">Contáctanos</a></li>
@@ -161,15 +138,15 @@
                 </li>
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-conectate">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         CONÉCTATE
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-conectate">
                         <li><a href="/visitanos">Visítanos</a></li>
                         <li><a href="/proximos-pasos">Próximos Pasos</a></li>
                         <li><a href="/discipulado">Discipulado</a></li>
@@ -177,30 +154,30 @@
                 </li>
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-eventos">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         EVENTOS
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-eventos">
                         <li><a href="/eventos">Próximos eventos</a></li>
                         <li><a href="/calendario">Calendario</a></li>
                     </ul>
                 </li>
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-media">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         MEDIA
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-media">
                         <li><a href="/sermones">Sermones</a></li>
                         <li><a href="/galeria">Galería</a></li>
                     </ul>
@@ -226,7 +203,7 @@
 <!-- /BUILD-INLINE:header -->
 </header>
       <div class="hero-content glass-card rg-pd animate-fade-in" data-threshold="0.8">
-          <h1 class="hero__page-title">QUIENES SOMOS </h1>
+          <h1 class="hero__page-title">QUIÉNES SOMOS</h1>
           <H2 class="hero__page-subtitle">ADORADORES DEL DIOS VIVIENTE</H2>
       </div>
 
@@ -467,7 +444,7 @@
         </form>
     </div>
     <div class="contact-svg animate-fade-in" data-threshold="1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 563" fill="none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 563" fill="none" aria-hidden="true" focusable="false">
 			<g id="Image">
 					<g id="g14">
 							<g id="g16">

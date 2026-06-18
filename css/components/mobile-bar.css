@@ -67,6 +67,7 @@
   .mobile-bar__btn {
     flex: 1 1 0;
     min-width: 0;
+    min-height: 44px;            /* meet the 44px touch-target guideline */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -117,7 +118,9 @@
   }
 }
 
-/* Add bottom padding to <main> on mobile so the bar doesn't cover content */
+/* Add bottom padding to <main> on mobile so the bar doesn't cover content.
+   Includes the home-indicator safe area so the last content isn't hidden
+   behind the bar on notched phones. */
 @media (max-width: 768px) {
-  body main { padding-bottom: 6rem; }
+  body main { padding-bottom: calc(6rem + env(safe-area-inset-bottom)); }
 }

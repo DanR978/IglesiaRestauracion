@@ -2,6 +2,35 @@ import { showToast } from './toast.js';
 import { runCodeCaptchaModal } from './captcha.js';   // <-- updated name
 import { isValidEmail, isValidUSPhone, isValidName, normalizeUSPhone } from './validators.js';
 
+// ── Accessible field errors ──────────────────────────────────────────────────
+// Validation used to surface only a toast (and the toast live region was broken,
+// so screen-reader users got nothing). Now each invalid field also gets
+// aria-invalid + an inline role="alert" message wired via aria-describedby, and
+// focus moves to the first offender. The toast stays as the visible summary.
+function setFieldError(input, message) {
+  if (!input) return;
+  const group = input.closest('.form-group') || input.parentElement;
+  let err = group.querySelector('.form-error');
+  if (!err) {
+    err = document.createElement('p');
+    err.className = 'form-error';
+    err.setAttribute('role', 'alert');
+    err.id = `${input.id || input.name || 'field'}-error`;
+    group.appendChild(err);
+  }
+  err.textContent = message;
+  input.setAttribute('aria-invalid', 'true');
+  input.setAttribute('aria-describedby', err.id);
+}
+
+function clearFieldError(input) {
+  if (!input) return;
+  input.removeAttribute('aria-invalid');
+  const errId = input.getAttribute('aria-describedby');
+  input.removeAttribute('aria-describedby');
+  if (errId) document.getElementById(errId)?.remove();
+}
+
 export function setupMessageCounter(form, { minChars = 20, defaultMax = 300 } = {}) {
   const field = form.querySelector("#message");
   if (!field) return { minChars };
@@ -46,6 +75,11 @@ export function attachAjaxToForm(form) {
   const { minChars: MIN_MSG_CHARS = 20 } = setupMessageCounter(form) || {};
   let busy = false;
 
+  // Clear a field's error as soon as the user starts correcting it.
+  form.addEventListener("input", (e) => {
+    if (e.target.getAttribute?.("aria-invalid") === "true") clearFieldError(e.target);
+  });
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault(); if (busy) return;
     busy = true;
@@ -60,13 +94,22 @@ export function attachAjaxToForm(form) {
     const name  = nameEl?.value || "";
     const msg   = msgEl?.value || "";
 
-    if (!isValidName(name))  { showToast("Nombre Invalido (minimo 3 Letras).", { ok:false }); busy=false; return; }
-    if (!isValidUSPhone(phone)) { showToast("Teléfono invalido.", { ok:false }); busy=false; return; }
-    if (!isValidEmail(email)) { showToast("E-mail inválido.", { ok:false }); busy=false; return; }
-    if (msg.trim().length < MIN_MSG_CHARS) { showToast(`El mensaje debe tener al menos ${MIN_MSG_CHARS} caracteres.`, { ok:false }); busy=false; return; }
+    // Validate everything, surface every error inline, focus the first offender.
+    [nameEl, phoneEl, emailEl, msgEl].forEach(clearFieldError);
+    const errors = [];
+    if (!isValidName(name))                  errors.push([nameEl,  "Nombre inválido (mínimo 3 letras)."]);
+    if (!isValidUSPhone(phone))              errors.push([phoneEl, "Teléfono inválido."]);
+    if (!isValidEmail(email))                errors.push([emailEl, "Correo electrónico inválido."]);
+    if (msg.trim().length < MIN_MSG_CHARS)   errors.push([msgEl,   `El mensaje debe tener al menos ${MIN_MSG_CHARS} caracteres.`]);
+    if (errors.length) {
+      errors.forEach(([el, m]) => setFieldError(el, m));
+      errors[0][0]?.focus();
+      showToast(errors[0][1], { ok:false });
+      busy = false; return;
+    }
 
     const normalizedPhone = normalizeUSPhone(phone);
-    if (!normalizedPhone) { showToast("El teléfono no es válido.", { ok:false }); busy=false; return; }
+    if (!normalizedPhone) { setFieldError(phoneEl, "El teléfono no es válido."); phoneEl?.focus(); showToast("El teléfono no es válido.", { ok:false }); busy=false; return; }
     if (phoneEl) phoneEl.value = normalizedPhone;
 
     // --- updated: use new captcha modal ---

@@ -1,0 +1,106 @@
+/* =============================================================================
+   HOMEPAGE — Leadership teaser
+   A compact, typographic prompt that points to the full /lideres/ page.
+   Replaces the old single-pastor photo block (leadership now lives on its
+   own page, organized by ministry).
+   ============================================================================= */
+
+.home-leaders {
+  position: relative;
+  padding: clamp(4rem, 8vw, 7rem) 1.25rem;
+  background:
+    radial-gradient(ellipse 70% 80% at 50% 0%, rgba(200, 152, 88, 0.06), transparent 60%),
+    var(--color-bg-light, #fff);
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home-leaders {
+    background:
+      radial-gradient(ellipse 70% 80% at 50% 0%, rgba(200, 152, 88, 0.09), transparent 60%),
+      var(--color-bg-light, #121c1f);
+  }
+}
+
+.home-leaders__inner {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.home-leaders__kicker {
+  margin: 0 0 1rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.home-leaders__title {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.7rem, 1rem + 2.6vw, 2.7rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.home-leaders__lead {
+  margin: 0 auto 2rem;
+  max-width: 52ch;
+  font-family: var(--font-Geist);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+/* CTA — underlined-link family used across the homepage */
+.home-leaders__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-text, #394548);
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.9rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text, #394548);
+  text-decoration: none;
+  transition: gap 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.22s ease, border-color 0.22s ease;
+}
+
+.home-leaders__cta svg {
+  width: 26px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.home-leaders__cta:hover,
+.home-leaders__cta:focus-visible {
+  color: var(--color-secondary, #9a6a2c);
+  border-bottom-color: var(--color-secondary, #9a6a2c);
+  gap: 1.3rem;
+  text-decoration: none;
+}
+
+.home-leaders__cta:hover svg,
+.home-leaders__cta:focus-visible svg { transform: translateX(4px); }
+
+@media (prefers-color-scheme: dark) {
+  .home-leaders__cta { border-bottom-color: rgba(240, 245, 247, 0.5); }
+  .home-leaders__cta:hover,
+  .home-leaders__cta:focus-visible {
+    color: var(--gold-bright, #c89858);
+    border-bottom-color: var(--gold-bright, #c89858);
+  }
+}

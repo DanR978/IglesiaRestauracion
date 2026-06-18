@@ -52,9 +52,9 @@ A bilingual church website built to serve the Hispanic Christian community in Le
 |-------|------|
 | Frontend | Vanilla JavaScript (ES Modules), custom CSS design system |
 | Backend | [Supabase](https://supabase.com) — Auth, Database, Storage, Edge Functions, Realtime |
-| Build | PostCSS concatenation via `build.sh` — auto-discovers CSS by directory order |
+| Build | Plain `cat` concatenation via `build.sh` (no PostCSS) + Node build scripts for heads/sitemap/partials |
 | Hosting | GitHub Pages with custom domain (`irdlex.org`) |
-| CI/CD | GitHub Actions — rebuilds `style.css` on push |
+| CI/CD | GitHub Actions — builds CSS + heads + sitemap, inlines partials, deploys |
 | Media | YouTube Data API v3 proxied through Supabase Edge Function |
 | Forms | [FormSubmit](https://formsubmit.co) for contact form processing |
 | Fonts | Lexend Deca, Geist, Signika, Carattere (Google Fonts) |
@@ -64,58 +64,44 @@ A bilingual church website built to serve the Hispanic Christian community in Le
 
 ## Project Structure
 
+Public pages use folder/`index.html` routing (clean trailing-slash URLs):
+
 ```
 IglesiaRestauracion/
 ├── index.html                    # Homepage
-├── visitanos.html                # Plan Your Visit
-├── proximos-pasos.html           # Next Steps
-├── eventos.html                  # Events page
-├── sermones.html                 # Sermon archive (YouTube SPA)
-├── doctrina.html                 # Core beliefs
-├── vision-valores.html           # Mission, vision & values
-├── donacion.html                 # Giving
+├── 404.html                      # Custom not-found page
+├── visitanos/index.html          # Plan Your Visit
+├── proximos-pasos/index.html     # Next Steps
+├── eventos/index.html            # Events    (eventos/evento.html = detail template)
+├── sermones/index.html           # Sermon archive (YouTube SPA)
+├── doctrina/index.html           # Core beliefs
+├── vision-valores/index.html     # Mission, vision & values
+├── donacion/index.html           # Giving
+├── galeria/, calendario/, contacto/, discipulado/, quienes-somos/, …
+├── admin/index.html              # Admin console (noindex; loads css/admin.css)
 │
-├── css/
-│   ├── main.css                  # Import manifest (build entry)
-│   ├── style.css                 # Concatenated output (auto-built)
-│   ├── base/                     # Reset, defaults
-│   ├── tokens/                   # Colors, typography, spacing, radius, shadows, z-index
-│   ├── layout/                   # Container, zigzag grid
-│   ├── components/               # Buttons, toast, glass-card, captcha, list-card
-│   ├── sections/                 # Header, hero, footer, events, accordion, live-stream
-│   ├── pages/                    # Page-specific styles (linktree, doctrina, etc.)
-│   └── utilities/                # Animations, helpers
+├── css/                          # SOURCE — never hand-edit css/style.css
+│   ├── style.css                 # Generated bundle (public). Built by build.sh
+│   ├── admin.css                 # Generated bundle (admin only)
+│   ├── tokens/  base/  layout/  components/  sections/  pages/  utilities/
 │
-├── js/
-│   ├── main.js                   # App entry — imports, Supabase bridge, event wiring
-│   ├── include.js                # Fragment loader (header, footer, events, contact)
-│   ├── core/                     # IRD namespace
-│   ├── app/                      # UI utilities (animations, accordion, sticky nav, verse)
-│   ├── lib/                      # Supabase client, forms, toast, validators, captcha
-│   ├── components/               # Shared modules (events, splash, fish-scene, transitions)
-│   ├── pages/                    # Page-specific scripts (admin, sermons)
-│   └── utils/                    # Icon loader, device detection
+├── js/                           # ES modules
+│   ├── main.js  include.js  core/  app/  lib/  components/  pages/  utils/
 │
-├── src/                          # HTML fragments loaded by include.js
-│   ├── header.html
-│   ├── footer.html
-│   ├── contact-form.html
-│   ├── 4-events.html
-│   └── all-events.html
-│
-├── resources/
-│   ├── media/images/             # Optimized images
-│   ├── media/logo icons/         # Favicon variants
-│   └── verses/                   # Daily Bible verses (JSON)
+├── src/                          # HTML partials inlined into pages at build time
+│   ├── header.html  footer.html  contact-form.html
+│   ├── 4-events.html  all-events.html
 │
 ├── scripts/
-│   ├── build.sh                  # CSS build pipeline
-│   └── seed-presets.js           # Calendar preset seeder
+│   ├── build.sh                  # Concatenates css/** → style.css + admin.css (plain cat)
+│   ├── build-heads.mjs           # Regenerates every page <head> from a data map
+│   ├── build-sitemap.mjs         # Regenerates sitemap.xml from git commit dates
+│   ├── inline-includes.mjs       # Inlines src/ partials into each page body
+│   └── add-faqs.mjs              # One-off FAQ generator (already applied)
 │
-├── CNAME                         # Custom domain config
-├── robots.txt                    # Crawl rules
-├── sitemap.xml                   # Search engine sitemap
-└── .env                          # API keys (not committed)
+├── supabase/                     # Edge functions + RLS migrations
+├── CNAME  robots.txt  sitemap.xml  manifest.json  sw.js
+└── js/lib/config.js              # Generated at deploy from GitHub Secrets (gitignored)
 ```
 
 ---
@@ -126,7 +112,7 @@ The design system uses a **modular CSS approach** — source files are organized
 
 **tokens → base → layout → components → sections → pages → utilities**
 
-The build script (`scripts/build.sh`) concatenates all source files into a single `css/style.css`. A GitHub Actions workflow runs this on every push, so the built file is always up to date.
+The build script (`scripts/build.sh`) concatenates all source files into a single `css/style.css` with plain `cat` (no PostCSS, no `@import`). **Never hand-edit `css/style.css`** — edit the source files under `css/{tokens,base,…}/` and rerun the build. Admin-only styles are emitted separately to `css/admin.css` so public visitors don't download them.
 
 Key design tokens live in `css/tokens/`:
 - `colors.css` — Full teal + orange ramps with automatic dark mode inversion
@@ -140,7 +126,6 @@ Dark mode is handled entirely through `prefers-color-scheme` media queries with 
 
 ## Key Features
 
-- **Splash Screen** — Animated fish underwater scene with a loading logo animation
 - **Page Transitions** — Cross-page overlay transitions coordinated via `sessionStorage`
 - **Real-time Events** — Supabase Realtime subscriptions + polling fallback for live event updates
 - **Daily Bible Verse** — Random verse served from local JSON, displayed on the homepage
@@ -170,27 +155,29 @@ npm install
 npm run dev
 ```
 
-### Build CSS
+### Build
 
 ```bash
-# Manually rebuild the concatenated stylesheet
-bash scripts/build.sh
+npm run build:css      # regenerate css/style.css + css/admin.css (build.sh)
+npm run build:heads    # regenerate every page <head> from the data map
+npm run build:sitemap  # regenerate sitemap.xml from git commit dates
+npm run inline         # inline src/ partials (header/footer/contact-form) into pages
+npm run build:site     # all of the above, in order
 ```
 
-> The GitHub Actions workflow handles this automatically on push.
+> The GitHub Actions deploy workflow runs the full pipeline automatically on push to `main`. After editing CSS locally, run `git checkout -- css/admin.css` if only its line endings changed.
 
 ---
 
-## Environment Variables
+## Configuration
 
-Create a `.env` file in the project root:
+The browser reads runtime config from `js/lib/config.js`, which is **generated at deploy time** from GitHub Actions secrets (see `.github/workflows/deploy.yml`) and is gitignored. For local development, copy the example:
 
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key-here
+```bash
+cp js/lib/config.example.js js/lib/config.js   # then fill in your values
 ```
 
-> **`.env` is the single source of truth.** No hardcoded API key fallbacks in source files.
+The Supabase URL and anon key in `config.js` are public by design — row-level security (RLS) is what protects the data. Service-role keys live only in Supabase Edge Functions and never reach the browser.
 
 ---
 
@@ -212,11 +199,13 @@ RLS policies follow the pattern: **anon can read, authenticated can write**.
 
 ## Deployment
 
-The site deploys automatically to **GitHub Pages** on push to `main`. The GitHub Actions workflow:
+The site deploys automatically to **GitHub Pages** on push to `main`. The deploy workflow:
 
-1. Runs `build.sh` to concatenate CSS
-2. Commits the rebuilt `style.css`
-3. Deploys to GitHub Pages with the custom domain (`irdlex.org`)
+1. Generates `js/lib/config.js` from repository secrets
+2. Builds CSS (`build.sh`), page heads (`build-heads.mjs`), and the sitemap (`build-sitemap.mjs`)
+3. Inlines the shared `src/` partials into each page (`inline-includes.mjs`)
+4. Prunes build tooling / backend / dependencies from the artifact
+5. Deploys to GitHub Pages with the custom domain (`irdlex.org`)
 
 ---
 

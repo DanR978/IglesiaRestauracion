@@ -4,6 +4,7 @@
 import { sb }            from '/js/lib/supabase.js';
 import { CalendarGrid }  from '/js/components/CalendarGrid.js';
 import { setupStickyNav, setupBurgerMenu } from '/js/app/ui.js';
+import { esc }           from '/js/utils/escape.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATS = {
@@ -128,16 +129,16 @@ function renderSpecialTab(container, year, month) {
     html += `<div class="cal-up-group"><div class="cal-up-day-label">${label}</div>`;
     for (const ev of evs) {
       const imgHtml = ev.image_url
-        ? `<img class="cal-up-thumb" src="${ev.image_url}" alt="" loading="lazy">`
+        ? `<img class="cal-up-thumb" src="${esc(ev.image_url)}" alt="" loading="lazy">`
         : `<span class="cal-up-dot dot--especial"></span>`;
       html += `
-        <a class="cal-up-item cal-up-item--link" href="/eventos/evento.html?id=${ev.id}">
+        <a class="cal-up-item cal-up-item--link" href="/eventos/evento.html?id=${encodeURIComponent(ev.id)}">
           ${imgHtml}
           <div class="cal-up-info">
-            <div class="cal-up-name">${ev.title}</div>
+            <div class="cal-up-name">${esc(ev.title)}</div>
             <div class="cal-up-meta">
-              ${ev.time     ? `<span>${ev.time}</span>` : ''}
-              ${ev.location ? `<span>· ${ev.location.split(',')[0]}</span>` : ''}
+              ${ev.time     ? `<span>${esc(ev.time)}</span>` : ''}
+              ${ev.location ? `<span>· ${esc(ev.location.split(',')[0])}</span>` : ''}
             </div>
           </div>
           <i class="fas fa-chevron-right cal-up-chevron"></i>
@@ -183,16 +184,16 @@ function renderRegularTab(container, year, month) {
       const isCancelled = ev.cancelled;
       const cat = CATS[ev.category] || CATS.otro;
       html += `
-        <div class="cal-up-item${isCancelled ? ' cancelled' : ''}" data-id="${ev.id}" style="cursor:pointer">
+        <div class="cal-up-item${isCancelled ? ' cancelled' : ''}" data-id="${esc(ev.id)}" style="cursor:pointer">
           <span class="cal-up-dot ${cat.dot}${isCancelled ? ' cal-up-dot--cancelled' : ''}"></span>
           <div class="cal-up-info">
             <div class="cal-up-name">
-              ${ev.title}
+              ${esc(ev.title)}
               ${isCancelled ? '<span class="cal-up-badge cal-up-badge--cancelled">Cancelado</span>' : ''}
             </div>
             <div class="cal-up-meta">
-              ${ev.time     ? `<span>${ev.time}</span>` : ''}
-              ${ev.location ? `<span>· ${ev.location.split(',')[0]}</span>` : ''}
+              ${ev.time     ? `<span>${esc(ev.time)}</span>` : ''}
+              ${ev.location ? `<span>· ${esc(ev.location.split(',')[0])}</span>` : ''}
             </div>
           </div>
           <i class="fas fa-chevron-right cal-up-chevron${isCancelled ? ' hidden' : ''}"></i>
@@ -237,16 +238,16 @@ function openModal(ev) {
         <circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
       </svg> Este evento ha sido cancelado
     </div>` : ''}
-    <div class="cal-modal__badge cat--${ev.category || 'otro'}">
+    <div class="cal-modal__badge cat--${esc(ev.category || 'otro')}">
       <span class="cal-modal__badge-dot ${cat.dot}"></span> ${cat.label}
     </div>
-    <div class="cal-modal__title${ev.cancelled || isPast ? ' cal-modal__title--crossed' : ''}" id="calModalTitle">${ev.title}</div>
+    <div class="cal-modal__title${ev.cancelled || isPast ? ' cal-modal__title--crossed' : ''}" id="calModalTitle">${esc(ev.title)}</div>
     <div class="cal-modal__rows">
-      ${dateLabel   ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.cal}</div><div class="cal-modal__row-text">${dateLabel}</div></div>`  : ''}
-      ${ev.time     ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.time}</div><div class="cal-modal__row-text">${ev.time}</div></div>`    : ''}
-      ${ev.location ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.loc}</div><div class="cal-modal__row-text">${ev.location}</div></div>` : ''}
+      ${dateLabel   ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.cal}</div><div class="cal-modal__row-text">${esc(dateLabel)}</div></div>`  : ''}
+      ${ev.time     ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.time}</div><div class="cal-modal__row-text">${esc(ev.time)}</div></div>`    : ''}
+      ${ev.location ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.loc}</div><div class="cal-modal__row-text">${esc(ev.location)}</div></div>` : ''}
     </div>
-    ${ev.description ? `<div class="cal-modal__description">${ev.description}</div>` : ''}`;
+    ${ev.description ? `<div class="cal-modal__description">${esc(ev.description)}</div>` : ''}`;
 
   document.getElementById('calModalBackdrop').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -282,9 +283,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   initTabs();
   render(viewYear, viewMonth);       // empty grid first
 
-  await loadFromSupabase();
-  render(viewYear, viewMonth);       // real data
-
+  // Wire navigation BEFORE the network call so the calendar is always
+  // interactive even if Supabase is slow or unreachable.
   document.getElementById('calPrev')?.addEventListener('click', () => {
     if (--viewMonth < 0) { viewMonth = 11; viewYear--; }
     render(viewYear, viewMonth);
@@ -293,6 +293,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (++viewMonth > 11) { viewMonth = 0; viewYear++; }
     render(viewYear, viewMonth);
   });
+
+  try {
+    await loadFromSupabase();
+    render(viewYear, viewMonth);       // real data
+  } catch (err) {
+    console.warn('[calendar] load failed:', err);
+    // Grid still works (empty); surface a quiet note in the special-events tab.
+    const special = document.getElementById('calTabSpecial');
+    if (special) special.innerHTML = `<p class="cal-list__empty">No pudimos cargar los eventos en este momento. Vuelve a intentarlo más tarde.</p>`;
+  }
 
   document.getElementById('calModalClose')?.addEventListener('click', closeModal);
   document.getElementById('calModalBackdrop')?.addEventListener('click', e => {

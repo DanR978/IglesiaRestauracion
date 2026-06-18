@@ -11,7 +11,7 @@
 //
 // Bumping CACHE_VERSION invalidates everything on the next install.
 
-const CACHE_VERSION = 'ird-v2';
+const CACHE_VERSION = 'ird-v3';
 const CACHE_NAME    = `ird-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -83,7 +83,27 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static assets: stale-while-revalidate.
+  // Critical render assets — the global stylesheet and the shared HTML
+  // fragments (header/footer). Network-first so a new deploy's styles/markup
+  // appear on the very first load, with the cache as the offline fallback.
+  // (Stale-while-revalidate would paint the previous deploy's CSS first and
+  // only update on the *next* navigation — a visible flash of stale styling.)
+  if (url.pathname === '/css/style.css' || url.pathname.startsWith('/src/')) {
+    event.respondWith(
+      fetch(req)
+        .then(resp => {
+          if (resp && resp.status === 200 && resp.type === 'basic') {
+            const copy = resp.clone();
+            caches.open(CACHE_NAME).then(c => c.put(req, copy));
+          }
+          return resp;
+        })
+        .catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // Other static assets: stale-while-revalidate.
   event.respondWith(
     caches.match(req).then(cached => {
       const fetchPromise = fetch(req)

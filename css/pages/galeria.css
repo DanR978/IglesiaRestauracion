@@ -421,7 +421,9 @@ body.gal-modal-open { overflow: hidden; }
   left: 0.7rem;
   padding: 0.25rem 0.7rem;
   background: rgba(255, 255, 255, 0.92);
-  color: var(--color-text);
+  /* Pill is always white, so the text must stay dark in BOTH themes.
+     --color-text auto-reverses to light in dark mode (invisible here). */
+  color: var(--color-dark);
   font-family: var(--font-Signika);
   font-size: 0.68rem;
   font-weight: var(--fw-bold);

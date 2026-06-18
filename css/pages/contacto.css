@@ -1,0 +1,143 @@
+/* =============================================================================
+   PAGE — Contacto
+   The "Tres formas de contactarnos" block had no styles at all (it rendered as
+   a raw <ul>, left-aligned, and its text vanished in dark mode). This gives it
+   a modern, theme-aware card layout.
+   ============================================================================= */
+
+.contacto-channels {
+  padding: clamp(3rem, 8vw, 6rem) 1.25rem;
+}
+
+.contacto-channels__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.contacto-channels__title {
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: clamp(1.6rem, 1rem + 2.4vw, 2.5rem);
+  letter-spacing: -0.015em;
+  color: var(--color-text);
+  margin: 0 0 0.6rem;
+}
+
+/* Subtle neutral rule under the heading (reverses with the text color) */
+.contacto-channels__title::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: 0.9rem auto 0;
+  border-radius: 999px;
+  background: var(--color-text);
+  opacity: 0.22;
+}
+
+.contacto-channels__list {
+  list-style: none;
+  margin: clamp(2rem, 4vw, 3.25rem) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 2.4vw, 1.6rem);
+}
+
+.contacto-channels__list > li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.45rem;
+  padding: clamp(1.9rem, 3vw, 2.6rem) 1.4rem;
+  border-radius: 20px;
+  background: var(--color-white);
+  border: 1px solid rgba(57, 69, 72, 0.10);
+  box-shadow: 0 12px 30px rgba(45, 78, 87, 0.08);
+  transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.32s ease, border-color 0.32s ease;
+}
+
+.contacto-channels__list > li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 44px rgba(45, 78, 87, 0.14);
+  border-color: rgba(57, 69, 72, 0.22);
+}
+
+/* Icon badge — neutral (reverses dark→light), not a gold accent */
+.contacto-channels__list > li > i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 0.5rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  color: var(--color-text);
+  background: rgba(57, 69, 72, 0.07);
+}
+
+.contacto-channels__list h3 {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: var(--fw-bold);
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.contacto-channels__list p {
+  margin: 0;
+  font-size: 1.06rem;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.contacto-channels__list a {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: var(--fw-bold);
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.contacto-channels__list a:hover {
+  opacity: 0.7;
+}
+
+.contacto-channels__note {
+  font-size: 0.86rem !important;
+  color: var(--color-muted) !important;
+}
+
+.contacto-channels__note a {
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .contacto-channels__list { grid-template-columns: 1fr; max-width: 420px; margin-inline: auto; }
+}
+
+/* ── Dark mode: glassy translucent cards ────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .contacto-channels__list > li {
+    background: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.10);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+  .contacto-channels__list > li:hover {
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+  }
+  .contacto-channels__list > li > i {
+    color: var(--color-text);
+    background: rgba(255, 255, 255, 0.08);
+  }
+}

@@ -2,51 +2,70 @@
 <html lang="es">
 
   <head>
+    <!-- BUILD-HEAD -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="index, follow">
-    <meta name="keywords" content="crecer en la fe, bautismo Lexington, discipulado, cómo servir en la iglesia, grupos cristianos, próximos pasos fe, iglesia cristiana crecer espiritualmente">
-
-    <title>Próximos Pasos | Iglesia Restauración Divina</title>
+    <title>Próximos Pasos · Iglesia Restauración Divina</title>
     <meta name="description" content="Descubre cómo puedes crecer en tu fe, bautizarte, servir, y 
     conectarte con la comunidad en Iglesia Restauración Divina.">
-    <meta name="author" content="Iglesia Restauración Divina" />
+    <meta name="author" content="Iglesia Restauración Divina">
+    <link rel="canonical" href="https://www.irdlex.org/proximos-pasos/">
 
-    <!-- LOGO -->
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme:no-preference)">
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon"> 
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" rel="icon" media="(prefers-color-scheme: light)">
-    <link href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico" rel="icon" media="(prefers-color-scheme: dark)">
+    <!-- Warm up the origin that serves the logo, hero, and every content image. -->
+    <link rel="preconnect" href="https://snqwxgyhfiinouewxgiy.supabase.co" crossorigin>
 
-    <!-- SOCIAL SHARING PREVIEW-->
-    <link rel="canonical" href="https://www.irdlex.org/proximos-pasos/" />
-    <meta property="og:site_name" content="Iglesia Restauración Divina"/>
-    <meta property="og:title" content="Próximos Pasos | Iglesia Restauración Divina" />
-    <meta property="og:url" content="https://www.irdlex.org/proximos-pasos/"/>
-    <meta property="og:type" content="website"/>
-    <meta property="og:description" content="Cristo transforma! Visitanos este domingo.">
-    <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/next_step.jpg" />
+    <!-- Favicons -->
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" media="(prefers-color-scheme:no-preference)">
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico">
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico" media="(prefers-color-scheme: light)">
+    <link rel="icon" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/dark-church-logo.ico" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/apple-touch-icon.png">
 
-    <!-- MESSAGING PREVIEW -->
-    <meta name="twitter:card" content="summary"/>
-    <meta name="twitter:title" content="Iglesia Restauración Divina" />
-    <meta name="twitter:description" content="Cristo transforma! Visitanos este domingo." />
-    <meta name="twitter:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/next_step.jpg" />
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2d4e57">
+    <meta name="application-name" content="IRDLex">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- Social sharing -->
+    <meta property="og:site_name" content="IRDLex · Iglesia Restauración Divina">
+    <meta property="og:title" content="Próximos Pasos · Iglesia Restauración Divina">
+    <meta property="og:description" content="Descubre cómo puedes crecer en tu fe, bautizarte, servir, y 
+    conectarte con la comunidad en Iglesia Restauración Divina.">
+    <meta property="og:url" content="https://www.irdlex.org/proximos-pasos/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_US">
+    <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/next_step.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Próximos Pasos · Iglesia Restauración Divina">
+    <meta name="twitter:description" content="Descubre cómo puedes crecer en tu fe, bautizarte, servir, y 
+    conectarte con la comunidad en Iglesia Restauración Divina.">
+    <meta name="twitter:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/next_step.jpg">
 
     <base href="/">
-    <!-- STYLESHEETS -->
-    <link rel="stylesheet" href="css/style.css">
-    <meta name = "format-detection" content = "telephone=no">
 
-    <!-- FONTS -->
+    <!-- Fonts: one render-blocking request for all four families. -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Carattere&family=Geist:wght@100..900&family=Lexend+Deca:wght@100..900&family=Signika:wght@300..700&display=swap" rel="stylesheet">
 
-    <!-- BOOTSTRAP -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw==" crossorigin="anonymous" referrerpolicy="no-referrer">
 
+    <!-- Progressive enhancement: the scroll-reveal classes start at opacity:0
+         and only become visible once JS adds .visible/.is-visible. If JS fails
+         to load, this keeps all content visible instead of blank sections. -->
+    <noscript><style>
+      .animate-fade-in,.animate-fade-up,.animate-slide-in-left,.animate-slide-in-right,
+      .animate-reveal-image,.animate-reveal-text,.scroll-blur-in,.scroll-fade,.scroll-fade-up,
+      .scroll-fade-left,.scroll-fade-right,.scroll-fade-scale,.reveal-stagger,.fade-in,
+      .image-swipe-reveal{opacity:1!important;transform:none!important;filter:none!important}
+    </style></noscript>
 
+    <script defer src="/js/lib/analytics.js"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -72,9 +91,6 @@
         ]
       }
     </script>
-
-    <!-- Google Analytics 4 -->
-  <script defer src="/js/lib/analytics.js"></script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -103,7 +119,18 @@
       ]
     }
     </script>
-</head>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://www.irdlex.org/" },
+        { "@type": "ListItem", "position": 2, "name": "Próximos Pasos", "item": "https://www.irdlex.org/proximos-pasos/" }
+      ]
+    }
+    </script>
+    <!-- /BUILD-HEAD -->
+  </head>
 
   <body>
     <header id="header" data-hero-size="page" data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/next_step.jpg">
@@ -118,16 +145,17 @@
             <ul class="menu">
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-nosotros">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         NOSOTROS
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-nosotros">
                         <li><a href="/quienes-somos/">Quiénes Somos</a></li>
+                        <li><a href="/lideres/">Nuestros Líderes</a></li>
                         <li><a href="/vision-valores/">Visión y Valores</a></li>
                         <li><a href="/doctrina/">Doctrina</a></li>
                         <li><a href="/contacto/">Contáctanos</a></li>
@@ -135,15 +163,15 @@
                 </li>
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-conectate">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         CONÉCTATE
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-conectate">
                         <li><a href="/visitanos">Visítanos</a></li>
                         <li><a href="/proximos-pasos">Próximos Pasos</a></li>
                         <li><a href="/discipulado">Discipulado</a></li>
@@ -151,30 +179,30 @@
                 </li>
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-eventos">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         EVENTOS
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-eventos">
                         <li><a href="/eventos">Próximos eventos</a></li>
                         <li><a href="/calendario">Calendario</a></li>
                     </ul>
                 </li>
 
                 <li class="menu-item has-submenu">
-                    <button class="accordion-toggle" type="button">
+                    <button class="accordion-toggle" type="button" aria-expanded="false" aria-controls="submenu-media">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="chevron-icon">
+                             stroke-width="1.5" stroke="currentColor" class="chevron-icon" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round"
                                   d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                         </svg>
                         MEDIA
                     </button>
-                    <ul class="submenu">
+                    <ul class="submenu" id="submenu-media">
                         <li><a href="/sermones">Sermones</a></li>
                         <li><a href="/galeria">Galería</a></li>
                     </ul>
@@ -200,7 +228,7 @@
 <!-- /BUILD-INLINE:header -->
 </header>
       <div class="hero-content glass-card rg-pd animate-fade-in" data-threshold="0.8">
-          <h1 class="hero__page-title">PROXIMOS PASOS</h1>
+          <h1 class="hero__page-title">PRÓXIMOS PASOS</h1>
           <H2 class="hero__page-subtitle">TU SEÑOR TE ESPERA</H2>
       </div>
 
@@ -217,21 +245,24 @@
       <section class="wrapper--zigzag-grid">
         <div class="zigzag-card One">
           <div class="zigzag-card--content">
-            <h2 class="animate-fade-in" data-threshold="1">Salvacion</h2>
-            <p class="animate-fade-in" data-threshold="1">“En ningún otro hay salvación, porque no hay otro nombre bajo el cielo, 
+            <h2 class="animate-fade-in" data-threshold="1">Salvación</h2>
+            <p class="animate-fade-in" data-threshold="1">“En ningún otro hay salvación, porque no hay otro nombre bajo el cielo,
               dado a los hombres, mediante el cual podamos ser salvos.” <br><strong>Hechos 4:12</strong></p>
-            <p class="animate-fade-in" data-threshold="1">Tal vez te hayas indigno de la salvación por tu pasado. Tal vez llegaste a pensar que las buenas obras
-              y seguir las reglas te salvaban pero NO! Solo mediante de Jesus podemos ser salvos, por cuanto estamos
-              destituidos de la gloria de Dios por nuestro pecado. 
+            <p class="animate-fade-in" data-threshold="1">Tal vez te hayas sentido indigno de la salvación por tu pasado. Tal vez llegaste a pensar que las buenas obras
+              y seguir las reglas te salvaban, pero ¡no! Solo mediante Jesús podemos ser salvos, por cuanto estamos
+              destituidos de la gloria de Dios por nuestro pecado.
             </p>
+            <div class="animate-fade-in" data-threshold="1">
+              <a href="/contacto/" class="ird-btn ird-btn--teal">Quiero recibir a Jesús</a>
+            </div>
           </div>
         </div>
         <div class="zigzag-image Two">
-          <img class="img-cover-container animate-reveal-image" data-threshold="1" src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/salvation.jpg" alt="Jesus walking sheep">
+          <img class="img-cover-container animate-reveal-image" data-threshold="1" loading="lazy" decoding="async" src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/salvation.jpg" alt="Jesús, el buen pastor, guiando a sus ovejas">
         </div>
 
         <div class="zigzag-image Three">
-          <img class="img-cover-container animate-reveal-image" data-threshold="1" src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/bautismo.jpg" alt="What is Baptism">
+          <img class="img-cover-container animate-reveal-image" data-threshold="1" loading="lazy" decoding="async" src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/bautismo.jpg" alt="El bautismo en agua">
         </div>
         <div class="zigzag-card Four">
           <div class="zigzag-card--content">
@@ -245,6 +276,9 @@
               que Dios obra en nuestro interior, perdonando nuestros pecados y dándonos su Espíritu.
               Si aún no has dado ese paso en tu vida, ¡nos encantaría ayudarte a hacerlo!
             </p>
+            <div class="animate-fade-in" data-threshold="1">
+              <a href="/contacto/" class="ird-btn ird-btn--teal">Quiero bautizarme</a>
+            </div>
           </div>
         </div>
 
@@ -262,10 +296,13 @@
               y extender Su Reino. No importa cuál sea tu habilidad: si la entregas a Dios, Él puede usarla de maneras 
               poderosas. ¡Encuentra tu lugar, y comienza a servir con gozo!
             </p>
+            <div class="animate-fade-in" data-threshold="1">
+              <a href="/contacto/" class="ird-btn ird-btn--teal">Quiero servir</a>
+            </div>
           </div>
         </div>
         <div class="zigzag-image Six">
-          <img class="img-cover-container animate-reveal-image" data-threshold="1" src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/serve.jpg" alt="Why we serve God and others">
+          <img class="img-cover-container animate-reveal-image" data-threshold="1" loading="lazy" decoding="async" src="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/serve.jpg" alt="Servir a Dios y a los demás">
         </div>
       </section>
 
@@ -395,7 +432,7 @@
         </form>
     </div>
     <div class="contact-svg animate-fade-in" data-threshold="1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 563" fill="none">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 790 563" fill="none" aria-hidden="true" focusable="false">
 			<g id="Image">
 					<g id="g14">
 							<g id="g16">

@@ -87,10 +87,12 @@ body.floating-ui--past-hero:not(.floating-ui--dismissed) .whatsapp-fab:focus-vis
   .whatsapp-fab { animation: none; }
 }
 
-/* While a floating popup (e.g. the calendar day-sheet) is open, fade the
-   FAB out so it doesn't compete with the popup. If the FAB was already
-   hidden (user in hero, or user has dismissed), this is a no-op. */
-body.has-floating-popup .whatsapp-fab {
+/* While a floating popup (e.g. the calendar day-sheet) is open, OR the
+   mobile nav drawer is open (body gets .no-scroll), fade the FAB out so it
+   doesn't paint over the overlay. If the FAB was already hidden (user in
+   hero, or user has dismissed), this is a no-op. */
+body.has-floating-popup .whatsapp-fab,
+body.no-scroll .whatsapp-fab {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.22s ease;

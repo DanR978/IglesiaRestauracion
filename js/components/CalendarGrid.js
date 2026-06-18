@@ -18,6 +18,8 @@
 //   grid.render(year, month, events);  // events = flat sorted array
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { esc } from '/js/utils/escape.js';
+
 const DAYS_S    = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DAYS_L    = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -121,7 +123,12 @@ export class CalendarGrid {
         const cc  = ev.cancelled ? ' cal-event-pill--cancelled' : '';
         const isSpecialEv = ev._source === 'evt' || ev.fromEventsTable;
         const rawEvId = ev.id.replace('evt-', '');
-        const safeTitle = (ev.title||'').replace(/'/g, "\\'");
+        // Escape for BOTH layers: backslash + single-quote for the JS string
+        // literal inside onclick, and &quot;/&lt; so a title can't break out of
+        // the double-quoted attribute or inject a tag at HTML-parse time.
+        const safeTitle = (ev.title||'')
+          .replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+          .replace(/"/g, '&quot;').replace(/</g, '&lt;');
         const canCancel = REPETITIVE_CATS.includes(ev.category);
 
         const editClick   = isSpecialEv
@@ -143,8 +150,8 @@ export class CalendarGrid {
               onclick="event.stopPropagation();${deleteClick}"
               title="Eliminar">✕</button>
           </span>` : '';
-        return `<div class="cal-event-pill ${cat.pill}${cc}" data-id="${ev.id}">
-          <span class="cal-ev__label">${ev.title}</span>${adminActions}
+        return `<div class="cal-event-pill ${cat.pill}${cc}" data-id="${esc(ev.id)}">
+          <span class="cal-ev__label">${esc(ev.title)}</span>${adminActions}
         </div>`;
       }).join('');
 
@@ -223,7 +230,7 @@ export class CalendarGrid {
       this.cfg.onEventEdit?.(ev);
     } else if (ev._source === 'evt' || ev.fromEventsTable) {
       const rawId = ev.id.replace('evt-', '');
-      window.location.href = `/eventos/evento.html?id=${rawId}`;
+      window.location.href = `/eventos/evento.html?id=${encodeURIComponent(rawId)}`;
     } else {
       this.cfg.onEventClick?.(ev);
     }
@@ -267,20 +274,23 @@ export class CalendarGrid {
       // ── ADMIN: original action-buttons layout (unchanged) ──────────────
       if (isAdmin) {
         const titleEl = `<div class="day-sheet__ev-title${isCancelled ? ' day-sheet__ev-title--cancelled' : ''}">
-          ${ev.title}
+          ${esc(ev.title)}
           ${isCancelled ? '<span class="day-sheet__ev-cancelled-badge">Cancelado</span>' : ''}
         </div>`;
-        const metaEl  = `<div class="day-sheet__ev-time">${ev.time || ''}</div>`;
+        const metaEl  = `<div class="day-sheet__ev-time">${esc(ev.time || '')}</div>`;
         const imgEl   = isSpecial && ev.image_url
-          ? `<img class="day-sheet__ev-thumb" src="${ev.image_url}" alt="" loading="lazy">`
+          ? `<img class="day-sheet__ev-thumb" src="${esc(ev.image_url)}" alt="" loading="lazy">`
           : `<span class="day-sheet__ev-dot ${cat.dot}"></span>`;
 
         const REPETITIVE = ['servicio', 'estudio', 'oracion'];
         const canCancel = REPETITIVE.includes(ev.category);
+        const safeTitleJs  = (ev.title||'')
+          .replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+          .replace(/"/g, '&quot;').replace(/</g, '&lt;');
         const editAction   = isSpecial ? `window.__adminEditSpecial('${rawId}')` : `window.__gridEdit('${ev.id}')`;
         const deleteAction = isSpecial
-          ? `window.__adminDeleteEvent('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}',true)`
-          : `window.__gridDelete('${ev.id}','${(ev.title||'').replace(/'/g,"\\'")}')`;
+          ? `window.__adminDeleteEvent('${ev.id}','${safeTitleJs}',true)`
+          : `window.__gridDelete('${ev.id}','${safeTitleJs}')`;
 
         const rightEl = `<div class="day-sheet__ev-actions">
           <button class="icon-btn" onclick="event.stopPropagation();${editAction};window.__closeDaySheet()" title="Editar"><i class="fas fa-pen"></i></button>
@@ -307,8 +317,8 @@ export class CalendarGrid {
       // surprise-navigating, make specials look like regulars.) ────────────
       const tag    = isSpecial ? 'a' : 'button';
       const attrs  = isSpecial
-        ? `href="/eventos/evento.html?id=${rawId}"`
-        : `type="button" data-ev-id="${ev.id}"`;
+        ? `href="/eventos/evento.html?id=${encodeURIComponent(rawId)}"`
+        : `type="button" data-ev-id="${esc(ev.id)}"`;
       const metaLine = [ev.time, ev.location].filter(Boolean).join(' · ');
 
       return `
@@ -316,10 +326,10 @@ export class CalendarGrid {
           <span class="day-sheet__ev-dot ${cat.dot}" aria-hidden="true"></span>
           <div class="day-sheet__ev-info">
             <div class="day-sheet__ev-title${isCancelled ? ' day-sheet__ev-title--cancelled' : ''}">
-              ${ev.title}
+              ${esc(ev.title)}
               ${isCancelled ? '<span class="day-sheet__ev-cancelled-badge">Cancelado</span>' : ''}
             </div>
-            ${metaLine ? `<div class="day-sheet__ev-time">${metaLine}</div>` : ''}
+            ${metaLine ? `<div class="day-sheet__ev-time">${esc(metaLine)}</div>` : ''}
           </div>
           <span class="day-sheet__ev-link" aria-hidden="true">
             Ver detalles <i class="fas fa-chevron-right" style="font-size:.7rem"></i>

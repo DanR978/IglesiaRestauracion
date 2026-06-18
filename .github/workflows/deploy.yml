@@ -25,6 +25,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
 
+      # Build CSS in the runner so the deploy never depends on whether the
+      # committed css/style.css is up to date (removes the build-css.yml ->
+      # deploy race: deploy now always ships freshly-built CSS).
+      - name: Build CSS
+        run: bash scripts/build.sh
+
       - name: Generate config.js from secrets
         run: |
           cat > js/lib/config.js << 'JSEOF'
@@ -39,11 +45,29 @@ jobs:
           };
           JSEOF
 
+      # Regenerate every page <head> from the shared template + per-page data
+      # map (scripts/build-heads.mjs). Single source of truth for favicons,
+      # preconnect, fonts, OG tags, etc. Idempotent. Runs before inlining.
+      - name: Build page heads
+        run: node scripts/build-heads.mjs
+
+      - name: Build sitemap
+        run: node scripts/build-sitemap.mjs
+
       # Bake header/footer/contact-form into every page's index.html so
       # non-JS crawlers (ClaudeBot, GPTBot, PerplexityBot) see nav + address
       # + phone in the initial HTML. Idempotent: src/* is the source of truth.
       - name: Inline shared HTML fragments
         run: node scripts/inline-includes.mjs
+
+      # Keep the published artifact to what the static host actually serves.
+      # src/ stays (include.js fetches it + sw.js precaches it); build tooling,
+      # backend, CI, and dependencies are stripped so they never reach the web.
+      - name: Prune non-public files from the deploy artifact
+        run: |
+          rm -rf node_modules .git .github scripts supabase \
+                 deno.lock vite.config.js \
+                 package.json package-lock.json optimized
 
       - uses: actions/upload-pages-artifact@v3
         with:

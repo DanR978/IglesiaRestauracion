@@ -21,9 +21,15 @@ export function setupBurgerMenu() {
   if (!burger || !nav) return;
 
   /* ── Pane state ─────────────────────────────────────────────── */
+  const setExpanded = (li, open) =>
+    li.querySelector(".accordion-toggle")?.setAttribute("aria-expanded", open ? "true" : "false");
+
   const closeAllSubmenus = () => {
     nav.classList.remove("has-open-submenu");
-    nav.querySelectorAll(".menu-item.is-open").forEach(li => li.classList.remove("is-open"));
+    nav.querySelectorAll(".menu-item.is-open").forEach(li => {
+      li.classList.remove("is-open");
+      setExpanded(li, false);
+    });
   };
 
   /* FLIP animation: smoothly morph the category label in the root pane into
@@ -95,12 +101,31 @@ export function setupBurgerMenu() {
   };
 
   const openSubmenu = (li) => {
-    nav.querySelectorAll(".menu-item.is-open").forEach(other => other !== li && other.classList.remove("is-open"));
+    nav.querySelectorAll(".menu-item.is-open").forEach(other => {
+      if (other !== li) { other.classList.remove("is-open"); setExpanded(other, false); }
+    });
     // Kick off the label→title morph BEFORE adding the .is-open class so we
     // can measure the title's resting position in the same paint.
     morphLabelToTitle(li);
     li.classList.add("is-open");
+    setExpanded(li, true);
     nav.classList.add("has-open-submenu");
+  };
+
+  /* ── Focus trap (mobile drawer) ─────────────────────────────── */
+  // Keep keyboard focus inside the open drawer so Tab can't wander into the
+  // page behind it; restore focus to the burger when it closes.
+  const focusables = () => [...nav.querySelectorAll(
+    'a[href], button:not([disabled])'
+  )].filter(el => el.offsetParent !== null);
+
+  const trapTab = (e) => {
+    if (e.key !== "Tab") return;
+    const items = focusables();
+    if (!items.length) return;
+    const first = items[0], last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   };
 
   /* ── Burger open/close ─────────────────────────────────────── */
@@ -111,6 +136,9 @@ export function setupBurgerMenu() {
     burger.setAttribute("aria-expanded", "true");
     burger.setAttribute("aria-label", "Cerrar menú");
     document.body.classList.add("no-scroll");
+    nav.addEventListener("keydown", trapTab);
+    // Move focus into the drawer (first menu control) for keyboard/SR users.
+    focusables()[0]?.focus();
   };
 
   const close = () => {
@@ -122,6 +150,9 @@ export function setupBurgerMenu() {
     burger.setAttribute("aria-expanded", "false");
     burger.setAttribute("aria-label", "Abrir menú");
     document.body.classList.remove("no-scroll");
+    nav.removeEventListener("keydown", trapTab);
+    // Return focus to the control that opened the menu.
+    burger.focus();
 
     // After the slide-out finishes, reset to the root pane for next open
     nav.addEventListener("transitionend", function handler(e) {
@@ -166,6 +197,17 @@ export function setupBurgerMenu() {
       e.preventDefault();
       e.stopPropagation();
       openSubmenu(btn.closest(".menu-item"));
+    });
+  });
+
+  /* ── Desktop: keep aria-expanded in sync with focus-within ──── */
+  // On desktop the dropdowns reveal via :hover / :focus-within (pure CSS), so
+  // there's no JS open state. Mirror keyboard focus into aria-expanded so a
+  // screen-reader user hears whether the submenu is open as they tab through.
+  nav.querySelectorAll(".menu-item.has-submenu").forEach(li => {
+    li.addEventListener("focusin", () => { if (window.innerWidth > 1180) setExpanded(li, true); });
+    li.addEventListener("focusout", (e) => {
+      if (window.innerWidth > 1180 && !li.contains(e.relatedTarget)) setExpanded(li, false);
     });
   });
 
@@ -266,12 +308,24 @@ export function setupStickyNav({
 
 export function setupFAQAccordion() {
   const buttons = document.querySelectorAll('.accordion-faq__question');
-  buttons.forEach(button => {
+  buttons.forEach((button, i) => {
+    const answer = button.nextElementSibling;
+    // Wire the question button to its answer panel so screen readers announce
+    // the relationship and the expanded/collapsed state together.
+    if (answer && !answer.id) answer.id = `faq-answer-${i}`;
+    if (answer) {
+      button.setAttribute('aria-controls', answer.id);
+      answer.setAttribute('role', 'region');
+      if (!answer.getAttribute('aria-label')) {
+        answer.setAttribute('aria-labelledby', button.id || (button.id = `faq-q-${i}`));
+      }
+    }
+    if (!button.hasAttribute('aria-expanded')) button.setAttribute('aria-expanded', 'false');
+
     button.addEventListener('click', () => {
-      const answer = button.nextElementSibling;
       const isExpanded = button.getAttribute('aria-expanded') === 'true';
-      button.setAttribute('aria-expanded', !isExpanded);
-      answer.classList.toggle('open');
+      button.setAttribute('aria-expanded', String(!isExpanded));
+      answer?.classList.toggle('open');
     });
   });
 }
@@ -337,7 +391,7 @@ export function initAnimations() {
 export function setupDirectionsButton({
   buttonId = "getDirections",
   destination = { lat: 38.014455, lon: -84.538253 },
-  fallbackUrl = "https://www.google.com/maps?q=334+North+Broadway,+Lexington,+KY"
+  fallbackUrl = "https://www.google.com/maps/dir/?api=1&destination=2601%20Clays%20Mill%20Rd%2C%20Lexington%2C%20KY%2040503"
 } = {}) {
   const button = document.getElementById(buttonId);
   if (!button) return;
@@ -351,7 +405,7 @@ export function setupDirectionsButton({
           : `https://www.google.com/maps/dir/?api=1&origin=${latitude},${longitude}&destination=${destination.lat},${destination.lon}`;
         isIOS ? (window.location.href = url) : window.open(url, "_blank");
       },
-      () => { alert("Unable to get your location. Opening default directions."); window.open(fallbackUrl, "_blank"); }
+      () => { window.open(fallbackUrl, "_blank"); }
     );
   });
 }

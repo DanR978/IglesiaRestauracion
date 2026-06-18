@@ -303,6 +303,17 @@ async function reload() {
 document.addEventListener('DOMContentLoaded', async () => {
   initFilters();
   updateBar();
-  await reload();
+  try {
+    await reload();
+  } catch (err) {
+    console.warn('[galeria] load failed:', err);
+    // Replace the spinner so it never spins forever on a failed fetch.
+    const root = document.getElementById('galYears');
+    if (root) root.innerHTML = `
+      <div class="gal-empty">
+        <i class="fas fa-camera-retro" aria-hidden="true"></i>
+        <p>No pudimos cargar la galería en este momento. Vuelve a intentarlo más tarde.</p>
+      </div>`;
+  }
   subscribeAlbums(reload);
 });

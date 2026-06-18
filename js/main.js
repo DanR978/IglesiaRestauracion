@@ -151,6 +151,8 @@ async function refreshEvents() {
     window.Rail?.setEvents?.(mapped);
   } catch (err) {
     console.error("[events] refresh error:", err);
+    // Render the empty state instead of leaving the section permanently blank.
+    window.Rail?.setEvents?.([]);
   }
 }
 

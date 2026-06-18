@@ -19,6 +19,14 @@
   const span = document.getElementById("drawText");
   if (!span) return;
 
+  // Respect reduced-motion: show the full mission statement once, no looping.
+  // (The CSS motion guard can't stop this JS timer loop, so we opt out here.)
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    span.textContent = PHRASES.join(" · ");
+    span.classList.add("visible");
+    return;
+  }
+
   const h2 = span.closest(".mission-title");
 
   let FADE = 0;
