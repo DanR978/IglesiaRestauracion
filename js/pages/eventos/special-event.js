@@ -103,14 +103,13 @@ function renderEvent(ev) {
   if (ev.registration_open) {
     if (btn) {
       btn.href = `/eventos/registro.html?e=${encodeURIComponent(ev.slug)}`;  // no-JS fallback
-      btn.style.display = '';
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title, eventSlug: ev.slug });
       });
     }
   } else {
-    if (btn) btn.style.display = 'none';
+    hide('event-action');
     show('event-register-closed');
   }
 
