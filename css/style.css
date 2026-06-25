@@ -11954,13 +11954,30 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
 
 .ev2__grid {
   display: grid;
-  grid-template-columns: 1fr minmax(280px, 360px);
-  gap: clamp(1.5rem, 4vw, 3.5rem);
+  grid-template-columns: minmax(0, 1fr) 320px;   /* wider main column */
+  gap: clamp(2rem, 4vw, 3.5rem);
   align-items: start;
 }
 @media (max-width: 820px) {
-  .ev2__grid { grid-template-columns: 1fr; }
-  .ev2__side { order: -1; }   /* image + location lead on mobile */
+  /* Flatten both columns so their children interleave in the Church Center
+     order: image → title → date → location → details. */
+  .ev2__grid { display: flex; flex-direction: column; gap: 0; }
+  .ev2__main, .ev2__side { display: contents; }
+  .ev2__media { order: 1; margin-bottom: 1.25rem; }
+  .ev2__title { order: 2; }
+  .ev2__when  { order: 3; }
+  .ev2__panel { order: 4; }
+  #event-description-section { order: 5; }
+  #event-information-section { order: 6; }
+  #event-organizer-section   { order: 7; }
+
+  /* Sticky primary action at the bottom (Registrarse / Agregar al calendario). */
+  .ev2__register {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-overlay, 50);
+    margin: 0; border-radius: 0; padding: 1rem;
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, .16);
+  }
+  .ev2 { padding-bottom: 4.75rem; }   /* clear the fixed bar */
 }
 
 /* Main column */
