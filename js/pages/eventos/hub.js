@@ -159,7 +159,7 @@ function renderFeatured() {
                     : `<span class="evhub-feat__img evhub-feat__img--ph"><i class="fas fa-calendar-star"></i></span>`}
       <div class="evhub-feat__body">
         <div class="evhub-feat__title">${esc(e.title)}</div>
-        <div class="evhub-feat__date">${esc(longDate(e.date))}${e.time ? ' · ' + esc(e.time) : ''}</div>
+        <div class="evhub-feat__date">${esc(longDate(e.date))}</div>
         ${e.signup ? `<span class="evhub-badge evhub-badge--signup">Inscripciones disponibles</span>` : ''}
       </div>
     </a>`).join('');
@@ -228,7 +228,7 @@ function renderGallery() {
       </div>
       <div class="evhub-card__body">
         <div class="evhub-card__title">${esc(e.title)}</div>
-        <div class="evhub-card__date">${esc(longDate(e.date))}${e.time ? ' · ' + esc(e.time) : ''}</div>
+        <div class="evhub-card__date">${esc(longDate(e.date))}</div>
         ${e.signup ? `<span class="evhub-badge evhub-badge--signup">Inscripciones disponibles</span>` : ''}
       </div>
     </a>`).join('');
