@@ -50,6 +50,18 @@ function publicUrl(ev) {
   return `${PUBLIC_ORIGIN}/eventos/evento-especial.html?e=${encodeURIComponent(ev.slug)}`;
 }
 
+// Generic show/hide for a toggle button + its panel (see admin-ux.md convention).
+function wireCollapse(btnId, panelId) {
+  const btn = $(btnId), panel = $(panelId);
+  if (!btn || !panel) return;
+  btn.addEventListener('click', () => {
+    const open = panel.hasAttribute('hidden');
+    panel.toggleAttribute('hidden', !open);
+    btn.setAttribute('aria-expanded', String(open));
+    btn.classList.toggle('is-active', open);
+  });
+}
+
 function fmtDateTime(iso) {
   if (!iso) return '—';
   try {
@@ -90,6 +102,10 @@ function boot() {
 
   $('seDetailBack')?.addEventListener('click', () => { stopRegsRealtime(); seShowView('list'); renderList(); });
   $('seEditBtn')?.addEventListener('click', () => currentEvent && openEditEvent(currentEvent.id));
+
+  // Collapsible panels — QR/share and filters stay tucked away until asked for.
+  wireCollapse('seShareToggle', 'seSharePanel');
+  wireCollapse('seFilterToggle', 'seFilterPanel');
 
   $('seQrDownload')?.addEventListener('click', onQrDownload);
   $('seQrCopy')?.addEventListener('click', onQrCopy);
@@ -545,27 +561,25 @@ function renderRegistrations() {
 
   const body = rows.map(r => `
     <tr>
-      <td>${esc(r.first_name)}</td>
-      <td>${esc(r.last_name)}</td>
-      <td>${esc(r.age)}</td>
-      <td>${esc(r.sex || '—')}</td>
-      <td>${esc(r.contact_name)}</td>
-      <td>${esc(r.relationship)}</td>
-      <td style="white-space:nowrap">${esc(formatUSPhoneNational(r.contact_phone))}</td>
-      <td>${r.contact_email ? `<a href="mailto:${esc(r.contact_email)}">${esc(r.contact_email)}</a>` : '—'}</td>
-      <td>${esc(r.allergies || '—')}</td>
-      <td>${esc(r.medical_conditions || '—')}</td>
-      <td style="white-space:nowrap">${esc(fmtDateTime(r.submitted_at))}</td>
-      <td><button class="icon-btn__admin" title="Imprimir" data-print-one="${esc(r.id)}"><i class="fas fa-print"></i></button></td>
+      <td data-label="Nombre">${esc(r.first_name)}</td>
+      <td data-label="Apellido">${esc(r.last_name)}</td>
+      <td data-label="Edad">${esc(r.age)}</td>
+      <td data-label="Sexo">${esc(r.sex || '—')}</td>
+      <td data-label="Contacto">${esc(r.contact_name)}</td>
+      <td data-label="Parentesco">${esc(r.relationship)}</td>
+      <td data-label="Teléfono" class="se-nowrap">${esc(formatUSPhoneNational(r.contact_phone))}</td>
+      <td data-label="Email">${r.contact_email ? `<a class="se-email" href="mailto:${esc(r.contact_email)}">${esc(r.contact_email)}</a>` : '—'}</td>
+      <td data-label="Alergias">${esc(r.allergies || '—')}</td>
+      <td data-label="Condiciones">${esc(r.medical_conditions || '—')}</td>
+      <td data-label="Enviado" class="se-nowrap">${esc(fmtDateTime(r.submitted_at))}</td>
+      <td data-label="" class="se-rowact"><button class="icon-btn__admin" title="Imprimir registro" data-print-one="${esc(r.id)}"><i class="fas fa-print"></i></button></td>
     </tr>`).join('');
 
   el.innerHTML = `
-    <div class="se-table-scroll">
-      <table class="events-table se-reg-table">
-        <thead><tr>${thead}</tr></thead>
-        <tbody>${body}</tbody>
-      </table>
-    </div>`;
+    <table class="se-reg-table">
+      <thead><tr>${thead}</tr></thead>
+      <tbody>${body}</tbody>
+    </table>`;
 }
 
 // ── QR actions ───────────────────────────────────────────────────────────────

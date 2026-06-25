@@ -15,12 +15,14 @@
   width: 38px; height: 38px;
   border: 0; border-radius: 10px;
   background: transparent;
-  color: var(--color-dark);
+  /* The topbar is dark teal — the bell must be light to be visible (was dark
+     teal on dark teal = invisible). */
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   font-size: 1rem;
-  transition: background-color 0.18s ease;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
-.topbar__bell:hover { background: rgba(57, 69, 72, 0.08); }
+.topbar__bell:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
 
 .notif-badge {
   position: absolute; top: 3px; right: 3px;

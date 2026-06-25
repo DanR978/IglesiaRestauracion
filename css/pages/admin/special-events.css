@@ -39,63 +39,64 @@
 }
 .se-detail__meta i { margin-right: .35rem; }
 
-.se-detail__grid {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 1.25rem;
-  align-items: start;
+/* Action bar — secondary panels tuck behind toggles; primary actions inline.
+   Convention: keep QR/share + filters collapsed by default (see admin-ux.md). */
+.se-actionbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .45rem;
+  margin: 0 0 1rem;
 }
-@media (max-width: 900px) {
-  .se-detail__grid { grid-template-columns: 1fr; }
+.se-actionbar__spacer { flex: 1 1 auto; }
+/* Active state for an open toggle */
+.se-actionbar .btn.is-active {
+  background: var(--color-dark);
+  color: var(--color-white);
 }
 
-/* QR card */
+/* Collapsible panels (QR / filters) */
+.se-collapse {
+  margin: 0 0 1rem;
+  animation: seCollapseIn .16s ease;
+}
+.se-collapse[hidden] { display: none; }
+@keyframes seCollapseIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+/* QR / share card — horizontal: code beside its link + actions */
 .se-qr-card {
-  border: 1px solid var(--gray-40, rgba(0, 0, 0, .12));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
   border-radius: var(--radius-lg);
-  padding: 1rem;
-  text-align: center;
+  padding: 1rem 1.2rem;
   background: var(--color-white);
 }
-.se-qr-card h3 {
-  font-family: var(--font-Signika);
-  font-size: .95rem;
-  margin: 0 0 .75rem;
-}
 .se-qr-img {
-  width: 200px; height: 200px;
+  width: 168px; height: 168px;
   max-width: 100%;
   border-radius: var(--radius-md);
   background: #fff;
 }
-.se-qr-url-row { margin: .65rem 0 .5rem; }
+.se-qr-side { flex: 1 1 240px; min-width: 0; }
+.se-qr-side h3 { font-family: var(--font-Signika); font-size: .95rem; margin: 0 0 .65rem; }
+.se-qr-url-row { margin: 0 0 .6rem; }
 .se-qr-url-row input {
   width: 100%;
-  font-size: .72rem;
-  padding: .45rem .55rem;
-  border: 1.5px solid var(--gray-50, #ccc);
+  font-size: .78rem;
+  padding: .5rem .6rem;
+  border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-md);
   color: var(--color-muted);
   background: var(--gray-10, transparent);
 }
-.se-qr-actions {
-  display: flex;
-  flex-direction: column;
-  gap: .4rem;
-}
-.se-qr-actions .btn { width: 100%; justify-content: center; }
-.se-edit-btn { width: 100%; justify-content: center; margin-top: .75rem; }
+.se-qr-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
 
 /* Registrations card */
 .se-regs-card { min-width: 0; }
-.se-regs-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: .5rem;
-  margin-bottom: .75rem;
-}
+.se-regs-head { margin-bottom: .75rem; }
 .se-regs-head h3 { font-family: var(--font-Signika); margin: 0; font-size: 1.05rem; }
 .se-regs-count {
   color: var(--color-muted);
@@ -103,7 +104,6 @@
   font-size: .8rem;
   margin-left: .35rem;
 }
-.se-regs-exports { display: flex; gap: .4rem; flex-wrap: wrap; }
 
 /* Filter bar */
 .se-filter-bar {
@@ -112,21 +112,20 @@
   gap: .5rem;
   align-items: center;
   padding: .75rem;
-  background: var(--gray-10, rgba(0, 0, 0, .03));
+  background: var(--gray-10, rgba(127, 127, 127, .06));
   border-radius: var(--radius-md);
-  margin-bottom: .9rem;
 }
 .se-filter-bar input,
 .se-filter-bar select {
-  padding: .45rem .6rem;
-  border: 1.5px solid var(--gray-50, #ccc);
+  padding: .5rem .6rem;
+  border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-md);
   font-size: .82rem;
   background: var(--color-white);
   color: var(--color-text);
 }
 .se-filter-bar input[type="search"] { flex: 1 1 180px; min-width: 140px; }
-.se-filter-bar input[type="number"] { width: 86px; }
+.se-filter-bar input[type="number"] { width: 90px; }
 .se-filter-date {
   display: inline-flex;
   align-items: center;
@@ -135,13 +134,63 @@
   color: var(--color-muted);
 }
 
-/* Registrations table — horizontal scroll on small screens */
-.se-table-scroll { overflow-x: auto; }
-.se-reg-table { width: 100%; min-width: 760px; }
-.se-reg-table td { font-size: .82rem; }
+/* ── Registrations table — fully responsive, never scrolls sideways ──────────
+   Self-contained styling (no shared .events-table mobile rules to fight with).
+   Wide screens: a table; below 1100px each row becomes a labeled card. */
+.se-reg-table { width: 100%; border-collapse: collapse; }
+.se-reg-table th {
+  text-align: left;
+  font-size: .72rem; font-weight: 700;
+  color: var(--color-muted);
+  text-transform: uppercase; letter-spacing: .05em;
+  padding: .55rem .6rem; white-space: nowrap;
+  border-bottom: 1px solid var(--gray-50, rgba(127, 127, 127, .25));
+  background: var(--gray-20, rgba(127, 127, 127, .06));
+}
+.se-reg-table td {
+  padding: .6rem; font-size: .85rem; vertical-align: middle;
+  word-break: break-word;
+  border-bottom: 1px solid var(--gray-50, rgba(127, 127, 127, .16));
+}
+.se-reg-table tbody tr:hover td { background: var(--color-bg-light, rgba(127, 127, 127, .05)); }
+.se-reg-table .se-nowrap { white-space: nowrap; }
+/* Email: legible link, no white-on-white, breaks instead of overflowing */
+.se-reg-table .se-email { color: var(--color-dark); text-decoration: underline; word-break: break-all; }
+.se-reg-table .se-email:hover { color: var(--color-secondary); }
 .se-th-sort { cursor: pointer; user-select: none; white-space: nowrap; }
 .se-th-sort:hover { color: var(--color-secondary); }
 .se-sort { font-size: .7rem; opacity: .6; margin-left: .2rem; }
+
+@media (max-width: 1100px) {
+  .se-reg-table,
+  .se-reg-table thead,
+  .se-reg-table tbody,
+  .se-reg-table tr,
+  .se-reg-table th,
+  .se-reg-table td { display: block; }
+  .se-reg-table thead { display: none; }
+  .se-reg-table tr {
+    background: var(--color-white);
+    border: 1px solid var(--gray-50, rgba(127, 127, 127, .2));
+    border-radius: var(--radius-md);
+    padding: .55rem .85rem;
+    margin-bottom: .6rem;
+  }
+  .se-reg-table tbody tr:hover td { background: transparent; }
+  .se-reg-table td {
+    display: flex; justify-content: space-between; gap: 1rem;
+    padding: .3rem 0; border: none; text-align: right;
+  }
+  .se-reg-table td::before {
+    content: attr(data-label);
+    font-weight: 700; font-size: .7rem; letter-spacing: .03em;
+    text-transform: uppercase; color: var(--color-muted);
+    text-align: left; flex: 0 0 auto;
+  }
+  .se-reg-table td.se-rowact { justify-content: flex-end; padding-top: .5rem; }
+  .se-reg-table td.se-rowact::before { content: none; }
+  .se-reg-table .se-email { text-align: right; }
+}
 
 /* Toggle switch (registration open) */
 .se-toggle-row { margin-top: .25rem; }
@@ -164,6 +213,6 @@
 
 /* ── Print ──────────────────────────────────────────────────────────────── */
 @media print {
-  .adm-nav, .adm-topbar, .se-filter-bar, .se-regs-exports,
-  .se-qr-card, .toolbar-back, .action-bar { display: none !important; }
+  .adm-nav, .adm-topbar, .se-actionbar, .se-collapse,
+  .toolbar-back, .action-bar { display: none !important; }
 }

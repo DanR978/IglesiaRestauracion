@@ -410,7 +410,7 @@
       </div>
     </div>
 
-    <!-- View: detail (QR + registrations) -->
+    <!-- View: detail (registrations; QR + filters collapsible) -->
     <div class="se-view" id="se-view-detail">
       <div class="toolbar-back">
         <h2 id="seDetailTitle">Evento</h2>
@@ -418,59 +418,70 @@
       </div>
       <div class="se-detail__meta" id="seDetailMeta"></div>
 
-      <div class="se-detail__grid">
-        <!-- QR panel -->
-        <div class="se-qr-card">
-          <h3>Código QR / Enlace</h3>
-          <img id="seQrImg" class="se-qr-img" alt="Código QR del evento">
-          <div class="se-qr-url-row">
-            <input type="text" id="seQrUrl" readonly>
-          </div>
-          <div class="se-qr-actions">
-            <button class="btn btn--ghost" id="seQrDownload"><i class="fas fa-download"></i> Descargar PNG</button>
-            <button class="btn btn--ghost" id="seQrCopy"><i class="fas fa-link"></i> Copiar enlace</button>
-          </div>
-          <button class="btn btn--secondary se-edit-btn" id="seEditBtn"><i class="fas fa-pen"></i> Editar evento</button>
-        </div>
+      <!-- Action bar: secondary panels tuck behind toggles; primary actions inline -->
+      <div class="se-actionbar">
+        <button class="btn btn--ghost" id="seShareToggle" aria-expanded="false" aria-controls="seSharePanel">
+          <i class="fas fa-share-nodes"></i> Compartir / QR
+        </button>
+        <button class="btn btn--ghost" id="seFilterToggle" aria-expanded="false" aria-controls="seFilterPanel">
+          <i class="fas fa-sliders"></i> Filtros
+        </button>
+        <span class="se-actionbar__spacer"></span>
+        <button class="btn btn--secondary" id="seEditBtn"><i class="fas fa-pen"></i> Editar</button>
+        <button class="btn btn--ghost" id="seExportCsv"><i class="fas fa-file-csv"></i> CSV</button>
+        <button class="btn btn--ghost" id="seExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
+        <button class="btn btn--ghost" id="sePrintRoster"><i class="fas fa-print"></i> Imprimir</button>
+      </div>
 
-        <!-- Registrations -->
-        <div class="se-regs-card">
-          <div class="se-regs-head">
-            <h3>Inscripciones <span id="seRegCount" class="se-regs-count"></span></h3>
-            <div class="se-regs-exports">
-              <button class="btn btn--ghost" id="seExportCsv"><i class="fas fa-file-csv"></i> CSV</button>
-              <button class="btn btn--ghost" id="seExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
-              <button class="btn btn--ghost" id="sePrintRoster"><i class="fas fa-print"></i> Imprimir</button>
+      <!-- Collapsible: share / QR (hidden by default) -->
+      <div class="se-collapse" id="seSharePanel" hidden>
+        <div class="se-qr-card">
+          <img id="seQrImg" class="se-qr-img" alt="Código QR del evento">
+          <div class="se-qr-side">
+            <h3>Código QR / Enlace público</h3>
+            <div class="se-qr-url-row"><input type="text" id="seQrUrl" readonly></div>
+            <div class="se-qr-actions">
+              <button class="btn btn--ghost" id="seQrDownload"><i class="fas fa-download"></i> Descargar PNG</button>
+              <button class="btn btn--ghost" id="seQrCopy"><i class="fas fa-link"></i> Copiar enlace</button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div class="se-filter-bar">
-            <input type="search" id="seFilterName" placeholder="Buscar por nombre...">
-            <input type="number" id="seFilterAge" placeholder="Edad" min="0" max="120">
-            <select id="seFilterSex">
-              <option value="">Sexo: todos</option>
-              <option value="Femenino">Femenino</option>
-              <option value="Masculino">Masculino</option>
-              <option value="Prefiere no decir">Prefiere no decir</option>
-            </select>
-            <select id="seFilterAllergies">
-              <option value="">Alergias: todas</option>
-              <option value="con">Con alergias</option>
-              <option value="sin">Sin alergias</option>
-            </select>
-            <select id="seFilterMedical">
-              <option value="">Condiciones: todas</option>
-              <option value="con">Con condiciones</option>
-              <option value="sin">Sin condiciones</option>
-            </select>
-            <label class="se-filter-date">Desde <input type="date" id="seFilterFrom"></label>
-            <label class="se-filter-date">Hasta <input type="date" id="seFilterTo"></label>
-            <button class="btn btn--ghost" id="seFilterClear"><i class="fas fa-xmark"></i> Limpiar</button>
-          </div>
+      <!-- Collapsible: filters (hidden by default) -->
+      <div class="se-collapse" id="seFilterPanel" hidden>
+        <div class="se-filter-bar">
+          <input type="search" id="seFilterName" placeholder="Buscar por nombre...">
+          <input type="number" id="seFilterAge" placeholder="Edad" min="0" max="120">
+          <select id="seFilterSex">
+            <option value="">Sexo: todos</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Prefiere no decir">Prefiere no decir</option>
+          </select>
+          <select id="seFilterAllergies">
+            <option value="">Alergias: todas</option>
+            <option value="con">Con alergias</option>
+            <option value="sin">Sin alergias</option>
+          </select>
+          <select id="seFilterMedical">
+            <option value="">Condiciones: todas</option>
+            <option value="con">Con condiciones</option>
+            <option value="sin">Sin condiciones</option>
+          </select>
+          <label class="se-filter-date">Desde <input type="date" id="seFilterFrom"></label>
+          <label class="se-filter-date">Hasta <input type="date" id="seFilterTo"></label>
+          <button class="btn btn--ghost" id="seFilterClear"><i class="fas fa-xmark"></i> Limpiar</button>
+        </div>
+      </div>
 
-          <div id="seRegTable">
-            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
-          </div>
+      <!-- Registrations (full width, responsive) -->
+      <div class="se-regs-card">
+        <div class="se-regs-head">
+          <h3>Inscripciones <span id="seRegCount" class="se-regs-count"></span></h3>
+        </div>
+        <div id="seRegTable">
+          <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
         </div>
       </div>
     </div>
