@@ -10229,7 +10229,7 @@ body.no-scroll {
   padding-bottom: 1rem; margin-bottom: 1.25rem;
 }
 .evhub__select {
-  padding: .55rem .9rem;
+  padding: .6rem 1.5rem .6rem 1.25rem;
   border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-full);
   background: var(--color-white); color: var(--color-text);
@@ -10243,7 +10243,11 @@ body.no-scroll {
   color: var(--color-muted); cursor: pointer; transition: color .15s, border-color .15s, background .15s;
 }
 .evhub__view:hover { color: var(--color-dark); }
-.evhub__view.active { color: var(--color-dark); border-color: var(--color-dark); }
+.evhub__view.active {
+  background: var(--color-dark);
+  color: var(--color-white);
+  border-color: var(--color-dark);
+}
 
 /* ── List view ────────────────────────────────────────────────────────────── */
 .evhub__list-grid {
@@ -10279,7 +10283,7 @@ body.no-scroll {
 .evhub-mini__cell.has-events { font-weight: 700; }
 .evhub-mini__dot {
   position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-  width: 4px; height: 4px; border-radius: 50%; background: var(--color-secondary);
+  width: 4px; height: 4px; border-radius: 50%; background: var(--color-dark);
 }
 .evhub-mini__cell.is-today .evhub-mini__dot { background: #fff; }
 
@@ -10326,7 +10330,7 @@ body.no-scroll {
 .evhub-up__item.is-cancelled .evhub-up__name { text-decoration: line-through; color: var(--color-muted); }
 .evhub-up__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, #888); flex: 0 0 auto; }
 .evhub-up__info { display: flex; flex-direction: column; gap: .15rem; flex: 1; min-width: 0; }
-.evhub-up__name { font-family: var(--font-Signika); font-weight: 600; color: var(--color-secondary); }
+.evhub-up__name { font-family: var(--font-Signika); font-weight: 600; color: var(--color-dark); }
 .evhub-up__meta { font-size: var(--fs-sm); color: var(--color-muted); }
 .evhub-up__cx {
   font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--color-danger, #dc2626);
@@ -10384,7 +10388,7 @@ body.no-scroll {
 }
 .evhub-modal__title { font-family: var(--font-Signika); font-weight: 700; margin: .5rem 0 .85rem; font-size: var(--fs-xl); }
 .evhub-modal__rows { display: flex; flex-direction: column; gap: .4rem; color: var(--color-text); }
-.evhub-modal__rows i { color: var(--color-secondary); width: 1.1em; margin-right: .4rem; }
+.evhub-modal__rows i { color: var(--color-dark); width: 1.1em; margin-right: .4rem; }
 .evhub-modal__desc { margin-top: 1rem; line-height: 1.6; color: var(--color-text); }
 .evhub-modal__cx {
   background: rgba(220, 38, 38, .1); color: #b91c1c; font-weight: 600; font-size: .82rem;
