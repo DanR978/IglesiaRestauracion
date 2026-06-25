@@ -11942,6 +11942,10 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   margin-top: clamp(1.5rem, 4vw, 3rem);
   margin-bottom: clamp(3rem, 6vw, 5rem);
 }
+/* The legacy event-detail.css clamps #event-content to 720px (the old single,
+   narrow column). The new two-column .ev2 layout owns its own width, so release
+   that cap — otherwise the whole grid (and the Detalles column) stays thin. */
+#event-content.ev2__wrap { max-width: none; width: 100%; }
 .ev2__status { text-align: center; padding: 3rem 1rem; }
 
 .ev2__crumbs {
