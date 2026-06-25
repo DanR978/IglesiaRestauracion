@@ -39,80 +39,80 @@
 
   <body class="page-event-detail">
 
-    <div class="ed-hero" id="ed-hero">
-      <div class="ed-hero__img-wrap">
-        <img class="ed-hero__img" id="ed-hero-img" src="" alt=""
-          loading="eager" fetchpriority="high">
-        <div class="ed-hero__overlay"></div>
-      </div>
-      <header id="header"
-        data-hero="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/worshipers.jpg"></header>
-    </div>
+    <header class="ev2-topbar">
+      <a href="/" class="ev2-topbar__brand">Iglesia Restauración Divina</a>
+    </header>
 
-    <main>
-      <div id="event-loading" class="ed-status">
+    <main class="ev2">
+
+      <div id="event-loading" class="ev2__status">
         <p>Cargando detalles del evento...</p>
       </div>
 
-      <div id="event-error" class="ed-status" style="display: none;">
+      <div id="event-error" class="ev2__status" style="display: none;">
         <h2>Evento no encontrado</h2>
         <p>Este evento no existe o ya pasó.</p>
         <a href="/eventos" class="ird-btn ird-btn--teal">Ver todos los eventos</a>
       </div>
 
-      <article id="event-content" style="display: none;">
+      <article id="event-content" class="ev2__wrap" style="display: none;">
 
-        <div class="ed-title-block">
-          <span class="ed-tag" id="event-tag"></span>
-          <h1 class="ed-title" id="event-title">Evento</h1>
-        </div>
+        <nav class="ev2__crumbs" aria-label="Migas de pan">
+          <a href="/eventos">Eventos</a>
+          <span aria-hidden="true">›</span>
+          <span id="event-crumb">Evento</span>
+        </nav>
 
-        <div class="ed-info">
-          <div class="ed-info__meta">
-            <div class="ed-info__row">
-              <svg aria-hidden="true" viewBox="0 0 448 512" width="18" height="18"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H64c-35.3 0-64 28.7-64 64v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64h-40V24c0-13.3-10.7-24-24-24s-24 10.7-24 24v40H152V24zM48 192h352v256c0 8.8-7.2 16-16 16H64c-8.8 0-16-7.2-16-16V192z"/></svg>
-              <span id="event-date"></span>
-            </div>
-            <div class="ed-info__row" id="event-time-row" style="display: none;">
-              <svg aria-hidden="true" viewBox="0 0 512 512" width="18" height="18"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm12-328h-24c-6.6 0-12 5.4-12 12v116c0 4.2 2.2 8.1 5.8 10.3l88 52c5.7 3.4 13.1 1.6 16.5-4.1l12-20c3.4-5.7 1.6-13.1-4.1-16.5l-82.2-48.6V140c0-6.6-5.4-12-12-12z"/></svg>
-              <span id="event-time"></span>
-            </div>
-            <div class="ed-info__row" id="event-location-row" style="display: none;">
-              <svg aria-hidden="true" viewBox="0 0 384 512" width="18" height="18"><path fill="currentColor" d="M168 0C75.1 0 0 75.1 0 168c0 87.7 141.7 293.9 160.8 321.2c3 4.3 8 6.8 13.2 6.8s10.2-2.5 13.2-6.8C182.3 461.9 324 255.7 324 168C324 75.1 248.9 0 156 0h12zM168 256a88 88 0 1 1 0-176 88 88 0 1 1 0 176z"/></svg>
-              <span id="event-location"></span>
-            </div>
+        <div class="ev2__grid">
+
+          <!-- Main column -->
+          <div class="ev2__main">
+            <h1 class="ev2__title" id="event-title">Evento</h1>
+            <p class="ev2__when" id="event-when"></p>
+
+            <section id="event-description-section" class="ev2__section" style="display:none">
+              <h2 class="ev2__h">Detalles</h2>
+              <div id="event-description" class="ev2__body rich-content"></div>
+            </section>
+
+            <section id="event-organizer-section" class="ev2__section" style="display:none">
+              <h2 class="ev2__h">Organizador</h2>
+              <p id="event-organizer-name" class="ev2__body"></p>
+              <a id="event-organizer-email" href="" class="ev2__orglink"></a>
+            </section>
           </div>
-        </div>
 
-        <hr class="ed-divider">
-
-        <section id="event-description-section" style="display: none;">
-          <div class="ed-section">
-            <h2 class="ed-section__heading">Detalles</h2>
-            <div id="event-description" class="ed-section__body"></div>
-          </div>
-        </section>
-
-        <div class="ed-info__actions">
-          <a id="event-calendar-btn" href="#" target="_blank" rel="noopener" class="ird-btn ird-btn--teal">
-            Agregar al calendario
-          </a>
-          <a href="/eventos" class="ird-btn ird-btn--outline ird-btn--teal">
-            Todos los eventos
-          </a>
-        </div>
-
-        <section id="event-organizer-section" style="display: none;">
-          <div class="ed-section ed-organizer-card">
-            <h2 class="ed-section__heading">Organizador</h2>
-            <p id="event-organizer-name" class="ed-organizer__name"></p>
-            <div class="ed-organizer__email-row">
-              <svg aria-hidden="true" viewBox="0 0 512 512" width="16" height="16"><path fill="currentColor" d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/></svg>
-              <a id="event-organizer-email" href="" class="ed-organizer__email"></a>
+          <!-- Sidebar -->
+          <aside class="ev2__side">
+            <div class="ev2__media" id="event-media" style="display:none">
+              <img id="ed-hero-img" src="" alt="" loading="eager">
             </div>
-          </div>
-        </section>
 
+            <div class="ev2__panel">
+              <div class="ev2__field" id="event-date-block" style="display:none">
+                <div class="ev2__field-label">Fecha</div>
+                <div class="ev2__field-value">
+                  <span id="event-date"></span>
+                  <span id="event-time" class="ev2__time"></span>
+                </div>
+              </div>
+
+              <div class="ev2__field" id="event-location-row" style="display:none">
+                <div class="ev2__field-label">Ubicación</div>
+                <div class="ev2__field-value" id="event-location"></div>
+                <a id="event-directions" class="ev2__pill" target="_blank" rel="noopener">
+                  <i class="fas fa-diamond-turn-right" aria-hidden="true"></i> Cómo llegar
+                </a>
+              </div>
+
+              <a id="event-calendar-btn" href="#" target="_blank" rel="noopener"
+                 class="ird-btn ird-btn--teal ev2__register">
+                <i class="far fa-calendar-plus" aria-hidden="true"></i> Agregar al calendario
+              </a>
+            </div>
+          </aside>
+
+        </div>
       </article>
     </main>
 

@@ -290,6 +290,15 @@ body.no-scroll {
   display: none;
 }
 
+/* EVENTOS is a direct link (no submenu) rendered as <a class="accordion-toggle">.
+   The base `.menu-item>a` rule adds display:inline-block + padding:1rem that the
+   <button> toggles never get, dropping it out of line on the desktop bar. Match
+   it to the button toggles (desktop only — the mobile drawer keeps its own). */
+@media (min-width: 1181px) {
+  .menu-item > a.accordion-toggle { display: flex; padding: 0; width: auto; }
+  .menu-item > a.accordion-toggle::after { content: none; }
+}
+
 /* The ← Atrás header is injected by JS for the mobile menu's nested-pane flow.
    It must NOT appear in the desktop hover dropdown — hide it by default and
    re-show inside the mobile @media block. */
