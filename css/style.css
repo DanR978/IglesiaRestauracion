@@ -7614,7 +7614,7 @@ body.no-scroll {
    existing .ird-btn and design tokens. Hidden until JS finds an open event. */
 
 .home-signup {
-  padding: clamp(1rem, 3.5vw, 2.25rem) var(--mg-md) 0;
+  padding: clamp(1.5rem, 4vw, 2.75rem) var(--mg-md);
 }
 .home-signup[hidden] { display: none; }
 
