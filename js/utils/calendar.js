@@ -6,6 +6,7 @@
 // right primitive to expose.
 
 import { isIOS } from './detect-device.js';
+import { richToPlain } from '/js/lib/sanitize-html.js';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -26,7 +27,7 @@ export function buildGoogleCalUrl(ev) {
     action: 'TEMPLATE',
     text: ev.title || 'Evento',
     dates: `${fmtUTC(start)}/${fmtUTC(end)}`,
-    details: ev.description || '',
+    details: richToPlain(ev.description),
     location: ev.location || '',
   });
   return `https://calendar.google.com/calendar/render?${qs.toString()}`;
@@ -54,7 +55,7 @@ export function buildICS(ev) {
     `DTSTART:${fmtUTC(start)}`,
     `DTEND:${fmtUTC(end)}`,
     `SUMMARY:${icsEscape(ev.title || 'Evento')}`,
-    ev.description ? `DESCRIPTION:${icsEscape(ev.description)}` : null,
+    ev.description ? `DESCRIPTION:${icsEscape(richToPlain(ev.description))}` : null,
     ev.location ? `LOCATION:${icsEscape(ev.location)}` : null,
     'END:VEVENT',
     'END:VCALENDAR',

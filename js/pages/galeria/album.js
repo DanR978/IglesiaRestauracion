@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 // js/pages/galeria/album.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public album detail page:
@@ -54,7 +55,7 @@ function renderDetail(album, photos) {
         <span><i class="far fa-calendar-alt"></i> ${esc(dateLabel)}</span>
         <span><i class="fas fa-image"></i> ${photos.length} ${photos.length === 1 ? 'foto' : 'fotos'}</span>
       </p>
-      ${album.description ? `<p class="gal-detail-card__desc">${esc(album.description)}</p>` : ''}
+      ${album.description && !htmlIsEmpty(album.description) ? `<div class="gal-detail-card__desc rich-content">${renderRichText(album.description)}</div>` : ''}
     </div>
   `;
 }

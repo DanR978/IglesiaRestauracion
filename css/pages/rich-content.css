@@ -1,0 +1,20 @@
+/* css/pages/rich-content.css
+   Public rendering of admin-authored rich text (sanitized allowlist markup:
+   emphasis, lists, links, colors). Applied via the .rich-content class on the
+   calendar modal, gallery detail and discipleship group description containers.
+   The special-event landing keeps its own .ed-section__body rules. */
+
+.rich-content > :first-child { margin-top: 0; }
+.rich-content > :last-child  { margin-bottom: 0; }
+.rich-content p { margin: 0 0 .75rem; }
+.rich-content ul,
+.rich-content ol { margin: 0 0 .75rem; padding-left: 1.5rem; }
+.rich-content li { margin: .2rem 0; }
+.rich-content a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+.rich-content h3,
+.rich-content h4 { font-family: var(--font-Signika); margin: 1rem 0 .4rem; line-height: 1.2; }
+.rich-content strong, .rich-content b { font-weight: var(--fw-bold, 700); }

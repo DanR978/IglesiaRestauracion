@@ -1,0 +1,132 @@
+/* css/pages/admin/rich-text.css
+   Shared rich-text editor (js/lib/rich-text.js) — used by every admin textbox
+   whose content is shown on the public website. Styled after the Microsoft
+   Teams compose box: a clean writing surface with a formatting bar that stays
+   hidden until you click "Formato". Neutral rgba surfaces so it adapts to both
+   light and dark mode without per-mode overrides. */
+
+.rt {
+  border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .35));
+  border-radius: var(--radius-md);
+  overflow: visible;
+  background: transparent;
+  transition: border-color .15s, box-shadow .15s;
+}
+.rt:focus-within {
+  border-color: var(--color-dark);
+  box-shadow: 0 0 0 3px rgba(52, 90, 101, .12);
+}
+.rt--readonly { opacity: .75; }
+
+/* Writing surface */
+.rt-area {
+  min-height: 96px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: .7rem .85rem;
+  font-size: var(--fs-sm, .95rem);
+  line-height: 1.55;
+  color: var(--color-text);
+  outline: none;
+  word-break: break-word;
+}
+.rt-area.rt-empty::before {
+  content: attr(data-ph);
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.rt-area p { margin: 0 0 .55rem; }
+.rt-area ul, .rt-area ol { margin: 0 0 .55rem; padding-left: 1.45rem; }
+.rt-area li { margin: .15rem 0; }
+.rt-area a { color: var(--color-secondary); text-decoration: underline; }
+
+/* Formatting toolbar (hidden until toggled) */
+.rt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .1rem;
+  padding: .3rem .4rem;
+  border-bottom: 1px solid rgba(127, 127, 127, .22);
+  background: rgba(127, 127, 127, .06);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+.rt-toolbar[hidden] { display: none; }
+.rt-toolbar:not([hidden]) { animation: rtReveal .16s ease; }
+@keyframes rtReveal { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
+
+.rt-grp { display: inline-flex; align-items: center; gap: 1px; }
+.rt-sep { width: 1px; align-self: stretch; margin: .25rem .3rem; background: rgba(127, 127, 127, .28); }
+
+.rt-btn {
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: .82rem;
+  transition: background .12s, color .12s;
+}
+.rt-btn:hover { background: rgba(127, 127, 127, .16); }
+.rt-btn:active { transform: translateY(1px); }
+.rt-btn.is-active {
+  background: rgba(52, 90, 101, .14);
+  color: var(--color-dark);
+}
+
+/* Color control + popover */
+.rt-color { position: relative; }
+.rt-color-btn { flex-direction: column; gap: 0; }
+.rt-color-bar { display: block; width: 16px; height: 3px; border-radius: 2px; margin-top: 1px; background: var(--color-dark); }
+.rt-pop {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: var(--z-overlay, 50);
+  padding: .55rem;
+  border-radius: var(--radius-md);
+  background: var(--color-white, #fff);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .18), 0 2px 8px rgba(0, 0, 0, .12);
+  border: 1px solid rgba(127, 127, 127, .2);
+}
+.rt-pop[hidden] { display: none; }
+.rt-pop__swatches { display: grid; grid-template-columns: repeat(6, 1fr); gap: .3rem; }
+.rt-sw {
+  width: 20px; height: 20px;
+  border: 1px solid rgba(0, 0, 0, .18);
+  border-radius: var(--radius-full);
+  cursor: pointer; padding: 0;
+  transition: transform .1s;
+}
+.rt-sw:hover { transform: scale(1.15); }
+.rt-pop__custom {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .5rem; margin-top: .5rem;
+  font-size: .72rem; color: var(--color-muted);
+}
+.rt-pop__custom input[type="color"] {
+  width: 28px; height: 22px; padding: 0; border: none; background: none; cursor: pointer;
+}
+
+/* Footer with the Teams-style "Formato" toggle */
+.rt-foot {
+  display: flex;
+  align-items: center;
+  padding: .25rem .4rem;
+  border-top: 1px solid rgba(127, 127, 127, .16);
+}
+.rt-toggle {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .28rem .6rem;
+  border: none; border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-muted);
+  font-family: var(--font-Signika);
+  font-size: .76rem; font-weight: 600;
+  cursor: pointer;
+  transition: background .12s, color .12s;
+}
+.rt-toggle:hover:not(:disabled) { background: rgba(127, 127, 127, .14); color: var(--color-text); }
+.rt-toggle:disabled { opacity: .4; cursor: default; }
+.rt--open .rt-toggle { background: rgba(52, 90, 101, .14); color: var(--color-dark); }

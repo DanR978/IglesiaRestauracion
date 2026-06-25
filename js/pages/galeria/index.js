@@ -1,4 +1,5 @@
 import { escapeHtml } from '/js/utils/escape.js';
+import { richToPlain } from '/js/lib/sanitize-html.js';
 // js/pages/galeria/index.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public Galería page:
@@ -170,7 +171,7 @@ function albumCard(a, { isRecent = false } = {}) {
           <span><i class="far fa-calendar-alt"></i> ${escapeHtml(dateLabel)}</span>
           <span class="gal-album__count">${photoCount} ${photoCount === 1 ? 'foto' : 'fotos'}</span>
         </p>
-        ${a.description ? `<p class="gal-album__desc">${escapeHtml(a.description)}</p>` : ''}
+        ${richToPlain(a.description) ? `<p class="gal-album__desc">${escapeHtml(richToPlain(a.description))}</p>` : ''}
       </div>
     </a>`;
 }
@@ -183,7 +184,7 @@ function filtered() {
     if (state.year !== '' && String(a.year) !== String(state.year)) return false;
     if (state.types.length && !state.types.includes(a.event_type)) return false;
     if (q) {
-      const hay = `${a.title || ''} ${a.description || ''} ${EVENT_TYPE_LABEL[a.event_type] || ''}`.toLowerCase();
+      const hay = `${a.title || ''} ${richToPlain(a.description)} ${EVENT_TYPE_LABEL[a.event_type] || ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;

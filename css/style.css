@@ -7607,6 +7607,109 @@ body.no-scroll {
   margin-bottom: 1.25rem;
   text-align: center;
 }
+/* -- pages home signup-cta -- */
+/* css/pages/home/signup-cta.css
+   Homepage "¡Regístrate ahora!" banner — surfaces the soonest open special
+   event near the top of the page. Teal card so the orange CTA pops; reuses the
+   existing .ird-btn and design tokens. Hidden until JS finds an open event. */
+
+.home-signup {
+  padding: clamp(1rem, 3.5vw, 2.25rem) var(--mg-md) 0;
+}
+.home-signup[hidden] { display: none; }
+
+.home-signup__inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.home-signup__card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) 1.15fr;
+  align-items: stretch;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-dark) 0%, #2d4e57 100%);
+  box-shadow: 0 18px 45px rgba(14, 45, 56, .28);
+  text-decoration: none;
+  color: var(--color-white);
+  transform: translateZ(0);
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+@media (hover: hover) {
+  .home-signup__card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 26px 60px rgba(14, 45, 56, .36);
+  }
+}
+.home-signup__card:focus-visible {
+  outline: 3px solid var(--color-secondary);
+  outline-offset: 3px;
+}
+
+.home-signup__media {
+  position: relative;
+  min-height: 200px;
+}
+.home-signup__media img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-signup__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: .55rem;
+  padding: clamp(1.4rem, 3vw, 2.4rem);
+}
+
+.home-signup__kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem .75rem;
+  border-radius: var(--radius-full);
+  background: rgba(190, 102, 14, .22);
+  color: #f6c89a;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.home-signup__title {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  line-height: 1.1;
+  font-size: clamp(1.5rem, 1rem + 2.4vw, 2.6rem);
+  color: var(--color-white);
+}
+
+.home-signup__meta {
+  margin: 0;
+  color: rgba(255, 255, 255, .82);
+  font-size: var(--fs-sm);
+  text-transform: capitalize;
+}
+
+.home-signup__btn {
+  margin-top: .65rem;
+  pointer-events: none; /* whole card is the link; keep the button purely visual */
+}
+
+@media (max-width: 760px) {
+  .home-signup__card { grid-template-columns: 1fr; }
+  .home-signup__media { min-height: 170px; }
+  .home-signup__body { align-items: center; text-align: center; }
+}
+
 /* -- pages sermons latest-sermon -- */
 /* Latest sermon embed on homepage */
 .latest-sermon {
@@ -11401,6 +11504,119 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   .about-body__cta-row { flex-direction: column; }
   .about-body__cta-row .ird-btn { width: 100%; text-align: center; }
 }
+
+/* -- pages rich-content -- */
+/* css/pages/rich-content.css
+   Public rendering of admin-authored rich text (sanitized allowlist markup:
+   emphasis, lists, links, colors). Applied via the .rich-content class on the
+   calendar modal, gallery detail and discipleship group description containers.
+   The special-event landing keeps its own .ed-section__body rules. */
+
+.rich-content > :first-child { margin-top: 0; }
+.rich-content > :last-child  { margin-bottom: 0; }
+.rich-content p { margin: 0 0 .75rem; }
+.rich-content ul,
+.rich-content ol { margin: 0 0 .75rem; padding-left: 1.5rem; }
+.rich-content li { margin: .2rem 0; }
+.rich-content a {
+  color: var(--color-secondary);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+.rich-content h3,
+.rich-content h4 { font-family: var(--font-Signika); margin: 1rem 0 .4rem; line-height: 1.2; }
+.rich-content strong, .rich-content b { font-weight: var(--fw-bold, 700); }
+
+/* -- pages special-event -- */
+/* css/pages/special-event.css
+   Public landing + registration form for special (registration) events.
+   Builds on the existing event-detail (.ed-*) layout and the shared form
+   components (.form-group, .form-row, .ird-btn). No new tokens introduced. */
+
+/* Rich-text content (admin-authored description / información) rendered into the
+   existing .ed-section__body. Sanitized allowlist markup only. */
+.ed-section__body ul,
+.ed-section__body ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+.ed-section__body li { margin: .2rem 0; }
+.ed-section__body a { color: var(--color-secondary); text-decoration: underline; }
+.ed-section__body h3,
+.ed-section__body h4 { font-family: var(--font-Signika); margin: 1rem 0 .4rem; }
+.ed-section__body p { margin: 0 0 .75rem; }
+
+/* "Inscripciones cerradas" pill on the landing page */
+.ee-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .9rem;
+  border-radius: var(--radius-md);
+  background: var(--gray-20, rgba(0, 0, 0, .05));
+  color: var(--color-muted);
+  font-family: var(--font-Signika);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+/* ── Registration form page ─────────────────────────────────────────────── */
+.ee-reg {
+  width: min(720px, 92vw);
+  margin: var(--mg-lg) auto var(--mg-2xl);
+}
+
+.ee-form__section {
+  border: 1px solid var(--gray-40, rgba(0, 0, 0, .12));
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem 1.15rem;
+  margin: 0 0 1.15rem;
+  min-width: 0;
+}
+
+.ee-form__section legend {
+  padding: 0 .5rem;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.ee-req { color: var(--color-danger, #dc2626); }
+
+.ee-form .input-error {
+  border-color: var(--color-danger, #dc2626) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+}
+
+.ee-form__actions {
+  display: flex;
+  gap: .65rem;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+}
+
+/* Success panel after submit */
+.ee-success {
+  text-align: center;
+  padding: 2rem 1rem;
+  width: min(560px, 92vw);
+  margin: 0 auto;
+}
+.ee-success__icon {
+  font-size: 3rem;
+  color: var(--color-success, #16a34a);
+  margin-bottom: .75rem;
+}
+.ee-success h2 {
+  font-family: var(--font-Signika);
+  margin: 0 0 .4rem;
+}
+.ee-success p {
+  color: var(--color-muted);
+  margin: 0 auto 1.25rem;
+  max-width: 40ch;
+}
+.ee-success .ee-form__actions { justify-content: center; }
 
 /* -- pages vision-valores -- */
 /* =========================================================

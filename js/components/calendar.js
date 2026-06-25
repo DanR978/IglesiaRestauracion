@@ -5,6 +5,7 @@ import { sb }            from '/js/lib/supabase.js';
 import { CalendarGrid }  from '/js/components/CalendarGrid.js';
 import { setupStickyNav, setupBurgerMenu } from '/js/app/ui.js';
 import { esc }           from '/js/utils/escape.js';
+import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATS = {
@@ -247,7 +248,7 @@ function openModal(ev) {
       ${ev.time     ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.time}</div><div class="cal-modal__row-text">${esc(ev.time)}</div></div>`    : ''}
       ${ev.location ? `<div class="cal-modal__row"><div class="cal-modal__row-icon">${SVG.loc}</div><div class="cal-modal__row-text">${esc(ev.location)}</div></div>` : ''}
     </div>
-    ${ev.description ? `<div class="cal-modal__description">${esc(ev.description)}</div>` : ''}`;
+    ${ev.description && !htmlIsEmpty(ev.description) ? `<div class="cal-modal__description rich-content">${renderRichText(ev.description)}</div>` : ''}`;
 
   document.getElementById('calModalBackdrop').classList.add('open');
   document.body.style.overflow = 'hidden';

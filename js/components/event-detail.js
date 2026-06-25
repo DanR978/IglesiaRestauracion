@@ -1,4 +1,4 @@
-import { esc } from '/js/utils/escape.js';
+import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 // /js/components/event-detail.js
 // Reads ?id=<uuid> from URL, fetches event from Supabase, fills the page.
 
@@ -143,16 +143,9 @@ function renderEvent(event) {
     }
   }
 
-  // Description
-  if (event.description) {
-    const paragraphs = event.description
-      .split(/\n\n+/)
-      .map((p) => p.trim())
-      .filter(Boolean);
-    setHtml(
-      "event-description",
-      paragraphs.map((p) => `<p>${esc(p).replace(/\n/g, "<br>")}</p>`).join("")
-    );
+  // Description (rich text — sanitized; legacy plain text still supported)
+  if (event.description && !htmlIsEmpty(event.description)) {
+    setHtml("event-description", renderRichText(event.description));
     show("event-description-section");
   }
 

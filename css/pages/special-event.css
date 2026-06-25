@@ -1,0 +1,89 @@
+/* css/pages/special-event.css
+   Public landing + registration form for special (registration) events.
+   Builds on the existing event-detail (.ed-*) layout and the shared form
+   components (.form-group, .form-row, .ird-btn). No new tokens introduced. */
+
+/* Rich-text content (admin-authored description / información) rendered into the
+   existing .ed-section__body. Sanitized allowlist markup only. */
+.ed-section__body ul,
+.ed-section__body ol { margin: 0 0 1rem; padding-left: 1.5rem; }
+.ed-section__body li { margin: .2rem 0; }
+.ed-section__body a { color: var(--color-secondary); text-decoration: underline; }
+.ed-section__body h3,
+.ed-section__body h4 { font-family: var(--font-Signika); margin: 1rem 0 .4rem; }
+.ed-section__body p { margin: 0 0 .75rem; }
+
+/* "Inscripciones cerradas" pill on the landing page */
+.ee-closed {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem .9rem;
+  border-radius: var(--radius-md);
+  background: var(--gray-20, rgba(0, 0, 0, .05));
+  color: var(--color-muted);
+  font-family: var(--font-Signika);
+  font-weight: 600;
+  font-size: var(--fs-sm);
+}
+
+/* ── Registration form page ─────────────────────────────────────────────── */
+.ee-reg {
+  width: min(720px, 92vw);
+  margin: var(--mg-lg) auto var(--mg-2xl);
+}
+
+.ee-form__section {
+  border: 1px solid var(--gray-40, rgba(0, 0, 0, .12));
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem 1.15rem;
+  margin: 0 0 1.15rem;
+  min-width: 0;
+}
+
+.ee-form__section legend {
+  padding: 0 .5rem;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  color: var(--color-secondary);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.ee-req { color: var(--color-danger, #dc2626); }
+
+.ee-form .input-error {
+  border-color: var(--color-danger, #dc2626) !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
+}
+
+.ee-form__actions {
+  display: flex;
+  gap: .65rem;
+  flex-wrap: wrap;
+  margin-top: .5rem;
+}
+
+/* Success panel after submit */
+.ee-success {
+  text-align: center;
+  padding: 2rem 1rem;
+  width: min(560px, 92vw);
+  margin: 0 auto;
+}
+.ee-success__icon {
+  font-size: 3rem;
+  color: var(--color-success, #16a34a);
+  margin-bottom: .75rem;
+}
+.ee-success h2 {
+  font-family: var(--font-Signika);
+  margin: 0 0 .4rem;
+}
+.ee-success p {
+  color: var(--color-muted);
+  margin: 0 auto 1.25rem;
+  max-width: 40ch;
+}
+.ee-success .ee-form__actions { justify-content: center; }

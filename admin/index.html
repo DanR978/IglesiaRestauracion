@@ -179,6 +179,7 @@
     <button class="tab-btn" data-tab="upcoming"><i class="fas fa-calendar-day"></i> <span>Próximos</span></button>
     <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> <span>Pasados</span></button>
     <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> <span>Calendario</span></button>
+    <button class="tab-btn" data-tab="special-events" data-admin-only><i class="fas fa-clipboard-list"></i> <span>Registraciones</span></button>
 
     <div class="adm-nav__group" data-finance-only>Finanzas</div>
     <button class="tab-btn" data-tab="treasury" data-finance-only><i class="fas fa-coins"></i> <span>Tesorería</span></button>
@@ -344,6 +345,136 @@
     <div id="pastList">
       <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
     </div>
+  </div>
+
+  <!-- ── REGISTRACIONES (Eventos con Registro) ──────────────────────────────── -->
+  <div class="tab-panel" id="tab-special-events">
+
+    <!-- View: list -->
+    <div class="se-view active" id="se-view-list">
+      <div class="action-bar">
+        <h2>Eventos con Registro</h2>
+        <button class="btn btn--primary" id="seNewBtn"><i class="fas fa-plus"></i> Nuevo evento</button>
+      </div>
+      <div id="seList">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
+    </div>
+
+    <!-- View: create / edit event form -->
+    <div class="se-view" id="se-view-form">
+      <div class="toolbar-back">
+        <h2 id="seFormTitle">Nuevo Evento con Registro</h2>
+        <button class="btn btn--ghost" id="seFormBack">← Regresar</button>
+      </div>
+      <div class="form-card">
+        <input type="hidden" id="seId">
+        <div class="form-group">
+          <label for="seTitle">Título del evento *</label>
+          <input type="text" id="seTitle" placeholder="ej. Escuela Bíblica de Vacaciones 2026">
+        </div>
+        <div class="form-group">
+          <label>Imagen</label>
+          <div id="seImgSection"></div>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <div id="seDescEditor"></div>
+        </div>
+        <div class="form-group">
+          <label>Información</label>
+          <div id="seInfoEditor"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="seDate">Fecha y hora</label>
+            <input type="datetime-local" id="seDate">
+          </div>
+          <div class="form-group">
+            <label for="seLocation">Ubicación</label>
+            <input type="text" id="seLocation" value="2601 Clays Mill Rd, Lexington, KY 40503">
+          </div>
+        </div>
+        <div class="form-group se-toggle-row">
+          <label class="se-switch">
+            <input type="checkbox" id="seRegOpen" checked>
+            <span>Inscripciones abiertas</span>
+          </label>
+          <p class="se-hint">Cuando está cerrado, la página pública muestra "Inscripciones cerradas" y no acepta registros.</p>
+        </div>
+        <div class="auth-error" id="seFormError" style="display:none"></div>
+        <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
+          <button class="btn btn--primary" id="seSaveBtn"><i class="fas fa-save"></i> Guardar Evento</button>
+          <button class="btn btn--ghost" id="seFormCancel">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- View: detail (QR + registrations) -->
+    <div class="se-view" id="se-view-detail">
+      <div class="toolbar-back">
+        <h2 id="seDetailTitle">Evento</h2>
+        <button class="btn btn--ghost" id="seDetailBack">← Regresar</button>
+      </div>
+      <div class="se-detail__meta" id="seDetailMeta"></div>
+
+      <div class="se-detail__grid">
+        <!-- QR panel -->
+        <div class="se-qr-card">
+          <h3>Código QR / Enlace</h3>
+          <img id="seQrImg" class="se-qr-img" alt="Código QR del evento">
+          <div class="se-qr-url-row">
+            <input type="text" id="seQrUrl" readonly>
+          </div>
+          <div class="se-qr-actions">
+            <button class="btn btn--ghost" id="seQrDownload"><i class="fas fa-download"></i> Descargar PNG</button>
+            <button class="btn btn--ghost" id="seQrCopy"><i class="fas fa-link"></i> Copiar enlace</button>
+          </div>
+          <button class="btn btn--secondary se-edit-btn" id="seEditBtn"><i class="fas fa-pen"></i> Editar evento</button>
+        </div>
+
+        <!-- Registrations -->
+        <div class="se-regs-card">
+          <div class="se-regs-head">
+            <h3>Inscripciones <span id="seRegCount" class="se-regs-count"></span></h3>
+            <div class="se-regs-exports">
+              <button class="btn btn--ghost" id="seExportCsv"><i class="fas fa-file-csv"></i> CSV</button>
+              <button class="btn btn--ghost" id="seExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
+              <button class="btn btn--ghost" id="sePrintRoster"><i class="fas fa-print"></i> Imprimir</button>
+            </div>
+          </div>
+
+          <div class="se-filter-bar">
+            <input type="search" id="seFilterName" placeholder="Buscar por nombre...">
+            <input type="number" id="seFilterAge" placeholder="Edad" min="0" max="120">
+            <select id="seFilterSex">
+              <option value="">Sexo: todos</option>
+              <option value="Femenino">Femenino</option>
+              <option value="Masculino">Masculino</option>
+              <option value="Prefiere no decir">Prefiere no decir</option>
+            </select>
+            <select id="seFilterAllergies">
+              <option value="">Alergias: todas</option>
+              <option value="con">Con alergias</option>
+              <option value="sin">Sin alergias</option>
+            </select>
+            <select id="seFilterMedical">
+              <option value="">Condiciones: todas</option>
+              <option value="con">Con condiciones</option>
+              <option value="sin">Sin condiciones</option>
+            </select>
+            <label class="se-filter-date">Desde <input type="date" id="seFilterFrom"></label>
+            <label class="se-filter-date">Hasta <input type="date" id="seFilterTo"></label>
+            <button class="btn btn--ghost" id="seFilterClear"><i class="fas fa-xmark"></i> Limpiar</button>
+          </div>
+
+          <div id="seRegTable">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- ── CALENDARIO ─────────────────────────────────────────────────────────── -->

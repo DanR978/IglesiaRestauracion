@@ -1,4 +1,5 @@
 import { escapeHtml } from '/js/utils/escape.js';
+import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 // js/pages/discipulado/grupo.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Group detail page — reads ?slug=... or ?id=... from the URL, fetches the
@@ -72,7 +73,7 @@ function renderDetail(g) {
 
       <h2 class="dg-card__name">${escapeHtml(g.name)}</h2>
 
-      ${g.description ? `<p class="dg-card__desc">${escapeHtml(g.description)}</p>` : ''}
+      ${g.description && !htmlIsEmpty(g.description) ? `<div class="dg-card__desc rich-content">${renderRichText(g.description)}</div>` : ''}
 
       ${capacityCard}
 

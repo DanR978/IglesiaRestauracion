@@ -25,6 +25,8 @@ import { loadAnalytics } from './analytics-tab.js';
 import { loadActivity } from './activity-tab.js';
 import { loadSettings } from './settings-tab.js';
 import { loadTreasury } from './treasury-tab.js';
+import { loadSpecialEvents } from './special-events-tab.js';
+import { enhanceTextarea } from '/js/lib/rich-text.js';
 import { confirmResolve } from './state.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onActivity:     loadActivity,
     onSettings:     loadSettings,
     onTreasury:     loadTreasury,
+    onSpecialEvents: loadSpecialEvents,
   });
 
   // ── Calendar nav + add button ──────────────────────────────────────────────
@@ -77,6 +80,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initUserModal();
   initMinistryModal();
   initAccountModal();
+
+  // ── Rich-text editors on every admin textbox whose content is shown on the
+  //    public website (description / información fields). Progressive upgrade:
+  //    existing save logic keeps reading these textareas' .value. ────────────
+  ['fDesc', 'bDesc', 'evDescription', 'pmDescription', 'dscpGroupDesc', 'galAdmDesc']
+    .forEach(id => { const el = document.getElementById(id); if (el) enhanceTextarea(el); });
 
   // ── Mobile burger drawer ───────────────────────────────────────────────────
   const burger   = document.getElementById('admBurger');

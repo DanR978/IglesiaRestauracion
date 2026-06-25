@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { richToPlain } from '/js/lib/sanitize-html.js';
 // /js/events.js — dual-mode renderer (simple grid OR month accordion)
 // Usage: window.Rail.setEvents([{ id, title, date:'YYYY-MM-DD', time?, location?, image?, url?, description?, starts_at? }])
 (() => {
@@ -138,7 +139,7 @@ import { esc } from '/js/utils/escape.js';
       action: 'TEMPLATE',
       text: ev.title || 'Evento',
       dates,
-      details: ev.description || '',
+      details: richToPlain(ev.description),
       location: ev.location || ''
     });
     return `https://calendar.google.com/calendar/render?${qs.toString()}`;

@@ -1,0 +1,169 @@
+/* css/pages/admin/special-events.css
+   Admin "Registraciones" tab. Reuses .events-table, .form-card, .btn, .cat-badge,
+   .img-* picker styles and the action bar. Only adds the bits unique to this
+   tab: the QR card, the filter bar, sortable headers and the toggle switch. */
+
+/* Local view switcher (list / form / detail) — mirrors .view-panel */
+#tab-special-events .se-view { display: none; }
+#tab-special-events .se-view.active { display: block; }
+
+/* List table extras */
+.se-thumb-empty {
+  width: 44px; height: 32px;
+  background: var(--gray-20, #eee);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem; color: #aaa;
+}
+.se-count-pill {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: .12rem .5rem;
+  border-radius: var(--radius-full);
+  background: var(--color-dark);
+  color: #fff;
+  font-weight: 700;
+  font-size: .78rem;
+  text-align: center;
+}
+
+/* ── Detail view ────────────────────────────────────────────────────────── */
+.se-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem 1rem;
+  color: var(--color-muted);
+  font-size: .9rem;
+  margin: 0 0 1rem;
+}
+.se-detail__meta i { margin-right: .35rem; }
+
+.se-detail__grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .se-detail__grid { grid-template-columns: 1fr; }
+}
+
+/* QR card */
+.se-qr-card {
+  border: 1px solid var(--gray-40, rgba(0, 0, 0, .12));
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  text-align: center;
+  background: var(--color-white);
+}
+.se-qr-card h3 {
+  font-family: var(--font-Signika);
+  font-size: .95rem;
+  margin: 0 0 .75rem;
+}
+.se-qr-img {
+  width: 200px; height: 200px;
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+.se-qr-url-row { margin: .65rem 0 .5rem; }
+.se-qr-url-row input {
+  width: 100%;
+  font-size: .72rem;
+  padding: .45rem .55rem;
+  border: 1.5px solid var(--gray-50, #ccc);
+  border-radius: var(--radius-md);
+  color: var(--color-muted);
+  background: var(--gray-10, transparent);
+}
+.se-qr-actions {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+}
+.se-qr-actions .btn { width: 100%; justify-content: center; }
+.se-edit-btn { width: 100%; justify-content: center; margin-top: .75rem; }
+
+/* Registrations card */
+.se-regs-card { min-width: 0; }
+.se-regs-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin-bottom: .75rem;
+}
+.se-regs-head h3 { font-family: var(--font-Signika); margin: 0; font-size: 1.05rem; }
+.se-regs-count {
+  color: var(--color-muted);
+  font-weight: 500;
+  font-size: .8rem;
+  margin-left: .35rem;
+}
+.se-regs-exports { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+/* Filter bar */
+.se-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  align-items: center;
+  padding: .75rem;
+  background: var(--gray-10, rgba(0, 0, 0, .03));
+  border-radius: var(--radius-md);
+  margin-bottom: .9rem;
+}
+.se-filter-bar input,
+.se-filter-bar select {
+  padding: .45rem .6rem;
+  border: 1.5px solid var(--gray-50, #ccc);
+  border-radius: var(--radius-md);
+  font-size: .82rem;
+  background: var(--color-white);
+  color: var(--color-text);
+}
+.se-filter-bar input[type="search"] { flex: 1 1 180px; min-width: 140px; }
+.se-filter-bar input[type="number"] { width: 86px; }
+.se-filter-date {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .76rem;
+  color: var(--color-muted);
+}
+
+/* Registrations table — horizontal scroll on small screens */
+.se-table-scroll { overflow-x: auto; }
+.se-reg-table { width: 100%; min-width: 760px; }
+.se-reg-table td { font-size: .82rem; }
+.se-th-sort { cursor: pointer; user-select: none; white-space: nowrap; }
+.se-th-sort:hover { color: var(--color-secondary); }
+.se-sort { font-size: .7rem; opacity: .6; margin-left: .2rem; }
+
+/* Toggle switch (registration open) */
+.se-toggle-row { margin-top: .25rem; }
+.se-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.se-switch input { width: 1.05rem; height: 1.05rem; accent-color: var(--color-dark); }
+.se-hint {
+  font-size: .72rem;
+  color: var(--color-muted);
+  margin: .35rem 0 0;
+}
+
+/* The rich-text editor itself lives in css/pages/admin/rich-text.css (shared by
+   every admin textbox that renders to the public site). */
+
+/* ── Print ──────────────────────────────────────────────────────────────── */
+@media print {
+  .adm-nav, .adm-topbar, .se-filter-bar, .se-regs-exports,
+  .se-qr-card, .toolbar-back, .action-bar { display: none !important; }
+}

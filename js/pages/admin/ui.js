@@ -66,7 +66,7 @@ export function showView(name) {
 }
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
-export function initTabs({ onInicio, onCalendario, onPast, onMinistries, onUsers, onDiscipulado, onGaleria, onAnalytics, onActivity, onSettings, onTreasury }) {
+export function initTabs({ onInicio, onCalendario, onPast, onMinistries, onUsers, onDiscipulado, onGaleria, onAnalytics, onActivity, onSettings, onTreasury, onSpecialEvents }) {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -86,6 +86,7 @@ export function initTabs({ onInicio, onCalendario, onPast, onMinistries, onUsers
       if (btn.dataset.tab === 'activity')    onActivity?.();
       if (btn.dataset.tab === 'settings')    onSettings?.();
       if (btn.dataset.tab === 'treasury')    onTreasury?.();
+      if (btn.dataset.tab === 'special-events') onSpecialEvents?.();
     });
   });
 }
