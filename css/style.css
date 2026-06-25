@@ -11945,7 +11945,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
 /* The legacy event-detail.css clamps #event-content to 720px (the old single,
    narrow column). The new two-column .ev2 layout owns its own width, so release
    that cap — otherwise the whole grid (and the Detalles column) stays thin. */
-#event-content.ev2__wrap { max-width: none; width: 100%; }
+#event-content.ev2__wrap { max-width: none; width: auto; margin: 0; padding: 0; }
 .ev2__status { text-align: center; padding: 3rem 1rem; }
 
 .ev2__crumbs {
@@ -11953,7 +11953,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-size: var(--fs-sm); color: var(--color-muted);
   margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
 }
-.ev2__crumbs a { color: var(--color-secondary); text-decoration: none; }
+.ev2__crumbs a { color: var(--color-dark); text-decoration: none; font-weight: 600; }
 .ev2__crumbs a:hover { text-decoration: underline; }
 
 .ev2__grid {
