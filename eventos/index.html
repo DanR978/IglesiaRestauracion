@@ -206,8 +206,64 @@
     </div>
 
     <main>
-      <!-- include.js injects /src/all-events.html here -->
-      <section id="events-list"></section>
+      <!-- Unified events hub: Lista · Mes · Galería -->
+      <section class="evhub" aria-label="Eventos">
+        <div class="evhub__bar">
+          <select id="evhubCategory" class="evhub__select" aria-label="Filtrar por categoría">
+            <option value="">Todas las categorías</option>
+          </select>
+          <div class="evhub__views" role="tablist" aria-label="Vista">
+            <button class="evhub__view active" data-view="list" role="tab">Lista</button>
+            <button class="evhub__view" data-view="month" role="tab">Mes</button>
+            <button class="evhub__view" data-view="gallery" role="tab">Galería</button>
+          </div>
+        </div>
+
+        <!-- Lista -->
+        <div class="evhub__panel" id="evhub-list">
+          <div class="evhub__list-grid">
+            <aside class="evhub__mini">
+              <div class="evhub-mini__head">
+                <button id="evhubMiniPrev" class="evhub-mini__nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+                <span id="evhubMiniLabel" class="evhub-mini__label">—</span>
+                <button id="evhubMiniNext" class="evhub-mini__nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+              </div>
+              <div class="evhub-mini__grid" id="evhubMiniGrid"></div>
+            </aside>
+            <div class="evhub__main">
+              <div id="evhubFeatured"></div>
+              <h2 class="evhub__h">Próximos</h2>
+              <div id="evhubUpcoming"><div class="evhub__empty">Cargando...</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mes (CalendarGrid) -->
+        <div class="evhub__panel" id="evhub-month" hidden>
+          <div class="evhub-cal">
+            <div class="evhub-cal__nav">
+              <button id="calPrev" class="evhub-mini__nav" aria-label="Mes anterior"><i class="fas fa-chevron-left"></i></button>
+              <span id="calNavLabel" class="evhub-cal__label">—</span>
+              <button id="calNext" class="evhub-mini__nav" aria-label="Mes siguiente"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="cal-grid__weekdays" id="calWeekdays"></div>
+            <div class="cal-grid__days" id="calDays"></div>
+          </div>
+        </div>
+
+        <!-- Galería -->
+        <div class="evhub__panel" id="evhub-gallery" hidden>
+          <div class="evhub__gallery" id="evhubGallery"></div>
+        </div>
+      </section>
+
+      <!-- Hub modal (recurring activities) -->
+      <div class="evhub-modal__backdrop" id="evhubModalBackdrop">
+        <div class="evhub-modal" role="dialog" aria-modal="true">
+          <button class="evhub-modal__close" id="evhubModalClose" aria-label="Cerrar">×</button>
+          <div id="evhubModalContent"></div>
+        </div>
+      </div>
             <!-- Newsletter -->
       <section class="newsletter" aria-labelledby="newsletter-title">
         <div class="newsletter__inner">
@@ -779,6 +835,7 @@
 
     <!-- Core app scripts -->
     <script type="module" src="/js/main.js"></script>
+    <script type="module" src="/js/pages/eventos/hub.js"></script>
     <script type="module" src="/js/utils/load-icons.js"></script>
     <script type="module" src="/js/include.js"></script>
     <script type="module" src="/js/components/page-transition.js"></script>

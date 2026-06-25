@@ -11,6 +11,17 @@
 .ed-section__body h4 { font-family: var(--font-Signika); margin: 1rem 0 .4rem; }
 .ed-section__body p { margin: 0 0 .75rem; }
 
+/* Simple, minimal header for the standalone event/registration pages. */
+.ev2-topbar {
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem; border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .15));
+  background: var(--color-white);
+}
+.ev2-topbar__brand {
+  font-family: var(--font-Signika); font-weight: 700; letter-spacing: .02em;
+  font-size: var(--fs-md); color: var(--color-dark); text-decoration: none;
+}
+
 /* ── Event detail — clean two-column (main: title/date/details · side: image/location) ── */
 .ev2 {
   width: min(1080px, 92vw);

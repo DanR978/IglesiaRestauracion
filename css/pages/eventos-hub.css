@@ -1,0 +1,186 @@
+/* css/pages/eventos-hub.css
+   Unified public events hub (Lista · Mes · Galería) — clean, light, Church
+   Center-inspired. Month view reuses the shared CalendarGrid (.cal-day) styles. */
+
+.evhub {
+  width: min(1080px, 92vw);
+  margin: clamp(1.5rem, 4vw, 2.5rem) auto;
+}
+
+/* Category colors → exposed as --c so dots/placeholders share one source. */
+.cat--servicio       { --c: #1e6b61; }
+.cat--estudio        { --c: #2a4a9e; }
+.cat--oracion        { --c: #5c3d9c; }
+.cat--evangelizacion { --c: #a05a10; }
+.cat--especial       { --c: #b02030; }
+.cat--registro       { --c: #9a6a2c; }
+.cat--otro           { --c: #6b7280; }
+
+/* ── Toolbar ──────────────────────────────────────────────────────────────── */
+.evhub__bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: .75rem;
+  padding-bottom: 1rem; margin-bottom: 1.25rem;
+}
+.evhub__select {
+  padding: .55rem .9rem;
+  border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
+  border-radius: var(--radius-full);
+  background: var(--color-white); color: var(--color-text);
+  font-size: var(--fs-sm); font-family: var(--font-base);
+}
+.evhub__views { display: inline-flex; gap: .25rem; }
+.evhub__view {
+  border: 1.5px solid transparent; background: transparent;
+  padding: .45rem 1rem; border-radius: var(--radius-full);
+  font-family: var(--font-Signika); font-weight: 600; font-size: var(--fs-sm);
+  color: var(--color-muted); cursor: pointer; transition: color .15s, border-color .15s, background .15s;
+}
+.evhub__view:hover { color: var(--color-dark); }
+.evhub__view.active { color: var(--color-dark); border-color: var(--color-dark); }
+
+/* ── List view ────────────────────────────────────────────────────────────── */
+.evhub__list-grid {
+  display: grid; grid-template-columns: 260px 1fr; gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+@media (max-width: 760px) { .evhub__list-grid { grid-template-columns: 1fr; } }
+
+.evhub__h {
+  font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-xl);
+  margin: 0 0 .85rem; color: var(--color-text);
+}
+.evhub__empty { color: var(--color-muted); padding: 1rem 0; }
+
+/* Mini calendar */
+.evhub-mini__head {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem;
+}
+.evhub-mini__label { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-sm); }
+.evhub-mini__nav {
+  width: 30px; height: 30px; border: none; background: transparent; cursor: pointer;
+  color: var(--color-muted); border-radius: var(--radius-full); font-size: .8rem;
+}
+.evhub-mini__nav:hover { background: rgba(127, 127, 127, .12); color: var(--color-dark); }
+.evhub-mini__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
+.evhub-mini__wd { font-size: .62rem; font-weight: 700; color: var(--color-muted); padding: .25rem 0; }
+.evhub-mini__cell {
+  position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  font-size: .78rem; color: var(--color-text); border-radius: var(--radius-sm);
+}
+.evhub-mini__cell--empty { visibility: hidden; }
+.evhub-mini__cell.is-today { background: var(--color-dark); color: #fff; font-weight: 700; }
+.evhub-mini__cell.has-events { font-weight: 700; }
+.evhub-mini__dot {
+  position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
+  width: 4px; height: 4px; border-radius: 50%; background: var(--color-secondary);
+}
+.evhub-mini__cell.is-today .evhub-mini__dot { background: #fff; }
+
+/* Featured */
+.evhub-feat {
+  display: flex; gap: 1rem; align-items: center; text-decoration: none; color: inherit;
+  padding: .75rem; border: 1px solid var(--gray-40, rgba(127, 127, 127, .16));
+  border-radius: var(--radius-lg); margin-bottom: 1.5rem; transition: box-shadow .2s, transform .2s;
+}
+.evhub-feat:hover { box-shadow: 0 10px 26px rgba(14, 45, 56, .1); transform: translateY(-2px); }
+.evhub-feat__img {
+  width: 120px; height: 80px; object-fit: cover; border-radius: var(--radius-md); flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.evhub-feat__img--ph { background: var(--color-dark); color: #fff; font-size: 1.5rem; }
+.evhub-feat__title { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-md); }
+.evhub-feat__date { color: var(--color-muted); font-size: var(--fs-sm); margin: .2rem 0 .4rem; }
+
+/* Badge */
+.evhub-badge {
+  display: inline-block; padding: .15rem .55rem; border-radius: var(--radius-full);
+  font-size: .68rem; font-weight: 700; letter-spacing: .02em;
+}
+.evhub-badge--signup { background: rgba(22, 163, 74, .14); color: #15803d; }
+
+/* Upcoming list */
+.evhub-up__month {
+  font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-md);
+  margin: 1.25rem 0 .5rem; padding-bottom: .4rem;
+  border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .2));
+}
+.evhub-up__month:first-child { margin-top: 0; }
+.evhub-up__day {
+  font-size: .68rem; font-weight: 700; letter-spacing: .05em; color: var(--color-muted);
+  margin: .9rem 0 .35rem;
+}
+.evhub-up__item {
+  display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left;
+  padding: .6rem .25rem; border: none; background: transparent; cursor: pointer;
+  text-decoration: none; color: inherit; border-radius: var(--radius-md);
+  transition: background .15s;
+}
+.evhub-up__item:hover { background: rgba(127, 127, 127, .06); }
+.evhub-up__item.is-cancelled .evhub-up__name { text-decoration: line-through; color: var(--color-muted); }
+.evhub-up__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, #888); flex: 0 0 auto; }
+.evhub-up__info { display: flex; flex-direction: column; gap: .15rem; flex: 1; min-width: 0; }
+.evhub-up__name { font-family: var(--font-Signika); font-weight: 600; color: var(--color-secondary); }
+.evhub-up__meta { font-size: var(--fs-sm); color: var(--color-muted); }
+.evhub-up__cx {
+  font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--color-danger, #dc2626);
+  margin-left: .35rem;
+}
+.evhub-up__chev { color: var(--color-muted); font-size: .8rem; }
+
+/* ── Month view ───────────────────────────────────────────────────────────── */
+.evhub-cal__nav {
+  display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: .75rem;
+}
+.evhub-cal__label { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-lg); }
+.evhub-cal .cal-grid__weekdays,
+.evhub-cal .cal-grid__days { display: grid; grid-template-columns: repeat(7, 1fr); }
+.evhub-cal .cal-grid__weekdays { margin-bottom: .25rem; }
+
+/* ── Gallery view ─────────────────────────────────────────────────────────── */
+.evhub__gallery {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+}
+.evhub-card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  border: 1px solid var(--gray-40, rgba(127, 127, 127, .16)); border-radius: var(--radius-lg);
+  overflow: hidden; background: var(--color-white); transition: box-shadow .2s, transform .2s;
+}
+.evhub-card:hover { box-shadow: 0 14px 32px rgba(14, 45, 56, .14); transform: translateY(-3px); }
+.evhub-card__media { aspect-ratio: 16 / 10; background: var(--gray-10, #eee); }
+.evhub-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.evhub-card__ph {
+  width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+  background: var(--c, var(--color-dark)); color: #fff; font-size: 2rem;
+}
+.evhub-card__body { padding: .85rem 1rem 1.1rem; display: flex; flex-direction: column; gap: .3rem; }
+.evhub-card__title { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-md); }
+.evhub-card__date { color: var(--color-muted); font-size: var(--fs-sm); }
+.evhub-card .evhub-badge { align-self: flex-start; margin-top: .15rem; }
+
+/* ── Modal (recurring activities) ─────────────────────────────────────────── */
+.evhub-modal__backdrop {
+  position: fixed; inset: 0; z-index: var(--z-modal, 100);
+  background: rgba(0, 0, 0, .45); backdrop-filter: blur(3px);
+  display: none; align-items: center; justify-content: center; padding: 1rem;
+}
+.evhub-modal__backdrop.open { display: flex; }
+.evhub-modal {
+  position: relative; width: min(440px, 92vw);
+  background: var(--color-white); border-radius: var(--radius-lg); padding: 1.6rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .3);
+}
+.evhub-modal__close {
+  position: absolute; top: .75rem; right: .75rem; width: 32px; height: 32px;
+  border: none; border-radius: var(--radius-full); background: var(--gray-10, rgba(127, 127, 127, .1));
+  font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--color-text);
+}
+.evhub-modal__title { font-family: var(--font-Signika); font-weight: 700; margin: .5rem 0 .85rem; font-size: var(--fs-xl); }
+.evhub-modal__rows { display: flex; flex-direction: column; gap: .4rem; color: var(--color-text); }
+.evhub-modal__rows i { color: var(--color-secondary); width: 1.1em; margin-right: .4rem; }
+.evhub-modal__desc { margin-top: 1rem; line-height: 1.6; color: var(--color-text); }
+.evhub-modal__cx {
+  background: rgba(220, 38, 38, .1); color: #b91c1c; font-weight: 600; font-size: .82rem;
+  padding: .5rem .75rem; border-radius: var(--radius-md); margin-bottom: .75rem;
+}
