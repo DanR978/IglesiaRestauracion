@@ -23,11 +23,20 @@
   padding-bottom: 1rem; margin-bottom: 1.25rem;
 }
 .evhub__select {
-  padding: .6rem 1.5rem .6rem 1.25rem;
+  /* Custom chevron so it isn't glued to the border (the native arrow ignores
+     padding-right and sits flush against the edge). */
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+  padding: .6rem 2.6rem .6rem 1.25rem;
   border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-full);
-  background: var(--color-white); color: var(--color-text);
+  background-color: var(--color-white);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23394548' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: .8rem;
+  color: var(--color-text);
   font-size: var(--fs-sm); font-family: var(--font-base);
+  cursor: pointer;
 }
 .evhub__views { display: inline-flex; gap: .25rem; }
 .evhub__view {
