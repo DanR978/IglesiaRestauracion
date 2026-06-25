@@ -1,19 +1,23 @@
 // js/pages/home/signup-cta.js
 // ─────────────────────────────────────────────────────────────────────────────
-// Homepage "¡Regístrate ahora!" banner. Surfaces the soonest upcoming special
-// event whose registration is open, right near the top of the page. If there's
-// no open event, the section stays hidden — zero footprint.
+// Homepage registration promo, near the top of the page.
+//   • 1 open event  → a big featured "¡Regístrate ahora!" banner.
+//   • 2+ open events → a "Inscripciones abiertas" heading + responsive grid of
+//                      cards that wraps as more events are added.
+//   • 0 open events  → the section stays hidden (zero footprint).
 //
-// "Featured" = the soonest open event. Admins control it simply by toggling an
-// event's "Inscripciones abiertas" switch; no extra flag to manage.
+// "Open" = registration_open AND (no date OR date in the future). Soonest first.
+// Admins control everything just by toggling each event's "Inscripciones
+// abiertas" switch — no extra flag to manage.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { sb } from '/js/lib/supabase.js';
 import { esc } from '/js/utils/escape.js';
 
 const TZ = 'America/New_York';
+const MAX = 12;   // safety cap on how many cards we render
 
-function fmtDate(iso) {
+function fmtDateLong(iso) {
   if (!iso) return '';
   try {
     return new Date(iso).toLocaleDateString('es', {
@@ -21,17 +25,25 @@ function fmtDate(iso) {
     });
   } catch { return ''; }
 }
+function fmtDateShort(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('es', {
+      day: 'numeric', month: 'short', timeZone: TZ,
+    });
+  } catch { return ''; }
+}
+function eventUrl(ev) {
+  return `/eventos/evento-especial.html?e=${encodeURIComponent(ev.slug)}`;
+}
 
-function render(ev) {
-  const root = document.getElementById('homeSignup');
-  if (!root) return;
+const ARROW = `<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg>`;
 
-  const href = `/eventos/evento-especial.html?e=${encodeURIComponent(ev.slug)}`;
-  const dateLabel = fmtDate(ev.event_at);
-  const meta = [dateLabel, ev.location].filter(Boolean).map(esc).join(' · ');
-
-  root.innerHTML = `
-    <a class="home-signup__card" href="${href}" aria-label="Regístrate: ${esc(ev.title)}">
+// ── Single featured banner ───────────────────────────────────────────────────
+function renderFeatured(ev) {
+  const meta = [fmtDateLong(ev.event_at), ev.location].filter(Boolean).map(esc).join(' · ');
+  return `
+    <a class="home-signup__card" href="${eventUrl(ev)}" aria-label="Regístrate: ${esc(ev.title)}">
       ${ev.image_url ? `
         <div class="home-signup__media">
           <img src="${esc(ev.image_url)}" alt="" loading="lazy" decoding="async">
@@ -47,9 +59,42 @@ function render(ev) {
     </a>`;
 }
 
+// ── Grid of cards (2+) ───────────────────────────────────────────────────────
+function card(ev) {
+  const date = fmtDateShort(ev.event_at);
+  return `
+    <a class="seh-card" href="${eventUrl(ev)}" aria-label="Regístrate: ${esc(ev.title)}">
+      <div class="seh-card__media">
+        ${ev.image_url
+          ? `<img src="${esc(ev.image_url)}" alt="" loading="lazy" decoding="async">`
+          : `<span class="seh-card__placeholder"><i class="fas fa-calendar-star" aria-hidden="true"></i></span>`}
+      </div>
+      <div class="seh-card__body">
+        <h3 class="seh-card__title">${esc(ev.title)}</h3>
+        <p class="seh-card__meta">
+          ${date ? `<span><i class="fas fa-calendar" aria-hidden="true"></i> ${esc(date)}</span>` : ''}
+          ${ev.location ? `<span><i class="fas fa-location-dot" aria-hidden="true"></i> ${esc(ev.location)}</span>` : ''}
+        </p>
+        <span class="seh-card__cta">Registrarse ${ARROW}</span>
+      </div>
+    </a>`;
+}
+
+function renderGrid(events) {
+  return `
+    <div class="home-signup__head">
+      <span class="home-signup__eyebrow"><i class="fas fa-bullhorn" aria-hidden="true"></i> Inscripciones abiertas</span>
+      <h2 class="home-signup__heading" id="homeSignupTitle">Eventos con inscripción</h2>
+    </div>
+    <div class="home-signup__grid">
+      ${events.map(card).join('')}
+    </div>`;
+}
+
 async function initSignupCta() {
   const section = document.getElementById('homeSignupSection');
-  if (!section || !sb) return;
+  const root = document.getElementById('homeSignup');
+  if (!section || !root || !sb) return;
   try {
     const nowIso = new Date().toISOString();
     const { data, error } = await sb
@@ -58,12 +103,13 @@ async function initSignupCta() {
       .eq('registration_open', true)
       .or(`event_at.gte.${nowIso},event_at.is.null`)
       .order('event_at', { ascending: true, nullsFirst: false })
-      .limit(1);
+      .limit(MAX);
 
-    const ev = data && data[0];
-    if (error || !ev) { section.hidden = true; return; }
+    const events = data || [];
+    if (error || !events.length) { section.hidden = true; return; }
 
-    render(ev);
+    root.innerHTML = events.length === 1 ? renderFeatured(events[0]) : renderGrid(events);
+    section.classList.toggle('home-signup--grid', events.length > 1);
     section.hidden = false;
   } catch (e) {
     console.warn('[home-signup]', e);

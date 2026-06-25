@@ -7724,6 +7724,121 @@ body.no-scroll {
   .home-signup__body { align-items: center; text-align: center; }
 }
 
+/* ── Multiple open events: heading + responsive card grid ────────────────── */
+.home-signup__head {
+  max-width: 1080px;
+  margin: 0 auto clamp(1rem, 2.5vw, 1.6rem);
+  text-align: center;
+}
+.home-signup__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .3rem .8rem;
+  border-radius: var(--radius-full);
+  background: rgba(57, 69, 72, .08);
+  color: var(--color-dark);
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.home-signup__heading {
+  margin: .55rem 0 0;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  line-height: 1.1;
+  font-size: clamp(1.5rem, 1rem + 2vw, 2.3rem);
+  color: var(--color-text);
+}
+
+.home-signup__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: clamp(1rem, 2vw, 1.5rem);
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.seh-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  border: 1px solid rgba(127, 127, 127, .16);
+  box-shadow: 0 10px 28px rgba(14, 45, 56, .08);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+@media (hover: hover) {
+  .seh-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px rgba(14, 45, 56, .16);
+    border-color: rgba(57, 69, 72, .3);
+  }
+}
+.seh-card:focus-visible { outline: 3px solid var(--color-dark); outline-offset: 3px; }
+
+.seh-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, var(--color-dark), #2d4e57);
+}
+.seh-card__media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.seh-card__placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255, 255, 255, .6); font-size: 2rem;
+}
+
+.seh-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  flex: 1;
+  padding: clamp(1rem, 2vw, 1.25rem);
+}
+.seh-card__title {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  line-height: 1.2;
+  font-size: var(--fs-lg);
+  color: var(--color-text);
+}
+.seh-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--fs-sm);
+}
+.seh-card__meta i { width: 1em; margin-right: .35rem; opacity: .8; }
+.seh-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-top: auto;
+  padding-top: .5rem;
+  color: var(--color-dark);
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-sm);
+}
+.seh-card__cta svg {
+  width: 18px; height: 18px;
+  fill: none; stroke: currentColor; stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: transform .25s ease;
+}
+@media (hover: hover) {
+  .seh-card:hover .seh-card__cta svg { transform: translateX(4px); }
+}
+
 /* -- pages sermons latest-sermon -- */
 /* Latest sermon embed on homepage */
 .latest-sermon {
