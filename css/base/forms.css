@@ -1,0 +1,16 @@
+/* css/base/forms.css
+   Global form-control baseline.
+
+   iOS Safari auto-zooms the page when you focus a text field whose font-size is
+   under 16px. The site's inputs use ~0.95rem by design, which trips this on
+   phones. Best practice (keeps pinch-zoom enabled for accessibility, unlike the
+   maximum-scale=1 hack): bump form controls to 16px on small screens so focus
+   never triggers an automatic zoom. Desktop sizing is untouched. */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea,
+  [contenteditable="true"] {
+    font-size: 16px;
+  }
+}

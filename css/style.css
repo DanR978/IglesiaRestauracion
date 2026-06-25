@@ -510,6 +510,24 @@ button:active {
 main:focus {
   outline: none;
 }
+/* -- base forms -- */
+/* css/base/forms.css
+   Global form-control baseline.
+
+   iOS Safari auto-zooms the page when you focus a text field whose font-size is
+   under 16px. The site's inputs use ~0.95rem by design, which trips this on
+   phones. Best practice (keeps pinch-zoom enabled for accessibility, unlike the
+   maximum-scale=1 hack): bump form controls to 16px on small screens so focus
+   never triggers an automatic zoom. Desktop sizing is untouched. */
+@media (max-width: 768px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea,
+  [contenteditable="true"] {
+    font-size: 16px;
+  }
+}
+
 /* -- layout container -- */
 /* layout/container.css */
 
@@ -11686,66 +11704,27 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-size: var(--fs-sm);
 }
 
-/* ── Registration form page ─────────────────────────────────────────────── */
+/* ── Standalone registration page ───────────────────────────────────────────
+   The form itself is the step-by-step wizard (.sw-* modal, shared with the
+   discipleship signup). This page just hosts a focused card behind it. */
 .ee-reg {
-  width: min(720px, 92vw);
-  margin: var(--mg-lg) auto var(--mg-2xl);
+  width: min(620px, 92vw);
+  margin: var(--mg-2xl) auto;
 }
-
-.ee-form__section {
-  border: 1px solid var(--gray-40, rgba(0, 0, 0, .12));
-  border-radius: var(--radius-md);
-  padding: 1rem 1.1rem 1.15rem;
-  margin: 0 0 1.15rem;
-  min-width: 0;
-}
-
-.ee-form__section legend {
-  padding: 0 .5rem;
-  font-family: var(--font-Signika);
-  font-weight: 700;
-  font-size: var(--fs-sm);
-  color: var(--color-secondary);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-}
-
-.ee-req { color: var(--color-danger, #dc2626); }
-
-.ee-form .input-error {
-  border-color: var(--color-danger, #dc2626) !important;
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, .12);
-}
-
-.ee-form__actions {
-  display: flex;
-  gap: .65rem;
-  flex-wrap: wrap;
-  margin-top: .5rem;
-}
-
-/* Success panel after submit */
-.ee-success {
+.ee-reg-card {
   text-align: center;
-  padding: 2rem 1rem;
-  width: min(560px, 92vw);
-  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
+  border-radius: var(--radius-lg);
+  background: var(--color-white);
+  box-shadow: 0 12px 32px rgba(14, 45, 56, .08);
 }
-.ee-success__icon {
-  font-size: 3rem;
-  color: var(--color-success, #16a34a);
-  margin-bottom: .75rem;
-}
-.ee-success h2 {
-  font-family: var(--font-Signika);
-  margin: 0 0 .4rem;
-}
-.ee-success p {
+.ee-reg-card .ed-title { margin: .35rem 0 0; }
+.ee-reg-card__sub {
   color: var(--color-muted);
-  margin: 0 auto 1.25rem;
-  max-width: 40ch;
+  margin: .5rem auto 1.4rem;
+  max-width: 38ch;
 }
-.ee-success .ee-form__actions { justify-content: center; }
 
 /* -- pages vision-valores -- */
 /* =========================================================

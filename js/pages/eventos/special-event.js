@@ -6,6 +6,7 @@
 
 import { sb } from '/js/lib/supabase.js';
 import { sanitizeHtml, htmlIsEmpty } from '/js/lib/sanitize-html.js';
+import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
 
 const TZ = 'America/New_York';
 
@@ -94,7 +95,14 @@ function renderEvent(ev) {
   const btns = [$('event-register-btn'), $('event-register-btn-2')].filter(Boolean);
   if (ev.registration_open) {
     show('event-tag');
-    btns.forEach(b => { b.href = regUrl; b.style.display = ''; });
+    btns.forEach(b => {
+      b.href = regUrl;                 // no-JS fallback → the standalone form page
+      b.style.display = '';
+      b.addEventListener('click', (e) => {
+        e.preventDefault();            // stay on the page; open the step-by-step wizard
+        openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title });
+      });
+    });
   } else {
     hide('event-tag');
     btns.forEach(b => b.style.display = 'none');
