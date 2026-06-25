@@ -309,6 +309,14 @@ export function setupStickyNav({
 export function setupFAQAccordion() {
   const buttons = document.querySelectorAll('.accordion-faq__question');
   buttons.forEach((button, i) => {
+    // Idempotent: never wire a button twice. The all-events month accordion
+    // (js/components/events.js) renders async and binds its OWN toggle on these
+    // same `.accordion-faq__question` buttons; if this ran after that render it
+    // used to add a SECOND handler → each click toggled open-then-closed and the
+    // dropdown looked broken (a load-order race). The flag makes both paths
+    // claim a button exactly once.
+    if (button.dataset.faqWired) return;
+    button.dataset.faqWired = '1';
     const answer = button.nextElementSibling;
     // Wire the question button to its answer panel so screen readers announce
     // the relationship and the expanded/collapsed state together.

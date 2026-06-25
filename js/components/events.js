@@ -210,6 +210,10 @@ import { richToPlain } from '/js/lib/sanitize-html.js';
 
     if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());
 
+    // Claim this button so the shared setupFAQAccordion() in app/ui.js never
+    // also binds it (that double-binding is the intermittent "dropdown doesn't
+    // open" bug — both handlers toggled .open and cancelled each other out).
+    btn.dataset.faqWired = '1';
     btn.addEventListener('click', () => {
       const expanded = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', String(!expanded));

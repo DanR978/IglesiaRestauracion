@@ -42,7 +42,7 @@ async function loadEvent() {
 
 function openWizard() {
   if (!currentEvent) return;
-  openRegistrationWizard({ eventId: currentEvent.id, eventTitle: currentEvent.title });
+  openRegistrationWizard({ eventId: currentEvent.id, eventTitle: currentEvent.title, eventSlug: currentEvent.slug });
 }
 
 function showError(msg) {

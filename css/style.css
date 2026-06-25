@@ -8692,8 +8692,14 @@ body.no-scroll {
 .sw-field {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
 }
+
+/* Fields stacked directly in a step (not inside .sw-grid — e.g. the textareas in
+   the health/logistics steps) need vertical rhythm; without it the next field's
+   label sits flush under the previous input and reads as cramped. */
+.sw-modal__body > .sw-field { margin-bottom: 1rem; }
+.sw-modal__body > .sw-field:last-of-type { margin-bottom: 0; }
 
 .sw-field--full {
   grid-column: 1 / -1;

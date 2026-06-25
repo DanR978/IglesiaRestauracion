@@ -100,7 +100,7 @@ function renderEvent(ev) {
       b.style.display = '';
       b.addEventListener('click', (e) => {
         e.preventDefault();            // stay on the page; open the step-by-step wizard
-        openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title });
+        openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title, eventSlug: ev.slug });
       });
     });
   } else {

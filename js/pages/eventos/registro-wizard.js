@@ -95,11 +95,11 @@ function ensureRoot() {
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────
-export function openRegistrationWizard({ eventId, eventTitle, onSubmitted } = {}) {
+export function openRegistrationWizard({ eventId, eventTitle, eventSlug, onSubmitted } = {}) {
   if (!eventId) return;
   ensureRoot();
   step = 1;
-  eventCtx = { id: eventId, title: eventTitle || '' };
+  eventCtx = { id: eventId, title: eventTitle || '', slug: eventSlug || '' };
   onSuccess = onSubmitted || null;
   resetState();
   render();
@@ -303,12 +303,16 @@ function renderSuccess(name) {
       <div class="sw-nav">
         <button type="button" class="sw-btn sw-btn--ghost" id="rwAnother">Inscribir a otra persona</button>
         <span class="sw-nav__spacer"></span>
-        <button type="button" class="sw-btn sw-btn--primary" id="rwClose">Cerrar</button>
+        <button type="button" class="sw-btn sw-btn--primary" id="rwBack">Volver al evento</button>
       </div>
     </div>`;
   rootEl.querySelector('#rwProgress').innerHTML = '';
   rootEl.querySelector('#rwTitle').textContent  = '¡Listo!';
-  rootEl.querySelector('#rwClose').addEventListener('click', close);
+  rootEl.querySelector('#rwBack').addEventListener('click', () => {
+    // Send them back to the event home page they signed up at.
+    if (eventCtx?.slug) window.location.href = `/eventos/evento-especial.html?e=${encodeURIComponent(eventCtx.slug)}`;
+    else close();
+  });
   rootEl.querySelector('#rwAnother').addEventListener('click', () => {
     step = 1; resetState(); render();
     requestAnimationFrame(() => rootEl.querySelector('input')?.focus());
