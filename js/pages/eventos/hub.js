@@ -84,7 +84,13 @@ async function load() {
     };
   });
 
-  allEvents = [...regular, ...special, ...registration].sort((a, b) => (a.date > b.date ? 1 : -1));
+  // Exclude the routine recurring services (Sunday service, Bible study, prayer
+  // service) — they're predictable weekly rhythm, not "events", and listing them
+  // just buries the special ones.
+  const HIDE = new Set(['servicio', 'estudio', 'oracion']);
+  allEvents = [...regular, ...special, ...registration]
+    .filter(e => !HIDE.has(e.category))
+    .sort((a, b) => (a.date > b.date ? 1 : -1));
   buildCategoryOptions();
 }
 
