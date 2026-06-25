@@ -80,15 +80,31 @@
 .evhub-mini__cell {
   position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
   font-size: .78rem; color: var(--color-text); border-radius: var(--radius-sm);
+  border: none; background: transparent; font-family: inherit; cursor: pointer;
+  transition: background .12s;
 }
+button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 .evhub-mini__cell--empty { visibility: hidden; }
-.evhub-mini__cell.is-today { background: var(--color-dark); color: #fff; font-weight: 700; }
+.evhub-mini__cell.is-today { box-shadow: inset 0 0 0 1.5px var(--color-dark); font-weight: 700; }
+.evhub-mini__cell.is-selected { background: var(--color-dark); color: #fff; font-weight: 700; }
 .evhub-mini__cell.has-events { font-weight: 700; }
 .evhub-mini__dot {
   position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
   width: 4px; height: 4px; border-radius: 50%; background: var(--color-dark);
 }
-.evhub-mini__cell.is-today .evhub-mini__dot { background: #fff; }
+.evhub-mini__cell.is-selected .evhub-mini__dot { background: #fff; }
+
+/* Selected-day bar above the filtered list */
+.evhub-up__selbar {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  margin-bottom: .5rem; padding-bottom: .5rem;
+  border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .2));
+}
+.evhub-up__selbar span { font-family: var(--font-Signika); font-weight: 700; }
+.evhub-up__clear {
+  border: none; background: transparent; cursor: pointer;
+  color: var(--color-dark); font-weight: 600; font-size: var(--fs-sm); text-decoration: underline;
+}
 
 /* Featured */
 .evhub-feat {

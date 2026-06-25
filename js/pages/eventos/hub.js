@@ -42,6 +42,7 @@ let viewYear  = new Date().getFullYear();
 let viewMonth = new Date().getMonth();
 let miniYear  = viewYear;
 let miniMonth = viewMonth;
+let selectedDate = null;   // mini-calendar day filter for the Próximos list
 
 const grid = new CalendarGrid({
   weekdaysEl: 'calWeekdays', daysEl: 'calDays', labelEl: 'calNavLabel',
@@ -137,8 +138,11 @@ function renderMini() {
   for (let d = 1; d <= days; d++) {
     const ds = ymd(miniYear, miniMonth, d);
     const has = byDate.has(ds);
-    const cls = ['evhub-mini__cell', ds === today ? 'is-today' : '', has ? 'has-events' : ''].filter(Boolean).join(' ');
-    html += `<span class="${cls}">${d}${has ? '<span class="evhub-mini__dot"></span>' : ''}</span>`;
+    const cls = ['evhub-mini__cell',
+      ds === today ? 'is-today' : '',
+      ds === selectedDate ? 'is-selected' : '',
+      has ? 'has-events' : ''].filter(Boolean).join(' ');
+    html += `<button type="button" class="${cls}" data-date="${ds}">${d}${has ? '<span class="evhub-mini__dot"></span>' : ''}</button>`;
   }
   $('evhubMiniGrid').innerHTML = html;
 }
@@ -167,6 +171,21 @@ function renderFeatured() {
 
 function renderUpcoming() {
   const host = $('evhubUpcoming');
+
+  // A specific day is picked in the mini-calendar → show only that day's events.
+  if (selectedDate) {
+    const [y, m, d] = selectedDate.split('-').map(Number);
+    const label = `${DAYS_L[new Date(y, m - 1, d).getDay()]}, ${d} de ${MONTHS[m - 1]} ${y}`;
+    const day = filtered().filter(e => e.date === selectedDate);
+    let html = `<div class="evhub-up__selbar"><span>${esc(label)}</span>
+      <button type="button" id="evhubClearDay" class="evhub-up__clear">Ver todos</button></div>`;
+    html += day.length ? day.map(rowHtml).join('') : `<p class="evhub__empty">Nada programado para este día.</p>`;
+    host.innerHTML = html;
+    $('evhubClearDay')?.addEventListener('click', () => { selectedDate = null; renderMini(); renderUpcoming(); });
+    wireRows(host);
+    return;
+  }
+
   const list = upcoming(filtered());
   if (!list.length) { host.innerHTML = `<p class="evhub__empty">No hay eventos próximos.</p>`; return; }
 
@@ -277,8 +296,14 @@ function init() {
     b.addEventListener('click', () => { view = b.dataset.view; render(); }));
   $('evhubCategory')?.addEventListener('change', (e) => { category = e.target.value; render(); });
 
-  $('evhubMiniPrev')?.addEventListener('click', () => { if (--miniMonth < 0) { miniMonth = 11; miniYear--; } renderMini(); });
-  $('evhubMiniNext')?.addEventListener('click', () => { if (++miniMonth > 11) { miniMonth = 0; miniYear++; } renderMini(); });
+  $('evhubMiniPrev')?.addEventListener('click', () => { if (--miniMonth < 0) { miniMonth = 11; miniYear--; } selectedDate = null; renderMini(); renderUpcoming(); });
+  $('evhubMiniNext')?.addEventListener('click', () => { if (++miniMonth > 11) { miniMonth = 0; miniYear++; } selectedDate = null; renderMini(); renderUpcoming(); });
+  $('evhubMiniGrid')?.addEventListener('click', (e) => {
+    const cell = e.target.closest('.evhub-mini__cell[data-date]');
+    if (!cell) return;
+    selectedDate = (selectedDate === cell.dataset.date) ? null : cell.dataset.date;  // toggle
+    renderMini(); renderUpcoming();
+  });
   $('calPrev')?.addEventListener('click', () => { if (--viewMonth < 0) { viewMonth = 11; viewYear--; } renderMonth(); });
   $('calNext')?.addEventListener('click', () => { if (++viewMonth > 11) { viewMonth = 0; viewYear++; } renderMonth(); });
 
