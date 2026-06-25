@@ -7674,14 +7674,16 @@ body.no-scroll {
   gap: .5rem;
   padding: .35rem .75rem;
   border-radius: var(--radius-full);
-  background: rgba(190, 102, 14, .22);
-  color: #f6c89a;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .18);
+  color: rgba(255, 255, 255, .92);
   font-family: var(--font-Signika);
   font-weight: 700;
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: .06em;
 }
+.home-signup__kicker i { color: rgba(255, 255, 255, .7); }
 
 .home-signup__title {
   margin: 0;
@@ -7699,9 +7701,21 @@ body.no-scroll {
   text-transform: capitalize;
 }
 
+/* White CTA reads clean and premium on the teal card — no orange. */
 .home-signup__btn {
   margin-top: .65rem;
   pointer-events: none; /* whole card is the link; keep the button purely visual */
+  background: var(--color-white);
+  color: var(--color-dark);
+  border: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .16);
+  transition: background .25s ease, transform .35s ease, box-shadow .35s ease;
+}
+@media (hover: hover) {
+  .home-signup__card:hover .home-signup__btn {
+    background: #f2f4f5;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
+  }
 }
 
 @media (max-width: 760px) {

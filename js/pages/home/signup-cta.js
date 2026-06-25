@@ -42,7 +42,7 @@ function render(ev) {
         </span>
         <h2 class="home-signup__title" id="homeSignupTitle">${esc(ev.title)}</h2>
         ${meta ? `<p class="home-signup__meta">${meta}</p>` : ''}
-        <span class="ird-btn ird-btn--orange home-signup__btn">¡Regístrate ahora!</span>
+        <span class="ird-btn home-signup__btn">¡Regístrate ahora!</span>
       </div>
     </a>`;
 }
