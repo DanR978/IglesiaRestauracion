@@ -11682,12 +11682,10 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
 
 /* -- pages special-event -- */
 /* css/pages/special-event.css
-   Public landing + registration form for special (registration) events.
-   Builds on the existing event-detail (.ed-*) layout and the shared form
-   components (.form-group, .form-row, .ird-btn). No new tokens introduced. */
+   Public special-event detail (clean two-column layout) + standalone
+   registration page. Uses existing tokens and the shared .ird-btn / wizard. */
 
-/* Rich-text content (admin-authored description / información) rendered into the
-   existing .ed-section__body. Sanitized allowlist markup only. */
+/* Rich-text content rendered into the legacy event-detail (.ed-*) page. */
 .ed-section__body ul,
 .ed-section__body ol { margin: 0 0 1rem; padding-left: 1.5rem; }
 .ed-section__body li { margin: .2rem 0; }
@@ -11696,23 +11694,91 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
 .ed-section__body h4 { font-family: var(--font-Signika); margin: 1rem 0 .4rem; }
 .ed-section__body p { margin: 0 0 .75rem; }
 
-/* "Inscripciones cerradas" pill on the landing page */
-.ee-closed {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .55rem .9rem;
-  border-radius: var(--radius-md);
-  background: var(--gray-20, rgba(0, 0, 0, .05));
-  color: var(--color-muted);
-  font-family: var(--font-Signika);
-  font-weight: 600;
-  font-size: var(--fs-sm);
+/* ── Event detail — clean two-column (main: title/date/details · side: image/location) ── */
+.ev2 {
+  width: min(1080px, 92vw);
+  margin: clamp(1.5rem, 4vw, 3rem) auto clamp(3rem, 6vw, 5rem);
+}
+.ev2__status { text-align: center; padding: 3rem 1rem; }
+
+.ev2__crumbs {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: var(--fs-sm); color: var(--color-muted);
+  margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
+}
+.ev2__crumbs a { color: var(--color-secondary); text-decoration: none; }
+.ev2__crumbs a:hover { text-decoration: underline; }
+
+.ev2__grid {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 360px);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: start;
+}
+@media (max-width: 820px) {
+  .ev2__grid { grid-template-columns: 1fr; }
+  .ev2__side { order: -1; }   /* image + location lead on mobile */
 }
 
-/* ── Standalone registration page ───────────────────────────────────────────
-   The form itself is the step-by-step wizard (.sw-* modal, shared with the
-   discipleship signup). This page just hosts a focused card behind it. */
+/* Main column */
+.ev2__title {
+  font-family: var(--font-Signika);
+  font-weight: 700; line-height: 1.1;
+  font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3rem);
+  margin: 0; color: var(--color-text);
+}
+.ev2__when { color: var(--color-muted); margin: .5rem 0 0; font-size: var(--fs-md); }
+
+.ev2__section { margin-top: clamp(1.75rem, 4vw, 2.75rem); }
+.ev2__h {
+  font-family: var(--font-Signika); font-weight: 700;
+  font-size: var(--fs-lg); margin: 0 0 .85rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .22));
+}
+.ev2__body { color: var(--color-text); line-height: 1.65; }
+
+/* Sidebar */
+.ev2__media {
+  border-radius: var(--radius-lg); overflow: hidden;
+  margin-bottom: 1.25rem; background: var(--gray-10, #f3f3f3);
+}
+.ev2__media img { display: block; width: 100%; height: auto; }
+
+.ev2__panel {
+  border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  background: var(--color-white);
+  box-shadow: 0 8px 26px rgba(14, 45, 56, .06);
+}
+.ev2__field { margin-bottom: 1rem; }
+.ev2__field-label {
+  font-family: var(--font-Signika); font-weight: 700;
+  font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--color-muted); margin-bottom: .25rem;
+}
+.ev2__field-value { color: var(--color-text); }
+.ev2__time { color: var(--color-muted); margin-left: .25rem; }
+
+.ev2__pill {
+  display: inline-flex; align-items: center; gap: .45rem;
+  margin-top: .6rem; padding: .4rem .85rem;
+  border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
+  border-radius: var(--radius-full);
+  font-size: .82rem; font-weight: 600; color: var(--color-dark);
+  text-decoration: none; transition: border-color .2s, color .2s;
+}
+.ev2__pill:hover { border-color: var(--color-dark); }
+
+.ev2__register { width: 100%; justify-content: center; margin-top: .35rem; font-size: var(--fs-md); }
+.ev2__closed {
+  display: flex; align-items: center; justify-content: center; gap: .5rem;
+  margin: .35rem 0 0; padding: .6rem;
+  color: var(--color-muted); font-weight: 600; font-size: var(--fs-sm);
+}
+
+/* ── Standalone registration page (hosts the step-by-step wizard) ─────────── */
 .ee-reg {
   width: min(620px, 92vw);
   margin: var(--mg-2xl) auto;

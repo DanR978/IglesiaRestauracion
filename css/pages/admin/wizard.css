@@ -10,6 +10,9 @@
   padding: 1rem;
 }
 .wizard-backdrop.open { display: flex; }
+/* Hard guard: the wizard is an overlay — it must never sit in normal flow and
+   leak its step text onto the page when it isn't open. */
+.wizard-backdrop:not(.open) { display: none !important; }
 
 .wizard {
   background: var(--color-bg-light, #fff);

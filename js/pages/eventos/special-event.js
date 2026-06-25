@@ -1,8 +1,8 @@
 // js/pages/eventos/special-event.js
-// Public landing page for a registration-based special event.
-// Reads ?e=<slug> (fallback ?id=<uuid>) from the URL, fetches the event from
-// Supabase, fills the page, and wires the "Registrarse" button.
-// Mirrors js/components/event-detail.js.
+// Public landing page for a registration-based special event — clean two-column
+// layout (main: title/date/details · sidebar: image/location/register).
+// Reads ?e=<slug> (fallback ?id=<uuid>), fetches the event, fills the page, and
+// opens the step-by-step registration wizard from the single "Registrarse" CTA.
 
 import { sb } from '/js/lib/supabase.js';
 import { sanitizeHtml, htmlIsEmpty } from '/js/lib/sanitize-html.js';
@@ -11,16 +11,17 @@ import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
 const TZ = 'America/New_York';
 
 // ── Helpers ──────────────────────────────────────────────
-function formatDate(dateStr) {
+const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+function formatDate(iso) {
   try {
-    return new Date(dateStr).toLocaleDateString('es', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: TZ,
-    });
-  } catch { return dateStr || ''; }
+    return cap(new Date(iso).toLocaleDateString('es', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ,
+    }));
+  } catch { return ''; }
 }
-function formatTime(dateStr) {
+function formatTime(iso) {
   try {
-    return new Date(dateStr).toLocaleTimeString('en-US', {
+    return new Date(iso).toLocaleTimeString('en-US', {
       hour: 'numeric', minute: '2-digit', hour12: true, timeZone: TZ,
     });
   } catch { return ''; }
@@ -37,7 +38,6 @@ async function loadEvent() {
   const slug = params.get('e');
   const id   = params.get('id');
   if (!slug && !id) return showError();
-
   try {
     let q = sb.from('special_events').select('*');
     q = slug ? q.eq('slug', slug) : q.eq('id', id);
@@ -60,27 +60,35 @@ function renderEvent(ev) {
   show('event-content');
 
   document.title = `${ev.title || 'Evento'} — Iglesia Restauración Divina`;
-
-  // Hero image (fall back to the header's default hero)
-  const heroImg = $('ed-hero-img');
-  if (heroImg && ev.image_url) {
-    heroImg.src = ev.image_url;
-    heroImg.alt = ev.title || 'Evento';
-  } else if (heroImg) {
-    const fallback = $('header')?.getAttribute('data-hero');
-    if (fallback) heroImg.src = fallback;
-  }
-
+  setText('event-crumb', ev.title || 'Evento');
   setText('event-title', ev.title || 'Evento');
 
+  // Date / time — one friendly line up top, plus the sidebar field
   if (ev.event_at) {
-    setText('event-date', formatDate(ev.event_at));
-    show('event-date-row');
+    const d = formatDate(ev.event_at);
     const t = formatTime(ev.event_at);
-    if (t) { setText('event-time', t); show('event-time-row'); }
+    setText('event-when', t ? `${d} · ${t}` : d);
+    setText('event-date', d);
+    if (t) setText('event-time', `· ${t}`);
+    show('event-date-block');
   }
-  if (ev.location) { setText('event-location', ev.location); show('event-location-row'); }
 
+  // Location + directions
+  if (ev.location) {
+    setText('event-location', ev.location);
+    const dir = $('event-directions');
+    if (dir) dir.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location)}`;
+    show('event-location-row');
+  }
+
+  // Image (sidebar)
+  if (ev.image_url) {
+    const img = $('ed-hero-img');
+    if (img) { img.src = ev.image_url; img.alt = ev.title || 'Evento'; }
+    show('event-media');
+  }
+
+  // Details / Información (sanitized rich text)
   if (ev.description && !htmlIsEmpty(ev.description)) {
     $('event-description').innerHTML = sanitizeHtml(ev.description);
     show('event-description-section');
@@ -90,22 +98,19 @@ function renderEvent(ev) {
     show('event-information-section');
   }
 
-  // Register buttons (two — above and below the details)
-  const regUrl = `/eventos/registro.html?e=${encodeURIComponent(ev.slug)}`;
-  const btns = [$('event-register-btn'), $('event-register-btn-2')].filter(Boolean);
+  // Single register CTA → opens the step-by-step wizard
+  const btn = $('event-register-btn');
   if (ev.registration_open) {
-    show('event-tag');
-    btns.forEach(b => {
-      b.href = regUrl;                 // no-JS fallback → the standalone form page
-      b.style.display = '';
-      b.addEventListener('click', (e) => {
-        e.preventDefault();            // stay on the page; open the step-by-step wizard
+    if (btn) {
+      btn.href = `/eventos/registro.html?e=${encodeURIComponent(ev.slug)}`;  // no-JS fallback
+      btn.style.display = '';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
         openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title, eventSlug: ev.slug });
       });
-    });
+    }
   } else {
-    hide('event-tag');
-    btns.forEach(b => b.style.display = 'none');
+    if (btn) btn.style.display = 'none';
     show('event-register-closed');
   }
 
@@ -113,11 +118,5 @@ function renderEvent(ev) {
 }
 
 // ── Boot ─────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const heroImg = $('ed-hero-img');
-  const fallback = $('header')?.getAttribute('data-hero');
-  if (heroImg && fallback && !heroImg.src) heroImg.src = fallback;
-});
-
 document.addEventListener('includes:ready', loadEvent);
 if (document.documentElement.classList.contains('ready')) loadEvent();
