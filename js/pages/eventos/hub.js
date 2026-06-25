@@ -145,10 +145,13 @@ function renderMini() {
 
 function renderFeatured() {
   const host = $('evhubFeatured');
-  // Featured = upcoming registration/special events with an image; show the soonest.
+  // Destacado = only the truly special, sign-up events (registration events like
+  // EVB). The monthly scheduled "special" events (Caballeros, Damas, Vigilia… in
+  // the events table) are predictable rhythm — they stay in the list below, not
+  // here. Registration events are their own thing, so they're the right tag.
   const feat = upcoming(filtered())
-    .filter(e => (e._source === 'reg' || e._source === 'evt'))
-    .slice(0, 1);
+    .filter(e => e._source === 'reg')
+    .slice(0, 3);
   if (!feat.length) { host.innerHTML = ''; return; }
   host.innerHTML = `<h2 class="evhub__h">Destacado</h2>` + feat.map(e => `
     <a class="evhub-feat" href="${e.url || '#'}">
