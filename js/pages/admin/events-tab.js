@@ -82,16 +82,14 @@ export async function loadPast() {
 export function renderUpcomingFiltered() {
   const el = document.getElementById('upcomingList');
   if (!el) return;
+  // Regular weekly activities live in the Calendario tab — Próximos only shows
+  // the special events.
   const sp = filterEventsByMinistry(_upcomingSpecial);
-  const rg = filterEventsByMinistry(_upcomingRegular);
-  if (!sp.length && !rg.length) {
+  if (!sp.length) {
     el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos con estos filtros.</p></div>';
     return;
   }
-  let html = '';
-  if (sp.length) html += '<div class="section-divider"><i class="fas fa-star"></i> Eventos Especiales</div>'   + buildEventsTableHtml(sp, false);
-  if (rg.length) html += '<div class="section-divider"><i class="fas fa-calendar-check"></i> Actividades Regulares</div>' + buildEventsTableHtml(rg, false);
-  el.innerHTML = html;
+  el.innerHTML = buildEventsTableHtml(sp, false);
 }
 
 export function renderPastFiltered() {
