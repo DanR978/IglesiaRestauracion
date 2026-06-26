@@ -10227,6 +10227,17 @@ body.no-scroll {
 .page-events-hub .mobile-bar,
 .page-events-hub .floating-ui__peek { display: none !important; }
 
+/* Simple solid header bar (no hero image) — just the church name + burger. */
+.page-events-hub #header,
+.page-events-hub #header .header-grid { min-height: 0 !important; height: auto !important; }
+.page-events-hub #header .hero,
+.page-events-hub #header .overlay,
+.page-events-hub .hero-content { display: none !important; }
+.page-events-hub .nav-container {
+  position: relative; width: 100%;
+  background-color: var(--color-dark);
+}
+
 /* Category colors → exposed as --c so dots/placeholders share one source. */
 .cat--servicio       { --c: #1e6b61; }
 .cat--estudio        { --c: #2a4a9e; }
@@ -10291,17 +10302,19 @@ body.no-scroll {
 .evhub-mini__head {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: .5rem;
 }
-.evhub-mini__label { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-sm); }
+.evhub-mini__label { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-md); }
 .evhub-mini__nav {
   width: 30px; height: 30px; border: none; background: transparent; cursor: pointer;
   color: var(--color-muted); border-radius: var(--radius-full); font-size: .8rem;
 }
 .evhub-mini__nav:hover { background: rgba(127, 127, 127, .12); color: var(--color-dark); }
 .evhub-mini__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
-.evhub-mini__wd { font-size: .62rem; font-weight: 700; color: var(--color-muted); padding: .25rem 0; }
+.evhub-mini__wd { font-size: .8rem; font-weight: 700; color: var(--color-muted); padding: .3rem 0; }
 .evhub-mini__cell {
-  position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  font-size: .78rem; color: var(--color-text); border-radius: var(--radius-sm);
+  /* Compact rows (not a tall square) so the calendar stays the size of the
+     reference even when it's full-width. */
+  position: relative; min-height: 2.5rem; display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; color: var(--color-text); border-radius: var(--radius-sm);
   border: none; background: transparent; font-family: inherit; cursor: pointer;
   transition: background .12s;
 }
