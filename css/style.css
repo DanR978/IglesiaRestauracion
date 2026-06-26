@@ -3918,6 +3918,16 @@ body.no-scroll {
     transition: color 0.22s ease;
   }
 
+  /* EVENTOS is a direct link <a class="accordion-toggle">. The global .menu-item>a
+     rule forces white + padding, making it invisible on the white drawer — match
+     it to the button toggles here. */
+  .menu-item > a.accordion-toggle {
+    display: flex; justify-content: center; width: 100%;
+    padding: 0.85rem 0;
+    color: var(--color-dark, #394548);
+  }
+  .menu-item > a.accordion-toggle::after { content: none; }
+
   /* Keyboard-only focus ring (taps don't show this) */
   .accordion-toggle:focus-visible {
     outline: 2px solid var(--color-secondary, #c89858);
@@ -10296,9 +10306,13 @@ body.no-scroll {
   .evhub-up__day { font-size: var(--fs-base); }
   .evhub-up__name { font-size: var(--fs-xl); }
   .evhub-up__time { font-size: var(--fs-md); }
-  .evhub-feat__title,
-  .evhub-card__title { font-size: var(--fs-lg); }
+  .evhub-feat__title { font-size: var(--fs-lg); }
   .evhub-badge { font-size: .78rem; }
+
+  /* Gallery: smaller cards (shorter image) with bigger title/date text. */
+  .evhub-card__media { aspect-ratio: auto; height: 11rem; }
+  .evhub-card__title { font-size: var(--fs-xl); }
+  .evhub-card__date { font-size: var(--fs-md); }
 }
 
 /* ── List view ────────────────────────────────────────────────────────────── */

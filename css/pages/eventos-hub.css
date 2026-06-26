@@ -80,9 +80,13 @@
   .evhub-up__day { font-size: var(--fs-base); }
   .evhub-up__name { font-size: var(--fs-xl); }
   .evhub-up__time { font-size: var(--fs-md); }
-  .evhub-feat__title,
-  .evhub-card__title { font-size: var(--fs-lg); }
+  .evhub-feat__title { font-size: var(--fs-lg); }
   .evhub-badge { font-size: .78rem; }
+
+  /* Gallery: smaller cards (shorter image) with bigger title/date text. */
+  .evhub-card__media { aspect-ratio: auto; height: 11rem; }
+  .evhub-card__title { font-size: var(--fs-xl); }
+  .evhub-card__date { font-size: var(--fs-md); }
 }
 
 /* ── List view ────────────────────────────────────────────────────────────── */
