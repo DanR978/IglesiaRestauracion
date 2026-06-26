@@ -3727,6 +3727,31 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
   color: var(--color-white);
 }
 
+/* Overflow "Opciones" menu — share / exports / print behind one button. */
+.se-menu { position: relative; }
+.se-menu__pop {
+  position: absolute; right: 0; top: calc(100% + .4rem);
+  z-index: 30; min-width: 220px;
+  display: flex; flex-direction: column; gap: .1rem;
+  padding: .35rem;
+  background: var(--color-white);
+  border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(14, 45, 56, .18);
+  animation: seCollapseIn .14s ease;
+}
+.se-menu__pop[hidden] { display: none; }
+.se-menu__item {
+  display: flex; align-items: center; gap: .65rem;
+  width: 100%; text-align: left;
+  padding: .6rem .7rem;
+  border: none; background: none; cursor: pointer;
+  font: inherit; font-size: .9rem; color: var(--color-dark);
+  border-radius: var(--radius-sm, 6px);
+}
+.se-menu__item i { width: 1.15rem; text-align: center; color: var(--color-muted); }
+.se-menu__item:hover { background: var(--gray-20, rgba(127, 127, 127, .08)); }
+
 /* Collapsible panels (QR / filters) */
 .se-collapse {
   margin: 0 0 1rem;
@@ -3735,39 +3760,30 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 .se-collapse[hidden] { display: none; }
 @keyframes seCollapseIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
-/* QR / share card — horizontal: code beside its link + actions */
+/* QR / share card — code + actions, stacked and centered */
 .se-qr-card {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
   gap: 1.25rem;
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
   border-radius: var(--radius-lg);
-  padding: 1rem 1.2rem;
+  padding: 1.4rem 1.2rem;
   background: var(--color-white);
 }
 .se-qr-img {
-  width: 168px; height: 168px;
+  width: 220px; height: 220px;
   max-width: 100%;
   border-radius: var(--radius-md);
   background: #fff;
 }
-.se-qr-side { flex: 1 1 240px; min-width: 0; }
-.se-qr-side h3 { font-family: var(--font-Signika); font-size: .95rem; margin: 0 0 .65rem; }
-.se-qr-url-row { margin: 0 0 .6rem; }
-.se-qr-url-row input {
-  width: 100%;
-  font-size: .78rem;
-  padding: .5rem .6rem;
-  border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
-  border-radius: var(--radius-md);
-  color: var(--color-muted);
-  background: var(--gray-10, transparent);
+.se-qr-actions {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  justify-content: center; align-items: center;
 }
-.se-qr-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
 
 /* Detail header — Regresar on top, big title below. */
-.se-detail__head { display: flex; flex-direction: column; align-items: flex-start; gap: .65rem; margin-bottom: 1.1rem; }
+.se-detail__head { display: flex; flex-direction: column; align-items: flex-start; gap: 1.5rem; margin-bottom: 1.1rem; }
 .se-detail__title { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-2xl); margin: 0; line-height: 1.15; }
 
 /* Compact registration list — name + info button. */

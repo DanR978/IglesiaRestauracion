@@ -269,7 +269,7 @@ async function bootApp() {
 
   if (profile.role === 'admin') {
     document.body.classList.add('is-admin', 'is-staff', 'is-finance');
-    document.getElementById('topbarMinistry').textContent = '— Admin';
+    document.getElementById('topbarMinistry').textContent = '';
     document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
   } else if (profile.role === 'treasurer') {
     document.body.classList.add('is-finance', 'is-staff', 'is-treasurer');

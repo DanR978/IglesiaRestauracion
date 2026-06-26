@@ -16,6 +16,9 @@
   <!-- Admin-only styles, layered on top of the shared bundle. Kept out of
        style.css so public visitors don't download the admin UI's CSS. -->
   <link rel="stylesheet" href="css/admin.css" />
+  <!-- Hard guard against an overlay leaking its markup into page flow before the
+       (cache-able) admin bundle applies. Inline so it can never lose the race. -->
+  <style>.wizard-backdrop:not(.open){display:none!important}</style>
 </head>
 <body>
 
@@ -417,28 +420,41 @@
         <h2 id="seDetailTitle" class="se-detail__title">Evento</h2>
       </div>
 
-      <!-- Action bar: QR tucks behind a toggle; primary actions inline -->
+      <!-- Action bar: Editar stays inline (most-used); the rest fold into a
+           single "Opciones" overflow menu so the header stays uncluttered. -->
       <div class="se-actionbar">
-        <button class="btn btn--ghost" id="seShareToggle" aria-expanded="false" aria-controls="seSharePanel">
-          <i class="fas fa-share-nodes"></i> Compartir / QR
-        </button>
-        <span class="se-actionbar__spacer"></span>
         <button class="btn btn--secondary" id="seEditBtn"><i class="fas fa-pen"></i> Editar</button>
-        <button class="btn btn--ghost" id="seExportCsv"><i class="fas fa-file-csv"></i> CSV</button>
-        <button class="btn btn--ghost" id="seExportPdf"><i class="fas fa-file-pdf"></i> PDF</button>
-        <button class="btn btn--ghost" id="sePrintRoster"><i class="fas fa-print"></i> Imprimir</button>
+        <span class="se-actionbar__spacer"></span>
+        <div class="se-menu" id="seOptionsWrap">
+          <button class="btn btn--ghost" id="seOptionsToggle" aria-haspopup="true" aria-expanded="false" aria-controls="seOptionsMenu">
+            <i class="fas fa-ellipsis-vertical"></i> Opciones
+          </button>
+          <div class="se-menu__pop" id="seOptionsMenu" role="menu" hidden>
+            <button class="se-menu__item" id="seShareToggle" role="menuitem" aria-haspopup="dialog" aria-controls="seShareModal">
+              <i class="fas fa-share-nodes"></i> Compartir / QR
+            </button>
+            <button class="se-menu__item" id="seExportCsv" role="menuitem"><i class="fas fa-file-csv"></i> Descargar CSV</button>
+            <button class="se-menu__item" id="seExportPdf" role="menuitem"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
+            <button class="se-menu__item" id="sePrintRoster" role="menuitem"><i class="fas fa-print"></i> Imprimir</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Collapsible: share / QR (hidden by default) -->
-      <div class="se-collapse" id="seSharePanel" hidden>
-        <div class="se-qr-card">
-          <img id="seQrImg" class="se-qr-img" alt="Código QR del evento">
-          <div class="se-qr-side">
-            <h3>Código QR / Enlace público</h3>
-            <div class="se-qr-url-row"><input type="text" id="seQrUrl" readonly></div>
-            <div class="se-qr-actions">
-              <button class="btn btn--ghost" id="seQrDownload"><i class="fas fa-download"></i> Descargar PNG</button>
-              <button class="btn btn--ghost" id="seQrCopy"><i class="fas fa-link"></i> Copiar enlace</button>
+      <!-- Share / QR — popup (same on desktop + mobile) -->
+      <div class="modal-backdrop" id="seShareModal">
+        <div class="modal">
+          <div class="modal__header">
+            <h2 class="modal__title">Compartir / Código QR</h2>
+            <button class="modal__close" id="seShareClose" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal__body">
+            <div class="se-qr-card">
+              <img id="seQrImg" class="se-qr-img" alt="Código QR del evento">
+              <div class="se-qr-actions">
+                <button class="btn btn--primary" id="seQrPrint"><i class="fas fa-print"></i> Imprimir cartel</button>
+                <button class="btn btn--ghost" id="seQrDownload"><i class="fas fa-download"></i> Descargar PNG</button>
+                <button class="btn btn--ghost" id="seQrCopy"><i class="fas fa-link"></i> Copiar enlace</button>
+              </div>
             </div>
           </div>
         </div>

@@ -68,16 +68,30 @@ async function saveFile(blob, filename) {
   return true;
 }
 
-// Generic show/hide for a toggle button + its panel (see admin-ux.md convention).
-function wireCollapse(btnId, panelId) {
-  const btn = $(btnId), panel = $(panelId);
-  if (!btn || !panel) return;
-  btn.addEventListener('click', () => {
-    const open = panel.hasAttribute('hidden');
-    panel.toggleAttribute('hidden', !open);
-    btn.setAttribute('aria-expanded', String(open));
-    btn.classList.toggle('is-active', open);
+// Single overflow menu (kebab "Opciones"). Opens on click, closes on item
+// click, outside click, or Escape. Item actions stay wired by their own IDs.
+function wireOptionsMenu() {
+  const toggle = $('seOptionsToggle'), menu = $('seOptionsMenu');
+  if (!toggle || !menu) return;
+  const close = () => {
+    menu.setAttribute('hidden', '');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.classList.remove('is-active');
+  };
+  const open = () => {
+    menu.removeAttribute('hidden');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.classList.add('is-active');
+  };
+  toggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.hasAttribute('hidden') ? open() : close();
   });
+  menu.addEventListener('click', close);            // any item closes the menu
+  document.addEventListener('click', (e) => {
+    if (!menu.hasAttribute('hidden') && !e.target.closest('#seOptionsWrap')) close();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
 }
 
 function fmtDateTime(iso) {
@@ -121,11 +135,18 @@ function boot() {
   $('seDetailBack')?.addEventListener('click', () => { stopRegsRealtime(); seShowView('list'); renderList(); });
   $('seEditBtn')?.addEventListener('click', () => currentEvent && openEditEvent(currentEvent.id));
 
-  // QR/share panel stays tucked away until asked for.
-  wireCollapse('seShareToggle', 'seSharePanel');
+  // Overflow "Opciones" menu — folds share/export/print behind one button.
+  wireOptionsMenu();
+
+  // Share / QR opens as a popup (desktop + mobile).
+  const shareModal = $('seShareModal');
+  $('seShareToggle')?.addEventListener('click', () => shareModal?.classList.add('open'));
+  $('seShareClose')?.addEventListener('click', () => shareModal?.classList.remove('open'));
+  shareModal?.addEventListener('click', e => { if (e.target === shareModal) shareModal.classList.remove('open'); });
 
   $('seQrDownload')?.addEventListener('click', onQrDownload);
   $('seQrCopy')?.addEventListener('click', onQrCopy);
+  $('seQrPrint')?.addEventListener('click', printQrFlyer);
 
   // Exports
   $('seExportCsv')?.addEventListener('click', exportCsv);
@@ -414,7 +435,6 @@ async function openDetail(id) {
 
   // QR + public URL
   const url = publicUrl(ev);
-  $('seQrUrl').value = url;
   try {
     $('seQrImg').src = await generateQrDataUrl(url, 320);
     $('seQrImg').style.display = '';
@@ -604,8 +624,11 @@ async function exportPdf() {
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
   try {
     await loadPdfMake();
-    // Drop Notas from the printed roster so the columns fit cleanly.
-    const cols = EXPORT_COLS.filter(c => c[0] !== 'Notas');
+    // Drop Notas + submission date from the printed roster so columns fit cleanly.
+    const dropCols = new Set(['Notas', 'Inscrito']);
+    const flexCols = new Set(['Contacto de emergencia', 'Email', 'Alergias', 'Condiciones médicas']);
+    const cols = EXPORT_COLS.filter(c => !dropCols.has(c[0]));
+    const widths = cols.map(c => (flexCols.has(c[0]) ? '*' : 'auto'));
     const head = cols.map(c => ({ text: c[0], style: 'th' }));
     const body = [head, ...rows.map(r => cols.map(c => ({ text: String(c[1](r) ?? '') || '—', style: 'td' })))];
 
@@ -629,7 +652,7 @@ async function exportPdf() {
       }),
       content: [
         { text: `Lista de inscritos — ${rows.length} persona${rows.length === 1 ? '' : 's'}`, style: 'sub', margin: [0, 0, 0, 8] },
-        { table: { headerRows: 1, widths: ['auto','auto','auto','auto','*','auto','auto','*','*','auto','auto'], body }, layout: 'lightHorizontalLines' },
+        { table: { headerRows: 1, widths, body }, layout: 'lightHorizontalLines' },
       ],
       styles: {
         title: { fontSize: 15, bold: true, color: '#0e2d38' },
@@ -667,13 +690,13 @@ const PRINT_CSS = `
   @page { margin: 14mm; }
 `;
 
-function printHtml(title, bodyHtml) {
+function printHtml(title, bodyHtml, css = PRINT_CSS) {
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
   document.body.appendChild(iframe);
   const doc = iframe.contentWindow.document;
   doc.open();
-  doc.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${PRINT_CSS}</style></head><body>${bodyHtml}</body></html>`);
+  doc.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}</style></head><body>${bodyHtml}</body></html>`);
   doc.close();
   let done = false;
   const go = () => {
@@ -685,6 +708,70 @@ function printHtml(title, bodyHtml) {
   // onload is reliable for written docs; fall back to a short timer.
   iframe.onload = go;
   setTimeout(go, 600);
+}
+
+// ── Printable QR flyer (standard paper poster) ───────────────────────────────
+const FLYER_CSS = `
+  @page { size: portrait; margin: 0; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: 'Lexend Deca', 'Signika', system-ui, sans-serif; }
+  .flyer {
+    width: 100%; min-height: 100vh; padding: 56px 52px 44px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .flyer__brand {
+    font-size: 14px; letter-spacing: .26em; font-weight: 700;
+    color: #9a6a2c; text-transform: uppercase; margin-bottom: 34px;
+  }
+  .flyer__kicker {
+    display: inline-block; font-size: 14px; letter-spacing: .12em; font-weight: 700;
+    text-transform: uppercase; color: #fff; background: #9a6a2c;
+    padding: 6px 16px; border-radius: 999px; margin-bottom: 16px;
+  }
+  .flyer__title { font-size: 42px; line-height: 1.06; font-weight: 800; color: #0e2d38; margin: 0 0 12px; }
+  .flyer__meta { font-size: 17px; color: #555; margin: 0 0 28px; }
+  .flyer__scan {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    font-size: 40px; font-weight: 800; letter-spacing: .03em; color: #0e2d38; margin: 4px 0 14px;
+  }
+  .flyer__scan svg { width: 38px; height: 38px; }
+  .flyer__qrwrap {
+    padding: 22px; background: #fff; border: 3px solid #0e2d38;
+    border-radius: 26px; box-shadow: 0 10px 30px rgba(14,45,56,.18);
+  }
+  .flyer__qr { display: block; width: 330px; height: 330px; }
+  .flyer__instr { font-size: 18px; color: #394548; margin: 22px 0 0; max-width: 460px; line-height: 1.4; }
+  .flyer__url { margin-top: auto; padding-top: 30px; font-size: 14px; color: #8a8a8a; word-break: break-all; }
+`;
+
+async function printQrFlyer() {
+  if (!currentEvent) return;
+  const btn = $('seQrPrint');
+  const original = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+  try {
+    const url = publicUrl(currentEvent);
+    const qr = await generateQrDataUrl(url, 1024);
+    const metaBits = [fmtDate(currentEvent.event_at), currentEvent.location].filter(b => b && b !== '—');
+    // Down-chevron pointing at the QR — inline SVG (no FontAwesome in the print doc).
+    const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="#0e2d38" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    printHtml(`Cartel — ${currentEvent.title || 'Evento'}`, `
+      <div class="flyer">
+        <div class="flyer__brand">Iglesia Restauración Divina</div>
+        <div class="flyer__kicker">Inscripciones abiertas</div>
+        <h1 class="flyer__title">${esc(currentEvent.title || 'Evento')}</h1>
+        ${metaBits.length ? `<div class="flyer__meta">${esc(metaBits.join('  ·  '))}</div>` : ''}
+        <div class="flyer__scan">¡Escanéame! ${arrow}</div>
+        <div class="flyer__qrwrap"><img class="flyer__qr" src="${esc(qr)}" alt="Código QR"></div>
+        <div class="flyer__instr">Apunta la cámara de tu teléfono al código para registrarte.</div>
+        <div class="flyer__url">${esc(url)}</div>
+      </div>`, FLYER_CSS);
+  } catch (e) {
+    console.error(e); toast('No se pudo generar el cartel', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = original; }
+  }
 }
 
 function printRoster() {
