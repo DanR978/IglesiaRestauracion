@@ -209,16 +209,13 @@ function renderUpcoming() {
 function rowHtml(e) {
   const tag   = e.url ? 'a' : 'button';
   const attrs = e.url ? `href="${e.url}"` : `type="button" data-id="${esc(e.id)}"`;
-  const meta  = [e.time, e.location ? e.location.split(',')[0] : ''].filter(Boolean).join(' · ');
+  const loc   = e.location ? e.location.split(',')[0] : '';
   return `
     <${tag} class="evhub-up__item${e.cancelled ? ' is-cancelled' : ''}" ${attrs}>
-      <span class="evhub-up__dot cat--${esc(e.category)}"></span>
-      <span class="evhub-up__info">
-        <span class="evhub-up__name">${esc(e.title)}${e.cancelled ? ' <span class="evhub-up__cx">Cancelado</span>' : ''}</span>
-        ${meta ? `<span class="evhub-up__meta">${esc(meta)}</span>` : ''}
-        ${e.signup ? `<span class="evhub-badge evhub-badge--signup">Inscripciones disponibles</span>` : ''}
-      </span>
-      <i class="fas fa-chevron-right evhub-up__chev"></i>
+      <span class="evhub-up__name">${esc(e.title)}${e.cancelled ? ' <span class="evhub-up__cx">Cancelado</span>' : ''}</span>
+      ${e.time ? `<span class="evhub-up__time">${esc(e.time)}</span>` : ''}
+      ${loc ? `<span class="evhub-up__loc"><i class="fas fa-location-dot" aria-hidden="true"></i> ${esc(loc)}</span>` : ''}
+      ${e.signup ? `<span class="evhub-badge evhub-badge--signup">Inscripciones disponibles</span>` : ''}
     </${tag}>`;
 }
 

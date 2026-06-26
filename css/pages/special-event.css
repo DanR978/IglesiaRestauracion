@@ -94,7 +94,7 @@
   padding-bottom: .6rem;
   border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .22));
 }
-.ev2__body { color: var(--color-text); line-height: 1.7; font-size: var(--fs-md); }
+.ev2__body { color: var(--color-text); line-height: 1.75; font-size: clamp(1.05rem, 1rem + .45vw, 1.2rem); }
 .ev2__orglink { color: var(--color-dark); text-decoration: underline; word-break: break-word; }
 
 /* Sidebar */
@@ -112,7 +112,7 @@
   box-shadow: 0 8px 26px rgba(14, 45, 56, .06);
 }
 /* Plain location section in the sidebar (replaces the old bordered card). */
-.ev2__sidesec { margin-bottom: 1.5rem; }
+.ev2__sidesec { margin-top: 1.5rem; margin-bottom: 1.5rem; }
 .ev2__field-label {
   font-family: var(--font-Signika); font-weight: 700;
   font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;

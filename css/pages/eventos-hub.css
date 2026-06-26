@@ -143,26 +143,30 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 }
 .evhub-up__month:first-child { margin-top: 0; }
 .evhub-up__day {
-  font-size: .68rem; font-weight: 700; letter-spacing: .05em; color: var(--color-muted);
-  margin: .9rem 0 .35rem;
+  font-size: var(--fs-sm); font-weight: 700; letter-spacing: .04em; color: var(--color-text);
+  text-transform: uppercase; margin: 1.4rem 0 .6rem;
 }
 .evhub-up__item {
-  display: flex; align-items: center; gap: .75rem; width: 100%; text-align: left;
-  padding: .6rem .25rem; border: none; background: transparent; cursor: pointer;
-  text-decoration: none; color: inherit; border-radius: var(--radius-md);
-  transition: background .15s;
+  display: flex; flex-direction: column; gap: .2rem; width: 100%; text-align: left;
+  padding: .15rem 0 1.1rem; border: none; background: transparent; cursor: pointer;
+  text-decoration: none; color: inherit;
 }
-.evhub-up__item:hover { background: rgba(127, 127, 127, .06); }
 .evhub-up__item.is-cancelled .evhub-up__name { text-decoration: line-through; color: var(--color-muted); }
-.evhub-up__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c, #888); flex: 0 0 auto; }
-.evhub-up__info { display: flex; flex-direction: column; gap: .15rem; flex: 1; min-width: 0; }
-.evhub-up__name { font-family: var(--font-Signika); font-weight: 600; color: var(--color-dark); }
-.evhub-up__meta { font-size: var(--fs-sm); color: var(--color-muted); }
+.evhub-up__name {
+  font-family: var(--font-Signika); font-weight: 700; color: var(--color-dark);
+  font-size: var(--fs-lg); line-height: 1.2;
+}
+.evhub-up__item:hover .evhub-up__name { text-decoration: underline; }
+.evhub-up__time { font-size: var(--fs-base); color: var(--color-muted); }
+.evhub-up__loc {
+  display: flex; align-items: center; gap: .4rem;
+  font-size: .8rem; letter-spacing: .03em; text-transform: uppercase; color: var(--color-muted);
+}
 .evhub-up__cx {
   font-size: .62rem; font-weight: 700; text-transform: uppercase; color: var(--color-danger, #dc2626);
   margin-left: .35rem;
 }
-.evhub-up__chev { color: var(--color-muted); font-size: .8rem; }
+.evhub-up__item .evhub-badge { align-self: flex-start; margin-top: .2rem; }
 
 /* ── Month view ───────────────────────────────────────────────────────────── */
 .evhub-cal__nav {
