@@ -7,25 +7,31 @@
 #tab-special-events .se-view { display: none; }
 #tab-special-events .se-view.active { display: block; }
 
-/* List table extras */
-.se-thumb-empty {
-  width: 44px; height: 32px;
-  background: var(--gray-20, #eee);
-  border-radius: 4px;
+/* Event list — responsive cards (works the same on desktop + mobile, no
+   table-transform quirks). */
+.se-evlist { display: flex; flex-direction: column; gap: .6rem; }
+.se-evcard {
+  display: flex; align-items: center; gap: .85rem;
+  padding: .7rem .85rem;
+  border: 1px solid var(--gray-40, rgba(127, 127, 127, .16));
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  cursor: pointer; transition: box-shadow .15s, border-color .15s;
+}
+.se-evcard:hover { box-shadow: 0 4px 14px rgba(14, 45, 56, .08); border-color: rgba(57, 69, 72, .25); }
+.se-evcard__img {
+  width: 64px; height: 48px; flex: 0 0 auto;
+  object-fit: cover; border-radius: 6px;
+}
+.se-evcard__img--empty {
   display: flex; align-items: center; justify-content: center;
-  font-size: .7rem; color: #aaa;
+  background: var(--gray-20, rgba(127, 127, 127, .1)); color: var(--color-muted);
 }
-.se-count-pill {
-  display: inline-block;
-  min-width: 1.6rem;
-  padding: .12rem .5rem;
-  border-radius: var(--radius-full);
-  background: var(--color-dark);
-  color: #fff;
-  font-weight: 700;
-  font-size: .78rem;
-  text-align: center;
-}
+.se-evcard__body { flex: 1; min-width: 0; }
+.se-evcard__title { font-family: var(--font-Signika); font-weight: 700; }
+.se-evcard__meta { color: var(--color-muted); font-size: .82rem; margin-top: .1rem; }
+.se-evcard__badges { margin-top: .35rem; }
+.se-evcard__menu { flex: 0 0 auto; }
 
 /* ── Detail view ────────────────────────────────────────────────────────── */
 .se-detail__meta {

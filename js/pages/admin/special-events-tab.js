@@ -165,42 +165,29 @@ async function renderList() {
     return;
   }
 
-  const rows = eventsCache.map(ev => {
+  const cards = eventsCache.map(ev => {
+    const n = counts[ev.id] || 0;
     const img = ev.image_url
-      ? `<img src="${esc(ev.image_url)}" alt="" style="width:44px;height:32px;object-fit:cover;border-radius:4px;display:block">`
-      : `<div class="se-thumb-empty">—</div>`;
+      ? `<img class="se-evcard__img" src="${esc(ev.image_url)}" alt="">`
+      : `<div class="se-evcard__img se-evcard__img--empty"><i class="fas fa-calendar-star"></i></div>`;
     const openBadge = ev.registration_open
       ? `<span class="cat-badge cat--servicio">Abierto</span>`
       : `<span class="cat-badge cat--otro">Cerrado</span>`;
     return `
-      <tr data-se-row="${esc(ev.id)}" style="cursor:pointer">
-        <td>${img}</td>
-        <td><div class="event-title">${esc(ev.title)}</div></td>
-        <td style="white-space:nowrap">${esc(fmtDate(ev.event_at))}</td>
-        <td>${openBadge}</td>
-        <td style="text-align:center"><span class="se-count-pill">${counts[ev.id] || 0}</span></td>
-        <td>
-          <div class="row-actions">
-            <button class="kebab-btn" title="Opciones" aria-label="Más opciones" data-se-menu="${esc(ev.id)}">
-              <i class="fas fa-ellipsis-vertical"></i>
-            </button>
-          </div>
-        </td>
-      </tr>`;
+      <div class="se-evcard" data-se-row="${esc(ev.id)}">
+        ${img}
+        <div class="se-evcard__body">
+          <div class="se-evcard__title">${esc(ev.title)}</div>
+          <div class="se-evcard__meta">${esc(fmtDate(ev.event_at))} · ${n} inscrito${n === 1 ? '' : 's'}</div>
+          <div class="se-evcard__badges">${openBadge}</div>
+        </div>
+        <button class="kebab-btn se-evcard__menu" title="Opciones" aria-label="Más opciones" data-se-menu="${esc(ev.id)}">
+          <i class="fas fa-ellipsis-vertical"></i>
+        </button>
+      </div>`;
   }).join('');
 
-  el.innerHTML = `
-    <table class="events-table" style="width:100%">
-      <thead><tr>
-        <th style="width:52px"></th>
-        <th>Evento</th>
-        <th style="width:130px">Fecha</th>
-        <th style="width:90px">Registro</th>
-        <th style="width:80px">Inscritos</th>
-        <th style="width:60px">Acciones</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+  el.innerHTML = `<div class="se-evlist">${cards}</div>`;
 
   // Row click → open detail; kebab → action sheet
   el.querySelectorAll('[data-se-row]').forEach(tr => {

@@ -46,6 +46,17 @@
 }
 .notif.open .notif-dropdown { display: block; }
 
+/* Mobile: a right-anchored 92vw dropdown spilled off the left edge. Make it a
+   full-width panel pinned under the topbar (Facebook-style). */
+@media (max-width: 640px) {
+  .notif-dropdown {
+    position: fixed; top: 56px; left: 0; right: 0;
+    width: 100%; max-width: none;
+    border-radius: 0; border-left: 0; border-right: 0;
+  }
+  .notif-list { max-height: calc(100vh - 56px - 52px); }
+}
+
 .notif-dropdown__head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.8rem 1rem;
