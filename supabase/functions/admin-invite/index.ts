@@ -29,6 +29,24 @@ const CORS = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Tabs an admin may grant to a non-admin account. Must match the frontend
+// whitelist (users.js / index.html) and the RLS grant keys
+// (20260626_page_permissions.sql). System-administration tabs (ministries,
+// users, activity, settings) and treasury are intentionally NOT grantable.
+const GRANTABLE_TABS = [
+  "analytics", "upcoming", "past", "calendario",
+  "special-events", "discipulado", "galeria",
+];
+
+function sanitizeTabs(input: unknown): string[] {
+  if (!Array.isArray(input)) return [];
+  const seen = new Set<string>();
+  for (const t of input) {
+    if (typeof t === "string" && GRANTABLE_TABS.includes(t)) seen.add(t);
+  }
+  return [...seen];
+}
+
 // deno-lint-ignore no-explicit-any
 function json(body: any, status = 200): Response {
   return new Response(JSON.stringify(body), { status, headers: CORS });
@@ -95,7 +113,7 @@ async function listAccounts(admin: Sb): Promise<Response> {
   if (error) throw error;
 
   const { data: profiles } = await admin
-    .from("profiles").select("id, display_name, role, ministry_id");
+    .from("profiles").select("id, display_name, role, ministry_id, allowed_tabs");
   const { data: ministries } = await admin.from("ministries").select("id, name");
 
   const pMap = new Map((profiles ?? []).map((p: Sb) => [p.id, p]));
@@ -111,6 +129,7 @@ async function listAccounts(admin: Sb): Promise<Response> {
       role:         p?.role ?? null,
       ministry_id:  p?.ministry_id ?? null,
       ministry:     p?.ministry_id ? (mMap.get(p.ministry_id) ?? null) : null,
+      allowed_tabs: p?.allowed_tabs ?? [],
       confirmed:    !!u.email_confirmed_at,
       last_sign_in: u.last_sign_in_at ?? null,
       mfa:          verified.length > 0,
@@ -126,6 +145,9 @@ async function invite(admin: Sb, callerId: string, body: Sb): Promise<Response> 
   const role = String(body.role ?? "ministry_leader");
   const ministryId = body.ministry_id ? String(body.ministry_id) : null;
   const displayName = String(body.display_name ?? "").trim() || null;
+  // Only ministry_leaders carry page grants; admins see everything, treasurer is
+  // gated by role.
+  const allowedTabs = role === "ministry_leader" ? sanitizeTabs(body.allowed_tabs) : [];
 
   if (!EMAIL_RE.test(email)) return json({ error: "Correo electrónico inválido." }, 400);
   if (role !== "admin" && role !== "ministry_leader" && role !== "treasurer") {
@@ -149,6 +171,7 @@ async function invite(admin: Sb, callerId: string, body: Sb): Promise<Response> 
       role,
       ministry_id: role === "ministry_leader" ? ministryId : null,
       display_name: displayName,
+      allowed_tabs: allowedTabs,
       invited_by: callerId,
       status: "pending",
     })
@@ -156,13 +179,33 @@ async function invite(admin: Sb, callerId: string, body: Sb): Promise<Response> 
   if (invErr) return json({ error: "No se pudo crear la invitación: " + invErr.message }, 400);
 
   // Send the Supabase invitation email (this also creates the auth user)
-  const { error: mailErr } = await admin.auth.admin.inviteUserByEmail(email, {
+  const { data: invited, error: mailErr } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { display_name: displayName },
     redirectTo: `${SITE_URL}/admin/?action=accept-invite`,
   });
   if (mailErr) {
     await admin.from("invitations").delete().eq("id", inv.id); // roll back
     return json({ error: "No se pudo enviar la invitación: " + mailErr.message }, 400);
+  }
+
+  // Write the profile DIRECTLY with the role/ministry/grants — don't depend on a
+  // signup trigger. inviteUserByEmail created the auth user synchronously, so the
+  // id is available now.
+  const newUserId = invited?.user?.id;
+  if (newUserId) {
+    const { error: profErr } = await admin.from("profiles").upsert({
+      id: newUserId,
+      display_name: displayName,
+      role,
+      ministry_id: role === "ministry_leader" ? ministryId : null,
+      allowed_tabs: allowedTabs,
+    }, { onConflict: "id" });
+    if (profErr) {
+      // Roll back the half-created account so it can be re-invited cleanly.
+      await admin.auth.admin.deleteUser(newUserId);
+      await admin.from("invitations").delete().eq("id", inv.id);
+      return json({ error: "No se pudo guardar el perfil: " + profErr.message }, 400);
+    }
   }
   return json({ ok: true });
 }
@@ -180,7 +223,7 @@ async function resend(admin: Sb, callerId: string, body: Sb): Promise<Response> 
 
   const email = (target.user.email ?? "").toLowerCase();
   const { data: prof } = await admin
-    .from("profiles").select("role, ministry_id, display_name").eq("id", userId).single();
+    .from("profiles").select("role, ministry_id, display_name, allowed_tabs").eq("id", userId).single();
 
   await admin.auth.admin.deleteUser(userId); // cascades the profile row
 
@@ -189,6 +232,7 @@ async function resend(admin: Sb, callerId: string, body: Sb): Promise<Response> 
     role: prof?.role ?? "ministry_leader",
     ministry_id: prof?.ministry_id ?? null,
     display_name: prof?.display_name ?? null,
+    allowed_tabs: prof?.allowed_tabs ?? [],
   });
 }
 
@@ -216,6 +260,7 @@ async function setRole(admin: Sb, body: Sb): Promise<Response> {
   const userId = String(body.user_id ?? "");
   const role = String(body.role ?? "");
   const ministryId = body.ministry_id ? String(body.ministry_id) : null;
+  const allowedTabs = role === "ministry_leader" ? sanitizeTabs(body.allowed_tabs) : [];
 
   if (!userId) return json({ error: "Falta el usuario." }, 400);
   if (role !== "admin" && role !== "ministry_leader" && role !== "treasurer") {
@@ -234,7 +279,11 @@ async function setRole(admin: Sb, body: Sb): Promise<Response> {
   }
 
   const { error } = await admin.from("profiles")
-    .update({ role, ministry_id: role === "ministry_leader" ? ministryId : null })
+    .update({
+      role,
+      ministry_id: role === "ministry_leader" ? ministryId : null,
+      allowed_tabs: allowedTabs,
+    })
     .eq("id", userId);
   if (error) return json({ error: error.message }, 400);
   return json({ ok: true });

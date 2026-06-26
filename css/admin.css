@@ -4446,6 +4446,62 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 }
 .topbar__user:hover { background: rgba(255, 255, 255, 0.3); }
 
+/* ── Page-permission checklist (invite / edit user modal) ─────────────────── */
+.perm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.perm-preset {
+  border: 1px solid var(--gray-40);
+  background: var(--color-white);
+  color: var(--color-dark);
+  border-radius: var(--radius-full);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.perm-preset:hover { background: var(--gray-10, #f3f4f6); border-color: var(--color-dark); }
+
+.perm-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+.perm-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.9rem;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.perm-item:hover { background: var(--gray-10, #f3f4f6); }
+.perm-item input { margin: 0; flex-shrink: 0; }
+.perm-item i { color: var(--color-primary, #1e6b61); width: 1.1em; text-align: center; }
+.perm-item:has(input:checked) {
+  border-color: var(--color-primary, #1e6b61);
+  background: rgba(30, 107, 97, 0.07);
+}
+.perm-hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.8rem;
+  color: var(--gray-70, #6b7280);
+  line-height: 1.4;
+}
+.perm-hint i { margin-right: 0.3rem; }
+
 /* ── Small-screen polish ──────────────────────────────────────────────────── */
 @media (max-width: 560px) {
   .modal { padding: 1.25rem; }
@@ -4453,6 +4509,7 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
   .modal__footer .btn { flex: 1 1 auto; justify-content: center; }
   .action-bar .btn { flex: 1 1 auto; justify-content: center; }
   .topbar__title { font-size: 0.9rem; }
+  .perm-grid { grid-template-columns: 1fr; }
 }
 /* -- pages admin wizard -- */
 /* ═══════════════════════════════════════════════

@@ -434,7 +434,6 @@
               <i class="fas fa-share-nodes"></i> Compartir / QR
             </button>
             <button class="se-menu__item" id="seExportCsv" role="menuitem"><i class="fas fa-file-csv"></i> Descargar CSV</button>
-            <button class="se-menu__item" id="seExportPdf" role="menuitem"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
             <button class="se-menu__item" id="sePrintRoster" role="menuitem"><i class="fas fa-print"></i> Imprimir</button>
           </div>
         </div>
@@ -1174,6 +1173,17 @@
       <div class="form-group" id="invMinistryGroup">
         <label>Ministerio asignado</label>
         <select id="invMinistry"></select>
+      </div>
+      <div class="form-group" id="invTabsGroup">
+        <div class="perm-head">
+          <label>Páginas que puede ver</label>
+          <button type="button" class="perm-preset" id="invMediosPreset" title="Marcar el conjunto de Medios">
+            <i class="fas fa-photo-film"></i> Medios
+          </button>
+        </div>
+        <div class="perm-grid" id="invTabsList"></div>
+        <p class="perm-hint"><i class="fas fa-circle-info"></i> Inicio siempre está disponible.
+          Tesorería, Usuarios, Ministerios, Actividad y Configuración son solo para administradores.</p>
       </div>
       <p class="modal-note" id="invAdminNote" hidden>
         <i class="fas fa-shield-halved"></i> Un administrador tiene acceso a todos los

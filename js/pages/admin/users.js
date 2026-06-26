@@ -14,6 +14,20 @@ import { showActionSheet } from '/js/components/action-sheet.js';
 
 const ROLE_LABEL = { admin: 'Administrador', ministry_leader: 'Líder de ministerio', treasurer: 'Tesorero' };
 
+// Pages an admin may grant to a ministry_leader. Keys MUST match the nav
+// data-tab values, the edge function GRANTABLE_TABS, and the RLS grant keys.
+const GRANTABLE_TABS = [
+  { key: 'analytics',      label: 'Analíticas',     icon: 'fa-chart-line' },
+  { key: 'upcoming',       label: 'Próximos',       icon: 'fa-calendar-day' },
+  { key: 'past',           label: 'Pasados',        icon: 'fa-history' },
+  { key: 'calendario',     label: 'Calendario',     icon: 'fa-calendar-week' },
+  { key: 'special-events', label: 'Registraciones', icon: 'fa-clipboard-list' },
+  { key: 'discipulado',    label: 'Discipulado',    icon: 'fa-hand-holding-heart' },
+  { key: 'galeria',        label: 'Galería',        icon: 'fa-images' },
+];
+const GRANTABLE_KEYS = GRANTABLE_TABS.map(t => t.key);
+const MEDIOS_PRESET  = ['analytics', 'upcoming', 'past', 'calendario', 'special-events', 'galeria'];
+
 let _cachedUsers = [];
 
 // ── Edge-function call helper ────────────────────────────────────────────────
@@ -81,11 +95,18 @@ function roleBadge(role) {
   return `<span class="role-badge role--${role}">${ROLE_LABEL[role] || role || '—'}</span>`;
 }
 
+// Meta line for a ministry leader: ministry name + how many pages they can open.
+function leaderMeta(u) {
+  const ministry = esc(u.ministry || 'Sin ministerio');
+  const n = Array.isArray(u.allowed_tabs) ? u.allowed_tabs.length : 0;
+  return `${ministry} · ${n} ${n === 1 ? 'página' : 'páginas'}`;
+}
+
 function renderActive(u) {
   const mfaBadge = u.mfa
     ? '<span class="acc-badge acc-badge--ok"><i class="fas fa-shield-halved"></i> 2FA activo</span>'
     : '<span class="acc-badge acc-badge--warn"><i class="fas fa-triangle-exclamation"></i> sin 2FA</span>';
-  const meta   = u.role === 'ministry_leader' ? esc(u.ministry || 'Sin ministerio') : 'Acceso total';
+  const meta   = u.role === 'ministry_leader' ? leaderMeta(u) : 'Acceso total';
   const isSelf = u.id === currentUser?.id;
   return `
     <div class="user-row" data-id="${u.id}">
@@ -104,7 +125,7 @@ function renderActive(u) {
 }
 
 function renderPending(u) {
-  const meta = u.role === 'ministry_leader' ? esc(u.ministry || 'Sin ministerio') : 'Acceso total';
+  const meta = u.role === 'ministry_leader' ? leaderMeta(u) : 'Acceso total';
   return `
     <div class="user-row user-row--pending" data-id="${u.id}">
       <div class="user-row__avatar user-row__avatar--pending"><i class="fas fa-paper-plane"></i></div>
@@ -180,8 +201,36 @@ function toggleMinistry() {
   // A ministry leader is scoped to one ministry; an admin spans them all,
   // so the ministry picker is hidden (and never saved) for admins.
   document.getElementById('invMinistryGroup').hidden = !isLeader;
+  // Page grants only apply to ministry leaders.
+  const tabsGroup = document.getElementById('invTabsGroup');
+  if (tabsGroup) tabsGroup.hidden = !isLeader;
   const note = document.getElementById('invAdminNote');
   if (note) note.hidden = isLeader;
+}
+
+// ── Page-permission checklist ─────────────────────────────────────────────────
+function renderTabChecklist(selected = []) {
+  const sel = new Set(selected);
+  const list = document.getElementById('invTabsList');
+  if (!list) return;
+  list.innerHTML = GRANTABLE_TABS.map(t => `
+    <label class="perm-item">
+      <input type="checkbox" value="${t.key}"${sel.has(t.key) ? ' checked' : ''}>
+      <i class="fas ${t.icon}"></i> <span>${esc(t.label)}</span>
+    </label>`).join('');
+}
+
+function getSelectedTabs() {
+  return Array.from(document.querySelectorAll('#invTabsList input:checked'))
+    .map(cb => cb.value)
+    .filter(v => GRANTABLE_KEYS.includes(v));
+}
+
+function applyMediosPreset() {
+  // The preset only makes sense for a scoped leader.
+  const roleSel = document.getElementById('invRole');
+  if (roleSel.value !== 'ministry_leader') { roleSel.value = 'ministry_leader'; toggleMinistry(); }
+  renderTabChecklist(MEDIOS_PRESET);
 }
 
 function setModalErr(msg) {
@@ -202,6 +251,7 @@ function openInvite() {
   document.getElementById('userModalSave').innerHTML =
     '<i class="fas fa-paper-plane"></i> Enviar invitación';
   fillMinistrySelect();
+  renderTabChecklist([]);
   toggleMinistry();
   setModalErr('');
   openModal('userModal');
@@ -219,6 +269,7 @@ function openEdit(u) {
   document.getElementById('userModalSave').innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
   fillMinistrySelect();
   if (u.ministry_id) document.getElementById('invMinistry').value = u.ministry_id;
+  renderTabChecklist(u.allowed_tabs || []);
   toggleMinistry();
   setModalErr('');
   openModal('userModal');
@@ -229,6 +280,7 @@ async function saveModal() {
   const role   = document.getElementById('invRole').value;
   const minId  = document.getElementById('invMinistry').value;
   const ministry_id = role === 'ministry_leader' ? minId : null;
+  const allowed_tabs = role === 'ministry_leader' ? getSelectedTabs() : [];
   const btn = document.getElementById('userModalSave');
   setModalErr('');
 
@@ -240,14 +292,14 @@ async function saveModal() {
   btn.disabled = true;
   try {
     if (userId) {
-      await callAdmin('set-role', { user_id: userId, role, ministry_id });
+      await callAdmin('set-role', { user_id: userId, role, ministry_id, allowed_tabs });
       toast('Usuario actualizado', 'success');
     } else {
       const name  = document.getElementById('invName').value.trim();
       const email = document.getElementById('invEmail').value.trim();
       if (!name)  { setModalErr('Ingresa el nombre de la persona.'); return; }
       if (!email) { setModalErr('Ingresa el correo electrónico.');   return; }
-      await callAdmin('invite', { email, role, ministry_id, display_name: name });
+      await callAdmin('invite', { email, role, ministry_id, display_name: name, allowed_tabs });
       toast('Invitación enviada a ' + email, 'success');
     }
     closeModal('userModal');
@@ -262,6 +314,7 @@ async function saveModal() {
 export function initUserModal() {
   document.getElementById('addUserBtn')?.addEventListener('click', openInvite);
   document.getElementById('invRole')?.addEventListener('change', toggleMinistry);
+  document.getElementById('invMediosPreset')?.addEventListener('click', applyMediosPreset);
   document.getElementById('userModalSave')?.addEventListener('click', saveModal);
   document.getElementById('userModalClose')?.addEventListener('click',  () => closeModal('userModal'));
   document.getElementById('userModalCancel')?.addEventListener('click', () => closeModal('userModal'));

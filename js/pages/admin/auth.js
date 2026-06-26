@@ -60,7 +60,20 @@ function spanishError(err) {
     return 'Error de conexión. Revisa tu internet e intenta de nuevo.';
   if (m.includes('not allowed') || m.includes('disabled'))
     return 'Esta operación no está permitida.';
+  if (m.includes('session missing') || m.includes('session not found') ||
+      m.includes('session_not_found'))
+    return 'Tu sesión expiró. Vuelve a abrir el enlace o pide uno nuevo.';
   return err?.message || 'Ocurrió un error inesperado. Intenta de nuevo.';
+}
+
+// Shown when an invite / reset link is expired, already used, or was consumed
+// by an email scanner before the user could click it.
+function expiredLinkMsg(action) {
+  return action === 'reset-password'
+    ? 'El enlace para restablecer la contraseña expiró o ya fue usado. ' +
+      'Solicita uno nuevo desde "¿Olvidaste tu contraseña?".'
+    : 'El enlace de invitación expiró o ya fue usado. ' +
+      'Pide al administrador que te reenvíe la invitación.';
 }
 
 function setErr(id, msg) {
@@ -200,6 +213,15 @@ async function submitSetPassword() {
 
   busy(btn, true);
   try {
+    // Make sure the link-established session is still here before we try to set
+    // the password — otherwise updateUser throws a cryptic "Auth session missing!".
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) {
+      busy(btn, false, '<i class="fas fa-arrow-right"></i> Continuar');
+      showCard('loginCard');
+      setErr('authError', expiredLinkMsg(mode === 'recovery' ? 'reset-password' : 'accept-invite'));
+      return;
+    }
     const { error } = await sb.auth.updateUser({ password: pw });
     if (error) throw error;
     history.replaceState({}, '', location.pathname);   // strip ?action= + tokens
@@ -242,6 +264,69 @@ async function submitForgot() {
   }
 }
 
+// ─── Per-user page access ────────────────────────────────────────────────────
+// Admins see everything. Treasurers keep the finance view. Every other account
+// is a ministry_leader scoped to its ministry and sees only the tabs an admin
+// granted (profile.allowed_tabs) — plus Inicio, always. The matching RLS in
+// 20260626_page_permissions.sql is the real guard; this is the UX layer.
+function applyTabAccess(profile) {
+  const nav    = document.getElementById('admNav');
+  const topMin = document.getElementById('topbarMinistry');
+  document.body.classList.remove('is-admin', 'is-staff', 'is-finance', 'is-treasurer');
+
+  // Reset any previous per-user inline overrides so role-based CSS can govern.
+  const clearInline = () =>
+    nav?.querySelectorAll('.tab-btn, .adm-nav__group').forEach(el => { el.style.display = ''; });
+
+  if (profile.role === 'admin') {
+    document.body.classList.add('is-admin', 'is-staff', 'is-finance');
+    if (topMin) topMin.textContent = '';
+    document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
+    clearInline();
+    return;
+  }
+
+  if (profile.role === 'treasurer') {
+    document.body.classList.add('is-finance', 'is-staff', 'is-treasurer');
+    if (topMin) topMin.textContent = '— Tesorería';
+    clearInline();
+    return;
+  }
+
+  // ── ministry_leader (and any other non-admin) — per-user grants ────────────
+  if (topMin) topMin.textContent = `— ${profile.ministries?.name || 'Ministerio'}`;
+  // Before the page-permissions migration runs, `allowed_tabs` is absent — fall
+  // back to the legacy ministry-leader tab set so nobody is locked out mid-deploy.
+  const LEGACY_LEADER_TABS = ['upcoming', 'past', 'calendario'];
+  const granted = Array.isArray(profile.allowed_tabs)
+    ? profile.allowed_tabs
+    : LEGACY_LEADER_TABS;
+  const allowed = new Set(['inicio', ...granted]);
+
+  // Explicit inline display beats the data-admin-only / data-finance-only CSS.
+  nav?.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.style.display = allowed.has(btn.dataset.tab) ? 'flex' : 'none';
+  });
+
+  // Show a group heading only when at least one tab under it is visible.
+  let group = null, groupHasVisible = false;
+  const finalize = () => { if (group) group.style.display = groupHasVisible ? 'block' : 'none'; };
+  nav?.querySelectorAll('.adm-nav__group, .tab-btn').forEach(el => {
+    if (el.classList.contains('adm-nav__group')) { finalize(); group = el; groupHasVisible = false; }
+    else if (el.style.display !== 'none')        { groupHasVisible = true; }
+  });
+  finalize();
+
+  // If the active tab ended up hidden, fall back to Inicio.
+  const active = nav?.querySelector('.tab-btn.active');
+  if (active && active.style.display === 'none') {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    nav.querySelector('.tab-btn[data-tab="inicio"]')?.classList.add('active');
+    document.getElementById('tab-inicio')?.classList.add('active');
+  }
+}
+
 // ─── Boot the panel ──────────────────────────────────────────────────────────
 async function bootApp() {
   showCard('bootCard');
@@ -265,19 +350,7 @@ async function bootApp() {
   setCurrentProfile(profile);
 
   document.getElementById('topbarUser').textContent = profile.display_name || user.email;
-  document.body.classList.remove('is-admin', 'is-staff', 'is-finance', 'is-treasurer');
-
-  if (profile.role === 'admin') {
-    document.body.classList.add('is-admin', 'is-staff', 'is-finance');
-    document.getElementById('topbarMinistry').textContent = '';
-    document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
-  } else if (profile.role === 'treasurer') {
-    document.body.classList.add('is-finance', 'is-staff', 'is-treasurer');
-    document.getElementById('topbarMinistry').textContent = '— Tesorería';
-  } else {
-    document.getElementById('topbarMinistry').textContent =
-      `— ${profile.ministries?.name || 'Ministerio'}`;
-  }
+  applyTabAccess(profile);
 
   showApp();
 
@@ -304,10 +377,41 @@ async function boot() {
     return;
   }
 
-  const action = new URLSearchParams(location.search).get('action');
+  const query = new URLSearchParams(location.search);
+  const hash  = new URLSearchParams(location.hash.replace(/^#/, ''));
+  const action = query.get('action');
 
-  // supabase-js consumes auth tokens from the URL hash asynchronously on load —
-  // give it a moment when we can see a token is present.
+  // ── 0) Did the link itself fail? (expired / already used / scanner consumed
+  //    the one-time token.) Supabase puts the error in the hash or the query.
+  const errCode = hash.get('error_code') || query.get('error_code')
+                || hash.get('error')      || query.get('error');
+  if (errCode) {
+    history.replaceState({}, '', location.pathname);
+    showCard('loginCard');
+    setErr('authError', expiredLinkMsg(action));
+    return;
+  }
+
+  // ── 1) Preferred flow: token_hash + verifyOtp. A prefetching mail scanner
+  //    cannot consume this — the OTP is only spent when THIS code runs. The
+  //    email templates must point the link at
+  //    /admin/?action=accept-invite&token_hash=...&type=invite (see README).
+  const tokenHash = query.get('token_hash') || hash.get('token_hash');
+  const otpType   = query.get('type')       || hash.get('type');
+  if (tokenHash && otpType) {
+    try {
+      const { error } = await sb.auth.verifyOtp({ token_hash: tokenHash, type: otpType });
+      if (error) throw error;
+    } catch {
+      history.replaceState({}, '', location.pathname);
+      showCard('loginCard');
+      setErr('authError', expiredLinkMsg(action));
+      return;
+    }
+  }
+
+  // ── 2) Fallback (legacy implicit flow): supabase-js consumes tokens from the
+  //    URL hash asynchronously on load — give it a moment when a token is present.
   let session = (await sb.auth.getSession()).data.session;
   if (!session && location.hash.includes('access_token')) {
     for (let i = 0; i < 6 && !session; i++) {
@@ -319,6 +423,15 @@ async function boot() {
   if (session && action === 'accept-invite')  return showSetPassword('invite');
   if (session && action === 'reset-password') return showSetPassword('recovery');
   if (session) return routeAfterLogin();
+
+  // Arrived via an invite/reset link but no session could be established — the
+  // link was almost certainly expired or already used.
+  if (action === 'accept-invite' || action === 'reset-password') {
+    history.replaceState({}, '', location.pathname);
+    showCard('loginCard');
+    setErr('authError', expiredLinkMsg(action));
+    return;
+  }
   return showCard('loginCard');
 }
 
