@@ -10266,6 +10266,8 @@ body.no-scroll {
   color: var(--color-white);
   border-color: var(--color-dark);
 }
+/* The full month grid is cramped on phones — drop the "Mes" toggle there. */
+@media (max-width: 640px) { .evhub__view[data-view="month"] { display: none; } }
 
 /* ── List view ────────────────────────────────────────────────────────────── */
 .evhub__list-grid {
@@ -10388,18 +10390,18 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 }
 .evhub-card {
   display: flex; flex-direction: column; text-decoration: none; color: inherit;
-  height: 300px;                 /* every card identical */
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .16)); border-radius: var(--radius-lg);
   overflow: hidden; background: var(--color-white); transition: box-shadow .2s, transform .2s;
 }
 .evhub-card:hover { box-shadow: 0 14px 32px rgba(14, 45, 56, .14); transform: translateY(-3px); }
-.evhub-card__media { height: 160px; flex: 0 0 160px; background: var(--gray-10, #eee); }
+/* Prominent, equally-shaped image; the card height then fits its content. */
+.evhub-card__media { aspect-ratio: 16 / 10; background: var(--gray-10, #eee); }
 .evhub-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .evhub-card__ph {
   width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
   background: var(--c, var(--color-dark)); color: #fff; font-size: 2rem;
 }
-.evhub-card__body { padding: .85rem 1rem 1.1rem; display: flex; flex-direction: column; gap: .3rem; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.evhub-card__body { padding: .9rem 1.05rem 1.15rem; display: flex; flex-direction: column; gap: .35rem; }
 .evhub-card__title {
   font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-md);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
