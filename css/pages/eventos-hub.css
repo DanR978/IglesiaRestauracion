@@ -7,6 +7,11 @@
   margin: clamp(1.5rem, 4vw, 2.5rem) auto;
 }
 
+/* No floating WhatsApp FAB / mobile action bar on the events page. */
+.page-events-hub .whatsapp-fab,
+.page-events-hub .mobile-bar,
+.page-events-hub .floating-ui__peek { display: none !important; }
+
 /* Category colors → exposed as --c so dots/placeholders share one source. */
 .cat--servicio       { --c: #1e6b61; }
 .cat--estudio        { --c: #2a4a9e; }

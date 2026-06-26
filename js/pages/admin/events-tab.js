@@ -83,13 +83,60 @@ export function renderUpcomingFiltered() {
   const el = document.getElementById('upcomingList');
   if (!el) return;
   // Regular weekly activities live in the Calendario tab — Próximos only shows
-  // the special events.
+  // the special events, rendered as cards (same style as the registration list).
   const sp = filterEventsByMinistry(_upcomingSpecial);
   if (!sp.length) {
     el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos con estos filtros.</p></div>';
     return;
   }
-  el.innerHTML = buildEventsTableHtml(sp, false);
+  el.innerHTML = buildEventsCardsHtml(sp, false);
+  wireEventCards(el);
+}
+
+// Card list (matches the "Eventos con Registro" .se-evcard style). The kebab
+// carries the same data-* the global handler reads; clicking the card opens it.
+function buildEventsCardsHtml(events, isPastTab) {
+  if (!events.length) return '';
+  const today = todayISO();
+  const REPETITIVE = ['servicio', 'estudio', 'oracion'];
+  const cards = events.map(ev => {
+    const isPast = ev.date < today;
+    const img = ev.image_url
+      ? `<img class="se-evcard__img" src="${esc(ev.image_url)}" alt="">`
+      : `<div class="se-evcard__img se-evcard__img--empty"><i class="fas fa-star"></i></div>`;
+    const [y, mo, d] = ev.date.split('-').map(Number);
+    const dateStr = `${d} ${MONTHS[mo - 1].slice(0, 3)} ${y}${ev.time ? ' · ' + ev.time : ''}`;
+    const minName = ev.ministries?.name;
+    const canCancel = REPETITIVE.includes(ev.category);
+    return `
+      <div class="se-evcard${ev.cancelled ? ' is-cancelled' : ''}" data-ev-card="${esc(ev.id)}">
+        ${img}
+        <div class="se-evcard__body">
+          <div class="se-evcard__title">${esc(ev.title)}</div>
+          <div class="se-evcard__meta">${esc(dateStr)}${minName ? ' · ' + esc(minName) : ''}</div>
+        </div>
+        <button class="kebab-btn se-evcard__menu" title="Opciones" aria-label="Más opciones"
+          data-ev-menu="${esc(ev.id)}"
+          data-ev-title="${esc(ev.title)}"
+          data-ev-cancelled="${ev.cancelled ? '1' : '0'}"
+          data-ev-cancancel="${canCancel ? '1' : '0'}"
+          data-ev-special="${ev.fromEventsTable ? '1' : '0'}"
+          data-ev-past="${isPastTab ? '1' : '0'}"
+          data-ev-when="${esc(dateStr)}">
+          <i class="fas fa-ellipsis-vertical"></i>
+        </button>
+      </div>`;
+  }).join('');
+  return `<div class="se-evlist">${cards}</div>`;
+}
+
+function wireEventCards(root) {
+  root.querySelectorAll('.se-evcard[data-ev-card]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.kebab-btn')) return;
+      card.querySelector('.kebab-btn')?.click();   // reuse the global kebab handler
+    });
+  });
 }
 
 export function renderPastFiltered() {

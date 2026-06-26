@@ -3697,6 +3697,7 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 .se-evcard__meta { color: var(--color-muted); font-size: .82rem; margin-top: .1rem; }
 .se-evcard__badges { margin-top: .35rem; }
 .se-evcard__menu { flex: 0 0 auto; }
+.se-evcard.is-cancelled .se-evcard__title { text-decoration: line-through; color: var(--color-muted); }
 
 /* ── Detail view ────────────────────────────────────────────────────────── */
 .se-detail__meta {
