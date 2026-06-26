@@ -37,7 +37,7 @@
 
 .ev2__crumbs {
   display: flex; align-items: center; gap: .5rem;
-  font-size: var(--fs-sm); color: var(--color-muted);
+  font-size: var(--fs-base); color: var(--color-muted);
   margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
 }
 .ev2__crumbs a { color: var(--color-dark); text-decoration: none; font-weight: 600; }
@@ -54,10 +54,11 @@
      order: image → title → date → location → details. */
   .ev2__grid { display: flex; flex-direction: column; gap: 0; }
   .ev2__main, .ev2__side { display: contents; }
+  .ev2 { width: 100%; padding-inline: 1rem; }   /* use the full width on phones */
   .ev2__media { order: 1; margin-bottom: 1.25rem; }
   .ev2__title { order: 2; }
   .ev2__when  { order: 3; }
-  .ev2__panel { order: 4; }
+  #event-location-row { order: 4; }
   #event-description-section { order: 5; }
   #event-information-section { order: 6; }
   #event-organizer-section   { order: 7; }
@@ -84,16 +85,16 @@
   font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3rem);
   margin: 0; color: var(--color-text);
 }
-.ev2__when { color: var(--color-muted); margin: .5rem 0 0; font-size: var(--fs-md); }
+.ev2__when { color: var(--color-muted); margin: .6rem 0 0; font-size: var(--fs-lg); }
 
 .ev2__section { margin-top: clamp(1.75rem, 4vw, 2.75rem); }
 .ev2__h {
   font-family: var(--font-Signika); font-weight: 700;
-  font-size: var(--fs-lg); margin: 0 0 .85rem;
+  font-size: var(--fs-xl); margin: 0 0 .85rem;
   padding-bottom: .6rem;
   border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .22));
 }
-.ev2__body { color: var(--color-text); line-height: 1.65; }
+.ev2__body { color: var(--color-text); line-height: 1.7; font-size: var(--fs-md); }
 .ev2__orglink { color: var(--color-dark); text-decoration: underline; word-break: break-word; }
 
 /* Sidebar */
@@ -110,13 +111,14 @@
   background: var(--color-white);
   box-shadow: 0 8px 26px rgba(14, 45, 56, .06);
 }
-.ev2__field { margin-bottom: 1rem; }
+/* Plain location section in the sidebar (replaces the old bordered card). */
+.ev2__sidesec { margin-bottom: 1.5rem; }
 .ev2__field-label {
   font-family: var(--font-Signika); font-weight: 700;
-  font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
-  color: var(--color-muted); margin-bottom: .25rem;
+  font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--color-muted); margin-bottom: .3rem;
 }
-.ev2__field-value { color: var(--color-text); }
+.ev2__field-value { color: var(--color-text); font-size: var(--fs-md); }
 .ev2__time { color: var(--color-muted); margin-left: .25rem; }
 
 .ev2__pill {
@@ -132,7 +134,8 @@
 /* Hide the floating WhatsApp cluster on these focused event pages — it would
    collide with the sticky action bar. */
 .page-event-detail .whatsapp-fab,
-.page-event-detail .mobile-bar { display: none !important; }
+.page-event-detail .mobile-bar,
+.page-event-detail .floating-ui__peek { display: none !important; }
 
 .ev2__action-note { display: none; }   /* desktop: button only — note shows in the mobile footer bar */
 .ev2__register { width: 100%; justify-content: center; margin-top: .35rem; font-size: var(--fs-md); }
