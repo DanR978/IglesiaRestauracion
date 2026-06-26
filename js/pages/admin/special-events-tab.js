@@ -150,7 +150,6 @@ function boot() {
 
   // Exports
   $('seExportCsv')?.addEventListener('click', exportCsv);
-  $('seExportPdf')?.addEventListener('click', exportPdf);
   $('sePrintRoster')?.addEventListener('click', printRoster);
 
   mountImgPicker();
@@ -600,94 +599,23 @@ async function exportCsv() {
   toast(isMobile() ? 'Elige dónde guardar el CSV' : `${rows.length} inscripciones exportadas`, 'success');
 }
 
-// ── PDF roster export (pdfmake) ──────────────────────────────────────────────
-let _pm = null;
-function loadPdfMake() {
-  if (window.pdfMake && window.pdfMake.vfs) return Promise.resolve();
-  if (_pm) return _pm;
-  const load = src => new Promise((res, rej) => {
-    const s = document.createElement('script'); s.src = src;
-    s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar el generador de PDF.'));
-    document.head.appendChild(s);
-  });
-  _pm = load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js')
-    .then(() => load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js'));
-  return _pm;
-}
-
-async function exportPdf() {
-  if (!currentEvent) return;
-  const rows = currentRows();
-  if (!rows.length) { toast('No hay inscripciones para exportar', 'error'); return; }
-  const btn = $('seExportPdf');
-  const original = btn.innerHTML;
-  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
-  try {
-    await loadPdfMake();
-    // Drop Notas + submission date from the printed roster so columns fit cleanly.
-    const dropCols = new Set(['Notas', 'Inscrito']);
-    const flexCols = new Set(['Contacto de emergencia', 'Email', 'Alergias', 'Condiciones médicas']);
-    const cols = EXPORT_COLS.filter(c => !dropCols.has(c[0]));
-    const widths = cols.map(c => (flexCols.has(c[0]) ? '*' : 'auto'));
-    const head = cols.map(c => ({ text: c[0], style: 'th' }));
-    const body = [head, ...rows.map(r => cols.map(c => ({ text: String(c[1](r) ?? '') || '—', style: 'td' })))];
-
-    const docDef = {
-      pageSize: 'LETTER',
-      pageOrientation: 'landscape',
-      pageMargins: [28, 64, 28, 40],
-      header: {
-        margin: [28, 22, 28, 0],
-        columns: [
-          { text: currentEvent.title || 'Evento', style: 'title' },
-          { text: 'Iglesia Restauración Divina', style: 'brand', alignment: 'right' },
-        ],
-      },
-      footer: (cur, total) => ({
-        margin: [28, 0, 28, 0],
-        columns: [
-          { text: `${fmtDate(currentEvent.event_at)}${currentEvent.location ? '  ·  ' + currentEvent.location : ''}`, style: 'foot' },
-          { text: `Página ${cur} de ${total}`, alignment: 'right', style: 'foot' },
-        ],
-      }),
-      content: [
-        { text: `Lista de inscritos — ${rows.length} persona${rows.length === 1 ? '' : 's'}`, style: 'sub', margin: [0, 0, 0, 8] },
-        { table: { headerRows: 1, widths, body }, layout: 'lightHorizontalLines' },
-      ],
-      styles: {
-        title: { fontSize: 15, bold: true, color: '#0e2d38' },
-        brand: { fontSize: 9, color: '#9a6a2c' },
-        sub:   { fontSize: 11, color: '#394548' },
-        th:    { fontSize: 8, bold: true, color: '#ffffff', fillColor: '#394548', margin: [0, 3, 0, 3] },
-        td:    { fontSize: 8, color: '#222', margin: [0, 2, 0, 2] },
-        foot:  { fontSize: 8, color: '#888' },
-      },
-    };
-    // getBlob (not .download) so iOS can hand it to the share sheet → Save to Files.
-    const blob = await new Promise(res => window.pdfMake.createPdf(docDef).getBlob(res));
-    await saveFile(blob, `roster-${currentEvent.slug}.pdf`);
-    toast(isMobile() ? 'Elige dónde guardar el PDF' : 'PDF generado', 'success');
-  } catch (e) {
-    console.error(e); toast(e.message || 'No se pudo generar el PDF', 'error');
-  } finally {
-    btn.disabled = false; btn.innerHTML = original;
-  }
-}
-
 // ── Print (browser-friendly) ─────────────────────────────────────────────────
 const PRINT_CSS = `
-  * { box-sizing: border-box; }
-  body { font-family: 'Lexend Deca', system-ui, sans-serif; color: #222; margin: 28px; }
+  /* Zero page margin removes the browser's own header/footer (date · title ·
+     URL). Spacing is restored via body padding instead. */
+  @page { margin: 0; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: 'Lexend Deca', system-ui, sans-serif; color: #222; margin: 0; padding: 16mm 14mm; text-align: center; }
   h1 { font-size: 20px; margin: 0 0 2px; color: #0e2d38; }
   .meta { color: #666; font-size: 12px; margin-bottom: 16px; }
-  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  /* Table sizes to its content (tighter columns) and is centered on the page. */
+  table { border-collapse: collapse; font-size: 11px; margin: 0 auto; max-width: 100%; }
   th { background: #394548; color: #fff; text-align: left; padding: 6px 8px; }
-  td { border-bottom: 1px solid #ddd; padding: 6px 8px; vertical-align: top; }
-  .card { border: 1px solid #ccc; border-radius: 8px; padding: 18px; max-width: 560px; }
+  td { border-bottom: 1px solid #ddd; padding: 6px 8px; vertical-align: top; text-align: left; word-break: break-word; }
+  .card { border: 1px solid #ccc; border-radius: 8px; padding: 18px; max-width: 560px; margin: 0 auto; text-align: left; }
   .card h2 { margin: 0 0 10px; font-size: 16px; color: #0e2d38; }
   .row { display: flex; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 13px; }
   .row b { width: 180px; color: #555; font-weight: 600; }
-  @page { margin: 14mm; }
 `;
 
 function printHtml(title, bodyHtml, css = PRINT_CSS) {
@@ -711,39 +639,62 @@ function printHtml(title, bodyHtml, css = PRINT_CSS) {
 }
 
 // ── Printable QR flyer (standard paper poster) ───────────────────────────────
+// The event image fills the whole page; a dark scrim keeps the (white) text
+// legible over any photo. The QR sits in a white rounded card so scanners read
+// it cleanly regardless of the background.
 const FLYER_CSS = `
   @page { size: portrait; margin: 0; }
   * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   html, body { margin: 0; padding: 0; }
   body { font-family: 'Lexend Deca', 'Signika', system-ui, sans-serif; }
-  .flyer {
-    width: 100%; min-height: 100vh; padding: 56px 52px 44px;
+  .flyer { position: relative; width: 100%; min-height: 100vh; display: flex; background: #0e2d38; overflow: hidden; }
+  .flyer__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .flyer__scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(7,26,33,.72) 0%, rgba(7,26,33,.52) 42%, rgba(7,26,33,.86) 100%);
+  }
+  .flyer__content {
+    position: relative; z-index: 2; flex: 1;
     display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 60px 52px 46px; color: #fff;
   }
   .flyer__brand {
     font-size: 14px; letter-spacing: .26em; font-weight: 700;
-    color: #9a6a2c; text-transform: uppercase; margin-bottom: 34px;
+    color: #f0c98a; text-transform: uppercase; margin-bottom: 30px;
+    text-shadow: 0 1px 3px rgba(0,0,0,.45);
   }
   .flyer__kicker {
     display: inline-block; font-size: 14px; letter-spacing: .12em; font-weight: 700;
-    text-transform: uppercase; color: #fff; background: #9a6a2c;
+    text-transform: uppercase; color: #0e2d38; background: #e7b765;
     padding: 6px 16px; border-radius: 999px; margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.25);
   }
-  .flyer__title { font-size: 42px; line-height: 1.06; font-weight: 800; color: #0e2d38; margin: 0 0 12px; }
-  .flyer__meta { font-size: 17px; color: #555; margin: 0 0 28px; }
+  .flyer__title { font-size: 46px; line-height: 1.05; font-weight: 800; color: #fff; margin: 0 0 12px; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+  .flyer__meta { font-size: 18px; color: #eaf2f4; margin: 0 0 30px; text-shadow: 0 1px 5px rgba(0,0,0,.55); }
   .flyer__scan {
     display: flex; align-items: center; justify-content: center; gap: 12px;
-    font-size: 40px; font-weight: 800; letter-spacing: .03em; color: #0e2d38; margin: 4px 0 14px;
+    font-size: 40px; font-weight: 800; letter-spacing: .03em; color: #fff; margin: 4px 0 16px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.55);
   }
   .flyer__scan svg { width: 38px; height: 38px; }
   .flyer__qrwrap {
-    padding: 22px; background: #fff; border: 3px solid #0e2d38;
-    border-radius: 26px; box-shadow: 0 10px 30px rgba(14,45,56,.18);
+    padding: 22px; background: #fff;
+    border-radius: 26px; box-shadow: 0 18px 44px rgba(0,0,0,.45);
   }
   .flyer__qr { display: block; width: 330px; height: 330px; }
-  .flyer__instr { font-size: 18px; color: #394548; margin: 22px 0 0; max-width: 460px; line-height: 1.4; }
-  .flyer__url { margin-top: auto; padding-top: 30px; font-size: 14px; color: #8a8a8a; word-break: break-all; }
+  .flyer__instr { font-size: 18px; color: #eaf2f4; margin: 24px 0 0; max-width: 460px; line-height: 1.4; text-shadow: 0 1px 5px rgba(0,0,0,.55); }
+  .flyer__url { margin-top: auto; padding-top: 30px; font-size: 14px; color: #cdd9dc; word-break: break-all; }
 `;
+
+// Fetch a remote image → data URL so it reliably embeds in the print document
+// (falls back to the raw URL if the fetch is blocked).
+async function toDataUrl(url) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.onerror = () => r(url); fr.readAsDataURL(blob); });
+  } catch { return url; }
+}
 
 async function printQrFlyer() {
   if (!currentEvent) return;
@@ -752,20 +703,26 @@ async function printQrFlyer() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
   try {
     const url = publicUrl(currentEvent);
-    const qr = await generateQrDataUrl(url, 1024);
+    const [qr, bg] = await Promise.all([
+      generateQrDataUrl(url, 1024),
+      currentEvent.image_url ? toDataUrl(currentEvent.image_url) : Promise.resolve(''),
+    ]);
     const metaBits = [fmtDate(currentEvent.event_at), currentEvent.location].filter(b => b && b !== '—');
     // Down-chevron pointing at the QR — inline SVG (no FontAwesome in the print doc).
-    const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="#0e2d38" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+    const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
     printHtml(`Cartel — ${currentEvent.title || 'Evento'}`, `
       <div class="flyer">
-        <div class="flyer__brand">Iglesia Restauración Divina</div>
-        <div class="flyer__kicker">Inscripciones abiertas</div>
-        <h1 class="flyer__title">${esc(currentEvent.title || 'Evento')}</h1>
-        ${metaBits.length ? `<div class="flyer__meta">${esc(metaBits.join('  ·  '))}</div>` : ''}
-        <div class="flyer__scan">¡Escanéame! ${arrow}</div>
-        <div class="flyer__qrwrap"><img class="flyer__qr" src="${esc(qr)}" alt="Código QR"></div>
-        <div class="flyer__instr">Apunta la cámara de tu teléfono al código para registrarte.</div>
-        <div class="flyer__url">${esc(url)}</div>
+        ${bg ? `<img class="flyer__bg" src="${esc(bg)}" alt=""><div class="flyer__scrim"></div>` : ''}
+        <div class="flyer__content">
+          <div class="flyer__brand">Iglesia Restauración Divina</div>
+          <div class="flyer__kicker">Inscripciones abiertas</div>
+          <h1 class="flyer__title">${esc(currentEvent.title || 'Evento')}</h1>
+          ${metaBits.length ? `<div class="flyer__meta">${esc(metaBits.join('  ·  '))}</div>` : ''}
+          <div class="flyer__scan">¡Escanéame! ${arrow}</div>
+          <div class="flyer__qrwrap"><img class="flyer__qr" src="${esc(qr)}" alt="Código QR"></div>
+          <div class="flyer__instr">Apunta la cámara de tu teléfono al código para registrarte.</div>
+          <div class="flyer__url">${esc(url)}</div>
+        </div>
       </div>`, FLYER_CSS);
   } catch (e) {
     console.error(e); toast('No se pudo generar el cartel', 'error');
@@ -778,7 +735,7 @@ function printRoster() {
   if (!currentEvent) return;
   const rows = currentRows();
   if (!rows.length) { toast('No hay inscripciones para imprimir', 'error'); return; }
-  const head = ['#','Nombre','Apellido','Edad','Sexo','Contacto','Parentesco','Teléfono','Email','Alergias','Condiciones','Enviado'];
+  const head = ['#','Nombre','Apellido','Edad','Sexo','Contacto','Parentesco','Teléfono','Email','Alergias','Condiciones'];
   const body = rows.map((r, i) => `
     <tr>
       <td>${i + 1}</td>
@@ -786,7 +743,6 @@ function printRoster() {
       <td>${esc(r.sex || '—')}</td><td>${esc(r.contact_name)}</td><td>${esc(r.relationship)}</td>
       <td>${esc(formatUSPhoneNational(r.contact_phone))}</td><td>${esc(r.contact_email || '—')}</td>
       <td>${esc(r.allergies || '—')}</td><td>${esc(r.medical_conditions || '—')}</td>
-      <td>${esc(fmtDateTime(r.submitted_at))}</td>
     </tr>`).join('');
   printHtml(`Roster — ${currentEvent.title}`, `
     <h1>${esc(currentEvent.title || 'Evento')}</h1>
