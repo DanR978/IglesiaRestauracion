@@ -186,18 +186,20 @@ function renderUpcoming() {
     return;
   }
 
-  const list = upcoming(filtered());
-  if (!list.length) { host.innerHTML = `<p class="evhub__empty">No hay eventos próximos.</p>`; return; }
+  // Only the month currently shown in the mini-calendar.
+  const monthStart = ymd(miniYear, miniMonth, 1);
+  const monthEnd   = ymd(miniYear, miniMonth, new Date(miniYear, miniMonth + 1, 0).getDate());
+  const list = filtered()
+    .filter(e => e.date >= monthStart && e.date <= monthEnd)
+    .sort((a, b) => (a.date > b.date ? 1 : -1));
+  if (!list.length) { host.innerHTML = `<p class="evhub__empty">No hay eventos este mes.</p>`; return; }
 
-  // Group by month, then by day
-  let html = '', curMonth = '', curDay = '';
+  // Group by day
+  let html = '', curDay = '';
   for (const e of list) {
     const [y, m, d] = e.date.split('-').map(Number);
-    const monthKey = `${MONTHS[m - 1]} ${y}`;
-    if (monthKey !== curMonth) { curMonth = monthKey; curDay = ''; html += `<div class="evhub-up__month">${monthKey}</div>`; }
-    const dayKey = e.date;
-    if (dayKey !== curDay) {
-      curDay = dayKey;
+    if (e.date !== curDay) {
+      curDay = e.date;
       html += `<div class="evhub-up__day">${DAYS_L[new Date(y, m - 1, d).getDay()].toUpperCase()}, ${d} ${MONTHS[m - 1].slice(0, 3).toUpperCase()}</div>`;
     }
     html += rowHtml(e);

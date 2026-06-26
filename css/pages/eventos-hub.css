@@ -67,8 +67,23 @@
   color: var(--color-white);
   border-color: var(--color-dark);
 }
-/* The full month grid is cramped on phones — drop the "Mes" toggle there. */
-@media (max-width: 640px) { .evhub__view[data-view="month"] { display: none; } }
+@media (max-width: 640px) {
+  .evhub__view[data-view="month"] { display: none; }   /* month grid cramped on phones */
+
+  /* Larger text on mobile only — desktop sizes are already good. */
+  .evhub__select,
+  .evhub__view { font-size: var(--fs-base); }
+  .evhub-mini__label { font-size: var(--fs-lg); }
+  .evhub-mini__wd { font-size: .85rem; }
+  .evhub-mini__cell { font-size: 1.05rem; }
+  .evhub__h { font-size: var(--fs-2xl); }
+  .evhub-up__day { font-size: var(--fs-base); }
+  .evhub-up__name { font-size: var(--fs-xl); }
+  .evhub-up__time { font-size: var(--fs-md); }
+  .evhub-feat__title,
+  .evhub-card__title { font-size: var(--fs-lg); }
+  .evhub-badge { font-size: .78rem; }
+}
 
 /* ── List view ────────────────────────────────────────────────────────────── */
 .evhub__list-grid {

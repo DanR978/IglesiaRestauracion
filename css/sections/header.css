@@ -136,6 +136,7 @@
 
 .menu {
   display: flex;
+  align-items: center;          /* keep all top-level items on one baseline */
   list-style: none;
   gap: var(--mg-sm);
   margin: 0;
