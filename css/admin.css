@@ -3766,6 +3766,28 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 }
 .se-qr-actions { display: flex; flex-wrap: wrap; gap: .4rem; }
 
+/* Detail header — Regresar on top, big title below. */
+.se-detail__head { display: flex; flex-direction: column; align-items: flex-start; gap: .65rem; margin-bottom: 1.1rem; }
+.se-detail__title { font-family: var(--font-Signika); font-weight: 700; font-size: var(--fs-2xl); margin: 0; line-height: 1.15; }
+
+/* Compact registration list — name + info button. */
+.se-reglist { display: flex; flex-direction: column; }
+.se-regrow {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .75rem .25rem; border-bottom: 1px solid var(--gray-50, rgba(127, 127, 127, .16));
+}
+.se-regrow__name { font-weight: 600; font-size: var(--fs-md); }
+.se-regrow__info { flex: 0 0 auto; font-size: 1.1rem; color: var(--color-dark); }
+
+/* Registration detail modal rows. */
+.se-reginfo__row {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  padding: .55rem 0; border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .14));
+}
+.se-reginfo__row:last-child { border-bottom: none; }
+.se-reginfo__label { color: var(--color-muted); font-weight: 700; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; flex: 0 0 auto; }
+.se-reginfo__row a { color: var(--color-dark); word-break: break-word; }
+
 /* Registrations card */
 .se-regs-card { min-width: 0; }
 .se-regs-head { margin-bottom: .75rem; }

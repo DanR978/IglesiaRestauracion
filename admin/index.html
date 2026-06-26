@@ -412,19 +412,15 @@
 
     <!-- View: detail (registrations; QR + filters collapsible) -->
     <div class="se-view" id="se-view-detail">
-      <div class="toolbar-back">
-        <h2 id="seDetailTitle">Evento</h2>
+      <div class="se-detail__head">
         <button class="btn btn--ghost" id="seDetailBack">← Regresar</button>
+        <h2 id="seDetailTitle" class="se-detail__title">Evento</h2>
       </div>
-      <div class="se-detail__meta" id="seDetailMeta"></div>
 
-      <!-- Action bar: secondary panels tuck behind toggles; primary actions inline -->
+      <!-- Action bar: QR tucks behind a toggle; primary actions inline -->
       <div class="se-actionbar">
         <button class="btn btn--ghost" id="seShareToggle" aria-expanded="false" aria-controls="seSharePanel">
           <i class="fas fa-share-nodes"></i> Compartir / QR
-        </button>
-        <button class="btn btn--ghost" id="seFilterToggle" aria-expanded="false" aria-controls="seFilterPanel">
-          <i class="fas fa-sliders"></i> Filtros
         </button>
         <span class="se-actionbar__spacer"></span>
         <button class="btn btn--secondary" id="seEditBtn"><i class="fas fa-pen"></i> Editar</button>
@@ -445,33 +441,6 @@
               <button class="btn btn--ghost" id="seQrCopy"><i class="fas fa-link"></i> Copiar enlace</button>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- Collapsible: filters (hidden by default) -->
-      <div class="se-collapse" id="seFilterPanel" hidden>
-        <div class="se-filter-bar">
-          <input type="search" id="seFilterName" placeholder="Buscar por nombre...">
-          <input type="number" id="seFilterAge" placeholder="Edad" min="0" max="120">
-          <select id="seFilterSex">
-            <option value="">Sexo: todos</option>
-            <option value="Femenino">Femenino</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Prefiere no decir">Prefiere no decir</option>
-          </select>
-          <select id="seFilterAllergies">
-            <option value="">Alergias: todas</option>
-            <option value="con">Con alergias</option>
-            <option value="sin">Sin alergias</option>
-          </select>
-          <select id="seFilterMedical">
-            <option value="">Condiciones: todas</option>
-            <option value="con">Con condiciones</option>
-            <option value="sin">Sin condiciones</option>
-          </select>
-          <label class="se-filter-date">Desde <input type="date" id="seFilterFrom"></label>
-          <label class="se-filter-date">Hasta <input type="date" id="seFilterTo"></label>
-          <button class="btn btn--ghost" id="seFilterClear"><i class="fas fa-xmark"></i> Limpiar</button>
         </div>
       </div>
 

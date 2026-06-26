@@ -15,7 +15,7 @@ import { sb, currentUser, isAdmin } from './state.js';
 import { toast, confirm } from './ui.js';
 import { html, esc } from '/js/utils/escape.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
-import { generateQrDataUrl, downloadQrPng, copyText, slugifyTitle } from '/js/lib/qr.js';
+import { generateQrDataUrl, generateQrBlob, copyText, slugifyTitle } from '/js/lib/qr.js';
 import { formatUSPhoneNational } from '/js/lib/validators.js';
 import { mountRichText } from '/js/lib/rich-text.js';
 import { htmlIsEmpty } from '/js/lib/sanitize-html.js';
@@ -48,6 +48,24 @@ function seShowView(name) {
 
 function publicUrl(ev) {
   return `${PUBLIC_ORIGIN}/eventos/evento-especial.html?e=${encodeURIComponent(ev.slug)}`;
+}
+
+// Save a file the right way per device: on phones use the native share sheet
+// (Web Share API w/ files) so the user can Save to Files / Save Image to Photos;
+// on desktop fall back to a normal download.
+const isMobile = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+async function saveFile(blob, filename) {
+  const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
+  if (isMobile() && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try { await navigator.share({ files: [file], title: filename }); return true; }
+    catch (e) { if (e && e.name === 'AbortError') return false; /* else fall through */ }
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+  return true;
 }
 
 // Generic show/hide for a toggle button + its panel (see admin-ux.md convention).
@@ -103,25 +121,11 @@ function boot() {
   $('seDetailBack')?.addEventListener('click', () => { stopRegsRealtime(); seShowView('list'); renderList(); });
   $('seEditBtn')?.addEventListener('click', () => currentEvent && openEditEvent(currentEvent.id));
 
-  // Collapsible panels — QR/share and filters stay tucked away until asked for.
+  // QR/share panel stays tucked away until asked for.
   wireCollapse('seShareToggle', 'seSharePanel');
-  wireCollapse('seFilterToggle', 'seFilterPanel');
 
   $('seQrDownload')?.addEventListener('click', onQrDownload);
   $('seQrCopy')?.addEventListener('click', onQrCopy);
-
-  // Filters
-  ['seFilterName','seFilterAge','seFilterSex','seFilterAllergies','seFilterMedical','seFilterFrom','seFilterTo']
-    .forEach(id => $(id)?.addEventListener('input', renderRegistrations));
-  $('seFilterClear')?.addEventListener('click', clearFilters);
-
-  // Sort (clickable headers, delegated)
-  $('seRegTable')?.addEventListener('click', (e) => {
-    const th = e.target.closest('th[data-sort]');
-    if (th) { onSortClick(th.dataset.sort); return; }
-    const pb = e.target.closest('[data-print-one]');
-    if (pb) printOne(pb.dataset.printOne);
-  });
 
   // Exports
   $('seExportCsv')?.addEventListener('click', exportCsv);
@@ -407,13 +411,6 @@ async function openDetail(id) {
   seShowView('detail');
 
   $('seDetailTitle').textContent = ev.title || 'Evento';
-  $('seDetailMeta').innerHTML = html`
-    <span><i class="fas fa-calendar"></i> ${fmtDate(ev.event_at)}</span>
-    ${ev.location ? html`<span><i class="fas fa-location-dot"></i> ${ev.location}</span>` : ''}
-    ${ev.registration_open
-      ? html`<span class="cat-badge cat--servicio">Registro abierto</span>`
-      : html`<span class="cat-badge cat--otro">Registro cerrado</span>`}
-  `.toString();
 
   // QR + public URL
   const url = publicUrl(ev);
@@ -423,7 +420,6 @@ async function openDetail(id) {
     $('seQrImg').style.display = '';
   } catch { $('seQrImg').style.display = 'none'; }
 
-  clearFilters(true);
   await loadRegistrations();
   startRegsRealtime(ev.id);
 }
@@ -451,122 +447,97 @@ function stopRegsRealtime() {
   if (unsubRegs) { try { sb.removeChannel(unsubRegs); } catch {} unsubRegs = null; }
 }
 
-// ── Filter + sort ────────────────────────────────────────────────────────────
-function clearFilters(silent) {
-  ['seFilterName','seFilterAge','seFilterFrom','seFilterTo'].forEach(id => { if ($(id)) $(id).value = ''; });
-  ['seFilterSex','seFilterAllergies','seFilterMedical'].forEach(id => { if ($(id)) $(id).value = ''; });
-  if (!silent) renderRegistrations();
-}
-
-function getFiltered() {
-  const name = ($('seFilterName')?.value || '').trim().toLowerCase();
-  const ageV = ($('seFilterAge')?.value || '').trim();
-  const sexV = $('seFilterSex')?.value || '';
-  const allg = $('seFilterAllergies')?.value || '';
-  const med  = $('seFilterMedical')?.value || '';
-  const from = $('seFilterFrom')?.value || '';
-  const to   = $('seFilterTo')?.value || '';
-  const fromTs = from ? new Date(from + 'T00:00:00').getTime() : null;
-  const toTs   = to   ? new Date(to   + 'T23:59:59').getTime() : null;
-
-  let rows = regsCache.filter(r => {
-    if (name) {
-      const full = `${r.first_name} ${r.last_name}`.toLowerCase();
-      if (!full.includes(name)) return false;
-    }
-    if (ageV && String(r.age) !== ageV) return false;
-    if (sexV && (r.sex || '') !== sexV) return false;
-    if (allg === 'con' && !r.allergies) return false;
-    if (allg === 'sin' &&  r.allergies) return false;
-    if (med  === 'con' && !r.medical_conditions) return false;
-    if (med  === 'sin' &&  r.medical_conditions) return false;
-    if (fromTs || toTs) {
-      const t = new Date(r.submitted_at).getTime();
-      if (fromTs && t < fromTs) return false;
-      if (toTs   && t > toTs)   return false;
-    }
-    return true;
+// ── Rows (alphabetical by last name; no filtering) ───────────────────────────
+function currentRows() {
+  return regsCache.slice().sort((a, b) => {
+    const an = `${a.last_name} ${a.first_name}`.toLowerCase();
+    const bn = `${b.last_name} ${b.first_name}`.toLowerCase();
+    return an < bn ? -1 : an > bn ? 1 : 0;
   });
-
-  const dir = sortDir === 'asc' ? 1 : -1;
-  rows = rows.slice().sort((a, b) => {
-    let av = a[sortKey], bv = b[sortKey];
-    if (sortKey === 'age') { av = a.age; bv = b.age; }
-    else if (sortKey === 'submitted_at') { av = new Date(a.submitted_at).getTime(); bv = new Date(b.submitted_at).getTime(); }
-    else { av = String(av || '').toLowerCase(); bv = String(bv || '').toLowerCase(); }
-    if (av < bv) return -1 * dir;
-    if (av > bv) return  1 * dir;
-    return 0;
-  });
-  return rows;
 }
 
-function onSortClick(key) {
-  if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  else { sortKey = key; sortDir = key === 'submitted_at' ? 'desc' : 'asc'; }
-  renderRegistrations();
-}
-
-function sortIcon(key) {
-  if (sortKey !== key) return '<i class="fas fa-sort se-sort"></i>';
-  return sortDir === 'asc' ? '<i class="fas fa-sort-up se-sort"></i>' : '<i class="fas fa-sort-down se-sort"></i>';
-}
-
-const COLS = [
-  { key: 'first_name', label: 'Nombre', sortable: true },
-  { key: 'last_name',  label: 'Apellido', sortable: true },
-  { key: 'age',        label: 'Edad', sortable: true },
-  { key: 'sex',        label: 'Sexo' },
-  { key: 'contact_name', label: 'Contacto' },
-  { key: 'relationship', label: 'Parentesco' },
-  { key: 'contact_phone', label: 'Teléfono' },
-  { key: 'contact_email', label: 'Email' },
-  { key: 'allergies',  label: 'Alergias' },
-  { key: 'medical_conditions', label: 'Condiciones médicas' },
-  { key: 'submitted_at', label: 'Enviado', sortable: true },
+// Columns shared by the CSV + PDF exports (label, value-getter).
+const EXPORT_COLS = [
+  ['Nombre',                r => r.first_name],
+  ['Apellido',              r => r.last_name],
+  ['Edad',                  r => r.age],
+  ['Sexo',                  r => r.sex || ''],
+  ['Contacto de emergencia',r => r.contact_name],
+  ['Parentesco',            r => r.relationship],
+  ['Teléfono',              r => formatUSPhoneNational(r.contact_phone)],
+  ['Email',                 r => r.contact_email || ''],
+  ['Alergias',              r => r.allergies || ''],
+  ['Condiciones médicas',   r => r.medical_conditions || ''],
+  ['Notas',                 r => r.notes || ''],
+  ['Inscrito',              r => fmtDateTime(r.submitted_at)],
 ];
 
 function renderRegistrations() {
   const el = $('seRegTable');
   if (!el || !currentEvent) return;
-  const rows = getFiltered();
-
-  $('seRegCount').textContent = `${rows.length} de ${regsCache.length} inscrito${regsCache.length === 1 ? '' : 's'}`;
+  $('seRegCount').textContent = `${regsCache.length} inscrito${regsCache.length === 1 ? '' : 's'}`;
 
   if (!regsCache.length) {
     el.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus"></i><p>Aún no hay inscripciones para este evento.</p></div>`;
     return;
   }
-  if (!rows.length) {
-    el.innerHTML = `<div class="empty-state"><i class="fas fa-filter"></i><p>Ninguna inscripción coincide con los filtros.</p></div>`;
-    return;
+
+  // Compact: first + last name, with an info button for everything else.
+  el.innerHTML = `<div class="se-reglist">` + currentRows().map(r => `
+    <div class="se-regrow">
+      <span class="se-regrow__name">${esc(r.first_name)} ${esc(r.last_name)}</span>
+      <button class="icon-btn__admin se-regrow__info" data-reg-info="${esc(r.id)}" title="Ver detalles" aria-label="Ver detalles">
+        <i class="fas fa-circle-info"></i>
+      </button>
+    </div>`).join('') + `</div>`;
+
+  el.querySelectorAll('[data-reg-info]').forEach(b =>
+    b.addEventListener('click', () => showRegInfo(b.dataset.regInfo)));
+}
+
+// Modal with one registration's full details (+ print).
+function showRegInfo(id) {
+  const r = regsCache.find(x => x.id === id);
+  if (!r) return;
+  const phone = formatUSPhoneNational(r.contact_phone);
+  const line = (label, val) => (val || val === 0)
+    ? `<div class="se-reginfo__row"><span class="se-reginfo__label">${esc(label)}</span><span>${esc(val)}</span></div>` : '';
+  const body = `
+    ${line('Edad', r.age)}
+    ${line('Sexo', r.sex)}
+    ${line('Contacto de emergencia', r.contact_name)}
+    ${line('Parentesco', r.relationship)}
+    <div class="se-reginfo__row"><span class="se-reginfo__label">Teléfono</span><a href="tel:${esc(r.contact_phone)}">${esc(phone)}</a></div>
+    ${r.contact_email ? `<div class="se-reginfo__row"><span class="se-reginfo__label">Email</span><a href="mailto:${esc(r.contact_email)}">${esc(r.contact_email)}</a></div>` : ''}
+    ${line('Alergias', r.allergies)}
+    ${line('Condiciones médicas', r.medical_conditions)}
+    ${line('Notas', r.notes)}
+    ${line('Inscrito', fmtDateTime(r.submitted_at))}`;
+
+  let m = $('seRegInfoModal');
+  if (!m) {
+    m = document.createElement('div');
+    m.id = 'seRegInfoModal';
+    m.className = 'modal-backdrop';
+    m.innerHTML = `
+      <div class="modal">
+        <div class="modal__header">
+          <h2 class="modal__title" id="seRegInfoTitle"></h2>
+          <button class="modal__close" id="seRegInfoClose" aria-label="Cerrar">×</button>
+        </div>
+        <div class="modal__body" id="seRegInfoBody"></div>
+        <div class="modal__footer">
+          <button class="btn btn--ghost" id="seRegInfoPrint"><i class="fas fa-print"></i> Imprimir</button>
+        </div>
+      </div>`;
+    document.body.appendChild(m);
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+    $('seRegInfoClose').addEventListener('click', () => m.classList.remove('open'));
   }
-
-  const thead = COLS.map(c => c.sortable
-    ? `<th data-sort="${c.key}" class="se-th-sort">${esc(c.label)} ${sortIcon(c.key)}</th>`
-    : `<th>${esc(c.label)}</th>`).join('') + '<th style="width:48px"></th>';
-
-  const body = rows.map(r => `
-    <tr>
-      <td data-label="Nombre">${esc(r.first_name)}</td>
-      <td data-label="Apellido">${esc(r.last_name)}</td>
-      <td data-label="Edad">${esc(r.age)}</td>
-      <td data-label="Sexo">${esc(r.sex || '—')}</td>
-      <td data-label="Contacto">${esc(r.contact_name)}</td>
-      <td data-label="Parentesco">${esc(r.relationship)}</td>
-      <td data-label="Teléfono" class="se-nowrap">${esc(formatUSPhoneNational(r.contact_phone))}</td>
-      <td data-label="Email">${r.contact_email ? `<a class="se-email" href="mailto:${esc(r.contact_email)}">${esc(r.contact_email)}</a>` : '—'}</td>
-      <td data-label="Alergias">${esc(r.allergies || '—')}</td>
-      <td data-label="Condiciones">${esc(r.medical_conditions || '—')}</td>
-      <td data-label="Enviado" class="se-nowrap">${esc(fmtDateTime(r.submitted_at))}</td>
-      <td data-label="" class="se-rowact"><button class="icon-btn__admin" title="Imprimir registro" data-print-one="${esc(r.id)}"><i class="fas fa-print"></i></button></td>
-    </tr>`).join('');
-
-  el.innerHTML = `
-    <table class="se-reg-table">
-      <thead><tr>${thead}</tr></thead>
-      <tbody>${body}</tbody>
-    </table>`;
+  $('seRegInfoTitle').textContent = `${r.first_name} ${r.last_name}`;
+  $('seRegInfoBody').innerHTML = body;
+  $('seRegInfoPrint').onclick = () => printOne(id);
+  m.classList.add('open');
 }
 
 // ── QR actions ───────────────────────────────────────────────────────────────
@@ -576,8 +547,10 @@ async function onQrDownload() {
   const original = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
   try {
-    await downloadQrPng(publicUrl(currentEvent), `qr-${currentEvent.slug}.png`);
-    toast('QR descargado', 'success');
+    const blob = await generateQrBlob(publicUrl(currentEvent), 1024);
+    if (!blob || blob.size < 500) throw new Error('Imagen QR vacía');
+    await saveFile(blob, `qr-${currentEvent.slug}.png`);
+    toast(isMobile() ? 'Guárdalo en Fotos o Archivos' : 'QR descargado', 'success');
   } catch (e) {
     console.error(e); toast('No se pudo generar el QR', 'error');
   } finally {
@@ -595,27 +568,16 @@ function csvCell(v) {
   const s = String(v ?? '');
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
-function exportCsv() {
+async function exportCsv() {
   if (!currentEvent) return;
-  const rows = getFiltered();
+  const rows = currentRows();
   if (!rows.length) { toast('No hay inscripciones para exportar', 'error'); return; }
-  const headers = COLS.map(c => c.label);
-  const lines = [headers.map(csvCell).join(',')];
-  rows.forEach(r => {
-    lines.push([
-      r.first_name, r.last_name, r.age, r.sex || '',
-      r.contact_name, r.relationship, formatUSPhoneNational(r.contact_phone), r.contact_email || '',
-      r.allergies || '', r.medical_conditions || '', fmtDateTime(r.submitted_at),
-    ].map(csvCell).join(','));
-  });
+  const lines = [EXPORT_COLS.map(c => csvCell(c[0])).join(',')];
+  rows.forEach(r => lines.push(EXPORT_COLS.map(c => csvCell(c[1](r))).join(',')));
   // BOM so Excel reads accents (UTF-8) correctly.
   const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `registros-${currentEvent.slug}.csv`;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  toast(`${rows.length} inscripciones exportadas`, 'success');
+  await saveFile(blob, `inscritos-${currentEvent.slug}.csv`);
+  toast(isMobile() ? 'Elige dónde guardar el CSV' : `${rows.length} inscripciones exportadas`, 'success');
 }
 
 // ── PDF roster export (pdfmake) ──────────────────────────────────────────────
@@ -635,20 +597,17 @@ function loadPdfMake() {
 
 async function exportPdf() {
   if (!currentEvent) return;
-  const rows = getFiltered();
+  const rows = currentRows();
   if (!rows.length) { toast('No hay inscripciones para exportar', 'error'); return; }
   const btn = $('seExportPdf');
   const original = btn.innerHTML;
   btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generando...';
   try {
     await loadPdfMake();
-    const head = ['Nombre','Apellido','Edad','Sexo','Contacto','Parentesco','Teléfono','Alergias','Condiciones','Enviado']
-      .map(t => ({ text: t, style: 'th' }));
-    const body = [head, ...rows.map(r => [
-      r.first_name, r.last_name, String(r.age), r.sex || '—',
-      r.contact_name, r.relationship, formatUSPhoneNational(r.contact_phone),
-      r.allergies || '—', r.medical_conditions || '—', fmtDate(r.submitted_at),
-    ].map(t => ({ text: String(t), style: 'td' })))];
+    // Drop Notas from the printed roster so the columns fit cleanly.
+    const cols = EXPORT_COLS.filter(c => c[0] !== 'Notas');
+    const head = cols.map(c => ({ text: c[0], style: 'th' }));
+    const body = [head, ...rows.map(r => cols.map(c => ({ text: String(c[1](r) ?? '') || '—', style: 'td' })))];
 
     const docDef = {
       pageSize: 'LETTER',
@@ -670,7 +629,7 @@ async function exportPdf() {
       }),
       content: [
         { text: `Lista de inscritos — ${rows.length} persona${rows.length === 1 ? '' : 's'}`, style: 'sub', margin: [0, 0, 0, 8] },
-        { table: { headerRows: 1, widths: ['auto','auto','auto','auto','*','auto','auto','*','*','auto'], body }, layout: 'lightHorizontalLines' },
+        { table: { headerRows: 1, widths: ['auto','auto','auto','auto','*','auto','auto','*','*','auto','auto'], body }, layout: 'lightHorizontalLines' },
       ],
       styles: {
         title: { fontSize: 15, bold: true, color: '#0e2d38' },
@@ -681,8 +640,10 @@ async function exportPdf() {
         foot:  { fontSize: 8, color: '#888' },
       },
     };
-    window.pdfMake.createPdf(docDef).download(`roster-${currentEvent.slug}.pdf`);
-    toast('PDF generado', 'success');
+    // getBlob (not .download) so iOS can hand it to the share sheet → Save to Files.
+    const blob = await new Promise(res => window.pdfMake.createPdf(docDef).getBlob(res));
+    await saveFile(blob, `roster-${currentEvent.slug}.pdf`);
+    toast(isMobile() ? 'Elige dónde guardar el PDF' : 'PDF generado', 'success');
   } catch (e) {
     console.error(e); toast(e.message || 'No se pudo generar el PDF', 'error');
   } finally {
@@ -728,7 +689,7 @@ function printHtml(title, bodyHtml) {
 
 function printRoster() {
   if (!currentEvent) return;
-  const rows = getFiltered();
+  const rows = currentRows();
   if (!rows.length) { toast('No hay inscripciones para imprimir', 'error'); return; }
   const head = ['#','Nombre','Apellido','Edad','Sexo','Contacto','Parentesco','Teléfono','Email','Alergias','Condiciones','Enviado'];
   const body = rows.map((r, i) => `

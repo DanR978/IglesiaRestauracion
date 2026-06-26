@@ -36,6 +36,13 @@ export async function downloadQrPng(data, filename = 'qr.png') {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+/** Generate a high-res PNG Blob for `data` (no download). */
+export async function generateQrBlob(data, size = 1024) {
+  const dataUrl = await generateQrDataUrl(data, size);
+  const res = await fetch(dataUrl);          // data: URL → blob (local, cheap)
+  return await res.blob();
+}
+
 /** Copy text to the clipboard, with a legacy execCommand fallback. Returns bool. */
 export async function copyText(text) {
   try {
