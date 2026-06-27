@@ -8612,6 +8612,721 @@ body.no-scroll {
   }
 }
 
+/* -- pages discipulado-wizard -- */
+/* =========================================================
+   SIGNUP CTA SECTION — /discipulado/grupo/
+   Compact callout that replaces the old inline form. The
+   button opens the multi-step wizard popup defined below.
+   ========================================================= */
+
+.dg-signup-cta {
+  padding: clamp(3rem, 5vw + 1rem, 5rem) var(--pd-md, 1.25rem);
+  background: var(--color-bg-light, #fff);
+}
+
+.dg-signup-cta__inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.dg-signup-cta__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 2vw + 0.9rem, 2.2rem);
+  letter-spacing: -0.012em;
+  color: var(--color-text, #394548);
+}
+
+.dg-signup-cta__lead {
+  margin: 0 auto 1.6rem;
+  max-width: 38ch;
+  font-family: var(--font-Lexend);
+  font-weight: 300;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.dg-signup-cta .ird-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dg-signup-cta__legal {
+  margin: 1.4rem 0 0;
+  font-family: var(--font-Lexend);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+@media (prefers-color-scheme: dark) {
+  .dg-signup-cta { background: var(--color-bg-light, #121c1f); }
+}
+
+/* =========================================================
+   "ESTOY INTERESADO" CTA — bottom of /discipulado/ hub page
+   Opens the lightweight interest popup. Slightly tinted bg
+   so it visually separates from the schedule strip above.
+   ========================================================= */
+
+.dscp-interest-cta {
+  padding: clamp(3rem, 5vw + 1rem, 5rem) var(--pd-md, 1.25rem);
+  background:
+    radial-gradient(ellipse 60% 70% at 50% 0%, rgba(200, 152, 88, 0.06), transparent 70%),
+    var(--color-bg-light, #fff);
+}
+
+.dscp-interest-cta__inner {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.dscp-interest-cta__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: clamp(1.55rem, 2vw + 0.85rem, 2.1rem);
+  letter-spacing: -0.012em;
+  color: var(--color-text, #394548);
+}
+
+.dscp-interest-cta__lead {
+  margin: 0 auto 1.6rem;
+  max-width: 42ch;
+  font-family: var(--font-Lexend);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.dscp-interest-cta .ird-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  /* Override the global .ird-btn clamp width so the label never wraps —
+     size to content and stay on one line at every breakpoint. */
+  width: auto;
+  max-width: 100%;
+  white-space: nowrap;
+  padding: 0.85em 1.9em;
+}
+
+@media (prefers-color-scheme: dark) {
+  .dscp-interest-cta {
+    background:
+      radial-gradient(ellipse 60% 70% at 50% 0%, rgba(200, 152, 88, 0.08), transparent 70%),
+      var(--color-bg-light, #121c1f);
+  }
+}
+
+/* =========================================================
+   PUBLIC SIGNUP WIZARD (popup) — /discipulado/grupo/
+   Mirrors the admin event-creation wizard UX but tuned for
+   the public site palette + typography.
+   ========================================================= */
+
+.sw-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-fullscreen);
+  background: rgba(8, 20, 26, 0.62);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.sw-backdrop.open {
+  display: flex;
+  opacity: 1;
+}
+
+.sw-modal {
+  background: var(--color-bg-light, #fff);
+  color: var(--color-text, #394548);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 30px 80px rgba(8, 20, 26, 0.35),
+    0 10px 32px rgba(8, 20, 26, 0.18);
+  transform: translateY(16px) scale(0.96);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sw-backdrop.open .sw-modal {
+  transform: none;
+}
+
+/* ── Header ─────────────────────────────────────────────────────── */
+.sw-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.1rem 1.4rem 0.75rem;
+  border-bottom: 1px solid rgba(57, 69, 72, 0.08);
+}
+
+.sw-modal__title {
+  margin: 0;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--color-text, #394548);
+  letter-spacing: -0.005em;
+}
+
+.sw-modal__close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(57, 69, 72, 0.06);
+  font-size: 1.25rem;
+  line-height: 1;
+  color: var(--color-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sw-modal__close:hover {
+  background: rgba(57, 69, 72, 0.12);
+  color: var(--color-text, #394548);
+}
+
+/* ── Progress dots ───────────────────────────────────────────────── */
+.sw-modal__progress {
+  display: flex;
+  gap: 6px;
+  padding: 0.85rem 1.4rem 0.75rem;
+}
+
+.sw-progress__dot {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(57, 69, 72, 0.1);
+  transition: background 0.3s;
+}
+
+.sw-progress__dot.active {
+  background: var(--color-secondary, #c89858);
+}
+
+.sw-progress__dot.done {
+  background: var(--color-dark, #2d4e57);
+}
+
+/* ── Body ────────────────────────────────────────────────────────── */
+.sw-modal__body {
+  padding: 1rem 1.4rem 1.4rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sw-step__hint {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-Lexend);
+  font-weight: 300;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+/* ── Fields ──────────────────────────────────────────────────────── */
+.sw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem 1rem;
+}
+
+.sw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Fields stacked directly in a step (not inside .sw-grid — e.g. the textareas in
+   the health/logistics steps) need vertical rhythm; without it the next field's
+   label sits flush under the previous input and reads as cramped. */
+.sw-modal__body > .sw-field { margin-bottom: 1rem; }
+.sw-modal__body > .sw-field:last-of-type { margin-bottom: 0; }
+
+.sw-field--full {
+  grid-column: 1 / -1;
+}
+
+.sw-field__label {
+  font-family: var(--font-Signika);
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--color-text, #394548);
+  letter-spacing: 0;
+}
+
+.sw-field input,
+.sw-field select,
+.sw-field textarea {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border: 1.5px solid rgba(57, 69, 72, 0.14);
+  border-radius: 10px;
+  font-family: var(--font-Lexend);
+  font-size: 0.95rem;
+  background: var(--color-bg-light, #fff);
+  color: var(--color-text, #394548);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.sw-field textarea {
+  resize: vertical;
+  min-height: 84px;
+  font-family: var(--font-Lexend);
+}
+
+.sw-field input:focus,
+.sw-field select:focus,
+.sw-field textarea:focus {
+  outline: none;
+  border-color: var(--color-secondary, #c89858);
+  box-shadow: 0 0 0 3px rgba(200, 152, 88, 0.18);
+}
+
+/* ── Radio rows — classic stacked dots ─────────────────────────── */
+.sw-radio-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0.35rem;
+}
+
+.sw-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0.25rem;
+  font-family: var(--font-Lexend);
+  font-size: 0.92rem;
+  color: var(--color-text, #394548);
+  cursor: pointer;
+  user-select: none;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.sw-radio:hover { background: rgba(200, 152, 88, 0.06); }
+
+.sw-radio input {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(57, 69, 72, 0.32);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sw-radio input::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-secondary, #c89858);
+  transform: scale(0);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sw-radio input:checked {
+  border-color: var(--color-secondary, #c89858);
+}
+
+.sw-radio input:checked::after { transform: scale(1); }
+
+.sw-radio input:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(200, 152, 88, 0.25);
+}
+
+/* ── Review (step 4) ─────────────────────────────────────────────── */
+.sw-review {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.45rem 1rem;
+  margin: 0 0 1rem;
+  padding: 1rem 1.1rem;
+  background: rgba(45, 78, 87, 0.04);
+  border: 1px solid rgba(45, 78, 87, 0.1);
+  border-radius: 12px;
+}
+
+.sw-review dt {
+  font-family: var(--font-Signika);
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  align-self: center;
+}
+
+.sw-review dd {
+  margin: 0;
+  font-family: var(--font-Lexend);
+  font-size: 0.92rem;
+  color: var(--color-text, #394548);
+  word-break: break-word;
+}
+
+.sw-legal {
+  margin: 0.5rem 0 1rem;
+  font-family: var(--font-Lexend);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* ── Error bar ───────────────────────────────────────────────────── */
+.sw-error {
+  margin: 0 0 1rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  background: rgba(185, 28, 28, 0.08);
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  color: #b91c1c;
+  font-family: var(--font-Lexend);
+  font-size: 0.88rem;
+}
+
+/* ── Navigation ──────────────────────────────────────────────────── */
+.sw-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.sw-nav__spacer { flex: 1; }
+
+.sw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.7rem 1.25rem;
+  border: 0;
+  border-radius: 999px;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.22s;
+}
+
+.sw-btn--primary {
+  background: var(--color-dark, #2d4e57);
+  color: var(--color-white, #fff);
+  box-shadow: 0 8px 20px rgba(45, 78, 87, 0.22);
+}
+
+.sw-btn--primary:hover {
+  background: var(--color-secondary, #c89858);
+  box-shadow: 0 10px 26px rgba(200, 152, 88, 0.28);
+  transform: translateY(-1px);
+}
+
+.sw-btn--primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.sw-btn--ghost {
+  background: transparent;
+  color: var(--color-muted);
+  padding-inline: 0.5rem;
+}
+
+.sw-btn--ghost:hover {
+  color: var(--color-text, #394548);
+}
+
+/* ── Thank-you ───────────────────────────────────────────────────── */
+.sw-thanks {
+  text-align: center;
+  padding: 1rem 0.5rem 0.5rem;
+}
+
+.sw-thanks__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(200, 152, 88, 0.14);
+  color: var(--color-secondary, #c89858);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.1rem;
+  font-size: 1.6rem;
+}
+
+.sw-thanks__title {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--color-text, #394548);
+}
+
+.sw-thanks__body {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-Lexend);
+  font-weight: 300;
+  font-size: 1rem;
+  color: var(--color-muted);
+}
+
+.sw-thanks__verse {
+  margin: 0 auto 1.4rem;
+  padding: 0.9rem 1rem;
+  max-width: 30rem;
+  background: rgba(45, 78, 87, 0.04);
+  border-left: 3px solid var(--color-secondary, #c89858);
+  border-radius: 10px;
+  font-family: var(--font-Carattere), Georgia, serif;
+  font-size: 1.15rem;
+  color: var(--color-text, #394548);
+  text-align: left;
+}
+
+.sw-thanks__verse footer {
+  margin-top: 0.4rem;
+  font-family: var(--font-Signika);
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── Dark mode ───────────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .sw-modal {
+    background: var(--color-bg-light, #121c1f);
+    color: var(--color-text, #e7eef0);
+  }
+  .sw-modal__header { border-bottom-color: rgba(255, 255, 255, 0.08); }
+  .sw-modal__close { background: rgba(255, 255, 255, 0.06); }
+  .sw-modal__close:hover { background: rgba(255, 255, 255, 0.12); }
+  .sw-progress__dot { background: rgba(255, 255, 255, 0.12); }
+  .sw-field input,
+  .sw-field select,
+  .sw-field textarea {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--color-text, #e7eef0);
+  }
+  .sw-radio { color: var(--color-text, #e7eef0); }
+  .sw-radio:hover { background: rgba(200, 152, 88, 0.1); }
+  .sw-radio input { border-color: rgba(255, 255, 255, 0.32); }
+  .sw-review {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+}
+
+/* ── Mobile ─────────────────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .sw-backdrop { padding: 0; align-items: stretch; }
+  .sw-modal {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .sw-grid { grid-template-columns: 1fr; }
+  .sw-radio { flex: 1 1 100%; }
+
+  /* Scale the document down on phones and stop justify from stretching words
+     across the narrow column — left-align reads like an actual document. */
+  .sw-doc { padding: 0.95rem 0.85rem; font-size: 0.7rem; line-height: 1.4; }
+  .sw-doc .wv-brand { font-size: 0.9rem; }
+  .sw-doc .wv-addr { font-size: 0.62rem; margin-bottom: 6px; }
+  .sw-doc .wv-title { font-size: 0.82rem; }
+  .sw-doc .wv-sub { font-size: 0.62rem; margin-bottom: 6px; }
+  .sw-doc .wv-rule { margin-bottom: 8px; }
+  .sw-doc .wv-band { font-size: 0.6rem; padding: 3px 7px; margin: 10px 0 6px; }
+  .sw-doc .wv-event { font-size: 0.7rem; gap: 1px 0; }
+  .sw-doc .wv-event span { flex: 1 1 100%; }
+  .sw-doc .wv-fields td { padding-top: 10px; }
+  .sw-doc .wv-lbl { font-size: 0.56rem; padding: 1px 6px 5px; }
+  .sw-doc ol.wv-clauses { font-size: 0.7rem; padding-left: 15px; }
+  .sw-doc ol.wv-clauses li { text-align: left; margin-bottom: 4px; }
+  .sw-doc .wv-ack { font-size: 0.72rem; }
+  .sw-doc .wv-note { font-size: 0.62rem; }
+  .sw-doc .wv-foot { font-size: 0.56rem; }
+
+  /* Breathing room at the top of each step + keep the signature controls tidy. */
+  .sw-modal__body { padding-top: 1rem; }
+  .sw-step__hint { margin-top: 0.2rem; }
+  .sw-sign__bar { flex-wrap: wrap; gap: 0.5rem; }
+  .sw-sign__clear { margin-left: 0; }
+  .sw-pcard { padding: 0.8rem 0.85rem 0.3rem; }
+}
+
+/* ── Waiver step (Exoneración) — renders the real document on screen ─────────
+   The same navy-band layout as the printed / saved copy, on white "paper", with
+   the participant's entries embedded and the signature drawn onto the document's
+   own signature line. Always light (it's a legal document), even in dark mode. */
+.sw-doc {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+  padding: 1.4rem 1.5rem;
+  margin: 0 0 0.9rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  font-family: 'Lexend Deca', system-ui, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.sw-doc .wv-brand { text-align: center; font-size: 1.15rem; font-weight: 800; color: #0e2d38; margin: 0; letter-spacing: .01em; }
+.sw-doc .wv-addr { text-align: center; font-size: 0.7rem; color: #5a5a5a; margin: 2px 0 8px; }
+.sw-doc .wv-title { text-align: center; font-size: 0.98rem; font-weight: 700; color: #1a1a1a; margin: 2px 0 1px; }
+.sw-doc .wv-sub { text-align: center; font-size: 0.72rem; font-style: italic; color: #5a5a5a; margin: 0 0 8px; }
+.sw-doc .wv-rule { border: 0; border-top: 2px solid #0e2d38; margin: 0 0 10px; }
+.sw-doc .wv-band { background: #0e2d38; color: #fff; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: .04em; padding: 3px 9px; margin: 13px 0 7px; border-radius: 3px; }
+.sw-doc .wv-event { display: flex; flex-wrap: wrap; gap: 3px 22px; font-size: 0.8rem; margin: 0 0 4px; }
+.sw-doc .wv-event b { color: #0e2d38; }
+.sw-doc .wv-fields { width: 100%; border-collapse: collapse; margin: 6px 0 2px; }
+.sw-doc .wv-fields td { padding: 12px 8px 1px; vertical-align: bottom; }
+.sw-doc .wv-line { border-bottom: 1px solid #9aa4b2; min-height: 16px; display: flex; flex-direction: column; justify-content: flex-end; }
+.sw-doc .wv-line--filled { font-weight: 600; color: #111; padding-bottom: 1px; }
+.sw-doc .wv-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: .02em; color: #5a5a5a; padding: 1px 8px 6px; }
+.sw-doc .wv-note { font-size: 0.68rem; font-style: italic; color: #5a5a5a; margin: 2px 0 0; }
+.sw-doc ol.wv-clauses { margin: 4px 0; padding-left: 18px; font-size: 0.8rem; }
+.sw-doc ol.wv-clauses li { margin: 0 0 5px; text-align: justify; }
+.sw-doc ol.wv-clauses li::marker { color: #0e2d38; font-weight: 700; }
+.sw-doc .wv-ack { font-weight: 700; font-size: 0.82rem; margin: 8px 0 2px; }
+.sw-doc .wv-sign { width: 100%; border-collapse: collapse; margin-top: 14px; }
+.sw-doc .wv-sign td { vertical-align: bottom; padding-top: 8px; }
+.sw-doc .wv-sign .wv-line { border-bottom: 1px solid #333; min-height: 30px; }
+/* The signature cell itself needs room to draw / show the typed name. */
+.sw-doc .wv-sign .wv-sigmount { min-height: 56px; justify-content: flex-end; display: flex; flex-direction: column; width: 100%; }
+.sw-doc .wv-foot { text-align: center; font-size: 0.62rem; color: #777; margin-top: 14px; }
+.sw-doc .wv-foot-note { font-style: italic; }
+.sw-doc .wv-sig-img { max-height: 56px; max-width: 100%; display: block; }
+
+/* The signature pad / typed input, embedded directly on the document's line. */
+.sw-doc .wv-sigmount { position: relative; }
+.sw-doc .sig-pad { position: relative; border: 0; background: transparent; overflow: hidden; touch-action: none; }
+.sw-doc .sig-pad__canvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
+.sw-doc .sig-pad__hint {
+  position: absolute; left: 4px; bottom: 4px;
+  font-size: 0.74rem; color: rgba(14, 45, 56, 0.4); pointer-events: none;
+}
+.sw-doc .sig-pad--inked .sig-pad__hint { display: none; }
+.sw-doc .wv-typed-input {
+  width: 100%; border: 0; background: transparent; padding: 0 2px 4px;
+  font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 1.5rem; color: #111;
+}
+.sw-doc .wv-typed-input:focus { outline: none; }
+
+/* Control bar under the document: signature mode + clear. */
+.sw-sign__bar { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 1rem; }
+.sw-sign__tabs {
+  display: inline-flex; gap: 0.2rem; padding: 0.2rem;
+  background: rgba(45, 78, 87, 0.07); border-radius: 999px;
+}
+.sw-sign__tab {
+  border: 0; background: transparent; padding: 0.38rem 0.85rem; border-radius: 999px;
+  font-family: var(--font-Signika); font-weight: 600; font-size: 0.76rem;
+  color: var(--color-muted); cursor: pointer; transition: background 0.18s, color 0.18s;
+}
+.sw-sign__tab.active { background: var(--color-dark, #2d4e57); color: #fff; }
+.sw-sign__clear {
+  margin-left: auto; border: 1px solid rgba(45, 78, 87, 0.2); background: transparent;
+  color: var(--color-muted); font-family: var(--font-Signika); font-size: 0.76rem;
+  font-weight: 600; cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 999px;
+}
+.sw-sign__clear:hover { color: #b91c1c; border-color: rgba(185, 28, 28, 0.4); }
+
+/* Smaller hint (used on the dense exoneración step). */
+.sw-step__hint--sm { font-size: 0.8rem; line-height: 1.4; }
+
+/* Section label between field groups (e.g. Padre/Tutor vs. Emergencia). */
+.sw-section-label {
+  font-family: var(--font-Signika); font-weight: 700; font-size: 0.82rem;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-dark, #2d4e57);
+  margin: 1.1rem 0 0.6rem; padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(45, 78, 87, 0.14);
+}
+.sw-section-label:first-child { margin-top: 0; }
+
+/* Participant card (repeatable in step 1 + per-child health in step 3). */
+.sw-pcard {
+  border: 1px solid rgba(45, 78, 87, 0.14); border-radius: 12px;
+  padding: 0.9rem 1rem 0.4rem; margin: 0 0 0.9rem;
+  background: rgba(45, 78, 87, 0.02);
+}
+.sw-pcard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.sw-pcard__title {
+  font-family: var(--font-Signika); font-weight: 700; font-size: 0.84rem;
+  color: var(--color-dark, #2d4e57);
+}
+.sw-pcard__remove {
+  border: 0; background: transparent; color: var(--color-muted);
+  cursor: pointer; font-size: 0.9rem; padding: 0.2rem 0.4rem; border-radius: 6px;
+}
+.sw-pcard__remove:hover { color: #b91c1c; background: rgba(185, 28, 28, 0.08); }
+
+/* "Add another participant" button. */
+.sw-add {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  border: 1.5px dashed rgba(45, 78, 87, 0.32); background: transparent;
+  color: var(--color-dark, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
+  font-size: 0.82rem; padding: 0.6rem 1.1rem; border-radius: 10px; cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+.sw-add:hover { background: rgba(45, 78, 87, 0.06); border-color: rgba(45, 78, 87, 0.5); }
+
+/* "Same as parent" checkbox row. */
+.sw-check {
+  display: flex; align-items: center; gap: 0.55rem; cursor: pointer;
+  font-family: var(--font-Lexend); font-size: 0.86rem; color: var(--color-text, #394548);
+  margin: 0 0 0.8rem;
+}
+.sw-check input { width: 1.05rem; height: 1.05rem; accent-color: var(--color-dark, #2d4e57); cursor: pointer; }
+
+/* Disabled emergency grid when it mirrors the parent. */
+.sw-grid--disabled { opacity: 0.55; }
+.sw-field input:disabled, .sw-field select:disabled, .sw-field textarea:disabled {
+  background: rgba(45, 78, 87, 0.05); cursor: not-allowed; color: var(--color-muted);
+}
+
 /* -- pages discipulado -- */
 /* =============================================================================
    PAGE: DISCIPULADO  (uses existing tokens — no new colors introduced)
@@ -9529,721 +10244,6 @@ body.no-scroll {
   font-weight: var(--fw-semibold);
   color: var(--color-secondary);
   letter-spacing: 0.04em;
-}
-
-/* -- pages discipulado-wizard -- */
-/* =========================================================
-   SIGNUP CTA SECTION — /discipulado/grupo/
-   Compact callout that replaces the old inline form. The
-   button opens the multi-step wizard popup defined below.
-   ========================================================= */
-
-.dg-signup-cta {
-  padding: clamp(3rem, 5vw + 1rem, 5rem) var(--pd-md, 1.25rem);
-  background: var(--color-bg-light, #fff);
-}
-
-.dg-signup-cta__inner {
-  max-width: 560px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.dg-signup-cta__title {
-  margin: 0 0 0.6rem;
-  font-family: var(--font-Signika);
-  font-weight: 700;
-  font-size: clamp(1.6rem, 2vw + 0.9rem, 2.2rem);
-  letter-spacing: -0.012em;
-  color: var(--color-text, #394548);
-}
-
-.dg-signup-cta__lead {
-  margin: 0 auto 1.6rem;
-  max-width: 38ch;
-  font-family: var(--font-Lexend);
-  font-weight: 300;
-  font-size: 1.02rem;
-  line-height: 1.6;
-  color: var(--color-muted);
-}
-
-.dg-signup-cta .ird-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.dg-signup-cta__legal {
-  margin: 1.4rem 0 0;
-  font-family: var(--font-Lexend);
-  font-size: 0.78rem;
-  font-style: italic;
-  color: var(--color-muted);
-}
-
-@media (prefers-color-scheme: dark) {
-  .dg-signup-cta { background: var(--color-bg-light, #121c1f); }
-}
-
-/* =========================================================
-   "ESTOY INTERESADO" CTA — bottom of /discipulado/ hub page
-   Opens the lightweight interest popup. Slightly tinted bg
-   so it visually separates from the schedule strip above.
-   ========================================================= */
-
-.dscp-interest-cta {
-  padding: clamp(3rem, 5vw + 1rem, 5rem) var(--pd-md, 1.25rem);
-  background:
-    radial-gradient(ellipse 60% 70% at 50% 0%, rgba(200, 152, 88, 0.06), transparent 70%),
-    var(--color-bg-light, #fff);
-}
-
-.dscp-interest-cta__inner {
-  max-width: 560px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.dscp-interest-cta__title {
-  margin: 0 0 0.6rem;
-  font-family: var(--font-Signika);
-  font-weight: 700;
-  font-size: clamp(1.55rem, 2vw + 0.85rem, 2.1rem);
-  letter-spacing: -0.012em;
-  color: var(--color-text, #394548);
-}
-
-.dscp-interest-cta__lead {
-  margin: 0 auto 1.6rem;
-  max-width: 42ch;
-  font-family: var(--font-Lexend);
-  font-weight: 300;
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--color-muted);
-}
-
-.dscp-interest-cta .ird-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  /* Override the global .ird-btn clamp width so the label never wraps —
-     size to content and stay on one line at every breakpoint. */
-  width: auto;
-  max-width: 100%;
-  white-space: nowrap;
-  padding: 0.85em 1.9em;
-}
-
-@media (prefers-color-scheme: dark) {
-  .dscp-interest-cta {
-    background:
-      radial-gradient(ellipse 60% 70% at 50% 0%, rgba(200, 152, 88, 0.08), transparent 70%),
-      var(--color-bg-light, #121c1f);
-  }
-}
-
-/* =========================================================
-   PUBLIC SIGNUP WIZARD (popup) — /discipulado/grupo/
-   Mirrors the admin event-creation wizard UX but tuned for
-   the public site palette + typography.
-   ========================================================= */
-
-.sw-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-fullscreen);
-  background: rgba(8, 20, 26, 0.62);
-  -webkit-backdrop-filter: blur(4px);
-          backdrop-filter: blur(4px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  opacity: 0;
-  transition: opacity 0.22s ease;
-}
-
-.sw-backdrop.open {
-  display: flex;
-  opacity: 1;
-}
-
-.sw-modal {
-  background: var(--color-bg-light, #fff);
-  color: var(--color-text, #394548);
-  border-radius: 18px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 92vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  box-shadow:
-    0 30px 80px rgba(8, 20, 26, 0.35),
-    0 10px 32px rgba(8, 20, 26, 0.18);
-  transform: translateY(16px) scale(0.96);
-  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sw-backdrop.open .sw-modal {
-  transform: none;
-}
-
-/* ── Header ─────────────────────────────────────────────────────── */
-.sw-modal__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.1rem 1.4rem 0.75rem;
-  border-bottom: 1px solid rgba(57, 69, 72, 0.08);
-}
-
-.sw-modal__title {
-  margin: 0;
-  font-family: var(--font-Signika);
-  font-weight: 700;
-  font-size: 1.05rem;
-  line-height: 1.25;
-  color: var(--color-text, #394548);
-  letter-spacing: -0.005em;
-}
-
-.sw-modal__close {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(57, 69, 72, 0.06);
-  font-size: 1.25rem;
-  line-height: 1;
-  color: var(--color-muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s, color 0.2s;
-}
-
-.sw-modal__close:hover {
-  background: rgba(57, 69, 72, 0.12);
-  color: var(--color-text, #394548);
-}
-
-/* ── Progress dots ───────────────────────────────────────────────── */
-.sw-modal__progress {
-  display: flex;
-  gap: 6px;
-  padding: 0.85rem 1.4rem 0.75rem;
-}
-
-.sw-progress__dot {
-  flex: 1;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(57, 69, 72, 0.1);
-  transition: background 0.3s;
-}
-
-.sw-progress__dot.active {
-  background: var(--color-secondary, #c89858);
-}
-
-.sw-progress__dot.done {
-  background: var(--color-dark, #2d4e57);
-}
-
-/* ── Body ────────────────────────────────────────────────────────── */
-.sw-modal__body {
-  padding: 1rem 1.4rem 1.4rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.sw-step__hint {
-  margin: 0 0 1.2rem;
-  font-family: var(--font-Lexend);
-  font-weight: 300;
-  font-size: 0.88rem;
-  line-height: 1.55;
-  color: var(--color-muted);
-}
-
-/* ── Fields ──────────────────────────────────────────────────────── */
-.sw-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem 1rem;
-}
-
-.sw-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-/* Fields stacked directly in a step (not inside .sw-grid — e.g. the textareas in
-   the health/logistics steps) need vertical rhythm; without it the next field's
-   label sits flush under the previous input and reads as cramped. */
-.sw-modal__body > .sw-field { margin-bottom: 1rem; }
-.sw-modal__body > .sw-field:last-of-type { margin-bottom: 0; }
-
-.sw-field--full {
-  grid-column: 1 / -1;
-}
-
-.sw-field__label {
-  font-family: var(--font-Signika);
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: var(--color-text, #394548);
-  letter-spacing: 0;
-}
-
-.sw-field input,
-.sw-field select,
-.sw-field textarea {
-  width: 100%;
-  padding: 0.65rem 0.8rem;
-  border: 1.5px solid rgba(57, 69, 72, 0.14);
-  border-radius: 10px;
-  font-family: var(--font-Lexend);
-  font-size: 0.95rem;
-  background: var(--color-bg-light, #fff);
-  color: var(--color-text, #394548);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.sw-field textarea {
-  resize: vertical;
-  min-height: 84px;
-  font-family: var(--font-Lexend);
-}
-
-.sw-field input:focus,
-.sw-field select:focus,
-.sw-field textarea:focus {
-  outline: none;
-  border-color: var(--color-secondary, #c89858);
-  box-shadow: 0 0 0 3px rgba(200, 152, 88, 0.18);
-}
-
-/* ── Radio rows — classic stacked dots ─────────────────────────── */
-.sw-radio-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  margin-top: 0.35rem;
-}
-
-.sw-radio {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.45rem 0.25rem;
-  font-family: var(--font-Lexend);
-  font-size: 0.92rem;
-  color: var(--color-text, #394548);
-  cursor: pointer;
-  user-select: none;
-  border-radius: 6px;
-  transition: background 0.15s;
-}
-
-.sw-radio:hover { background: rgba(200, 152, 88, 0.06); }
-
-.sw-radio input {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 2px solid rgba(57, 69, 72, 0.32);
-  background: transparent;
-  cursor: pointer;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.sw-radio input::after {
-  content: '';
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--color-secondary, #c89858);
-  transform: scale(0);
-  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.sw-radio input:checked {
-  border-color: var(--color-secondary, #c89858);
-}
-
-.sw-radio input:checked::after { transform: scale(1); }
-
-.sw-radio input:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(200, 152, 88, 0.25);
-}
-
-/* ── Review (step 4) ─────────────────────────────────────────────── */
-.sw-review {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 0.45rem 1rem;
-  margin: 0 0 1rem;
-  padding: 1rem 1.1rem;
-  background: rgba(45, 78, 87, 0.04);
-  border: 1px solid rgba(45, 78, 87, 0.1);
-  border-radius: 12px;
-}
-
-.sw-review dt {
-  font-family: var(--font-Signika);
-  font-weight: 600;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  align-self: center;
-}
-
-.sw-review dd {
-  margin: 0;
-  font-family: var(--font-Lexend);
-  font-size: 0.92rem;
-  color: var(--color-text, #394548);
-  word-break: break-word;
-}
-
-.sw-legal {
-  margin: 0.5rem 0 1rem;
-  font-family: var(--font-Lexend);
-  font-size: 0.78rem;
-  line-height: 1.5;
-  color: var(--color-muted);
-  font-style: italic;
-}
-
-/* ── Error bar ───────────────────────────────────────────────────── */
-.sw-error {
-  margin: 0 0 1rem;
-  padding: 0.7rem 0.9rem;
-  border-radius: 10px;
-  background: rgba(185, 28, 28, 0.08);
-  border: 1px solid rgba(185, 28, 28, 0.22);
-  color: #b91c1c;
-  font-family: var(--font-Lexend);
-  font-size: 0.88rem;
-}
-
-/* ── Navigation ──────────────────────────────────────────────────── */
-.sw-nav {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: 1.25rem;
-}
-
-.sw-nav__spacer { flex: 1; }
-
-.sw-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.7rem 1.25rem;
-  border: 0;
-  border-radius: 999px;
-  font-family: var(--font-Signika);
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, transform 0.15s, box-shadow 0.22s;
-}
-
-.sw-btn--primary {
-  background: var(--color-dark, #2d4e57);
-  color: var(--color-white, #fff);
-  box-shadow: 0 8px 20px rgba(45, 78, 87, 0.22);
-}
-
-.sw-btn--primary:hover {
-  background: var(--color-secondary, #c89858);
-  box-shadow: 0 10px 26px rgba(200, 152, 88, 0.28);
-  transform: translateY(-1px);
-}
-
-.sw-btn--primary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.sw-btn--ghost {
-  background: transparent;
-  color: var(--color-muted);
-  padding-inline: 0.5rem;
-}
-
-.sw-btn--ghost:hover {
-  color: var(--color-text, #394548);
-}
-
-/* ── Thank-you ───────────────────────────────────────────────────── */
-.sw-thanks {
-  text-align: center;
-  padding: 1rem 0.5rem 0.5rem;
-}
-
-.sw-thanks__icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(200, 152, 88, 0.14);
-  color: var(--color-secondary, #c89858);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.1rem;
-  font-size: 1.6rem;
-}
-
-.sw-thanks__title {
-  margin: 0 0 0.6rem;
-  font-family: var(--font-Signika);
-  font-weight: 700;
-  font-size: 1.3rem;
-  color: var(--color-text, #394548);
-}
-
-.sw-thanks__body {
-  margin: 0 0 1.2rem;
-  font-family: var(--font-Lexend);
-  font-weight: 300;
-  font-size: 1rem;
-  color: var(--color-muted);
-}
-
-.sw-thanks__verse {
-  margin: 0 auto 1.4rem;
-  padding: 0.9rem 1rem;
-  max-width: 30rem;
-  background: rgba(45, 78, 87, 0.04);
-  border-left: 3px solid var(--color-secondary, #c89858);
-  border-radius: 10px;
-  font-family: var(--font-Carattere), Georgia, serif;
-  font-size: 1.15rem;
-  color: var(--color-text, #394548);
-  text-align: left;
-}
-
-.sw-thanks__verse footer {
-  margin-top: 0.4rem;
-  font-family: var(--font-Signika);
-  font-size: 0.78rem;
-  color: var(--color-muted);
-  letter-spacing: 0.04em;
-}
-
-/* ── Dark mode ───────────────────────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  .sw-modal {
-    background: var(--color-bg-light, #121c1f);
-    color: var(--color-text, #e7eef0);
-  }
-  .sw-modal__header { border-bottom-color: rgba(255, 255, 255, 0.08); }
-  .sw-modal__close { background: rgba(255, 255, 255, 0.06); }
-  .sw-modal__close:hover { background: rgba(255, 255, 255, 0.12); }
-  .sw-progress__dot { background: rgba(255, 255, 255, 0.12); }
-  .sw-field input,
-  .sw-field select,
-  .sw-field textarea {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.14);
-    color: var(--color-text, #e7eef0);
-  }
-  .sw-radio { color: var(--color-text, #e7eef0); }
-  .sw-radio:hover { background: rgba(200, 152, 88, 0.1); }
-  .sw-radio input { border-color: rgba(255, 255, 255, 0.32); }
-  .sw-review {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-}
-
-/* ── Mobile ─────────────────────────────────────────────────────── */
-@media (max-width: 560px) {
-  .sw-backdrop { padding: 0; align-items: stretch; }
-  .sw-modal {
-    max-width: 100%;
-    max-height: 100vh;
-    border-radius: 0;
-  }
-  .sw-grid { grid-template-columns: 1fr; }
-  .sw-radio { flex: 1 1 100%; }
-
-  /* Scale the document down on phones and stop justify from stretching words
-     across the narrow column — left-align reads like an actual document. */
-  .sw-doc { padding: 0.95rem 0.85rem; font-size: 0.7rem; line-height: 1.4; }
-  .sw-doc .wv-brand { font-size: 0.9rem; }
-  .sw-doc .wv-addr { font-size: 0.62rem; margin-bottom: 6px; }
-  .sw-doc .wv-title { font-size: 0.82rem; }
-  .sw-doc .wv-sub { font-size: 0.62rem; margin-bottom: 6px; }
-  .sw-doc .wv-rule { margin-bottom: 8px; }
-  .sw-doc .wv-band { font-size: 0.6rem; padding: 3px 7px; margin: 10px 0 6px; }
-  .sw-doc .wv-event { font-size: 0.7rem; gap: 1px 0; }
-  .sw-doc .wv-event span { flex: 1 1 100%; }
-  .sw-doc .wv-fields td { padding-top: 10px; }
-  .sw-doc .wv-lbl { font-size: 0.56rem; padding: 1px 6px 5px; }
-  .sw-doc ol.wv-clauses { font-size: 0.7rem; padding-left: 15px; }
-  .sw-doc ol.wv-clauses li { text-align: left; margin-bottom: 4px; }
-  .sw-doc .wv-ack { font-size: 0.72rem; }
-  .sw-doc .wv-note { font-size: 0.62rem; }
-  .sw-doc .wv-foot { font-size: 0.56rem; }
-
-  /* Breathing room at the top of each step + keep the signature controls tidy. */
-  .sw-modal__body { padding-top: 1rem; }
-  .sw-step__hint { margin-top: 0.2rem; }
-  .sw-sign__bar { flex-wrap: wrap; gap: 0.5rem; }
-  .sw-sign__clear { margin-left: 0; }
-  .sw-pcard { padding: 0.8rem 0.85rem 0.3rem; }
-}
-
-/* ── Waiver step (Exoneración) — renders the real document on screen ─────────
-   The same navy-band layout as the printed / saved copy, on white "paper", with
-   the participant's entries embedded and the signature drawn onto the document's
-   own signature line. Always light (it's a legal document), even in dark mode. */
-.sw-doc {
-  background: #fff;
-  color: #1a1a1a;
-  border: 1px solid #d9dee3;
-  border-radius: 8px;
-  padding: 1.4rem 1.5rem;
-  margin: 0 0 0.9rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  font-family: 'Lexend Deca', system-ui, sans-serif;
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-.sw-doc .wv-brand { text-align: center; font-size: 1.15rem; font-weight: 800; color: #0e2d38; margin: 0; letter-spacing: .01em; }
-.sw-doc .wv-addr { text-align: center; font-size: 0.7rem; color: #5a5a5a; margin: 2px 0 8px; }
-.sw-doc .wv-title { text-align: center; font-size: 0.98rem; font-weight: 700; color: #1a1a1a; margin: 2px 0 1px; }
-.sw-doc .wv-sub { text-align: center; font-size: 0.72rem; font-style: italic; color: #5a5a5a; margin: 0 0 8px; }
-.sw-doc .wv-rule { border: 0; border-top: 2px solid #0e2d38; margin: 0 0 10px; }
-.sw-doc .wv-band { background: #0e2d38; color: #fff; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: .04em; padding: 3px 9px; margin: 13px 0 7px; border-radius: 3px; }
-.sw-doc .wv-event { display: flex; flex-wrap: wrap; gap: 3px 22px; font-size: 0.8rem; margin: 0 0 4px; }
-.sw-doc .wv-event b { color: #0e2d38; }
-.sw-doc .wv-fields { width: 100%; border-collapse: collapse; margin: 6px 0 2px; }
-.sw-doc .wv-fields td { padding: 12px 8px 1px; vertical-align: bottom; }
-.sw-doc .wv-line { border-bottom: 1px solid #9aa4b2; min-height: 16px; display: flex; flex-direction: column; justify-content: flex-end; }
-.sw-doc .wv-line--filled { font-weight: 600; color: #111; padding-bottom: 1px; }
-.sw-doc .wv-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: .02em; color: #5a5a5a; padding: 1px 8px 6px; }
-.sw-doc .wv-note { font-size: 0.68rem; font-style: italic; color: #5a5a5a; margin: 2px 0 0; }
-.sw-doc ol.wv-clauses { margin: 4px 0; padding-left: 18px; font-size: 0.8rem; }
-.sw-doc ol.wv-clauses li { margin: 0 0 5px; text-align: justify; }
-.sw-doc ol.wv-clauses li::marker { color: #0e2d38; font-weight: 700; }
-.sw-doc .wv-ack { font-weight: 700; font-size: 0.82rem; margin: 8px 0 2px; }
-.sw-doc .wv-sign { width: 100%; border-collapse: collapse; margin-top: 14px; }
-.sw-doc .wv-sign td { vertical-align: bottom; padding-top: 8px; }
-.sw-doc .wv-sign .wv-line { border-bottom: 1px solid #333; min-height: 30px; }
-/* The signature cell itself needs room to draw / show the typed name. */
-.sw-doc .wv-sign .wv-sigmount { min-height: 56px; justify-content: flex-end; display: flex; flex-direction: column; width: 100%; }
-.sw-doc .wv-foot { text-align: center; font-size: 0.62rem; color: #777; margin-top: 14px; }
-.sw-doc .wv-foot-note { font-style: italic; }
-.sw-doc .wv-sig-img { max-height: 56px; max-width: 100%; display: block; }
-
-/* The signature pad / typed input, embedded directly on the document's line. */
-.sw-doc .wv-sigmount { position: relative; }
-.sw-doc .sig-pad { position: relative; border: 0; background: transparent; overflow: hidden; touch-action: none; }
-.sw-doc .sig-pad__canvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
-.sw-doc .sig-pad__hint {
-  position: absolute; left: 4px; bottom: 4px;
-  font-size: 0.74rem; color: rgba(14, 45, 56, 0.4); pointer-events: none;
-}
-.sw-doc .sig-pad--inked .sig-pad__hint { display: none; }
-.sw-doc .wv-typed-input {
-  width: 100%; border: 0; background: transparent; padding: 0 2px 4px;
-  font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 1.5rem; color: #111;
-}
-.sw-doc .wv-typed-input:focus { outline: none; }
-
-/* Control bar under the document: signature mode + clear. */
-.sw-sign__bar { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 1rem; }
-.sw-sign__tabs {
-  display: inline-flex; gap: 0.2rem; padding: 0.2rem;
-  background: rgba(45, 78, 87, 0.07); border-radius: 999px;
-}
-.sw-sign__tab {
-  border: 0; background: transparent; padding: 0.38rem 0.85rem; border-radius: 999px;
-  font-family: var(--font-Signika); font-weight: 600; font-size: 0.76rem;
-  color: var(--color-muted); cursor: pointer; transition: background 0.18s, color 0.18s;
-}
-.sw-sign__tab.active { background: var(--color-dark, #2d4e57); color: #fff; }
-.sw-sign__clear {
-  margin-left: auto; border: 1px solid rgba(45, 78, 87, 0.2); background: transparent;
-  color: var(--color-muted); font-family: var(--font-Signika); font-size: 0.76rem;
-  font-weight: 600; cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 999px;
-}
-.sw-sign__clear:hover { color: #b91c1c; border-color: rgba(185, 28, 28, 0.4); }
-
-/* Smaller hint (used on the dense exoneración step). */
-.sw-step__hint--sm { font-size: 0.8rem; line-height: 1.4; }
-
-/* Section label between field groups (e.g. Padre/Tutor vs. Emergencia). */
-.sw-section-label {
-  font-family: var(--font-Signika); font-weight: 700; font-size: 0.82rem;
-  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-dark, #2d4e57);
-  margin: 1.1rem 0 0.6rem; padding-bottom: 0.3rem;
-  border-bottom: 1px solid rgba(45, 78, 87, 0.14);
-}
-.sw-section-label:first-child { margin-top: 0; }
-
-/* Participant card (repeatable in step 1 + per-child health in step 3). */
-.sw-pcard {
-  border: 1px solid rgba(45, 78, 87, 0.14); border-radius: 12px;
-  padding: 0.9rem 1rem 0.4rem; margin: 0 0 0.9rem;
-  background: rgba(45, 78, 87, 0.02);
-}
-.sw-pcard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
-.sw-pcard__title {
-  font-family: var(--font-Signika); font-weight: 700; font-size: 0.84rem;
-  color: var(--color-dark, #2d4e57);
-}
-.sw-pcard__remove {
-  border: 0; background: transparent; color: var(--color-muted);
-  cursor: pointer; font-size: 0.9rem; padding: 0.2rem 0.4rem; border-radius: 6px;
-}
-.sw-pcard__remove:hover { color: #b91c1c; background: rgba(185, 28, 28, 0.08); }
-
-/* "Add another participant" button. */
-.sw-add {
-  display: inline-flex; align-items: center; gap: 0.45rem;
-  border: 1.5px dashed rgba(45, 78, 87, 0.32); background: transparent;
-  color: var(--color-dark, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
-  font-size: 0.82rem; padding: 0.6rem 1.1rem; border-radius: 10px; cursor: pointer;
-  transition: background 0.18s, border-color 0.18s;
-}
-.sw-add:hover { background: rgba(45, 78, 87, 0.06); border-color: rgba(45, 78, 87, 0.5); }
-
-/* "Same as parent" checkbox row. */
-.sw-check {
-  display: flex; align-items: center; gap: 0.55rem; cursor: pointer;
-  font-family: var(--font-Lexend); font-size: 0.86rem; color: var(--color-text, #394548);
-  margin: 0 0 0.8rem;
-}
-.sw-check input { width: 1.05rem; height: 1.05rem; accent-color: var(--color-dark, #2d4e57); cursor: pointer; }
-
-/* Disabled emergency grid when it mirrors the parent. */
-.sw-grid--disabled { opacity: 0.55; }
-.sw-field input:disabled, .sw-field select:disabled, .sw-field textarea:disabled {
-  background: rgba(45, 78, 87, 0.05); cursor: not-allowed; color: var(--color-muted);
 }
 
 /* -- pages doctrina -- */
