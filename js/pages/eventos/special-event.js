@@ -7,6 +7,7 @@
 import { sb } from '/js/lib/supabase.js';
 import { sanitizeHtml, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
+import { celebrateQrLanding } from '/js/lib/celebrate.js';
 
 const TZ = 'America/New_York';
 
@@ -98,15 +99,24 @@ function renderEvent(ev) {
     show('event-information-section');
   }
 
-  // Single register CTA → opens the step-by-step wizard
+  // Single register CTA → opens the step-by-step wizard.
+  // Registration is offered only while the event is open AND its date hasn't
+  // passed — the same gate the RLS INSERT policy enforces server-side.
+  const past = ev.event_at ? (() => { try { return new Date(ev.event_at).getTime() < Date.now(); } catch { return false; } })() : false;
+  const isOpen = ev.registration_open && ev.status !== 'closed' && ev.status !== 'completed' && !past;
   const btn = $('event-register-btn');
-  if (ev.registration_open) {
+  if (isOpen) {
     if (btn) {
       btn.href = `/eventos/registro.html?e=${encodeURIComponent(ev.slug)}`;  // no-JS fallback
       btn.addEventListener('click', (e) => {
         e.preventDefault();
-        openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title, eventSlug: ev.slug });
+        openRegistrationWizard({ eventId: ev.id, eventTitle: ev.title, eventSlug: ev.slug, eventDate: ev.event_at, eventLocation: ev.location });
       });
+      // Welcome intro: blur the page, play fireworks, and glow the register
+      // button so the eye lands on it — then fade smoothly back to normal.
+      // Plays on every arrival while registration is open; respects
+      // reduced-motion (no-op there).
+      requestAnimationFrame(() => celebrateQrLanding({ button: btn }));
     }
   } else {
     hide('event-action');

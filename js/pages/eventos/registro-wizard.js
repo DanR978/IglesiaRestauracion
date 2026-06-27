@@ -17,9 +17,22 @@
 
 import { sb } from '/js/lib/supabase.js';
 import { escapeHtml } from '/js/utils/escape.js';
-import { isValidEmail, isValidUSPhone } from '/js/lib/validators.js';
+import { isValidEmail, isValidUSPhone, formatUSPhoneNational } from '/js/lib/validators.js';
+import { createSignaturePad } from '/js/components/signature-pad.js';
+import { WAIVER_VERSION, renderWaiverPrintDoc } from '/js/lib/waiver.js';
+import { celebrateModal } from '/js/lib/celebrate.js';
 
-const TOTAL_STEPS = 4;
+const TOTAL_STEPS = 5;
+const DEFAULT_LOC = '2601 Clays Mill Rd, Lexington, KY 40503';
+
+function fmtDateEs(iso) {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString('es', {
+      day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/New_York',
+    });
+  } catch { return ''; }
+}
 
 const SEX_OPTS = [
   { v: '',                  label: '— Prefiero no decir —' },
@@ -29,30 +42,47 @@ const SEX_OPTS = [
 ];
 
 const STEP_TITLES = {
-  1: 'Asistente',
+  1: 'Participantes',
   2: 'Contacto de emergencia',
   3: 'Información de salud',
-  4: 'Confirmar y enviar',
+  4: 'Exoneración',
+  5: 'Confirmar y enviar',
 };
 
 // ─── State ──────────────────────────────────────────────────────────────────
 let step = 1;
-let eventCtx = null;        // { id, title }
+let eventCtx = null;        // { id, title, slug, date, location }
 let onSuccess = null;
+let signaturePad = null;    // active SignaturePad on the Exoneración step
+let stopCelebration = null; // teardown for the confirm-step celebration
 
-const state = {
-  first_name: '', last_name: '', age: '', sex: '',
-  contact_name: '', relationship: '', contact_phone: '', contact_email: '',
-  allergies: '', medical_conditions: '', notes: '',
-};
-
-function resetState() {
-  Object.assign(state, {
-    first_name: '', last_name: '', age: '', sex: '',
-    contact_name: '', relationship: '', contact_phone: '', contact_email: '',
-    allergies: '', medical_conditions: '', notes: '',
-  });
+// One attendee. A parent can register several at once (e.g. siblings); each
+// keeps its own identity + health, and all share the contact + signed waiver.
+function blankParticipant() {
+  return { first_name: '', last_name: '', age: '', sex: '', allergies: '', medical_conditions: '', notes: '' };
 }
+
+const FRESH = () => ({
+  participants: [blankParticipant()],
+  // Parent / legal guardian — the person who signs.
+  parent_name: '', parent_relationship: '', parent_phone: '', parent_email: '',
+  // Emergency contact. When same_emergency is true it mirrors the parent.
+  same_emergency: true, contact_name: '', contact_phone: '',
+  // Waiver: signature is either a drawn PNG (sig_image) or a typed name
+  // (sig_name); sig_mode selects which. signed_at stamps when it was signed.
+  sig_mode: 'draw', sig_image: '', sig_name: '', signed_at: '',
+});
+
+// The emergency contact actually used (parent's info when "same" is checked).
+function emergencyName()  { return state.same_emergency ? state.parent_name  : state.contact_name; }
+function emergencyPhone() { return state.same_emergency ? state.parent_phone : state.contact_phone; }
+
+const state = FRESH();
+
+function resetState() { Object.assign(state, FRESH()); }
+
+// Display name for a participant ("" until they type one).
+function participantName(p) { return `${p.first_name} ${p.last_name}`.trim(); }
 
 // ─── DOM utility ────────────────────────────────────────────────────────────
 function el(tag, attrs = {}, children = []) {
@@ -95,11 +125,14 @@ function ensureRoot() {
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────
-export function openRegistrationWizard({ eventId, eventTitle, eventSlug, onSubmitted } = {}) {
+export function openRegistrationWizard({ eventId, eventTitle, eventSlug, eventDate, eventLocation, onSubmitted } = {}) {
   if (!eventId) return;
   ensureRoot();
   step = 1;
-  eventCtx = { id: eventId, title: eventTitle || '', slug: eventSlug || '' };
+  eventCtx = {
+    id: eventId, title: eventTitle || '', slug: eventSlug || '',
+    date: eventDate || '', location: eventLocation || '',
+  };
   onSuccess = onSubmitted || null;
   resetState();
   render();
@@ -111,6 +144,7 @@ export function openRegistrationWizard({ eventId, eventTitle, eventSlug, onSubmi
 
 export function close() {
   if (!rootEl) return;
+  if (stopCelebration) { try { stopCelebration(); } catch {} stopCelebration = null; }
   rootEl.classList.remove('open');
   rootEl.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
@@ -130,129 +164,293 @@ function render() {
     }));
   }
 
+  // Tear down any signature pad from a previous render (removes its listeners);
+  // step 4 recreates a fresh one.
+  if (signaturePad) { try { signaturePad.destroy(); } catch {} signaturePad = null; }
+
+  // Stop the confirm-step celebration when navigating away from it (the neon
+  // border + button pulse + fireworks only belong on the "Confirmar" step).
+  if (stopCelebration) { try { stopCelebration(); } catch {} stopCelebration = null; }
+
   const body = rootEl.querySelector('#rwBody');
   body.innerHTML = '';
   if      (step === 1) renderStep1(body);
   else if (step === 2) renderStep2(body);
   else if (step === 3) renderStep3(body);
   else if (step === 4) renderStep4(body);
+  else if (step === 5) renderStep5(body);
 }
 
-// ─── Step 1: Asistente ──────────────────────────────────────────────────────
+// ─── Step 1: Participantes (one or several) ─────────────────────────────────
 function renderStep1(host) {
-  host.appendChild(el('p', { class: 'sw-step__hint' }, 'Datos de la persona que se inscribe.'));
-  const grid = el('div', { class: 'sw-grid' });
+  host.appendChild(el('p', { class: 'sw-step__hint' },
+    'Agrega a cada persona que se inscribe. Puedes inscribir a varios (por ejemplo, hermanos) con una sola firma.'));
 
-  grid.appendChild(field({ id: 'rwFirst', label: 'Nombre *',
-    input: el('input', { type: 'text', id: 'rwFirst', autocomplete: 'given-name', value: state.first_name,
-      oninput: (e) => { state.first_name = e.target.value; } }) }));
+  state.participants.forEach((p, i) => host.appendChild(participantCard(p, i)));
 
-  grid.appendChild(field({ id: 'rwLast', label: 'Apellido *',
-    input: el('input', { type: 'text', id: 'rwLast', autocomplete: 'family-name', value: state.last_name,
-      oninput: (e) => { state.last_name = e.target.value; } }) }));
+  host.appendChild(el('button', { type: 'button', class: 'sw-add',
+    onclick: () => { state.participants.push(blankParticipant()); render(); } },
+    [el('i', { class: 'fas fa-plus' }), ' Agregar otro participante']));
 
-  grid.appendChild(field({ id: 'rwAge', label: 'Edad *',
-    input: el('input', { type: 'number', id: 'rwAge', inputmode: 'numeric', min: '0', max: '120', value: state.age,
-      oninput: (e) => { state.age = e.target.value; } }) }));
-
-  grid.appendChild(field({ id: 'rwSex', label: 'Sexo',
-    input: selectEl('rwSex', SEX_OPTS, state.sex, v => { state.sex = v; }) }));
-
-  host.appendChild(grid);
   host.appendChild(nav({
     next: 'Siguiente →',
     onNext: () => {
-      if (!state.first_name.trim()) return flashError('Escribe el nombre.', 'rwFirst');
-      if (!state.last_name.trim())  return flashError('Escribe el apellido.', 'rwLast');
-      const age = Number(state.age);
-      if (!state.age.trim() || !Number.isInteger(age) || age < 0 || age > 120)
-        return flashError('Escribe una edad válida.', 'rwAge');
+      for (let i = 0; i < state.participants.length; i++) {
+        const p = state.participants[i];
+        if (!p.first_name.trim()) return flashError(`Escribe el nombre del participante ${i + 1}.`, `rwFirst${i}`);
+        if (!p.last_name.trim())  return flashError(`Escribe el apellido del participante ${i + 1}.`, `rwLast${i}`);
+        const age = Number(p.age);
+        if (!String(p.age).trim() || !Number.isInteger(age) || age < 0 || age > 120)
+          return flashError(`Escribe una edad válida para el participante ${i + 1}.`, `rwAge${i}`);
+      }
       step = 2; render();
     },
   }));
 }
 
-// ─── Step 2: Contacto de emergencia ─────────────────────────────────────────
-function renderStep2(host) {
-  host.appendChild(el('p', { class: 'sw-step__hint' }, 'A quién contactar en caso de emergencia.'));
+function participantCard(p, i) {
+  const multi = state.participants.length > 1;
+  const head = el('div', { class: 'sw-pcard__head' }, [
+    el('span', { class: 'sw-pcard__title' }, multi ? `Participante ${i + 1}` : 'Participante'),
+    multi ? el('button', { type: 'button', class: 'sw-pcard__remove', 'aria-label': 'Quitar participante',
+      onclick: () => { state.participants.splice(i, 1); render(); } }, [el('i', { class: 'fas fa-trash' })]) : null,
+  ]);
   const grid = el('div', { class: 'sw-grid' });
+  grid.appendChild(field({ id: `rwFirst${i}`, label: 'Nombre *',
+    input: el('input', { type: 'text', id: `rwFirst${i}`, autocomplete: 'off', value: p.first_name,
+      oninput: (e) => { p.first_name = e.target.value; } }) }));
+  grid.appendChild(field({ id: `rwLast${i}`, label: 'Apellido *',
+    input: el('input', { type: 'text', id: `rwLast${i}`, autocomplete: 'off', value: p.last_name,
+      oninput: (e) => { p.last_name = e.target.value; } }) }));
+  grid.appendChild(field({ id: `rwAge${i}`, label: 'Edad *',
+    input: el('input', { type: 'number', id: `rwAge${i}`, inputmode: 'numeric', min: '0', max: '120', value: p.age,
+      oninput: (e) => { p.age = e.target.value; } }) }));
+  grid.appendChild(field({ id: `rwSex${i}`, label: 'Sexo',
+    input: selectEl(`rwSex${i}`, SEX_OPTS, p.sex, v => { p.sex = v; }) }));
+  return el('div', { class: 'sw-pcard' }, [head, grid]);
+}
 
-  grid.appendChild(field({ id: 'rwContact', label: 'Nombre del contacto *',
-    input: el('input', { type: 'text', id: 'rwContact', autocomplete: 'name', value: state.contact_name,
+// ─── Step 2: Padre/Tutor + contacto de emergencia ───────────────────────────
+function renderStep2(host) {
+  host.appendChild(el('p', { class: 'sw-step__hint' },
+    'Información del padre, la madre o el tutor legal que firma, y un contacto de emergencia.'));
+
+  // Parent / guardian
+  host.appendChild(el('div', { class: 'sw-section-label' }, 'Padre / Madre / Tutor legal'));
+  const pg = el('div', { class: 'sw-grid' });
+  pg.appendChild(field({ id: 'rwPName', label: 'Nombre completo *',
+    input: el('input', { type: 'text', id: 'rwPName', autocomplete: 'name', value: state.parent_name,
+      oninput: (e) => { state.parent_name = e.target.value; if (state.same_emergency) syncEmergencyInputs(); } }) }));
+  pg.appendChild(field({ id: 'rwPRel', label: 'Parentesco *',
+    input: el('input', { type: 'text', id: 'rwPRel', placeholder: 'ej. Madre, Padre, Tutor', value: state.parent_relationship,
+      oninput: (e) => { state.parent_relationship = e.target.value; } }) }));
+  pg.appendChild(field({ id: 'rwPPhone', label: 'Teléfono *',
+    input: el('input', { type: 'tel', id: 'rwPPhone', autocomplete: 'tel', inputmode: 'tel', placeholder: '(859) 555-1234', value: state.parent_phone,
+      oninput: (e) => { state.parent_phone = e.target.value; if (state.same_emergency) syncEmergencyInputs(); } }) }));
+  pg.appendChild(field({ id: 'rwPEmail', label: 'Correo electrónico (opcional)',
+    input: el('input', { type: 'email', id: 'rwPEmail', autocomplete: 'email', placeholder: 'correo@ejemplo.com', value: state.parent_email,
+      oninput: (e) => { state.parent_email = e.target.value; } }) }));
+  host.appendChild(pg);
+
+  // Emergency contact + "same as parent" toggle
+  host.appendChild(el('div', { class: 'sw-section-label' }, 'Contacto de emergencia'));
+  host.appendChild(el('label', { class: 'sw-check' }, [
+    el('input', { type: 'checkbox', id: 'rwSame', checked: state.same_emergency,
+      onchange: (e) => { state.same_emergency = e.target.checked; render(); } }),
+    el('span', {}, 'Usar la información del padre / madre / tutor'),
+  ]));
+
+  const eg = el('div', { class: 'sw-grid' });
+  eg.appendChild(field({ id: 'rwEName', label: 'Nombre del contacto *',
+    input: el('input', { type: 'text', id: 'rwEName', autocomplete: 'off',
+      value: emergencyName(), disabled: state.same_emergency,
       oninput: (e) => { state.contact_name = e.target.value; } }) }));
-
-  grid.appendChild(field({ id: 'rwRel', label: 'Parentesco *',
-    input: el('input', { type: 'text', id: 'rwRel', placeholder: 'ej. Madre, Padre, Tutor', value: state.relationship,
-      oninput: (e) => { state.relationship = e.target.value; } }) }));
-
-  grid.appendChild(field({ id: 'rwPhone', label: 'Teléfono *',
-    input: el('input', { type: 'tel', id: 'rwPhone', autocomplete: 'tel', inputmode: 'tel', placeholder: '(859) 555-1234', value: state.contact_phone,
+  eg.appendChild(field({ id: 'rwEPhone', label: 'Teléfono *',
+    input: el('input', { type: 'tel', id: 'rwEPhone', inputmode: 'tel', placeholder: '(859) 555-1234',
+      value: emergencyPhone(), disabled: state.same_emergency,
       oninput: (e) => { state.contact_phone = e.target.value; } }) }));
+  if (state.same_emergency) eg.classList.add('sw-grid--disabled');
+  host.appendChild(eg);
 
-  grid.appendChild(field({ id: 'rwEmail', label: 'Correo electrónico (opcional)',
-    input: el('input', { type: 'email', id: 'rwEmail', autocomplete: 'email', placeholder: 'correo@ejemplo.com', value: state.contact_email,
-      oninput: (e) => { state.contact_email = e.target.value; } }) }));
-
-  host.appendChild(grid);
   host.appendChild(nav({
     back: '← Atrás', onBack: () => { step = 1; render(); },
     next: 'Siguiente →',
     onNext: () => {
-      if (!state.contact_name.trim()) return flashError('Escribe el nombre del contacto.', 'rwContact');
-      if (!state.relationship.trim()) return flashError('Indica el parentesco.', 'rwRel');
-      if (!isValidUSPhone(state.contact_phone)) return flashError('Escribe un teléfono válido de 10 dígitos.', 'rwPhone');
-      if (state.contact_email.trim() && !isValidEmail(state.contact_email)) return flashError('El correo no es válido.', 'rwEmail');
+      if (!state.parent_name.trim())         return flashError('Escribe el nombre del padre / madre / tutor.', 'rwPName');
+      if (!state.parent_relationship.trim()) return flashError('Indica el parentesco.', 'rwPRel');
+      if (!isValidUSPhone(state.parent_phone)) return flashError('Escribe un teléfono válido de 10 dígitos.', 'rwPPhone');
+      if (state.parent_email.trim() && !isValidEmail(state.parent_email)) return flashError('El correo no es válido.', 'rwPEmail');
+      if (!state.same_emergency) {
+        if (!state.contact_name.trim())          return flashError('Escribe el nombre del contacto de emergencia.', 'rwEName');
+        if (!isValidUSPhone(state.contact_phone)) return flashError('Escribe un teléfono de emergencia válido.', 'rwEPhone');
+      }
       step = 3; render();
     },
   }));
 }
 
-// ─── Step 3: Salud ──────────────────────────────────────────────────────────
+// Mirror the parent's name/phone into the (disabled) emergency inputs live.
+function syncEmergencyInputs() {
+  const n = rootEl.querySelector('#rwEName'), p = rootEl.querySelector('#rwEPhone');
+  if (n) n.value = state.parent_name;
+  if (p) p.value = state.parent_phone;
+}
+
+// ─── Step 3: Salud (per participant) ────────────────────────────────────────
 function renderStep3(host) {
-  host.appendChild(el('p', { class: 'sw-step__hint' }, 'Todo lo de abajo es opcional, pero nos ayuda a cuidar mejor al asistente.'));
+  host.appendChild(el('p', { class: 'sw-step__hint' },
+    'Todo lo de abajo es opcional, pero nos ayuda a cuidar mejor a cada asistente.'));
 
-  host.appendChild(field({ id: 'rwAllergies', label: 'Alergias', full: true,
-    input: el('textarea', { id: 'rwAllergies', rows: '2', maxlength: '600', placeholder: 'Indica cualquier alergia',
-      oninput: (e) => { state.allergies = e.target.value; } }, state.allergies) }));
-
-  host.appendChild(field({ id: 'rwMedical', label: 'Condiciones médicas', full: true,
-    input: el('textarea', { id: 'rwMedical', rows: '2', maxlength: '600', placeholder: 'Indica cualquier condición médica',
-      oninput: (e) => { state.medical_conditions = e.target.value; } }, state.medical_conditions) }));
-
-  host.appendChild(field({ id: 'rwNotes', label: 'Notas adicionales', full: true,
-    input: el('textarea', { id: 'rwNotes', rows: '2', maxlength: '600', placeholder: 'Cualquier otra cosa que debamos saber',
-      oninput: (e) => { state.notes = e.target.value; } }, state.notes) }));
+  const multi = state.participants.length > 1;
+  state.participants.forEach((p, i) => {
+    const card = el('div', { class: 'sw-pcard' });
+    if (multi) card.appendChild(el('div', { class: 'sw-pcard__head' }, [
+      el('span', { class: 'sw-pcard__title' }, participantName(p) || `Participante ${i + 1}`),
+    ]));
+    card.appendChild(field({ id: `rwAllergies${i}`, label: 'Alergias', full: true,
+      input: el('textarea', { id: `rwAllergies${i}`, rows: '2', maxlength: '600', placeholder: 'Indica cualquier alergia',
+        oninput: (e) => { p.allergies = e.target.value; } }, p.allergies) }));
+    card.appendChild(field({ id: `rwMedical${i}`, label: 'Condiciones médicas', full: true,
+      input: el('textarea', { id: `rwMedical${i}`, rows: '2', maxlength: '600', placeholder: 'Indica cualquier condición médica',
+        oninput: (e) => { p.medical_conditions = e.target.value; } }, p.medical_conditions) }));
+    card.appendChild(field({ id: `rwNotes${i}`, label: 'Notas adicionales', full: true,
+      input: el('textarea', { id: `rwNotes${i}`, rows: '2', maxlength: '600', placeholder: 'Cualquier otra cosa que debamos saber',
+        oninput: (e) => { p.notes = e.target.value; } }, p.notes) }));
+    host.appendChild(card);
+  });
 
   host.appendChild(nav({
     back: '← Atrás', onBack: () => { step = 2; render(); },
-    next: 'Revisar →', onNext: () => { step = 4; render(); },
+    next: 'Continuar →', onNext: () => { step = 4; render(); },
   }));
 }
 
-// ─── Step 4: Confirmar ──────────────────────────────────────────────────────
+// ─── Step 4: Exoneración (waiver + signature) ───────────────────────────────
+// Renders the real document (same layout as the printed / saved copy) with the
+// event + participant entries embedded; the signature is captured directly on
+// the document's own signature line and the date is auto-stamped. A drawn
+// signature is the default; "Escribir nombre" is a typed e-signature fallback.
 function renderStep4(host) {
+  host.appendChild(el('p', { class: 'sw-step__hint sw-step__hint--sm' },
+    'Lee la exoneración. Tus datos ya están completos — solo falta tu firma; la fecha se registra automáticamente.'));
+
+  // The document, with a mount point where the signature goes.
+  const ev = eventCtx || {};
+  const docHtml = renderWaiverPrintDoc({
+    event: { title: ev.title || '', date: fmtDateEs(ev.date), location: ev.location || DEFAULT_LOC },
+    participants: state.participants.map(p => ({ name: participantName(p), age: p.age })),
+    guardian: { name: state.parent_name, relationship: state.parent_relationship, phone: formatUSPhoneNational(state.parent_phone), email: state.parent_email },
+    emergency: { name: emergencyName(), phone: formatUSPhoneNational(emergencyPhone()) },
+    signedDate: fmtDateEs(state.signed_at || new Date().toISOString()),
+    signatureSlot: '<div class="wv-sigmount" id="wvSigMount"></div>',
+  });
+  const doc = el('div', { class: 'sw-doc', html: docHtml });
+  host.appendChild(doc);
+
+  // Mount the active signer (pad or typed input) onto the document's line.
+  const mount = doc.querySelector('#wvSigMount');
+  if (state.sig_mode === 'type') {
+    mount.appendChild(el('input', { type: 'text', id: 'rwSigName', class: 'wv-typed-input', autocomplete: 'name',
+      placeholder: 'Escribe tu nombre completo', value: state.sig_name,
+      oninput: (e) => { state.sig_name = e.target.value; } }));
+  } else {
+    signaturePad = createSignaturePad({ height: 64 });
+    mount.appendChild(signaturePad.element);
+    if (state.sig_image) {
+      const saved = state.sig_image;
+      requestAnimationFrame(() => { signaturePad?.resize(); signaturePad?.loadDataURL(saved); });
+    }
+  }
+
+  // Control bar: signature mode toggle + clear (clear only applies to drawing).
+  host.appendChild(el('div', { class: 'sw-sign__bar' }, [
+    el('div', { class: 'sw-sign__tabs', role: 'tablist' }, [
+      el('button', { type: 'button', class: 'sw-sign__tab' + (state.sig_mode === 'draw' ? ' active' : ''),
+        onclick: () => switchSig('draw') }, 'Dibujar'),
+      el('button', { type: 'button', class: 'sw-sign__tab' + (state.sig_mode === 'type' ? ' active' : ''),
+        onclick: () => switchSig('type') }, 'Escribir nombre'),
+    ]),
+    state.sig_mode === 'draw'
+      ? el('button', { type: 'button', class: 'sw-sign__clear',
+          onclick: () => { signaturePad?.clear(); state.sig_image = ''; } }, 'Borrar firma')
+      : null,
+  ]));
+
+  host.appendChild(nav({
+    back: '← Atrás', onBack: () => { stashSignature(); step = 3; render(); },
+    next: 'Revisar →', onNext: () => {
+      stashSignature();
+      if (state.sig_mode === 'draw' && !state.sig_image)
+        return flashError('Dibuja tu firma para continuar, o usa «Escribir nombre».');
+      if (state.sig_mode === 'type' && state.sig_name.trim().length < 3)
+        return flashError('Escribe tu nombre completo como firma.', 'rwSigName');
+      if (!state.signed_at) state.signed_at = new Date().toISOString();
+      step = 5; render();
+    },
+  }));
+}
+
+// Pull the current drawing out of the live pad into state before the step is
+// re-rendered (tab switch, back/next) so the signature survives navigation.
+function stashSignature() {
+  if (state.sig_mode === 'draw' && signaturePad) {
+    const url = signaturePad.toDataURL();
+    if (url) state.sig_image = url;
+  }
+}
+
+function switchSig(mode) {
+  if (state.sig_mode === mode) return;
+  stashSignature();
+  state.sig_mode = mode;
+  render();
+}
+
+// ─── Step 5: Confirmar ──────────────────────────────────────────────────────
+function renderStep5(host) {
   host.appendChild(el('p', { class: 'sw-step__hint' }, 'Revisa los datos. Si todo está bien, envía la inscripción.'));
 
   const review = el('dl', { class: 'sw-review' });
-  reviewRow(review, 'Nombre',     `${state.first_name} ${state.last_name}`.trim());
-  reviewRow(review, 'Edad',       state.age);
-  if (state.sex)                reviewRow(review, 'Sexo', state.sex);
-  reviewRow(review, 'Contacto',   state.contact_name);
-  reviewRow(review, 'Parentesco', state.relationship);
-  reviewRow(review, 'Teléfono',   state.contact_phone);
-  if (state.contact_email)      reviewRow(review, 'Email', state.contact_email);
-  if (state.allergies)          reviewRow(review, 'Alergias', state.allergies);
-  if (state.medical_conditions) reviewRow(review, 'Condiciones', state.medical_conditions);
-  if (state.notes)              reviewRow(review, 'Notas', state.notes);
+  const multi = state.participants.length > 1;
+  state.participants.forEach((p, i) => {
+    const tag = multi ? ` ${i + 1}` : '';
+    reviewRow(review, `Participante${tag}`,
+      `${participantName(p)} · ${p.age} años${p.sex ? ` · ${p.sex}` : ''}`);
+    if (p.allergies)          reviewRow(review, `Alergias${tag}`, p.allergies);
+    if (p.medical_conditions) reviewRow(review, `Condiciones${tag}`, p.medical_conditions);
+    if (p.notes)              reviewRow(review, `Notas${tag}`, p.notes);
+  });
+  reviewRow(review, 'Padre / tutor', `${state.parent_name} (${state.parent_relationship})`);
+  reviewRow(review, 'Teléfono',   formatUSPhoneNational(state.parent_phone));
+  if (state.parent_email)       reviewRow(review, 'Email', state.parent_email);
+  reviewRow(review, 'Emergencia', `${emergencyName()} · ${formatUSPhoneNational(emergencyPhone())}`);
+  reviewRow(review, 'Exoneración', `Firmada · ${fmtDateEs(state.signed_at)}`);
   host.appendChild(review);
+
+  // Signature preview so they can confirm the mark they're submitting.
+  if (state.sig_image) {
+    host.appendChild(el('div', { class: 'sw-sign__row' }, [
+      el('img', { src: state.sig_image, alt: 'Firma', style: 'max-height:54px;border-bottom:1px solid #999' }),
+    ]));
+  } else if (state.sig_name) {
+    host.appendChild(el('div', { class: 'sw-sign__typed' }, state.sig_name));
+  }
 
   host.appendChild(el('p', { class: 'sw-legal' },
     'Tu información solo la verá el liderazgo de la iglesia para organizar el evento.'));
 
   host.appendChild(nav({
-    back: '← Atrás', onBack: () => { step = 3; render(); },
+    back: '← Atrás', onBack: () => { step = 4; render(); },
     next: 'Enviar inscripción', nextId: 'rwSubmit', onNext: submit,
   }));
+
+  // Reaching the final step is the celebratory moment: neon border + fireworks
+  // and confetti, with the "Enviar inscripción" button pulsing to invite the
+  // last tap. Respects reduced-motion (handled inside celebrateModal).
+  stopCelebration = celebrateModal({
+    modal: rootEl.querySelector('.sw-modal'),
+    button: rootEl.querySelector('#rwSubmit'),
+  });
 }
 
 // ─── Submit ─────────────────────────────────────────────────────────────────
@@ -263,20 +461,35 @@ async function submit() {
   const orig = btn.innerHTML;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando…';
 
-  const payload = {
-    event_id:           eventCtx.id,
-    first_name:         state.first_name.trim(),
-    last_name:          state.last_name.trim(),
-    age:                Number(state.age),
-    sex:                state.sex || null,
-    contact_name:       state.contact_name.trim(),
-    relationship:       state.relationship.trim(),
-    contact_phone:      state.contact_phone.trim(),
-    contact_email:      state.contact_email.trim() || null,
-    allergies:          state.allergies.trim() || null,
-    medical_conditions: state.medical_conditions.trim() || null,
-    notes:              state.notes.trim() || null,
+  // Fields shared by every participant in this submission.
+  const groupId = state.participants.length > 1 && typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID() : null;
+  const shared = {
+    event_id:             eventCtx.id,
+    contact_name:         emergencyName().trim(),
+    contact_phone:        emergencyPhone().trim(),
+    relationship:         state.parent_relationship.trim(),
+    contact_email:        state.parent_email.trim() || null,
+    parent_name:          state.parent_name.trim(),
+    parent_relationship:  state.parent_relationship.trim(),
+    parent_phone:         state.parent_phone.trim(),
+    parent_email:         state.parent_email.trim() || null,
+    signature_image:      state.sig_mode === 'draw' ? (state.sig_image || null) : null,
+    signature_name:       state.sig_mode === 'type' ? (state.sig_name.trim() || null) : null,
+    waiver_signed_at:     state.signed_at || new Date().toISOString(),
+    waiver_version:       WAIVER_VERSION,
+    registration_group_id: groupId,
   };
+  const payload = state.participants.map(p => ({
+    ...shared,
+    first_name:         p.first_name.trim(),
+    last_name:          p.last_name.trim(),
+    age:                Number(p.age),
+    sex:                p.sex || null,
+    allergies:          p.allergies.trim() || null,
+    medical_conditions: p.medical_conditions.trim() || null,
+    notes:              p.notes.trim() || null,
+  }));
 
   const { error } = await sb.from('event_registrations').insert(payload);
 
@@ -288,20 +501,24 @@ async function submit() {
     return;
   }
 
-  renderSuccess(state.first_name);
-  if (typeof onSuccess === 'function') { try { onSuccess({ first_name: payload.first_name }); } catch {} }
+  renderSuccess(state.participants[0]?.first_name || '', state.participants.length);
+  if (typeof onSuccess === 'function') { try { onSuccess({ first_name: payload[0].first_name }); } catch {} }
 }
 
-function renderSuccess(name) {
+function renderSuccess(name, count = 1) {
+  // The celebration belongs to the confirm step; the success screen is calm.
+  if (stopCelebration) { try { stopCelebration(); } catch {} stopCelebration = null; }
   const first = (name || '').trim().split(/\s+/)[0];
   const body  = rootEl.querySelector('#rwBody');
+  const msg = count > 1
+    ? `Hemos recibido las ${count} inscripciones correctamente.`
+    : 'Hemos recibido la información correctamente.';
   body.innerHTML = `
     <div class="sw-thanks" role="status" aria-live="polite">
       <div class="sw-thanks__icon" aria-hidden="true"><i class="fas fa-circle-check"></i></div>
       <h2 class="sw-thanks__title">¡Inscripción enviada${first ? ', ' + escapeHtml(first) : ''}!</h2>
-      <p class="sw-thanks__body">Gracias. Hemos recibido la información correctamente.</p>
+      <p class="sw-thanks__body">Gracias. ${msg}</p>
       <div class="sw-nav">
-        <button type="button" class="sw-btn sw-btn--ghost" id="rwAnother">Inscribir a otra persona</button>
         <span class="sw-nav__spacer"></span>
         <button type="button" class="sw-btn sw-btn--primary" id="rwBack">Volver al evento</button>
       </div>
@@ -312,10 +529,6 @@ function renderSuccess(name) {
     // Send them back to the event home page they signed up at.
     if (eventCtx?.slug) window.location.href = `/eventos/evento-especial.html?e=${encodeURIComponent(eventCtx.slug)}`;
     else close();
-  });
-  rootEl.querySelector('#rwAnother').addEventListener('click', () => {
-    step = 1; resetState(); render();
-    requestAnimationFrame(() => rootEl.querySelector('input')?.focus());
   });
 }
 

@@ -21,6 +21,13 @@
   pointer-events: all;
 }
 
+/* The confirm dialog is a meta-modal: it can be opened on top of another modal
+   (e.g. "¿Eliminar?" over a registration's details). Keep it above its peers so
+   it never appears behind the modal that triggered it. */
+#confirmModal {
+  z-index: calc(var(--z-modal) + 10);
+}
+
 .modal {
   background: var(--color-white);
   border-radius: var(--radius-lg);

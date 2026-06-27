@@ -554,4 +554,160 @@
   }
   .sw-grid { grid-template-columns: 1fr; }
   .sw-radio { flex: 1 1 100%; }
+
+  /* Scale the document down on phones and stop justify from stretching words
+     across the narrow column — left-align reads like an actual document. */
+  .sw-doc { padding: 0.95rem 0.85rem; font-size: 0.7rem; line-height: 1.4; }
+  .sw-doc .wv-brand { font-size: 0.9rem; }
+  .sw-doc .wv-addr { font-size: 0.62rem; margin-bottom: 6px; }
+  .sw-doc .wv-title { font-size: 0.82rem; }
+  .sw-doc .wv-sub { font-size: 0.62rem; margin-bottom: 6px; }
+  .sw-doc .wv-rule { margin-bottom: 8px; }
+  .sw-doc .wv-band { font-size: 0.6rem; padding: 3px 7px; margin: 10px 0 6px; }
+  .sw-doc .wv-event { font-size: 0.7rem; gap: 1px 0; }
+  .sw-doc .wv-event span { flex: 1 1 100%; }
+  .sw-doc .wv-fields td { padding-top: 10px; }
+  .sw-doc .wv-lbl { font-size: 0.56rem; padding: 1px 6px 5px; }
+  .sw-doc ol.wv-clauses { font-size: 0.7rem; padding-left: 15px; }
+  .sw-doc ol.wv-clauses li { text-align: left; margin-bottom: 4px; }
+  .sw-doc .wv-ack { font-size: 0.72rem; }
+  .sw-doc .wv-note { font-size: 0.62rem; }
+  .sw-doc .wv-foot { font-size: 0.56rem; }
+
+  /* Breathing room at the top of each step + keep the signature controls tidy. */
+  .sw-modal__body { padding-top: 1rem; }
+  .sw-step__hint { margin-top: 0.2rem; }
+  .sw-sign__bar { flex-wrap: wrap; gap: 0.5rem; }
+  .sw-sign__clear { margin-left: 0; }
+  .sw-pcard { padding: 0.8rem 0.85rem 0.3rem; }
+}
+
+/* ── Waiver step (Exoneración) — renders the real document on screen ─────────
+   The same navy-band layout as the printed / saved copy, on white "paper", with
+   the participant's entries embedded and the signature drawn onto the document's
+   own signature line. Always light (it's a legal document), even in dark mode. */
+.sw-doc {
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #d9dee3;
+  border-radius: 8px;
+  padding: 1.4rem 1.5rem;
+  margin: 0 0 0.9rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  font-family: 'Lexend Deca', system-ui, sans-serif;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.sw-doc .wv-brand { text-align: center; font-size: 1.15rem; font-weight: 800; color: #0e2d38; margin: 0; letter-spacing: .01em; }
+.sw-doc .wv-addr { text-align: center; font-size: 0.7rem; color: #5a5a5a; margin: 2px 0 8px; }
+.sw-doc .wv-title { text-align: center; font-size: 0.98rem; font-weight: 700; color: #1a1a1a; margin: 2px 0 1px; }
+.sw-doc .wv-sub { text-align: center; font-size: 0.72rem; font-style: italic; color: #5a5a5a; margin: 0 0 8px; }
+.sw-doc .wv-rule { border: 0; border-top: 2px solid #0e2d38; margin: 0 0 10px; }
+.sw-doc .wv-band { background: #0e2d38; color: #fff; font-weight: 700; text-transform: uppercase; font-size: 0.7rem; letter-spacing: .04em; padding: 3px 9px; margin: 13px 0 7px; border-radius: 3px; }
+.sw-doc .wv-event { display: flex; flex-wrap: wrap; gap: 3px 22px; font-size: 0.8rem; margin: 0 0 4px; }
+.sw-doc .wv-event b { color: #0e2d38; }
+.sw-doc .wv-fields { width: 100%; border-collapse: collapse; margin: 6px 0 2px; }
+.sw-doc .wv-fields td { padding: 12px 8px 1px; vertical-align: bottom; }
+.sw-doc .wv-line { border-bottom: 1px solid #9aa4b2; min-height: 16px; display: flex; flex-direction: column; justify-content: flex-end; }
+.sw-doc .wv-line--filled { font-weight: 600; color: #111; padding-bottom: 1px; }
+.sw-doc .wv-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: .02em; color: #5a5a5a; padding: 1px 8px 6px; }
+.sw-doc .wv-note { font-size: 0.68rem; font-style: italic; color: #5a5a5a; margin: 2px 0 0; }
+.sw-doc ol.wv-clauses { margin: 4px 0; padding-left: 18px; font-size: 0.8rem; }
+.sw-doc ol.wv-clauses li { margin: 0 0 5px; text-align: justify; }
+.sw-doc ol.wv-clauses li::marker { color: #0e2d38; font-weight: 700; }
+.sw-doc .wv-ack { font-weight: 700; font-size: 0.82rem; margin: 8px 0 2px; }
+.sw-doc .wv-sign { width: 100%; border-collapse: collapse; margin-top: 14px; }
+.sw-doc .wv-sign td { vertical-align: bottom; padding-top: 8px; }
+.sw-doc .wv-sign .wv-line { border-bottom: 1px solid #333; min-height: 30px; }
+/* The signature cell itself needs room to draw / show the typed name. */
+.sw-doc .wv-sign .wv-sigmount { min-height: 56px; justify-content: flex-end; display: flex; flex-direction: column; width: 100%; }
+.sw-doc .wv-foot { text-align: center; font-size: 0.62rem; color: #777; margin-top: 14px; }
+.sw-doc .wv-foot-note { font-style: italic; }
+.sw-doc .wv-sig-img { max-height: 56px; max-width: 100%; display: block; }
+
+/* The signature pad / typed input, embedded directly on the document's line. */
+.sw-doc .wv-sigmount { position: relative; }
+.sw-doc .sig-pad { position: relative; border: 0; background: transparent; overflow: hidden; touch-action: none; }
+.sw-doc .sig-pad__canvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
+.sw-doc .sig-pad__hint {
+  position: absolute; left: 4px; bottom: 4px;
+  font-size: 0.74rem; color: rgba(14, 45, 56, 0.4); pointer-events: none;
+}
+.sw-doc .sig-pad--inked .sig-pad__hint { display: none; }
+.sw-doc .wv-typed-input {
+  width: 100%; border: 0; background: transparent; padding: 0 2px 4px;
+  font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 1.5rem; color: #111;
+}
+.sw-doc .wv-typed-input:focus { outline: none; }
+
+/* Control bar under the document: signature mode + clear. */
+.sw-sign__bar { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 1rem; }
+.sw-sign__tabs {
+  display: inline-flex; gap: 0.2rem; padding: 0.2rem;
+  background: rgba(45, 78, 87, 0.07); border-radius: 999px;
+}
+.sw-sign__tab {
+  border: 0; background: transparent; padding: 0.38rem 0.85rem; border-radius: 999px;
+  font-family: var(--font-Signika); font-weight: 600; font-size: 0.76rem;
+  color: var(--color-muted); cursor: pointer; transition: background 0.18s, color 0.18s;
+}
+.sw-sign__tab.active { background: var(--color-dark, #2d4e57); color: #fff; }
+.sw-sign__clear {
+  margin-left: auto; border: 1px solid rgba(45, 78, 87, 0.2); background: transparent;
+  color: var(--color-muted); font-family: var(--font-Signika); font-size: 0.76rem;
+  font-weight: 600; cursor: pointer; padding: 0.4rem 0.8rem; border-radius: 999px;
+}
+.sw-sign__clear:hover { color: #b91c1c; border-color: rgba(185, 28, 28, 0.4); }
+
+/* Smaller hint (used on the dense exoneración step). */
+.sw-step__hint--sm { font-size: 0.8rem; line-height: 1.4; }
+
+/* Section label between field groups (e.g. Padre/Tutor vs. Emergencia). */
+.sw-section-label {
+  font-family: var(--font-Signika); font-weight: 700; font-size: 0.82rem;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-dark, #2d4e57);
+  margin: 1.1rem 0 0.6rem; padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(45, 78, 87, 0.14);
+}
+.sw-section-label:first-child { margin-top: 0; }
+
+/* Participant card (repeatable in step 1 + per-child health in step 3). */
+.sw-pcard {
+  border: 1px solid rgba(45, 78, 87, 0.14); border-radius: 12px;
+  padding: 0.9rem 1rem 0.4rem; margin: 0 0 0.9rem;
+  background: rgba(45, 78, 87, 0.02);
+}
+.sw-pcard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
+.sw-pcard__title {
+  font-family: var(--font-Signika); font-weight: 700; font-size: 0.84rem;
+  color: var(--color-dark, #2d4e57);
+}
+.sw-pcard__remove {
+  border: 0; background: transparent; color: var(--color-muted);
+  cursor: pointer; font-size: 0.9rem; padding: 0.2rem 0.4rem; border-radius: 6px;
+}
+.sw-pcard__remove:hover { color: #b91c1c; background: rgba(185, 28, 28, 0.08); }
+
+/* "Add another participant" button. */
+.sw-add {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  border: 1.5px dashed rgba(45, 78, 87, 0.32); background: transparent;
+  color: var(--color-dark, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
+  font-size: 0.82rem; padding: 0.6rem 1.1rem; border-radius: 10px; cursor: pointer;
+  transition: background 0.18s, border-color 0.18s;
+}
+.sw-add:hover { background: rgba(45, 78, 87, 0.06); border-color: rgba(45, 78, 87, 0.5); }
+
+/* "Same as parent" checkbox row. */
+.sw-check {
+  display: flex; align-items: center; gap: 0.55rem; cursor: pointer;
+  font-family: var(--font-Lexend); font-size: 0.86rem; color: var(--color-text, #394548);
+  margin: 0 0 0.8rem;
+}
+.sw-check input { width: 1.05rem; height: 1.05rem; accent-color: var(--color-dark, #2d4e57); cursor: pointer; }
+
+/* Disabled emergency grid when it mirrors the parent. */
+.sw-grid--disabled { opacity: 0.55; }
+.sw-field input:disabled, .sw-field select:disabled, .sw-field textarea:disabled {
+  background: rgba(45, 78, 87, 0.05); cursor: not-allowed; color: var(--color-muted);
 }

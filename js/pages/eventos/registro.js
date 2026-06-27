@@ -25,7 +25,9 @@ async function loadEvent() {
     q = slug ? q.eq('slug', slug) : q.eq('id', id);
     const { data, error } = await q.single();
     if (error || !data) return showError();
-    if (!data.registration_open) return showError('Las inscripciones para este evento están cerradas.');
+    const past = data.event_at ? (() => { try { return new Date(data.event_at).getTime() < Date.now(); } catch { return false; } })() : false;
+    const isOpen = data.registration_open && data.status !== 'closed' && data.status !== 'completed' && !past;
+    if (!isOpen) return showError('Las inscripciones se han cerrado. Por favor, contacta al pastor para recibir ayuda.');
 
     currentEvent = data;
     $('reg-event-title').textContent = data.title || 'Evento';
@@ -42,7 +44,7 @@ async function loadEvent() {
 
 function openWizard() {
   if (!currentEvent) return;
-  openRegistrationWizard({ eventId: currentEvent.id, eventTitle: currentEvent.title, eventSlug: currentEvent.slug });
+  openRegistrationWizard({ eventId: currentEvent.id, eventTitle: currentEvent.title, eventSlug: currentEvent.slug, eventDate: currentEvent.event_at, eventLocation: currentEvent.location });
 }
 
 function showError(msg) {

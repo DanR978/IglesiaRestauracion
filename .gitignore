@@ -28,3 +28,8 @@ migrations/
 # …but Supabase migrations ARE version-controlled (see supabase/README.md).
 !supabase/migrations/
 !supabase/migrations/**
+
+# Claude scratch notes
+.claude/scratch/
+.claude/temp/
+.claude/brainstorm.md

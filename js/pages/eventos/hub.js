@@ -81,7 +81,10 @@ async function load() {
       time: `${(d.getHours() % 12) || 12}:${pad(d.getMinutes())} ${d.getHours() >= 12 ? 'PM' : 'AM'}`,
       location: r.location || '', description: r.description || '', category: 'registro', cancelled: false,
       image_url: r.image_url || '', _source: 'reg',
-      url: `/eventos/evento-especial.html?e=${encodeURIComponent(r.slug)}`, signup: !!r.registration_open,
+      // Sign-up is offered only while open AND the date hasn't passed — matches
+      // the public page + the server-side INSERT gate (20260627_event_lifecycle.sql).
+      url: `/eventos/evento-especial.html?e=${encodeURIComponent(r.slug)}`,
+      signup: !!r.registration_open && d.getTime() >= Date.now(),
     };
   });
 

@@ -398,12 +398,22 @@
             <input type="text" id="seLocation" value="2601 Clays Mill Rd, Lexington, KY 40503">
           </div>
         </div>
-        <div class="form-group se-toggle-row">
-          <label class="se-switch">
-            <input type="checkbox" id="seRegOpen" checked>
-            <span>Inscripciones abiertas</span>
-          </label>
-          <p class="se-hint">Cuando está cerrado, la página pública muestra "Inscripciones cerradas" y no acepta registros.</p>
+        <div class="form-group">
+          <label for="seStatus">Estado de inscripción</label>
+          <select id="seStatus">
+            <option value="open">Abierto — acepta inscripciones</option>
+            <option value="closed">Cerrado — no acepta inscripciones</option>
+            <option value="completed">Completado — el evento ya terminó</option>
+          </select>
+          <p class="se-hint">Si no está "Abierto", la página pública invita a contactar al pastor y no acepta registros. Las inscripciones también se cierran solas cuando pasa la fecha del evento.</p>
+        </div>
+        <div class="form-group">
+          <label>Grupos por edad (opcional)</label>
+          <p class="se-hint">Define rangos de edad con nombre y color. El panel de inscripciones agrupará a los niños según su edad.</p>
+          <div id="seAgeGroups"></div>
+          <button type="button" class="btn btn--ghost" id="seAgeGroupAdd" style="margin-top:.5rem">
+            <i class="fas fa-plus"></i> Añadir grupo
+          </button>
         </div>
         <div class="auth-error" id="seFormError" style="display:none"></div>
         <div style="display:flex;gap:.65rem;margin-top:1rem;flex-wrap:wrap">
@@ -435,6 +445,7 @@
             </button>
             <button class="se-menu__item" id="seExportCsv" role="menuitem"><i class="fas fa-file-csv"></i> Descargar CSV</button>
             <button class="se-menu__item" id="sePrintRoster" role="menuitem"><i class="fas fa-print"></i> Imprimir</button>
+            <button class="se-menu__item" id="sePrintWaiver" role="menuitem"><i class="fas fa-file-signature"></i> Imprimir exoneración</button>
           </div>
         </div>
       </div>

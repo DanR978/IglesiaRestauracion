@@ -59,23 +59,16 @@
   .ev2__title { order: 2; }
   .ev2__when  { order: 3; }
   #event-location-row { order: 4; }
-  #event-description-section { order: 5; }
-  #event-information-section { order: 6; }
-  #event-organizer-section   { order: 7; }
+  /* Register CTA sits inline right under the location / "Cómo llegar" block,
+     with a clear gap, then the event details follow below it. */
+  .ev2__action,
+  #event-register-closed { order: 5; margin: 2rem 0 .5rem; }
+  #event-description-section { order: 6; }
+  #event-information-section { order: 7; }
+  #event-organizer-section   { order: 8; }
 
-  /* Sticky bottom bar: white footer with a note on the left + the action button
-     on the right (Registrarse / Agregar al calendario). */
-  .ev2__action {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-overlay, 50);
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    margin: 0; padding: .7rem 1.1rem;
-    background: var(--color-white);
-    border-top: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, .1);
-  }
-  .ev2__action-note { display: block; flex: 1; min-width: 0; color: var(--color-muted); font-size: var(--fs-sm); }
-  .ev2__register { width: auto; flex: 0 0 auto; margin: 0; font-size: var(--fs-sm); padding: .6rem 1.5rem; }
-  .ev2 { padding-bottom: 5rem; }   /* clear the fixed bar */
+  .ev2__action-note { display: none; }   /* full-width button, no inline note */
+  .ev2__register { width: 100%; justify-content: center; margin: 0; font-size: var(--fs-lg); padding: 0.6rem 1.25rem; }
 }
 
 /* Main column */
@@ -131,8 +124,8 @@
 }
 .ev2__pill:hover { border-color: var(--color-dark); }
 
-/* Hide the floating WhatsApp cluster on these focused event pages — it would
-   collide with the sticky action bar. */
+/* Hide the floating WhatsApp cluster on these focused event pages to keep the
+   single register CTA the clear, uncluttered call to action. */
 .page-event-detail .whatsapp-fab,
 .page-event-detail .mobile-bar,
 .page-event-detail .floating-ui__peek { display: none !important; }

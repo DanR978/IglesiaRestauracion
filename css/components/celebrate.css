@@ -1,0 +1,147 @@
+/* =========================================================
+   CELEBRATION ANIMATIONS
+   Neon fireworks + confetti (canvas) plus the two moments
+   that use them — the registration success popup and the
+   QR-arrival page intro. Engine: js/lib/celebrate.js.
+
+   Layering (sits below the route-transition curtain at 9998):
+     veil 9994  <  lifted CTA 9995  <  fireworks canvas 9996
+   ========================================================= */
+
+/* Shared overlay canvas. position:fixed is set inline by the engine;
+   pointer-events:none keeps the celebrated button fully clickable. */
+.celebrate-canvas {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9996;
+}
+
+/* ── Success popup: neon animated border + breathing glow ─────────── */
+.sw-modal--celebrate {
+  position: relative;
+  animation: celebrate-glow 2.6s ease-in-out infinite;
+}
+
+/* Rotating multi-colour ring, masked to just the border so the modal's
+   own surface stays clean. */
+.sw-modal--celebrate::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 2px;
+  /* Illumination Station rainbow — the same hues as the paper-strip burst. */
+  background: linear-gradient(120deg,
+    #ff2d9b, #ff8a1e, #ffe11a, #3ddc4a, #18d6e0, #2b8cff, #7b3ff2, #ff2d9b);
+  background-size: 300% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: celebrate-border 4s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes celebrate-border {
+  to { background-position: 300% 0; }
+}
+
+@keyframes celebrate-glow {
+  0%, 100% { box-shadow: 0 30px 80px rgba(8, 20, 26, .35), 0 0 0 rgba(255, 45, 155, 0); }
+  50%      { box-shadow: 0 30px 80px rgba(8, 20, 26, .35), 0 0 46px rgba(255, 45, 155, .42); }
+}
+
+/* ── Finish button: pulses until clicked (draws the eye) ──────────── */
+.sw-btn--pulse {
+  position: relative;
+  z-index: 2;
+  animation: celebrate-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes celebrate-pulse {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 8px 20px rgba(45, 78, 87, .22), 0 0 0 0 rgba(255, 45, 155, .55);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.045);
+    box-shadow: 0 10px 26px rgba(255, 45, 155, .4), 0 0 0 12px rgba(255, 45, 155, 0);
+  }
+}
+
+/* ── QR landing: background blur veil ─────────────────────────────── */
+.qr-intro-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 9994;
+  pointer-events: none;
+  opacity: 0;
+  /* Colourful light beams radiating from a bright centre, over a dark scrim —
+     echoing the artwork's "shining a light" backdrop. */
+  background:
+    conic-gradient(from 200deg at 50% 32%,
+      rgba(255, 45, 155, .20), rgba(124, 63, 242, .14), rgba(43, 140, 255, .16),
+      rgba(24, 214, 224, .12), rgba(61, 220, 74, .16), rgba(255, 225, 26, .16),
+      rgba(255, 138, 30, .20), rgba(255, 45, 155, .20)),
+    radial-gradient(ellipse at 50% 28%, rgba(255, 255, 255, .28), rgba(8, 20, 26, .58) 70%);
+  -webkit-backdrop-filter: blur(0);
+          backdrop-filter: blur(0);
+  /* Long, gently-decelerating fade so the blur lifts off the page imperceptibly
+     smoothly rather than snapping back. */
+  transition: opacity 1.2s cubic-bezier(.33, 1, .68, 1),
+              -webkit-backdrop-filter 1.35s cubic-bezier(.33, 1, .68, 1),
+              backdrop-filter 1.35s cubic-bezier(.33, 1, .68, 1);
+}
+
+.qr-intro-veil.is-on {
+  opacity: 1;
+  -webkit-backdrop-filter: blur(7px);
+          backdrop-filter: blur(7px);
+}
+
+/* Lift the register CTA above the veil so it stays sharp + glows. On mobile the
+   action bar is a fixed sticky bar (its own stacking context), so raise the bar
+   too; on desktop the button alone participates in the root stacking context. */
+.qr-intro-on .ev2__action { z-index: 9995; }
+
+.qr-cta-glow {
+  position: relative;
+  z-index: 9995;
+  animation: qr-cta-glow 1.4s ease-in-out infinite;
+}
+
+@keyframes qr-cta-glow {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .18), 0 0 0 0 rgba(255, 45, 155, 0);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 28px 4px rgba(255, 45, 155, .65), 0 0 0 6px rgba(255, 45, 155, .18);
+  }
+}
+
+/* ── Reduced motion: no canvas (handled in JS), no keyframes — keep a
+   gentle, motionless emphasis so the intent still reads. ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .sw-modal--celebrate,
+  .sw-modal--celebrate::before,
+  .sw-btn--pulse,
+  .qr-cta-glow,
+  .qr-intro-veil {
+    animation: none !important;
+    transition: none !important;
+  }
+  .sw-modal--celebrate {
+    box-shadow: 0 30px 80px rgba(8, 20, 26, .35), 0 0 40px rgba(255, 45, 155, .35);
+  }
+  .sw-btn--pulse {
+    box-shadow: 0 8px 20px rgba(45, 78, 87, .22), 0 0 0 3px rgba(255, 45, 155, .4);
+  }
+  .qr-cta-glow {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .18), 0 0 0 3px rgba(255, 45, 155, .45);
+  }
+}

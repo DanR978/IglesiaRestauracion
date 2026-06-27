@@ -19,6 +19,7 @@ import { generateQrDataUrl, generateQrBlob, copyText, slugifyTitle } from '/js/l
 import { formatUSPhoneNational } from '/js/lib/validators.js';
 import { mountRichText } from '/js/lib/rich-text.js';
 import { htmlIsEmpty } from '/js/lib/sanitize-html.js';
+import { renderWaiverPrintDoc, WAIVER_CSS } from '/js/lib/waiver.js';
 
 const DEFAULT_LOC = '2601 Clays Mill Rd, Lexington, KY 40503';
 const PUBLIC_ORIGIN = 'https://www.irdlex.org';
@@ -34,6 +35,7 @@ let imgUrl        = '';                  // selected image for the form
 let unsubRegs     = null;
 let descEditor    = null;                // rich-text editors (mounted once)
 let infoEditor    = null;
+let ageGroupsDraft = [];                 // working copy of the form's age groups
 
 // ── DOM helpers ──────────────────────────────────────────────────────────────
 const $ = (id) => document.getElementById(id);
@@ -103,6 +105,28 @@ function fmtDateTime(iso) {
     });
   } catch { return iso; }
 }
+// Effective lifecycle state for display: an explicit status, but an event whose
+// date has passed reads as "Finalizado" even if it was left open (the INSERT gate
+// also refuses past-date registrations — see 20260627_event_lifecycle.sql).
+function isPast(ev) {
+  if (!ev?.event_at) return false;
+  try { return new Date(ev.event_at).getTime() < Date.now(); } catch { return false; }
+}
+function effectiveStatus(ev) {
+  const s = ev?.status || (ev?.registration_open === false ? 'closed' : 'open');
+  if (s === 'open' && isPast(ev)) return 'finished';
+  return s;
+}
+function statusBadge(ev) {
+  const map = {
+    open:      ['cat--servicio', 'Abierto'],
+    closed:    ['cat--otro',     'Cerrado'],
+    completed: ['cat--otro',     'Completado'],
+    finished:  ['cat--otro',     'Finalizado'],
+  };
+  const [cls, label] = map[effectiveStatus(ev)] || map.open;
+  return `<span class="cat-badge ${cls}">${label}</span>`;
+}
 function fmtDate(iso) {
   if (!iso) return '—';
   try {
@@ -151,6 +175,9 @@ function boot() {
   // Exports
   $('seExportCsv')?.addEventListener('click', exportCsv);
   $('sePrintRoster')?.addEventListener('click', printRoster);
+  $('sePrintWaiver')?.addEventListener('click', printWaiver);
+
+  $('seAgeGroupAdd')?.addEventListener('click', addAgeGroup);
 
   mountImgPicker();
   if ($('seDescEditor')) descEditor = mountRichText($('seDescEditor'), { placeholder: 'De qué se trata el evento...' });
@@ -194,9 +221,7 @@ async function renderList() {
     const img = ev.image_url
       ? `<img class="se-evcard__img" src="${esc(ev.image_url)}" alt="">`
       : `<div class="se-evcard__img se-evcard__img--empty"><i class="fas fa-calendar-star"></i></div>`;
-    const openBadge = ev.registration_open
-      ? `<span class="cat-badge cat--servicio">Abierto</span>`
-      : `<span class="cat-badge cat--otro">Cerrado</span>`;
+    const openBadge = statusBadge(ev);
     return `
       <div class="se-evcard" data-se-row="${esc(ev.id)}">
         ${img}
@@ -258,7 +283,9 @@ function openNewEvent() {
   infoEditor?.setHtml('');
   $('seDate').value     = '';
   $('seLocation').value = DEFAULT_LOC;
-  $('seRegOpen').checked = true;
+  $('seStatus').value   = 'open';
+  ageGroupsDraft = [];
+  renderAgeGroupEditor();
   clearImg();
   $('seFormError').style.display = 'none';
   seShowView('form');
@@ -274,11 +301,75 @@ function openEditEvent(id) {
   infoEditor?.setHtml(ev.information || '');
   $('seDate').value     = ev.event_at ? toLocalDTInput(ev.event_at) : '';
   $('seLocation').value = ev.location || DEFAULT_LOC;
-  $('seRegOpen').checked = ev.registration_open !== false;
+  $('seStatus').value   = ev.status || (ev.registration_open === false ? 'closed' : 'open');
+  ageGroupsDraft = normalizeAgeGroups(ev.age_groups);
+  renderAgeGroupEditor();
   clearImg();
   if (ev.image_url) setImg(ev.image_url);
   $('seFormError').style.display = 'none';
   seShowView('form');
+}
+
+// ── Age groups editor (stored as JSON on the event) ──────────────────────────
+const AGE_GROUP_COLORS = ['#3b82f6', '#22c55e', '#a855f7', '#f59e0b', '#ef4444', '#14b8a6'];
+
+// Map stored rows → editable draft (ages may already be numbers).
+function normalizeAgeGroups(raw) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(g => ({
+    name:  typeof g?.name === 'string' ? g.name : '',
+    min:   g?.min ?? '',
+    max:   g?.max ?? '',
+    color: typeof g?.color === 'string' ? g.color : AGE_GROUP_COLORS[0],
+  }));
+}
+
+// Draft → persistable: drop incomplete rows, coerce ages to ints, sort by min.
+function cleanAgeGroups(draft) {
+  return (draft || [])
+    .map(g => ({
+      name:  String(g.name || '').trim().slice(0, 60),
+      min:   parseInt(g.min, 10),
+      max:   parseInt(g.max, 10),
+      color: /^#[0-9a-fA-F]{6}$/.test(g.color) ? g.color : AGE_GROUP_COLORS[0],
+    }))
+    .filter(g => g.name && Number.isInteger(g.min) && Number.isInteger(g.max) && g.min <= g.max)
+    .sort((a, b) => a.min - b.min);
+}
+
+function addAgeGroup() {
+  ageGroupsDraft.push({ name: '', min: '', max: '', color: AGE_GROUP_COLORS[ageGroupsDraft.length % AGE_GROUP_COLORS.length] });
+  renderAgeGroupEditor();
+  // Focus the new row's name field.
+  requestAnimationFrame(() => $('seAgeGroups')?.querySelector('.se-agrow:last-child input[data-ag="name"]')?.focus());
+}
+
+function renderAgeGroupEditor() {
+  const host = $('seAgeGroups');
+  if (!host) return;
+  if (!ageGroupsDraft.length) {
+    host.innerHTML = `<p style="font-size:.72rem;color:var(--color-muted);margin:.2rem 0 0">Sin grupos. Las inscripciones se mostrarán en una sola lista.</p>`;
+    return;
+  }
+  host.innerHTML = ageGroupsDraft.map((g, i) => `
+    <div class="se-agrow" style="display:flex;gap:.4rem;align-items:center;flex-wrap:wrap;margin-bottom:.4rem">
+      <input type="color" data-ag="color" data-i="${i}" value="${esc(g.color || AGE_GROUP_COLORS[0])}" title="Color" style="width:38px;height:38px;padding:0;border:none;background:none;cursor:pointer">
+      <input type="text" data-ag="name" data-i="${i}" value="${esc(g.name || '')}" placeholder="Nombre (ej. Exploradores)" style="flex:1;min-width:140px">
+      <input type="number" data-ag="min" data-i="${i}" value="${esc(g.min ?? '')}" placeholder="Mín" min="0" max="120" inputmode="numeric" aria-label="Edad mínima" style="width:70px">
+      <span style="color:var(--color-muted)">–</span>
+      <input type="number" data-ag="max" data-i="${i}" value="${esc(g.max ?? '')}" placeholder="Máx" min="0" max="120" inputmode="numeric" aria-label="Edad máxima" style="width:70px">
+      <button type="button" class="icon-btn__admin" data-ag-remove="${i}" title="Quitar grupo" aria-label="Quitar grupo"><i class="fas fa-trash"></i></button>
+    </div>`).join('');
+
+  // Live-bind inputs without re-rendering (keeps focus while typing).
+  host.querySelectorAll('[data-ag]').forEach(inp => inp.addEventListener('input', (e) => {
+    const i = Number(e.target.dataset.i);
+    if (ageGroupsDraft[i]) ageGroupsDraft[i][e.target.dataset.ag] = e.target.value;
+  }));
+  host.querySelectorAll('[data-ag-remove]').forEach(btn => btn.addEventListener('click', () => {
+    ageGroupsDraft.splice(Number(btn.dataset.agRemove), 1);
+    renderAgeGroupEditor();
+  }));
 }
 
 async function uniqueSlug(title, currentId) {
@@ -300,6 +391,7 @@ async function saveEvent() {
 
   const id = $('seId').value;
   const dateVal = $('seDate').value;
+  const status = $('seStatus').value || 'open';
   const descHtml = descEditor?.getHtml() || '';   // already sanitized by the editor
   const infoHtml = infoEditor?.getHtml() || '';
   const payload = {
@@ -309,7 +401,10 @@ async function saveEvent() {
     information:       htmlIsEmpty(infoHtml) ? null : infoHtml,
     event_at:          dateVal ? new Date(dateVal).toISOString() : null,
     location:          $('seLocation').value.trim() || null,
-    registration_open: $('seRegOpen').checked,
+    status:            status,
+    // `registration_open` stays the RLS gate; keep it in sync with status.
+    registration_open: status === 'open',
+    age_groups:        cleanAgeGroups(ageGroupsDraft),
   };
 
   const btn = $('seSaveBtn');
@@ -489,6 +584,7 @@ const EXPORT_COLS = [
   ['Condiciones médicas',   r => r.medical_conditions || ''],
   ['Notas',                 r => r.notes || ''],
   ['Inscrito',              r => fmtDateTime(r.submitted_at)],
+  ['Exoneración',           r => (r.signature_image || r.signature_name) ? `Firmada ${fmtDate(r.waiver_signed_at)}` : 'Sin firma'],
 ];
 
 function renderRegistrations() {
@@ -501,17 +597,52 @@ function renderRegistrations() {
     return;
   }
 
-  // Compact: first + last name, with an info button for everything else.
-  el.innerHTML = `<div class="se-reglist">` + currentRows().map(r => `
+  const groups = Array.isArray(currentEvent.age_groups) ? currentEvent.age_groups : [];
+  el.innerHTML = groups.length ? groupedRegsHtml(groups) : flatRegsHtml();
+
+  el.querySelectorAll('[data-reg-info]').forEach(b =>
+    b.addEventListener('click', () => showRegInfo(b.dataset.regInfo)));
+}
+
+// Compact row: first + last name, with an info button for everything else.
+function regRowHtml(r) {
+  return `
     <div class="se-regrow">
       <span class="se-regrow__name">${esc(r.first_name)} ${esc(r.last_name)}</span>
       <button class="icon-btn__admin se-regrow__info" data-reg-info="${esc(r.id)}" title="Ver detalles" aria-label="Ver detalles">
         <i class="fas fa-circle-info"></i>
       </button>
-    </div>`).join('') + `</div>`;
+    </div>`;
+}
 
-  el.querySelectorAll('[data-reg-info]').forEach(b =>
-    b.addEventListener('click', () => showRegInfo(b.dataset.regInfo)));
+function flatRegsHtml() {
+  return `<div class="se-reglist">` + currentRows().map(regRowHtml).join('') + `</div>`;
+}
+
+// Bucket each registration into the first matching age group; anything outside
+// every range (or with a missing age) falls into "Sin grupo".
+function groupedRegsHtml(groups) {
+  const buckets = groups.map(() => []);
+  const ungrouped = [];
+  currentRows().forEach(r => {
+    const age = Number(r.age);
+    const gi = Number.isFinite(age)
+      ? groups.findIndex(g => age >= g.min && age <= g.max)
+      : -1;
+    (gi >= 0 ? buckets[gi] : ungrouped).push(r);
+  });
+
+  const section = (label, color, list) => !list.length ? '' : `
+    <div style="margin-bottom:1rem">
+      <div style="display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.9rem;padding:.35rem .55rem;border-left:4px solid ${esc(color)};margin-bottom:.4rem">
+        <span style="width:10px;height:10px;border-radius:50%;background:${esc(color)};display:inline-block;flex:none"></span>
+        ${esc(label)} <span style="color:var(--color-muted);font-weight:400">· ${list.length}</span>
+      </div>
+      <div class="se-reglist">${list.map(regRowHtml).join('')}</div>
+    </div>`;
+
+  return groups.map((g, i) => section(`${g.name} (${g.min}–${g.max})`, g.color || '#64748b', buckets[i])).join('')
+    + section('Sin grupo', '#64748b', ungrouped);
 }
 
 // Modal with one registration's full details (+ print).
@@ -524,14 +655,21 @@ function showRegInfo(id) {
   const body = `
     ${line('Edad', r.age)}
     ${line('Sexo', r.sex)}
+    ${line('Padre / Madre / Tutor', r.parent_name)}
+    ${line('Parentesco', r.parent_relationship || r.relationship)}
+    ${(r.parent_phone || r.contact_phone) ? `<div class="se-reginfo__row"><span class="se-reginfo__label">Teléfono</span><a href="tel:${esc(r.parent_phone || r.contact_phone)}">${esc(formatUSPhoneNational(r.parent_phone || r.contact_phone))}</a></div>` : ''}
+    ${(r.parent_email || r.contact_email) ? `<div class="se-reginfo__row"><span class="se-reginfo__label">Email</span><a href="mailto:${esc(r.parent_email || r.contact_email)}">${esc(r.parent_email || r.contact_email)}</a></div>` : ''}
     ${line('Contacto de emergencia', r.contact_name)}
-    ${line('Parentesco', r.relationship)}
-    <div class="se-reginfo__row"><span class="se-reginfo__label">Teléfono</span><a href="tel:${esc(r.contact_phone)}">${esc(phone)}</a></div>
-    ${r.contact_email ? `<div class="se-reginfo__row"><span class="se-reginfo__label">Email</span><a href="mailto:${esc(r.contact_email)}">${esc(r.contact_email)}</a></div>` : ''}
+    <div class="se-reginfo__row"><span class="se-reginfo__label">Tel. emergencia</span><a href="tel:${esc(r.contact_phone)}">${esc(phone)}</a></div>
     ${line('Alergias', r.allergies)}
     ${line('Condiciones médicas', r.medical_conditions)}
     ${line('Notas', r.notes)}
-    ${line('Inscrito', fmtDateTime(r.submitted_at))}`;
+    ${line('Inscrito', fmtDateTime(r.submitted_at))}
+    <div class="se-reginfo__row"><span class="se-reginfo__label">Exoneración</span><span>${
+      regSignature(r)
+        ? `<i class="fas fa-circle-check" style="color:#16a34a"></i> Firmada · ${esc(fmtDate(r.waiver_signed_at))}`
+        : '<span style="color:var(--color-muted)">Sin firma</span>'
+    }</span></div>`;
 
   let m = $('seRegInfoModal');
   if (!m) {
@@ -547,6 +685,9 @@ function showRegInfo(id) {
         <div class="modal__body" id="seRegInfoBody"></div>
         <div class="modal__footer">
           <button class="btn btn--ghost" id="seRegInfoPrint"><i class="fas fa-print"></i> Imprimir</button>
+          <button class="btn btn--ghost" id="seRegInfoWaiver"><i class="fas fa-file-signature"></i> Exoneración</button>
+          <span style="flex:1"></span>
+          <button class="btn btn--danger" id="seRegInfoDelete"><i class="fas fa-trash"></i> Eliminar</button>
         </div>
       </div>`;
     document.body.appendChild(m);
@@ -556,7 +697,31 @@ function showRegInfo(id) {
   $('seRegInfoTitle').textContent = `${r.first_name} ${r.last_name}`;
   $('seRegInfoBody').innerHTML = body;
   $('seRegInfoPrint').onclick = () => printOne(id);
+  // Signed waiver: only offer it when one was actually captured.
+  const waiverBtn = $('seRegInfoWaiver');
+  if (waiverBtn) {
+    const hasWaiver = !!regSignature(r);
+    waiverBtn.style.display = hasWaiver ? '' : 'none';
+    waiverBtn.onclick = hasWaiver ? () => printSignedWaiver(id) : null;
+  }
+  $('seRegInfoDelete').onclick = () => deleteRegistration(id, m);
   m.classList.add('open');
+}
+
+// Remove a single inscription (admin-only; RLS enforces server-side).
+async function deleteRegistration(id, modal) {
+  const r = regsCache.find(x => x.id === id);
+  if (!r) return;
+  const ok = await confirm('¿Eliminar inscripción?',
+    `Se eliminará permanentemente la inscripción de "${r.first_name} ${r.last_name}".`);
+  if (!ok) return;
+  const { error } = await sb.from('event_registrations').delete().eq('id', id);
+  if (error) { toast(error.message, 'error'); return; }
+  modal?.classList.remove('open');
+  toast('Inscripción eliminada', 'success');
+  // Realtime will also refresh, but update immediately for snappiness.
+  regsCache = regsCache.filter(x => x.id !== id);
+  renderRegistrations();
 }
 
 // ── QR actions ───────────────────────────────────────────────────────────────
@@ -769,4 +934,53 @@ function printOne(id) {
       ${row('Notas', r.notes)}
       ${row('Inscrito', fmtDateTime(r.submitted_at))}
     </div>`);
+}
+
+// ── Liability waiver (shared with the public wizard via js/lib/waiver.js) ─────
+// Same clause text + layout the attendee signed, so the blank form and the
+// signed copy never drift. Browser-print flow (Save as PDF) — no extra deps.
+function waiverEventCtx() {
+  return {
+    title: currentEvent.title || 'Evento',
+    date: fmtDate(currentEvent.event_at),
+    location: currentEvent.location || DEFAULT_LOC,
+  };
+}
+
+// Blank, fillable form for a whole event (print a stack to hand out).
+function printWaiver() {
+  if (!currentEvent) return;
+  const event = waiverEventCtx();
+  printHtml(`Exoneración — ${event.title}`, renderWaiverPrintDoc({ event, blank: true }), WAIVER_CSS);
+}
+
+// One registration's signed waiver, reproduced from the stored signature.
+function regSignature(r) {
+  return (r && (r.signature_image || r.signature_name))
+    ? { image: r.signature_image || '', name: r.signature_name || '' }
+    : null;
+}
+function printSignedWaiver(id) {
+  const r = regsCache.find(x => x.id === id);
+  if (!r || !currentEvent) return;
+  const signature = regSignature(r);
+  if (!signature) { toast('Esta inscripción no tiene exoneración firmada', 'error'); return; }
+  // If this sign-up registered several children together, list all siblings.
+  const siblings = r.registration_group_id
+    ? regsCache.filter(x => x.registration_group_id === r.registration_group_id)
+    : [r];
+  printHtml(`Exoneración firmada — ${r.first_name} ${r.last_name}`, renderWaiverPrintDoc({
+    event: waiverEventCtx(),
+    participants: siblings.map(s => ({ name: `${s.first_name} ${s.last_name}`.trim(), age: s.age })),
+    guardian: {
+      name: r.parent_name || r.contact_name,
+      relationship: r.parent_relationship || r.relationship,
+      phone: formatUSPhoneNational(r.parent_phone || r.contact_phone),
+      email: r.parent_email || r.contact_email || '',
+    },
+    emergency: { name: r.contact_name, phone: formatUSPhoneNational(r.contact_phone) },
+    signature,
+    signedDate: fmtDate(r.waiver_signed_at),
+    blank: false,
+  }), WAIVER_CSS);
 }
