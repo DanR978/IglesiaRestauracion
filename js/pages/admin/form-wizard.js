@@ -99,12 +99,15 @@ export function openFormWizard(cfg) {
     if (idx === steps.length) { renderReview(body); return; }
 
     const s = steps[idx];
+    // Optional per-field `showIf(data)` — re-evaluated each render (choice
+    // changes re-render the step), so a field can switch on another's value.
+    const vfields = (s.fields || []).filter(f => !f.showIf || f.showIf(data));
     body.innerHTML = `
       <div class="wiz-step active">
         <div class="wiz-step-label">Paso ${idx + 1} de ${steps.length}</div>
         <h4 style="font-size:1.15rem;font-weight:700;margin:.1rem 0 .3rem;color:var(--color-dark)">${esc(s.label || '')}</h4>
         ${s.hint ? `<p class="wiz-hint" style="margin:0 0 1rem">${esc(s.hint)}</p>` : ''}
-        ${(s.fields || []).map(f => `
+        ${vfields.map(f => `
           <div class="wiz-field">
             ${f.type === 'choice' && !f.label ? '' : `<label for="fw_${f.id}">${esc(f.label || '')}</label>`}
             ${fieldControl(f)}
@@ -118,8 +121,8 @@ export function openFormWizard(cfg) {
         <button type="button" class="btn btn--primary" id="fwNext">${idx === steps.length - 1 ? 'Revisar →' : 'Siguiente →'}</button>
       </div>`;
 
-    // Wire inputs
-    (s.fields || []).forEach(f => {
+    // Wire inputs (only the visible fields)
+    vfields.forEach(f => {
       if (f.type === 'choice') {
         body.querySelectorAll(`[data-fid="${f.id}"] .wiz-cat-card`).forEach(card =>
           card.addEventListener('click', () => { data[f.id] = card.dataset.val; renderStep(); }));
@@ -135,7 +138,7 @@ export function openFormWizard(cfg) {
 
   function next() {
     const s = steps[idx];
-    for (const f of (s.fields || [])) {
+    for (const f of (s.fields || []).filter(f => !f.showIf || f.showIf(data))) {
       if (!f.required) continue;
       const val = data[f.id];
       const empty = val == null || String(val).trim() === '';
@@ -162,7 +165,8 @@ export function openFormWizard(cfg) {
   }
 
   function renderReview(body) {
-    const allFields = steps.flatMap(s => s.fields || []);
+    // Skip fields hidden by showIf so the review matches what was filled in.
+    const allFields = steps.flatMap(s => (s.fields || []).filter(f => !f.showIf || f.showIf(data)));
     body.innerHTML = `
       <div class="wiz-step active">
         <div class="wiz-step-label">Revisa antes de guardar</div>

@@ -25,22 +25,19 @@ export async function loadUpcoming() {
   el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
   try {
     const today = todayISO();
-    let specialData = [];
-    if (isAdmin()) {
-      const { data: evRows } = await sb
-        .from('events')
-        .select('id,title,starts_at,location,description,tag,image_url,ministry_id')
-        .gte('starts_at', new Date().toISOString())
-        .order('starts_at', { ascending: true });
-      specialData = (evRows || []).map(normalizeEventsRow).filter(Boolean);
-    }
-    let calQ = sb.from('calendar_events')
+    // Staff with an events tab see ALL events (RLS is the real boundary) — the
+    // `events` table used to load for admins only, hiding them from leaders.
+    const { data: evRows } = await sb
+      .from('events')
+      .select('id,title,starts_at,location,description,tag,image_url,ministry_id')
+      .gte('starts_at', new Date().toISOString())
+      .order('starts_at', { ascending: true });
+    const specialData = (evRows || []).map(normalizeEventsRow).filter(Boolean);
+
+    const { data: calData, error } = await sb.from('calendar_events')
       .select('*,ministries(name,color)')
       .gte('date', today)
       .order('date', { ascending: true });
-    if (!isAdmin() && currentProfile?.ministry_id)
-      calQ = calQ.eq('ministry_id', currentProfile.ministry_id);
-    const { data: calData, error } = await calQ;
     if (error) throw error;
     setUpcoming(specialData, calData || []);
     renderUpcomingFiltered();
@@ -51,6 +48,7 @@ export async function loadUpcoming() {
 
 export async function loadPast() {
   const el = document.getElementById('pastList');
+  if (!el) return;   // Pasados page was removed — nothing to render into.
   el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
   try {
     const today = todayISO();

@@ -44,9 +44,11 @@
   --color-70: #9ac0cb;
   --color-75: #abccd4;
   --color-80: #bcd5dc;
-  --color-85: #cde0e5;
-  --color-90: #ddeaee;
-  --color-95: #eef5f6;
+  --color-85: #d6e1e5;
+  /* Soft surface tints neutralised toward gray so light section bands read less
+     "green". Accent tokens (buttons/links/logo) are untouched. */
+  --color-90: #e6eaeb;
+  --color-95: #f1f4f4;
   --color-100: #ffffff;
 
   --orange-0: #000000;
@@ -67,9 +69,11 @@
   --orange-70: #f4b371;
   --orange-75: #f6bf88;
   --orange-80: #f8cca0;
-  --orange-85: #fad9b8;
-  --orange-90: #fbe6d0;
-  --orange-95: #fdf2e7;
+  /* Soft orange surface tints neutralised toward warm-gray (less "orange
+     everywhere"); the saturated gold accent tokens above stay as-is. */
+  --orange-85: #ecdfd2;
+  --orange-90: #f0e9e1;
+  --orange-95: #f7f3ee;
   --orange-100: #ffffff;
 
   --gray-160: #A0A0A0;
@@ -115,15 +119,20 @@
   --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
   --image-shadow: 0 0px 10px rgba(0, 0, 0, 0.25);
 
-  --rail-g1: var(--color-30, #345a65);
-  --rail-g2: var(--color-45, #4e8897);
-  --rail-g3: var(--color-65, #89b6c2);
+  /* Decorative rail gradients (home / events / sermons) neutralised from teal
+     to slate-gray so they read less "green". Purely decorative — no text. */
+  --rail-g1: #46505a;
+  --rail-g2: #6c7882;
+  --rail-g3: #aab2b8;
 
   --static-black: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  /* Applies only in "system" theme mode — i.e. when <html> has no data-theme
+     override. A forced light/dark theme is handled by the [data-theme] blocks
+     just below, which is why this selector opts out of both. */
+  :root:not([data-theme="light"]):not([data-theme="dark"]) {
     /* --color-primary is intentionally removed. Use --color-dark instead. */
     /* Same AA caramel in dark mode so the gold buttons keep white-text
        contrast (white on the old bright gold was 2.6:1 here too). */
@@ -216,14 +225,116 @@
     --static-white: #ffffff;
   }
 
-  .theme-image-thorns {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) .theme-image-thorns {
     content: url("https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/thorns-dark.svg");
   }
 
-  body {
+  :root:not([data-theme="light"]):not([data-theme="dark"]) body {
     background-color: var(--color-bg-light) !important;
     color: var(--color-dark);
   }
+}
+
+/* ── Manual theme override (admin "Apariencia" preference) ───────────────────
+   <html data-theme="light|dark"> forces a palette regardless of the OS setting;
+   "system" removes the attribute so the media query above governs again.
+   • Forced LIGHT needs no block — it is just the :root defaults, and guarding
+     the media query above already stops the OS dark palette from winning.
+   • Forced DARK mirrors the prefers-color-scheme values so a user on a light OS
+     can still choose the dark panel. Public pages never set data-theme, so they
+     are unaffected by these rules. */
+:root[data-theme="dark"] {
+  --color-secondary: #9a6a2c;
+  --gold-bright: #c89858;
+  --color-accent: #be660e;
+  --color-info: #2d4e57;
+  --color-muted: #aa9b8c;
+  --color-dark: #313537;
+  --color-text: #f0f5f7;
+  --color-white: #dfdedc;
+  --color-black: #dfdedc;
+  --color-darkmode-font: #e6faff;
+
+  --color-bg-light: #121c1f;
+  --mobile-menu-bg: #121c1f;
+
+  --color-0: #ffffff;
+  --color-5: #eef5f6;
+  --color-10: #ddeaee;
+  --color-15: #cde0e5;
+  --color-20: #bcd5dc;
+  --color-25: #abccd4;
+  --color-26: #9ac0cb;
+  --color-30: #89b6c2;
+  --color-35: #78abba;
+  --color-40: #68a1b1;
+  --color-45: #5797a8;
+  --color-50: #4e8897;
+  --color-55: #457887;
+  --color-60: #3d6976;
+  --color-65: #345a65;
+  --color-70: #2b4b54;
+  --color-75: #233c43;
+  --color-80: #1a2d32;
+  --color-85: #111e22;
+  --color-90: #090f11;
+  --color-95: #040708;
+  --color-100: #000000;
+
+  --orange-0: #ffffff;
+  --orange-5: #fdf2e7;
+  --orange-10: #fbe6d0;
+  --orange-15: #fad9b8;
+  --orange-20: #f8cca0;
+  --orange-25: #f6bf88;
+  --orange-30: #f4b371;
+  --orange-35: #f3a659;
+  --orange-40: #f2a152;
+  --orange-45: #f19941;
+  --orange-50: #ed8012;
+  --orange-55: #c89858;
+  --orange-60: #be660e;
+  --orange-64: #a6590c;
+  --orange-65: #8e4d0b;
+  --orange-70: #774009;
+  --orange-75: #5f3307;
+  --orange-80: #472605;
+  --orange-85: #2f1a04;
+  --orange-90: #180d02;
+  --orange-95: #0c0601;
+  --orange-100: #000000;
+
+  --gray-160: #2a2a2a;
+  --gray-150: #333333;
+  --gray-140: #3d3d3d;
+  --gray-130: #444444;
+  --gray-120: #505050;
+  --gray-110: #5c5c5c;
+  --gray-100: #666666;
+  --gray-90: #808080;
+  --gray-80: #999999;
+  --gray-70: #aaaaaa;
+  --gray-65: #b3b3b3;
+  --gray-60: #c0c0c0;
+  --gray-50: #cccccc;
+  --gray-40: #d8d8d8;
+  --gray-30: #e5e5e5;
+  --gray-20: #f0f0f0;
+  --gray-10: #f8f8f8;
+  --gray-0: #ffffff;
+
+  --btn-shadow: 0 2px 6px rgba(255, 255, 255, 0.25);
+  --container-shadow: 0 10px 30px rgba(255, 255, 255, 0.25);
+  --image-shadow: 0 0px 10px rgba(255, 255, 255, 0.25);
+}
+
+:root[data-theme="dark"] .theme-image-thorns {
+  content: url("https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/thorns-dark.svg");
+}
+
+:root[data-theme="dark"] body {
+  background-color: var(--color-bg-light) !important;
+  color: var(--color-dark);
 }
 /* -- tokens radius -- */
 :root {

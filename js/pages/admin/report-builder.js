@@ -35,6 +35,22 @@ const SECTIONS = [
 let config = null, data = null, host = null;
 const sampleCache = {};
 
+const PASTOR = 'Pastor';
+// Ministry id → name, fetched once (church books allocate expenses to a ministry,
+// the Pastor line, or General). Used by the transactions table's Ministerio column.
+let _minMap = null;
+async function ministryMap() {
+  if (_minMap) return _minMap;
+  const { data: mins } = await sb.from('ministries').select('id,name');
+  _minMap = new Map((mins || []).map(m => [m.id, m.name]));
+  return _minMap;
+}
+function allocName(row, mById) {
+  if (row.label === PASTOR) return 'Pastor';
+  if (row.ministry_id) return mById.get(row.ministry_id) || 'Ministerio';
+  return 'General';
+}
+
 export async function mountReportBuilder(root) {
   host = root;
   const now = new Date();
@@ -90,8 +106,8 @@ async function loadData() {
     expRows = s.expense.filter(x => x.occurred_on >= r.start && x.occurred_on <= r.end);
   } else {
     const [inc, exp] = await Promise.all([
-      sb.from('fin_income').select('occurred_on,source,fund,amount').gte('occurred_on', r.start).lte('occurred_on', r.end).order('occurred_on'),
-      sb.from('fin_expenses').select('occurred_on,payee,category,label,amount').gte('occurred_on', r.start).lte('occurred_on', r.end).order('occurred_on'),
+      sb.from('fin_income').select('occurred_on,source,fund,amount').is('project_id', null).gte('occurred_on', r.start).lte('occurred_on', r.end).order('occurred_on'),
+      sb.from('fin_expenses').select('occurred_on,payee,category,label,ministry_id,amount').is('project_id', null).gte('occurred_on', r.start).lte('occurred_on', r.end).order('occurred_on'),
     ]);
     incRows = inc.data || []; expRows = exp.data || [];
   }
@@ -99,8 +115,20 @@ async function loadData() {
   const place = (row, arr, key) => { const b = buckets.find(b => row.occurred_on >= b.start && row.occurred_on <= b.end); if (b) { b[key] += +row.amount || 0; b[key === 'in' ? 'income' : 'expense'].push(row); } };
   incRows.forEach(r2 => place(r2, null, 'in')); expRows.forEach(r2 => place(r2, null, 'out'));
   const grp = (rows, kf) => { const m = {}; rows.forEach(r2 => { const k = kf(r2) || '—'; m[k] = (m[k]||0) + (+r2.amount||0); }); return Object.entries(m).map(([label,total]) => ({label,total})).sort((a,b)=>b.total-a.total); };
+
+  // Flat transaction list for the "Detalle de transacciones" table — each row
+  // carries its type (source/category) and the ministry it was allocated to.
+  const mById = await ministryMap();
+  const transactions = [
+    ...incRows.map(x => ({ occurred_on: x.occurred_on, kind: 'income',
+      type: x.source || 'Ingreso', ministry: '—', concept: x.fund || '', amount: +x.amount || 0 })),
+    ...expRows.map(x => ({ occurred_on: x.occurred_on, kind: 'expense',
+      type: x.category || (x.label === PASTOR ? 'Pastor' : '—'), ministry: allocName(x, mById),
+      concept: x.payee || '', amount: +x.amount || 0 })),
+  ].sort((a, b) => String(a.occurred_on).localeCompare(String(b.occurred_on)));
+
   data = {
-    range: r, buckets,
+    range: r, buckets, transactions,
     totIn: incRows.reduce((a,x)=>a+(+x.amount||0),0),
     totOut: expRows.reduce((a,x)=>a+(+x.amount||0),0),
     byIncome: grp(incRows, x => x.source),
@@ -312,17 +340,13 @@ function kpiBox(label, val, valColor, accent) {
 }
 function th(t, r) { return { text: t.toUpperCase(), bold: true, fontSize: 7.5, color: '#5f6c71', alignment: r ? 'right' : 'left', fillColor: '#f2f5f5' }; }
 function moneyCell(v, color, has, override) { return { text: has ? (override || fmt(v)) : '—', alignment: 'right', fontSize: 9, color: has ? color : '#b9c2c4' }; }
-function monthlyTable(withDetail) {
+function monthlyTable() {
   let acc = 0;
   const body = [[ th('Mes'), th('Ingresos', 1), th('Gastos', 1), th('Balance', 1), th('Acumulado', 1) ]];
   data.buckets.forEach(b => {
     const d = b.in - b.out; acc += d; const has = b.in || b.out;
     body.push([ { text: b.label, bold: true, fontSize: 9 }, moneyCell(b.in, '#1e6b61', b.in), moneyCell(b.out, '#b02030', b.out),
       moneyCell(d, d < 0 ? '#b02030' : '#1e6b61', has, has ? fmt(d) : '—'), { text: fmt(acc), alignment: 'right', fontSize: 9 } ]);
-    if (withDetail && has) {
-      b.income.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.source || ''), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#1e6b61' }, '', '', '' ]));
-      b.expense.forEach(x => body.push([ { text: fmtDate(x.occurred_on) + ' · ' + (x.category || '—'), fontSize: 8, color: '#6a767b', margin: [12, 0, 0, 0] }, '', { text: fmt(x.amount), alignment: 'right', fontSize: 8, color: '#b02030' }, '', '' ]));
-    }
   });
   body.push([ { text: 'Total', bold: true, fontSize: 9 }, { text: fmt(data.totIn), alignment: 'right', bold: true, fontSize: 9, color: '#1e6b61' },
     { text: fmt(data.totOut), alignment: 'right', bold: true, fontSize: 9, color: '#b02030' }, { text: fmt(data.totIn - data.totOut), alignment: 'right', bold: true, fontSize: 9 }, {} ]);
@@ -330,6 +354,30 @@ function monthlyTable(withDetail) {
     hLineWidth: (i, node) => (i <= 1 || i >= node.table.body.length - 1) ? 0.8 : 0.4,
     hLineColor: () => '#e7ecec', vLineWidth: () => 0,
     paddingTop: () => 3.2, paddingBottom: () => 3.2, paddingLeft: () => 6, paddingRight: () => 6,
+  }, margin: [0, 0, 0, 14] };
+}
+
+// Flat transaction list with a Tipo (source/category) and Ministerio column, so
+// budget allocations read clearly (e.g. Presupuesto · Media). Header repeats
+// across page breaks.
+function transactionsTable() {
+  const txns = data.transactions || [];
+  if (!txns.length) return { text: 'Sin transacciones en el período.', color: '#8a979c', fontSize: 9, margin: [0, 0, 0, 14] };
+  const body = [[ th('Fecha'), th('Tipo'), th('Ministerio'), th('Concepto'), th('Monto', 1) ]];
+  txns.forEach(t => {
+    const isIn = t.kind === 'income';
+    body.push([
+      { text: fmtDate(t.occurred_on), fontSize: 8.5 },
+      { text: t.type || '—', fontSize: 8.5 },
+      { text: t.ministry || '—', fontSize: 8.5 },
+      { text: t.concept || '—', fontSize: 8.5, color: '#6a767b' },
+      { text: (isIn ? '+' : '−') + fmt(t.amount), alignment: 'right', fontSize: 8.5, color: isIn ? '#1e6b61' : '#b02030' },
+    ]);
+  });
+  return { table: { headerRows: 1, widths: ['auto', 'auto', 'auto', '*', 'auto'], body }, layout: {
+    hLineWidth: (i, node) => (i <= 1 || i >= node.table.body.length) ? 0.8 : 0.4,
+    hLineColor: () => '#e7ecec', vLineWidth: () => 0,
+    paddingTop: () => 3, paddingBottom: () => 3, paddingLeft: () => 6, paddingRight: () => 6,
   }, margin: [0, 0, 0, 14] };
 }
 function breakCol(title, rows, total, barColor, accent, w) {
@@ -359,13 +407,14 @@ function buildPdfContent() {
       kpiBox('Balance', fmt(bal), bal < 0 ? '#b02030' : '#1e6b61', accent) ], columnGap: 8, margin: [0, 0, 0, 16] });
   if (s.chart) c.push(sh('Ingresos y gastos por ' + r.col.toLowerCase(), accent),
     { svg: chartSvg(data.buckets, accent), width: PW, margin: [0, 0, 0, 6] });
-  if (s.monthly) c.push(sh('Detalle por ' + r.col.toLowerCase(), accent), monthlyTable(s.detail));
+  if (s.monthly) c.push(sh('Detalle por ' + r.col.toLowerCase(), accent), monthlyTable());
   const HALF = Math.floor((PW - 22) / 2);
   if (s.byIncome && s.byExpense) c.push({ columns: [
     breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent, HALF),
     breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent, HALF) ], columnGap: 22 });
   else if (s.byIncome) c.push(...breakCol('Ingresos por categoría', data.byIncome, data.totIn, accent, accent, PW).stack);
   else if (s.byExpense) c.push(...breakCol('Gastos por categoría', data.byExpense, data.totOut, '#b02030', accent, PW).stack);
+  if (s.detail) c.push(sh('Detalle de transacciones', accent), transactionsTable());
   return c.length ? c : [{ text: 'Activa al menos una sección.', color: '#8a979c' }];
 }
 

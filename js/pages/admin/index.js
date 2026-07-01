@@ -10,26 +10,31 @@ import { initTabs, initConfirm, confirm, closeModal } from './ui.js';
 import { initFilterToggles } from './filters.js';
 import { renderMinistriesTab, initMinistryModal } from './ministries.js';
 import { loadDashboard } from './dashboard.js';
-import { initAccountModal } from './account.js';
-import { loadPast } from './events-tab.js';
-import { loadCalendario, initCalendarNav } from './calendar-tab.js';
+import { initAccountPage } from './account.js';
+import { initCalendarNav } from './calendar-tab.js';
+import { initEventViews, openEventsTab } from './event-views.js';
 import { initForms } from './event-form.js';
 import { loadPresets, buildPresetGrid, initSmartPresets } from './presets.js';
 import { loadUsers, initUserModal } from './users.js';
+import { loadRolePresets, initRolePresets } from './role-presets.js';
 import { initWizard } from './wizard.js';
 import { initDscpWizard } from './discipleship-wizard.js';
 import { initGalleryWizard } from './gallery-wizard.js';
 import { loadDiscipulado } from './discipleship-tab.js';
 import { loadGallery } from './gallery-tab.js';
-import { loadAnalytics } from './analytics-tab.js';
 import { loadActivity } from './activity-tab.js';
 import { loadSettings } from './settings-tab.js';
 import { loadTreasury } from './treasury-tab.js';
-import { loadSpecialEvents } from './special-events-tab.js';
 import { enhanceTextarea } from '/js/lib/rich-text.js';
 import { confirmResolve } from './state.js';
+import { applyPrefs } from './prefs.js';
 
 document.addEventListener('DOMContentLoaded', () => {
+
+  // ── Personal UI preferences (theme / density / motion) — apply ASAP so the
+  //    panel paints with the user's chosen density + motion from the first frame.
+  //    (Theme is already applied pre-paint by the inline script in index.html.)
+  applyPrefs();
 
   // Underwater auth scene
   initAuthScene();
@@ -43,18 +48,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Tabs ───────────────────────────────────────────────────────────────────
   initTabs({
     onInicio:       loadDashboard,
-    onPast:         loadPast,
-    onCalendario:   loadCalendario,
+    onEventos:      openEventsTab,
     onMinistries:   renderMinistriesTab,
-    onUsers:        loadUsers,
+    onUsers:        () => { loadUsers(); loadRolePresets(); },
     onDiscipulado:  loadDiscipulado,
     onGaleria:      loadGallery,
-    onAnalytics:    loadAnalytics,
     onActivity:     loadActivity,
     onSettings:     loadSettings,
     onTreasury:     loadTreasury,
-    onSpecialEvents: loadSpecialEvents,
   });
+
+  // ── Eventos pill views (Calendario · Próximos · Registraciones) ────────────
+  initEventViews();
 
   // ── Calendar nav + add button ──────────────────────────────────────────────
   initCalendarNav();
@@ -76,10 +81,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Gallery album creation wizard ────────────────────────────────────────
   initGalleryWizard();
 
-  // ── User / ministry / account modals ───────────────────────────────────────
+  // ── User / preset / ministry / account modals ──────────────────────────────
   initUserModal();
+  initRolePresets();
   initMinistryModal();
-  initAccountModal();
+  initAccountPage();
+
+  // ── Cuentas ↔ Roles y accesos sub-tabs (inside the Usuarios tab) ────────────
+  document.querySelectorAll('[data-users-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.usersTab;
+      document.querySelectorAll('[data-users-tab]').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.users-admin__panel').forEach(p => {
+        p.classList.toggle('active', p.id === `users-panel-${target}`);
+      });
+      if (target === 'presets') loadRolePresets();
+    });
+  });
 
   // ── Rich-text editors on every admin textbox whose content is shown on the
   //    public website (description / información fields). Progressive upgrade:

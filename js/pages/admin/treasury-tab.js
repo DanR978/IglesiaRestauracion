@@ -5,11 +5,12 @@ import { esc } from '/js/utils/escape.js';
 // choices, a review, then save) — same intuitive flow as event/group creation.
 // Row actions live behind a ⋮ menu.
 
-import { sb, ministries, currentUser } from './state.js';
+import { sb, ministries, currentUser, currentProfile } from './state.js';
 import { toast, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
 import { openFormWizard } from './form-wizard.js';
 import { mountReportBuilder } from './report-builder.js';
+import { mountProjectTreasury } from './project-treasury.js';
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
 
@@ -42,7 +43,7 @@ function allocDecode(v) {
   return { ministry_id: null, label: null };
 }
 function allocEncode(row) { return row?.label === PASTOR ? 'pastor' : (row?.ministry_id || ''); }
-function allocName(row) { return row?.label === PASTOR ? 'Pastor' : (row?.ministry_id ? minName(row.ministry_id) : 'General'); }
+function allocName(row) { return row?.label ? row.label : (row?.ministry_id ? minName(row.ministry_id) : 'General'); }
 function ministrySelectOpts() { return [{ value: '', label: 'General' }, ...realMinistries().map(m => ({ value: m.id, label: m.name }))]; }
 
 const SUBS = [
@@ -50,7 +51,6 @@ const SUBS = [
   { k: 'income',    label: 'Ingresos',     icon: 'fa-arrow-down' },
   { k: 'expenses',  label: 'Gastos',       icon: 'fa-arrow-up' },
   { k: 'recurring', label: 'Recurrentes',  icon: 'fa-rotate' },
-  { k: 'budgets',   label: 'Presupuestos', icon: 'fa-scale-balanced' },
   { k: 'payables',  label: 'Por pagar',    icon: 'fa-file-invoice-dollar' },
   { k: 'reports',   label: 'Reportes',     icon: 'fa-calendar-days' },
   { k: 'notes',     label: 'Notas',        icon: 'fa-note-sticky' },
@@ -80,6 +80,11 @@ const yEnd   = () => `${year()}-12-31`;
 const monthLbl = () => { const [y, m] = monthKey.split('-').map(Number); return `${MONTHS[m-1]} ${y}`; };
 
 export async function loadTreasury() {
+  // Ministry users (non-finance) get the scoped per-project tracker instead of
+  // the full church books.
+  if (currentProfile?.role !== 'admin' && currentProfile?.role !== 'treasurer') {
+    return mountProjectTreasury();
+  }
   await loadFundData();
   await ensureRecurringForMonth(monthKey);
   const inp = document.getElementById('trezMonth');
@@ -106,31 +111,32 @@ function render() {
   // Reportes uses the full screen width on desktop.
   document.getElementById('tab-treasury')?.classList.toggle('trez-wide', sub === 'reports');
   ({ resumen: renderResumen, income: renderIncome, expenses: renderExpenses, recurring: renderRecurring,
-     budgets: renderBudgets, payables: renderPayables, reports: mountReportBuilder, notes: renderNotes,
+     payables: renderPayables, reports: mountReportBuilder, notes: renderNotes,
      config: renderConfig }[sub] || renderResumen)(root);
 }
 
 /* ── Resumen (selected month) ──────────────────────────────────────────────── */
 async function renderResumen(root) {
-  const [inc, exp, bud, pay] = await Promise.all([
-    sb.from('fin_income').select('amount').gte('occurred_on', mStart()).lte('occurred_on', mEnd()),
-    sb.from('fin_expenses').select('amount,ministry_id,label').gte('occurred_on', mStart()).lte('occurred_on', mEnd()),
-    sb.from('fin_budgets').select('line_key,amount').eq('period', monthKey),
+  const [inc, exp, pay] = await Promise.all([
+    sb.from('fin_income').select('amount').is('project_id', null).gte('occurred_on', mStart()).lte('occurred_on', mEnd()),
+    sb.from('fin_expenses').select('amount,ministry_id,label').is('project_id', null).gte('occurred_on', mStart()).lte('occurred_on', mEnd()),
     sb.from('fin_payables').select('amount').eq('status', 'open'),
   ]);
   if (inc.error || exp.error) { root.innerHTML = errBox(inc.error || exp.error); return; }
 
   const income = sum(inc.data), expenses = sum(exp.data), owed = sum(pay.data), balance = income - expenses;
-  const spentByMin = {}; let spentPastor = 0;
+  const spentByMin = {}; let spentPastor = 0, spentGeneral = 0;
   (exp.data || []).forEach(e => {
-    if (e.label === PASTOR) spentPastor += Number(e.amount || 0);
+    if (e.label === PASTOR)   spentPastor  += Number(e.amount || 0);
+    else if (!e.ministry_id)  spentGeneral += Number(e.amount || 0);
     else spentByMin[e.ministry_id] = (spentByMin[e.ministry_id] || 0) + Number(e.amount || 0);
   });
-  const budByKey = {}; (bud.data || []).forEach(b => budByKey[b.line_key] = Number(b.amount || 0));
 
-  const lines = ministries.map(m => ({ name: m.name, budget: budByKey[m.id] || 0, spent: spentByMin[m.id] || 0 }));
-  lines.push({ name: 'Pastor (estipendio)', budget: budByKey['pastor'] || 0, spent: spentPastor });
-  const rows = lines.filter(r => r.budget || r.spent);
+  // Spending broken out by line (General + each ministry + Pastor). No budgets.
+  const lines = [{ name: 'General', spent: spentGeneral },
+    ...ministries.map(m => ({ name: m.name, spent: spentByMin[m.id] || 0 })),
+    { name: 'Pastor (estipendio)', spent: spentPastor }];
+  const rows = lines.filter(r => r.spent);
 
   const tiles = [
     { icon: 'fa-arrow-down', cls: 'in',  num: fmt(income),   label: `Ingresos · ${monthLbl()}` },
@@ -146,16 +152,13 @@ async function renderResumen(root) {
         <span class="trez-tile__num">${t.num}</span><span class="trez-tile__label">${t.label}</span></div>`).join('')}
     </div>
     <div class="trez-card">
-      <h3 class="trez-card__title"><i class="fas fa-scale-balanced"></i> Presupuesto por línea · ${monthLbl()}</h3>
-      ${rows.length ? `<div class="trez-budtable">${rows.map(r => {
-        const rem = r.budget - r.spent, pct = r.budget ? Math.min(100, Math.round((r.spent / r.budget) * 100)) : 0, over = r.budget && r.spent > r.budget;
-        return `<div class="trez-budrow">
+      <h3 class="trez-card__title"><i class="fas fa-arrow-up"></i> Gastos por línea · ${monthLbl()}</h3>
+      ${rows.length ? `<div class="trez-budtable">${rows.map(r => `
+        <div class="trez-budrow">
           <div class="trez-budrow__head"><span class="trez-budrow__name">${esc(r.name)}</span>
-            <span class="trez-budrow__nums">${fmt(r.spent)} <span class="muted">/ ${fmt(r.budget)}</span></span></div>
-          <div class="trez-budbar"><div class="trez-budbar__fill${over ? ' over' : ''}" style="width:${pct}%"></div></div>
-          <div class="trez-budrow__rem ${rem < 0 ? 'neg' : ''}">${rem < 0 ? 'Excedido ' : 'Restante '}${fmt(Math.abs(rem))}</div>
-        </div>`; }).join('')}</div>`
-        : `<div class="empty-state"><i class="fas fa-scale-balanced"></i><p>Aún no hay presupuestos ni gastos para ${monthLbl()}.</p></div>`}
+            <span class="trez-budrow__nums">${fmt(r.spent)}</span></div>
+        </div>`).join('')}</div>`
+        : `<div class="empty-state"><i class="fas fa-arrow-up"></i><p>Aún no hay gastos para ${monthLbl()}.</p></div>`}
     </div>`;
 }
 
@@ -165,7 +168,10 @@ const WIZ = {
     title: 'Nuevo ingreso', editTitle: 'Editar ingreso', icon: 'fa-arrow-down', submitLabel: 'Guardar ingreso',
     steps: [
       { label: '¿Cuánto dinero se recibió?', hint: 'Escribe la cantidad.', fields: [{ id: 'amount', label: 'Monto', type: 'money', required: true }] },
-      { label: '¿De dónde vino?', fields: [{ id: 'source', label: 'Fuente', type: 'text', required: true, placeholder: 'Ofrenda dominical' }] },
+      { label: '¿De dónde vino?', hint: INCOME_CATS.length ? '' : 'Agrega categorías de ingreso en Configurar.',
+        fields: [{ id: 'source', label: 'Fuente', type: 'select', required: true,
+          options: [{ value: '', label: 'Selecciona una fuente…' },
+            ...INCOME_CATS.map(c => ({ value: c.name, label: c.name }))] }] },
       { label: '¿Qué día se recibió?', fields: [{ id: 'occurred_on', label: 'Fecha', type: 'date', default: todayISO() }] },
       { label: 'Detalles (opcional)', fields: [
         { id: 'fund', label: 'Fondo', type: 'text', placeholder: 'General / Misiones' },
@@ -198,9 +204,16 @@ const WIZ = {
   recurring: () => ({
     title: 'Nuevo pago recurrente', editTitle: 'Editar pago recurrente', icon: 'fa-rotate', submitLabel: 'Guardar',
     steps: [
-      { label: '¿A quién se le paga?', hint: 'Por ejemplo, el estipendio del pastor.', fields: [{ id: 'payee', label: 'Pagado a', type: 'text', required: true, placeholder: 'Pastor — estipendio' }] },
+      { label: '¿Es para una persona o un ministerio?',
+        fields: [{ id: 'target', type: 'choice', default: 'ministry', options: [
+          { value: 'ministry', label: 'Un ministerio', desc: 'Va a su presupuesto', icon: 'fa-people-group' },
+          { value: 'person',   label: 'Una persona',   desc: 'Ej. pastor, músico',  icon: 'fa-user' }] }] },
+      { label: '¿Cuál?', fields: [
+        { id: 'rmin', label: 'Ministerio', type: 'select', required: true, showIf: d => d.target !== 'person',
+          options: [{ value: '', label: 'Selecciona…' }, ...realMinistries().map(m => ({ value: m.id, label: m.name }))] },
+        { id: 'rperson', label: 'Nombre de la persona', type: 'text', required: true, placeholder: 'Ej. Pastor Juan, músico',
+          showIf: d => d.target === 'person' }] },
       { label: '¿Cuánto se paga?', fields: [{ id: 'amount', label: 'Monto', type: 'money', required: true }] },
-      { label: '¿A qué pertenece?', fields: [{ id: 'alloc', type: 'choice', options: allocChoice(), default: '' }] },
       { label: '¿Cada cuánto?', fields: [{ id: 'frequency', type: 'choice', default: 'monthly', options: [
         { value: 'monthly', label: 'Cada mes', icon: 'fa-calendar-days' },
         { value: 'weekly', label: 'Cada semana', icon: 'fa-calendar-week' },
@@ -210,9 +223,16 @@ const WIZ = {
         { id: 'category', label: 'Categoría', type: 'text', placeholder: 'Personal / Servicios' },
         { id: 'note', label: 'Nota', type: 'textarea' }] },
     ],
-    toData: r => ({ payee: r.payee, amount: r.amount, alloc: allocEncode(r), frequency: r.frequency, day_of_month: r.day_of_month, category: r.category, note: r.note }),
-    toPayload: d => { const a = allocDecode(d.alloc || ''); const day = parseInt(d.day_of_month, 10); return {
-      payee: (d.payee || '').trim(), ministry_id: a.ministry_id, label: a.label, category: (d.category || '').trim() || null,
+    toData: r => ({ amount: r.amount,
+      target: r.label ? 'person' : 'ministry', rmin: r.ministry_id || '', rperson: r.label || '',
+      frequency: r.frequency, day_of_month: r.day_of_month, category: r.category, note: r.note }),
+    // payee (the "Pagado a" shown in the list) is derived: the person's name, or
+    // the ministry's name — no redundant question.
+    toPayload: d => { const isPerson = d.target === 'person'; const day = parseInt(d.day_of_month, 10); return {
+      payee: isPerson ? (d.rperson || '').trim() : minName(d.rmin),
+      ministry_id: isPerson ? null : (d.rmin || null),
+      label: isPerson ? ((d.rperson || '').trim() || null) : null,
+      category: (d.category || '').trim() || null,
       amount: Number(d.amount), frequency: d.frequency || 'monthly', day_of_month: (day >= 1 && day <= 31) ? day : null,
       note: (d.note || '').trim() || null, created_by: currentUser?.id || null }; },
   }),
@@ -303,11 +323,13 @@ function wireConf(root, key, table, wiz, title) {
 /* ── Ingresos ──────────────────────────────────────────────────────────────── */
 async function renderIncome(root) {
   const { data, error } = await sb.from('fin_income').select('*')
-    .gte('occurred_on', mStart()).lte('occurred_on', mEnd()).order('occurred_on', { ascending: false });
+    .is('project_id', null).gte('occurred_on', mStart()).lte('occurred_on', mEnd()).order('occurred_on', { ascending: false });
   if (error) { root.innerHTML = errBox(error); return; }
   cache.income = data || [];
   root.innerHTML = `
-    ${addBtn('Agregar ingreso')}
+    ${INCOME_CATS.length ? addBtn('Agregar ingreso')
+      : `<div class="trez-addbar"><button class="btn btn--primary" disabled><i class="fas fa-plus"></i> Agregar ingreso</button>
+         <p class="trez-hint" style="margin:.4rem 0 0"><i class="fas fa-circle-info"></i> Agrega categorías de ingreso en <strong>Configurar</strong> primero.</p></div>`}
     <div class="trez-total">Total recaudado · ${monthLbl()}: <strong class="pos">${fmt(sum(data))}</strong></div>
     ${table(['Fecha', 'Fuente', 'Fondo', 'Monto', ''], (data || []).map(r => `
       <tr><td>${fmtDate(r.occurred_on)}</td>
@@ -319,7 +341,7 @@ async function renderIncome(root) {
 /* ── Gastos ────────────────────────────────────────────────────────────────── */
 async function renderExpenses(root) {
   const { data, error } = await sb.from('fin_expenses').select('*')
-    .gte('occurred_on', mStart()).lte('occurred_on', mEnd()).order('occurred_on', { ascending: false });
+    .is('project_id', null).gte('occurred_on', mStart()).lte('occurred_on', mEnd()).order('occurred_on', { ascending: false });
   if (error) { root.innerHTML = errBox(error); return; }
   cache.expenses = data || [];
   root.innerHTML = `
@@ -375,55 +397,6 @@ async function ensureRecurringForMonth(mk) {
   if (rows.length) await sb.from('fin_expenses').insert(rows);
 }
 
-/* ── Presupuestos (MONTHLY, lines = ministries + Pastor) ────────────────────── */
-async function renderBudgets(root) {
-  const { data, error } = await sb.from('fin_budgets').select('line_key,amount').eq('period', monthKey);
-  if (error) { root.innerHTML = errBox(error); return; }
-  const byKey = Object.fromEntries((data || []).map(b => [b.line_key, Number(b.amount)]));
-  const lines = ministries.map(m => ({ key: m.id, name: m.name, ministry_id: m.id, label: null }));
-  lines.push({ key: 'pastor', name: 'Pastor (estipendio)', ministry_id: null, label: PASTOR });
-
-  root.innerHTML = `
-    <div class="trez-card">
-      <h3 class="trez-card__title"><i class="fas fa-scale-balanced"></i> Presupuesto mensual · ${monthLbl()}</h3>
-      <p class="trez-hint">Cada ministerio —y el pastor— tiene su presupuesto de este mes. Cambia el mes arriba. Se guarda al instante.</p>
-      <div class="trez-budset">
-        ${lines.map(l => `
-          <div class="trez-budset__row">
-            <span class="trez-budset__name">${esc(l.name)}</span>
-            <div class="trez-budset__input"><span>$</span>
-              <input type="number" min="0" step="0.01" inputmode="decimal" data-bud="${l.key}" value="${byKey[l.key] ?? ''}" placeholder="0.00"></div>
-            <button class="btn btn--ghost btn--sm" data-budsave="${l.key}">Guardar</button>
-          </div>`).join('')}
-      </div>
-    </div>`;
-
-  root.querySelectorAll('[data-budsave]').forEach(btn => btn.addEventListener('click', async () => {
-    const key = btn.dataset.budsave;
-    const line = lines.find(l => l.key === key);
-    const amount = parseFloat(root.querySelector(`[data-bud="${CSS.escape(key)}"]`).value);
-    if (!(amount >= 0)) { toast('Escribe un monto válido', 'error'); return; }
-    btn.disabled = true;
-    const { error: e } = await sb.from('fin_budgets').upsert(
-      { line_key: key, label: line.label, ministry_id: line.ministry_id, period: monthKey, amount, updated_at: new Date().toISOString() },
-      { onConflict: 'line_key,period' });
-    if (e) { btn.disabled = false; toast(e.message, 'error'); return; }
-    // The budget is money handed to the ministry to spend → reflect it as a
-    // gasto for this month (kept in sync; re-saving replaces it).
-    const tag = `auto:budget:${key}:${monthKey}`;
-    await sb.from('fin_expenses').delete().eq('note', tag);
-    if (amount > 0) {
-      await sb.from('fin_expenses').insert({
-        occurred_on: `${monthKey}-01`, ministry_id: line.ministry_id, label: line.label,
-        payee: line.name, category: 'Asignación de presupuesto', amount, status: 'paid',
-        note: tag, created_by: currentUser?.id || null,
-      });
-    }
-    btn.disabled = false;
-    toast('Presupuesto guardado y reflejado en gastos', 'success');
-  }));
-}
-
 /* ── Por pagar ─────────────────────────────────────────────────────────────── */
 async function renderPayables(root) {
   const { data, error } = await sb.from('fin_payables').select('*')
@@ -440,12 +413,26 @@ async function renderPayables(root) {
         <td>${r.status === 'paid' ? statusPill('paid') : '<span class="trez-pill trez-pill--owe">Abierto</span>'}</td>${kebabCell(r.id)}</tr>`).join(''), 'No hay cuentas por pagar.')}`;
   bindList(root, 'payables', 'fin_payables', WIZ.payables(), {
     title: r => r?.creditor,
-    extra: r => r?.status === 'open' ? [{ label: 'Marcar pagado', icon: 'fa-check', onClick: () => markPaid(r.id) }] : [],
+    extra: r => r?.status === 'open' ? [{ label: 'Marcar pagado', icon: 'fa-check', onClick: () => markPaid(r) }] : [],
+    // Deleting a payable also removes its mirrored gasto (auto:payable:<id>).
+    onDelete: (id) => sb.from('fin_expenses').delete().eq('note', `auto:payable:${id}`),
   });
 }
-async function markPaid(id) {
-  const { error } = await sb.from('fin_payables').update({ status: 'paid', paid_at: new Date().toISOString() }).eq('id', id);
+// Marking a payable paid mirrors it into fin_expenses (the single source of
+// truth for Gastos/Resumen/Reporte) so the money shows up as a real gasto.
+// Idempotent via the auto:payable:<id> tag, which cleanNote() hides.
+async function markPaid(p) {
+  const paid_at = new Date().toISOString();
+  const { error } = await sb.from('fin_payables').update({ status: 'paid', paid_at }).eq('id', p.id);
   if (error) { toast(error.message, 'error'); return; }
+  const tag = `auto:payable:${p.id}`;
+  await sb.from('fin_expenses').delete().eq('note', tag);
+  await sb.from('fin_expenses').insert({
+    occurred_on: paid_at.slice(0, 10),
+    ministry_id: p.ministry_id || null, label: null,
+    payee: p.creditor, category: 'Cuenta pagada', amount: p.amount,
+    status: 'paid', note: tag, created_by: currentUser?.id || null,
+  });
   toast('Marcado como pagado', 'success'); render();
 }
 
@@ -606,6 +593,7 @@ function bindList(root, key, tableName, wiz, opts = {}) {
           if (!await confirm('Eliminar', '¿Eliminar este registro? No se puede deshacer.')) return;
           const { error } = await sb.from(tableName).delete().eq('id', btn.dataset.kebab);
           if (error) { toast(error.message, 'error'); return; }
+          if (opts.onDelete) await opts.onDelete(btn.dataset.kebab);
           toast('Eliminado', 'success'); render();
         } },
     ];

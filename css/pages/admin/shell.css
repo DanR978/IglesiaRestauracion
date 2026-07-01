@@ -213,7 +213,8 @@ body.is-admin .adm-nav__group[data-admin-only] { display: block; }
 .tab-btn:hover:not(.active) i { opacity: 1; }
 
 .tab-btn.active   { background: var(--color-dark); color: var(--color-white); }
-.tab-btn.active i { opacity: 1; color: var(--color-secondary, #c89858); }
+/* On the dark active pill the icon reads best in white (matches the label). */
+.tab-btn.active i { opacity: 1; color: var(--color-white); }
 
 .tab-btn:focus-visible {
   outline: 2px solid var(--color-secondary, #c89858);
@@ -229,6 +230,67 @@ body.is-admin .tab-btn[data-admin-only] { display: flex; }
 body.is-finance .adm-nav__group[data-finance-only] { display: block; }
 body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 
+/* ── Account area — pinned to the bottom of the sidebar (desktop + mobile).
+      Replaces the old header user chip; shows the signed-in user's photo. ──── */
+.adm-nav__footer {
+  margin-top: auto;                    /* push to the bottom of the flex column */
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-top: 0.7rem;
+  margin-bottom: -1rem;                /* absorb the sidebar's bottom padding */
+  border-top: 1px solid var(--gray-40);
+}
+.adm-account {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.5rem;
+  background: none;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.adm-account:hover { background: rgba(57, 69, 72, 0.06); }
+.adm-avatar {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: var(--radius-full, 999px);
+  background-color: var(--color-dark);
+  background-size: cover;
+  background-position: center;
+  color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.82rem;
+  overflow: hidden;
+}
+.adm-account__meta { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.adm-account__name {
+  font-weight: 600; font-size: 0.85rem; color: var(--color-dark);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.adm-account__role {
+  font-size: 0.72rem; color: var(--color-muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.adm-account__logout {
+  flex: none;
+  width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; border-radius: 9px;
+  color: var(--color-muted); cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.adm-account__logout:hover { background: rgba(176, 32, 48, 0.08); color: var(--color-danger, #b02030); }
+
 .tab-panel {
   display: none;
   padding: 1.9rem 2rem;
@@ -240,6 +302,38 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
 /* ── View switcher (list / form / bulk) ──────────────── */
 .view-panel        { display: none; }
 .view-panel.active { display: block; }
+
+/* ── Eventos: one page, pill views (Calendario · Próximos · Registraciones).
+      Pills match the public eventos page (.evhub__view). ─────────────────── */
+.ev-view        { display: none; }
+.ev-view.active { display: block; }
+.ev-pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 1.4rem;
+}
+.ev-pill {
+  border: 1.5px solid transparent;
+  background: transparent;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-full, 999px);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.ev-pill:hover        { color: var(--color-dark); }
+.ev-pill.active {
+  background: var(--color-dark);
+  color: var(--color-white);
+  border-color: var(--color-dark);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    SECTION DIVIDERS — small uppercase label + thin amber accent line

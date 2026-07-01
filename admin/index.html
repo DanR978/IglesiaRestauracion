@@ -13,12 +13,49 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <base href="/" />
   <link rel="stylesheet" href="css/style.css" />
-  <!-- Admin-only styles, layered on top of the shared bundle. Kept out of
-       style.css so public visitors don't download the admin UI's CSS. -->
-  <link rel="stylesheet" href="css/admin.css" />
+  <!-- Admin-only styles, layered on top of style.css. One file per admin page/
+       section (css/pages/admin/*) loaded directly — no bundled css/admin.css.
+       Edit the file for the page you're changing; there's no build step.
+       Order = the cascade: auth before auth-animation (they share .auth-card),
+       then the rest alphabetically. Kept out of style.css so public visitors
+       don't download the admin UI's CSS. -->
+  <link rel="stylesheet" href="css/pages/admin/auth.css" />
+  <link rel="stylesheet" href="css/pages/admin/auth-animation.css" />
+  <link rel="stylesheet" href="css/pages/admin/account.css" />
+  <link rel="stylesheet" href="css/pages/admin/buttons.css" />
+  <link rel="stylesheet" href="css/pages/admin/calendar-tab.css" />
+  <link rel="stylesheet" href="css/pages/admin/dashboard.css" />
+  <link rel="stylesheet" href="css/pages/admin/discipleship.css" />
+  <link rel="stylesheet" href="css/pages/admin/filters.css" />
+  <link rel="stylesheet" href="css/pages/admin/forms.css" />
+  <link rel="stylesheet" href="css/pages/admin/gallery.css" />
+  <link rel="stylesheet" href="css/pages/admin/modal.css" />
+  <link rel="stylesheet" href="css/pages/admin/palette.css" />
+  <link rel="stylesheet" href="css/pages/admin/platform.css" />
+  <link rel="stylesheet" href="css/pages/admin/presets.css" />
+  <link rel="stylesheet" href="css/pages/admin/report-builder.css" />
+  <link rel="stylesheet" href="css/pages/admin/rich-text.css" />
+  <link rel="stylesheet" href="css/pages/admin/role-presets.css" />
+  <link rel="stylesheet" href="css/pages/admin/shell.css" />
+  <link rel="stylesheet" href="css/pages/admin/special-events.css" />
+  <link rel="stylesheet" href="css/pages/admin/table.css" />
+  <link rel="stylesheet" href="css/pages/admin/treasury.css" />
+  <link rel="stylesheet" href="css/pages/admin/users.css" />
+  <link rel="stylesheet" href="css/pages/admin/wizard.css" />
   <!-- Hard guard against an overlay leaking its markup into page flow before the
        (cache-able) admin bundle applies. Inline so it can never lose the race. -->
   <style>.wizard-backdrop:not(.open){display:none!important}</style>
+  <!-- Apply the user's saved theme (Apariencia preference) before first paint so
+       a forced light/dark choice never flashes the wrong palette. "system" sets
+       no attribute, letting the prefers-color-scheme media query govern. See
+       js/pages/admin/prefs.js. -->
+  <script>
+    try {
+      var p = JSON.parse(localStorage.getItem('ird.admin.prefs') || '{}');
+      if (p && (p.theme === 'light' || p.theme === 'dark'))
+        document.documentElement.setAttribute('data-theme', p.theme);
+    } catch (e) {}
+  </script>
 </head>
 <body>
 
@@ -146,7 +183,7 @@
     <button type="button" class="adm-burger" id="admBurger" aria-label="Menú" aria-expanded="false" aria-controls="admNav">
       <i class="fas fa-bars"></i>
     </button>
-    <div class="topbar__title">IRD Admin <span id="topbarMinistry"></span></div>
+    <div class="topbar__title">IGLESIA RESTAURACIÓN DIVINA</div>
     <div class="topbar__right">
       <!-- Notification bell (admins) -->
       <div class="notif" id="notifPanel">
@@ -157,15 +194,14 @@
         <div class="notif-dropdown">
           <div class="notif-dropdown__head">
             <span>Notificaciones</span>
-            <button type="button" class="notif-markall" id="notifMarkAll">Marcar leídas</button>
+            <div class="notif-dropdown__actions">
+              <button type="button" class="notif-markall" id="notifMarkAll">Marcar leídas</button>
+              <button type="button" class="notif-markall notif-clear" id="notifClear">Limpiar</button>
+            </div>
           </div>
           <div class="notif-list" id="notifList"></div>
         </div>
       </div>
-      <button type="button" class="topbar__user" id="topbarUser" title="Mi cuenta"></button>
-      <button class="topbar__logout" id="logoutBtn" title="Cerrar sesión">
-        <i class="fas fa-sign-out-alt"></i>
-      </button>
     </div>
   </div>
 
@@ -176,13 +212,9 @@
   <nav class="adm-nav" id="admNav" aria-label="Navegación del panel">
     <div class="adm-nav__group">Principal</div>
     <button class="tab-btn active" data-tab="inicio"><i class="fas fa-house"></i> <span>Inicio</span></button>
-    <button class="tab-btn" data-tab="analytics" data-admin-only><i class="fas fa-chart-line"></i> <span>Analíticas</span></button>
 
     <div class="adm-nav__group">Eventos</div>
-    <button class="tab-btn" data-tab="upcoming"><i class="fas fa-calendar-day"></i> <span>Próximos</span></button>
-    <button class="tab-btn" data-tab="past"><i class="fas fa-history"></i> <span>Pasados</span></button>
-    <button class="tab-btn" data-tab="calendario"><i class="fas fa-calendar-week"></i> <span>Calendario</span></button>
-    <button class="tab-btn" data-tab="special-events" data-admin-only><i class="fas fa-clipboard-list"></i> <span>Registraciones</span></button>
+    <button class="tab-btn" data-tab="eventos"><i class="fas fa-calendar-week"></i> <span>Eventos</span></button>
 
     <div class="adm-nav__group" data-finance-only>Finanzas</div>
     <button class="tab-btn" data-tab="treasury" data-finance-only><i class="fas fa-coins"></i> <span>Tesorería</span></button>
@@ -196,6 +228,20 @@
     <button class="tab-btn" data-tab="users" data-admin-only><i class="fas fa-users"></i> <span>Usuarios</span></button>
     <button class="tab-btn" data-tab="activity" data-admin-only><i class="fas fa-clock-rotate-left"></i> <span>Actividad</span></button>
     <button class="tab-btn" data-tab="settings" data-admin-only><i class="fas fa-gear"></i> <span>Configuración</span></button>
+
+    <!-- Account (signed-in user) — pinned to the bottom of the sidebar -->
+    <div class="adm-nav__footer">
+      <button type="button" class="adm-account" id="navAccount" title="Mi cuenta" aria-label="Mi cuenta">
+        <span class="adm-avatar" id="navAvatar" aria-hidden="true"></span>
+        <span class="adm-account__meta">
+          <span class="adm-account__name" id="navAccountName"></span>
+          <span class="adm-account__role" id="navAccountRole"></span>
+        </span>
+      </button>
+      <button class="adm-account__logout" id="logoutBtn" title="Cerrar sesión" aria-label="Cerrar sesión">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
   </nav>
 
   <!-- ── INICIO (Dashboard) ─────────────────────────────────────────────────── -->
@@ -209,8 +255,16 @@
     <div id="dashNext"></div>
   </div>
 
+  <!-- ── EVENTOS — Calendario · Próximos · Registraciones en una sola página ─── -->
+  <div class="tab-panel" id="tab-eventos">
+    <div class="ev-pills" id="evPills" role="tablist" aria-label="Vistas de eventos">
+      <button class="ev-pill active" data-ev-view="calendario" role="tab" aria-selected="true"><i class="fas fa-calendar-week"></i> Calendario</button>
+      <button class="ev-pill" data-ev-view="upcoming" role="tab" aria-selected="false"><i class="fas fa-calendar-day"></i> Próximos</button>
+      <button class="ev-pill" data-ev-view="special-events" role="tab" aria-selected="false"><i class="fas fa-clipboard-list"></i> Registraciones</button>
+    </div>
+
   <!-- ── PRÓXIMOS ───────────────────────────────────────────────────────────── -->
-  <div class="tab-panel" id="tab-upcoming">
+  <div class="ev-view" id="tab-upcoming">
 
     <!-- View: list -->
     <div class="view-panel active" id="view-list">
@@ -342,16 +396,8 @@
 
   </div><!-- /tab-upcoming -->
 
-  <!-- ── PASADOS ────────────────────────────────────────────────────────────── -->
-  <div class="tab-panel" id="tab-past">
-    <div class="action-bar"><h2>Eventos Pasados</h2></div>
-    <div id="pastList">
-      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
-    </div>
-  </div>
-
   <!-- ── REGISTRACIONES (Eventos con Registro) ──────────────────────────────── -->
-  <div class="tab-panel" id="tab-special-events">
+  <div class="ev-view" id="tab-special-events">
 
     <!-- View: list -->
     <div class="se-view active" id="se-view-list">
@@ -405,11 +451,9 @@
             <option value="closed">Cerrado — no acepta inscripciones</option>
             <option value="completed">Completado — el evento ya terminó</option>
           </select>
-          <p class="se-hint">Si no está "Abierto", la página pública invita a contactar al pastor y no acepta registros. Las inscripciones también se cierran solas cuando pasa la fecha del evento.</p>
         </div>
         <div class="form-group">
           <label>Grupos por edad (opcional)</label>
-          <p class="se-hint">Define rangos de edad con nombre y color. El panel de inscripciones agrupará a los niños según su edad.</p>
           <div id="seAgeGroups"></div>
           <button type="button" class="btn btn--ghost" id="seAgeGroupAdd" style="margin-top:.5rem">
             <i class="fas fa-plus"></i> Añadir grupo
@@ -483,8 +527,8 @@
 
   </div>
 
-  <!-- ── CALENDARIO ─────────────────────────────────────────────────────────── -->
-  <div class="tab-panel" id="tab-calendario">
+  <!-- ── CALENDARIO (vista por defecto de Eventos) ──────────────────────────── -->
+  <div class="ev-view active" id="tab-calendario">
 
     <div class="cal-toolbar">
       <h2>Calendario de Actividades</h2>
@@ -615,6 +659,8 @@
 
   </div><!-- /tab-calendario -->
 
+  </div><!-- /tab-eventos -->
+
   <!-- ── MINISTERIOS ────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-ministries">
     <div class="action-bar">
@@ -641,17 +687,10 @@
     <div id="treasuryBody"></div>
   </div>
 
-  <!-- ── ANALÍTICAS ─────────────────────────────────────────────────────────── -->
-  <div class="tab-panel" id="tab-analytics">
-    <div class="action-bar"><h2>Analíticas</h2></div>
-    <div id="analyticsBody"></div>
-  </div>
-
   <!-- ── ACTIVIDAD ──────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-activity">
     <div class="action-bar">
       <h2>Actividad</h2>
-      <span class="action-bar__hint">Registro de cambios — quién hizo qué y cuándo.</span>
     </div>
     <div id="activityList" class="act-list"></div>
   </div>
@@ -734,11 +773,6 @@
           </select>
         </div>
       </div>
-
-      <p class="dscp-pool__hint" id="dscpPoolHint">
-        Estas son las personas que llenaron el formulario sin escoger un grupo. Marca varias y haz clic en
-        <strong>Formar grupo</strong> para crear un grupo nuevo con todos ellos a la vez.
-      </p>
 
       <div id="dscpInterestsList" class="dscp-admin__list">
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
@@ -899,8 +933,6 @@
           <div class="gal-dropzone__inner">
             <i class="fas fa-cloud-upload-alt"></i>
             <p class="gal-dropzone__title">Arrastra fotos aquí o haz clic para escoger</p>
-            <p class="gal-dropzone__hint">Si el álbum aún no se ha guardado, lo guardamos automáticamente al subir la primera foto.<br>
-              Se optimizan automáticamente. JPG, PNG, WebP, HEIC.</p>
           </div>
         </label>
 
@@ -919,25 +951,57 @@
   <div class="tab-panel" id="tab-users">
     <div class="action-bar">
       <h2>Cuentas y Accesos</h2>
-      <button class="btn btn--primary" id="addUserBtn">
-        <i class="fas fa-user-plus"></i> Invitar usuario
+    </div>
+
+    <!-- Sub-tabs: accounts vs. access presets -->
+    <div class="adm-tabs users-admin__tabs">
+      <button class="adm-tab active" data-users-tab="accounts">
+        <i class="fas fa-users"></i> Cuentas
+      </button>
+      <button class="adm-tab" data-users-tab="presets">
+        <i class="fas fa-id-badge"></i> Roles y accesos
       </button>
     </div>
-    <p class="users-hint">
-      Las cuentas son solo por invitación. La persona invitada crea su propia contraseña
-      y configura la verificación en dos pasos. Los líderes de ministerio solo ven y
-      gestionan los eventos de su ministerio.
-    </p>
 
-    <div id="invitesSection" hidden>
-      <div class="section-divider"><i class="fas fa-paper-plane"></i> Invitaciones pendientes</div>
-      <div id="invitesList" class="user-list"></div>
+    <!-- ── Cuentas ─────────────────────────────────────────────────────────── -->
+    <div class="users-admin__panel active" id="users-panel-accounts">
+      <div class="users-admin__bar">
+        <button class="btn btn--primary" id="addUserBtn">
+          <i class="fas fa-user-plus"></i> Invitar usuario
+        </button>
+      </div>
+
+      <div id="invitesSection" hidden>
+        <div class="section-divider"><i class="fas fa-paper-plane"></i> Invitaciones pendientes</div>
+        <div id="invitesList" class="user-list"></div>
+      </div>
+
+      <div class="section-divider"><i class="fas fa-users"></i> Usuarios activos</div>
+      <div id="usersList" class="user-list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
     </div>
 
-    <div class="section-divider"><i class="fas fa-users"></i> Usuarios activos</div>
-    <div id="usersList" class="user-list">
-      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+    <!-- ── Roles y accesos (presets) ───────────────────────────────────────── -->
+    <div class="users-admin__panel" id="users-panel-presets">
+      <div class="users-admin__bar">
+        <button class="btn btn--primary" id="addPresetBtn">
+          <i class="fas fa-plus"></i> Nuevo preset
+        </button>
+      </div>
+      <div id="presetsList" class="rp-list">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+      </div>
     </div>
+  </div>
+
+  <!-- ── PERFIL Y CONFIGURACIÓN (cuenta del usuario) ──────────────────────────
+       Dedicated account area (replaces the old "Mi cuenta" modal). The large
+       profile header + settings sidebar + sections are rendered by
+       js/pages/admin/account.js into #acctRoot. Opened from the sidebar account
+       footer (#navAccount) via the existing tab routing. -->
+  <div class="tab-panel" id="tab-account">
+    <div id="acctRoot"></div>
   </div>
 
 </div><!-- /app -->
@@ -1174,42 +1238,76 @@
         <input type="email" id="invEmail" placeholder="persona@ejemplo.com" autocomplete="off">
       </div>
       <div class="form-group">
-        <label>Rol</label>
-        <select id="invRole">
-          <option value="ministry_leader">Líder de ministerio — solo su ministerio</option>
-          <option value="treasurer">Tesorero — control financiero total</option>
-          <option value="admin">Administrador — acceso total</option>
-        </select>
+        <label>Preset de acceso</label>
+        <select id="invPreset"></select>
       </div>
-      <div class="form-group" id="invMinistryGroup">
-        <label>Ministerio asignado</label>
-        <select id="invMinistry"></select>
-      </div>
-      <div class="form-group" id="invTabsGroup">
-        <div class="perm-head">
-          <label>Páginas que puede ver</label>
-          <button type="button" class="perm-preset" id="invMediosPreset" title="Marcar el conjunto de Medios">
-            <i class="fas fa-photo-film"></i> Medios
+      <div class="form-group" id="invMinistryGroup" hidden>
+        <label>Ministerios / equipos</label>
+        <div class="ms-select" id="invMinistrySelect">
+          <button type="button" class="ms-select__btn" id="invMinistryBtn"
+                  aria-haspopup="true" aria-expanded="false" aria-controls="invMinistryMenu">
+            <span class="ms-select__label" id="invMinistryLabel">Sin ministerio</span>
+            <i class="fas fa-chevron-down ms-select__caret"></i>
           </button>
+          <div class="ms-select__menu" id="invMinistryMenu" role="group" aria-label="Ministerios" hidden></div>
         </div>
-        <div class="perm-grid" id="invTabsList"></div>
-        <p class="perm-hint"><i class="fas fa-circle-info"></i> Inicio siempre está disponible.
-          Tesorería, Usuarios, Ministerios, Actividad y Configuración son solo para administradores.</p>
+        <p class="perm-hint"><i class="fas fa-circle-info"></i> Puedes asignar varios. Lo que la tesorería
+          asigne a estos ministerios aparecerá como presupuesto en la página de esta persona.</p>
       </div>
-      <p class="modal-note" id="invAdminNote" hidden>
-        <i class="fas fa-shield-halved"></i> Un administrador tiene acceso a todos los
-        ministerios — no se le asigna ninguno.
-      </p>
     </form>
-    <p class="modal-note" id="invNote">
-      <i class="fas fa-envelope"></i> Se enviará un correo de invitación. La persona creará
-      su propia contraseña y configurará la verificación en dos pasos.
-    </p>
     <div class="auth-error" id="userModalError"></div>
     <div class="modal__footer">
       <button class="btn btn--ghost"   id="userModalCancel">Cancelar</button>
       <button class="btn btn--primary" id="userModalSave">
         <i class="fas fa-paper-plane"></i> Enviar invitación
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Preset (role/access) modal -->
+<div class="modal-backdrop" id="presetModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal__header">
+      <div class="modal__title" id="presetModalTitle">Nuevo preset</div>
+      <button class="modal__close" id="presetModalClose"><i class="fas fa-times"></i></button>
+    </div>
+    <input type="hidden" id="presetId">
+    <div class="form-group">
+      <label>Nombre del preset</label>
+      <input type="text" id="presetName" placeholder="Ej: Medios, Recepción, Discipulado…">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Tipo de acceso</label>
+        <select id="presetBaseRole">
+          <option value="ministry_leader">Acceso por páginas</option>
+          <option value="treasurer">Tesorería — control financiero</option>
+          <option value="admin">Administración — panel completo</option>
+        </select>
+      </div>
+      <div class="form-group" style="max-width:130px">
+        <label>Color</label>
+        <input type="color" id="presetColor" value="#475569">
+      </div>
+    </div>
+    <input type="hidden" id="presetIcon" value="fa-id-badge">
+    <div class="form-group">
+      <label>Icono</label>
+      <div class="icon-picker" id="presetIconGrid"></div>
+    </div>
+    <div class="form-group" id="presetTabsGroup">
+      <label id="presetTabsLabel">Páginas que puede ver</label>
+      <div class="perm-grid" id="presetTabsList"></div>
+    </div>
+    <div class="auth-error" id="presetModalError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--danger"  id="presetModalDelete" style="display:none">
+        <i class="fas fa-trash"></i> Eliminar
+      </button>
+      <button class="btn btn--ghost"   id="presetModalCancel">Cancelar</button>
+      <button class="btn btn--primary" id="presetModalSave">
+        <i class="fas fa-save"></i> Guardar
       </button>
     </div>
   </div>
@@ -1242,40 +1340,8 @@
   </div>
 </div>
 
-<!-- "Mi cuenta" modal -->
-<div class="modal-backdrop" id="accountModal">
-  <div class="modal" style="max-width:440px">
-    <div class="modal__header">
-      <div class="modal__title">Mi cuenta</div>
-      <button class="modal__close" id="accountModalClose"><i class="fas fa-times"></i></button>
-    </div>
-
-    <div class="acc-summary">
-      <div class="acc-summary__name"  id="accName"></div>
-      <div class="acc-summary__email" id="accEmail"></div>
-      <div class="acc-summary__row">
-        <span class="role-badge" id="accRole"></span>
-        <span class="acc-summary__ministry" id="accMinistry"></span>
-      </div>
-    </div>
-
-    <div class="section-divider"><i class="fas fa-key"></i> Cambiar contraseña</div>
-    <div class="form-group">
-      <label>Contraseña nueva</label>
-      <input type="password" id="accPw1" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
-    </div>
-    <div class="form-group">
-      <label>Confirmar contraseña</label>
-      <input type="password" id="accPw2" placeholder="Repite la contraseña" autocomplete="new-password">
-    </div>
-    <div class="auth-error" id="accountError"></div>
-    <button class="btn btn--primary" id="accountPwBtn"><i class="fas fa-save"></i> Guardar contraseña</button>
-
-    <div class="modal__footer">
-      <button class="btn btn--ghost" id="accountModalDone">Cerrar</button>
-    </div>
-  </div>
-</div>
+<!-- "Mi cuenta" is now the dedicated #tab-account page (js/pages/admin/account.js),
+     opened from the sidebar account footer — the old modal was removed. -->
 
 <!-- Confirm modal -->
 <div class="modal-backdrop" id="confirmModal">

@@ -8,6 +8,7 @@ import {
 import { toast, openModal, closeModal, showView } from './ui.js';
 import { loadUpcoming } from './events-tab.js';
 import { loadCalendario } from './calendar-tab.js';
+import { goToTab } from './event-views.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 export const DEFAULT_LOC_ADDR = '2601 Clays Mill Road';
@@ -189,13 +190,8 @@ export async function openEditSpecial(rawId) {
   const { data: ev } = await sb.from('events').select('*').eq('id', rawId).single();
   if (!ev) return;
 
-  // Switch to Próximos tab so the form (inside #tab-upcoming) is visible
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  const upcomingTab = document.querySelector('.tab-btn[data-tab="upcoming"]');
-  if (upcomingTab) upcomingTab.classList.add('active');
-  const upcomingPanel = document.getElementById('tab-upcoming');
-  if (upcomingPanel) upcomingPanel.classList.add('active');
+  // Open Eventos → Próximos so the form (inside #tab-upcoming) is visible.
+  goToTab('upcoming');
 
   document.getElementById('formTitle').textContent = 'Editar Evento';
   document.getElementById('fId').value = ev.id;

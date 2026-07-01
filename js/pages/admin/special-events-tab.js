@@ -8,10 +8,13 @@
 //
 // Reuses existing admin UI utilities (toast, confirm, action-sheet), the events
 // table styling, the shared QR helpers, and the pdfmake export pattern.
-// Restricted to admins (nav button is data-admin-only; RLS enforces server-side).
+// Available to admins AND to any ministry_leader whose preset grants the
+// "Registraciones" (special-events) page — e.g. Medios. RLS (pp_special_events /
+// pp_event_registrations, keyed on has_tab('special-events')) enforces access
+// server-side; the nav button only appears when the tab is granted.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { sb, currentUser, isAdmin } from './state.js';
+import { sb, currentUser } from './state.js';
 import { toast, confirm } from './ui.js';
 import { html, esc } from '/js/utils/escape.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
@@ -144,7 +147,6 @@ function toLocalDTInput(iso) {
 
 // ── Entry point ──────────────────────────────────────────────────────────────
 export async function loadSpecialEvents() {
-  if (!isAdmin()) return;
   if (!booted) { boot(); booted = true; }
   seShowView('list');
   await renderList();

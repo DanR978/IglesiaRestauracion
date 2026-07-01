@@ -53,16 +53,70 @@ be reviewed or rebuilt from scratch.
   that was previously committed in this file's deploy comment** and restrict it to
   the YouTube Data API v3 in Google Cloud.
 
-- `functions/newsletter-subscribe/` — public sign-up. Inserts the subscriber and
-  emails a branded welcome (weekly services + this month's events) via
-  [Resend](https://resend.com). **Setup required before sign-ups send email:**
-  1. Create a Resend account and **verify the `irdlex.org` domain** (add the DNS
-     records Resend gives you). The function sends from `noreply@irdlex.org`.
-  2. Set the secret: `supabase secrets set RESEND_API_KEY=<your-key>`
-  3. Deploy (allow anonymous callers — visitors have no session):
-     `supabase functions deploy newsletter-subscribe --no-verify-jwt`
-  Until then, the table still records subscribers; the email is skipped (logged).
-  Also run the `20260607_newsletter.sql` migration so the table exists.
-  To send to ALL subscribers later (monthly blast), add a separate scheduled
-  function that reads `newsletter_subscribers` and loops Resend — this function
-  only handles the per-signup welcome.
+## Newsletter — welcome, monthly digest, day-before reminders
+
+Four edge functions share one branded email layout in
+`functions/_shared/email.ts` (Resend, from `noreply@irdlex.org`):
+
+| Function | Trigger | What it does |
+| --- | --- | --- |
+| `newsletter-subscribe` | public POST from the site | inserts the subscriber, sends the welcome email |
+| `newsletter-broadcast` | pg_cron, 1st of month | monthly digest to all active subscribers |
+| `newsletter-reminders` | pg_cron, daily ~9am ET | reminder for events starting *tomorrow* |
+| `newsletter-unsubscribe` | link/one-click in every email | opt-out via per-subscriber token |
+
+Every email carries a footer **Cancelar suscripción** link and an RFC 8058
+`List-Unsubscribe` header (Gmail/Apple one-click). Unsubscribes set
+`newsletter_subscribers.unsubscribed_at`; the scheduled sends only target rows
+where that is `NULL`. The `newsletter_dispatch_log` table makes each send
+idempotent (`kind='monthly'` ref `YYYY-MM`; `kind='reminder'` ref `YYYY-MM-DD`),
+so a re-trigger never double-sends.
+
+### One-time setup
+
+1. **Resend** — create an account and **verify the `irdlex.org` domain** (add the
+   DNS records it gives you).
+2. **Migrations** — apply `20260705_newsletter_broadcast.sql` (columns + log) and,
+   after step 4, `20260706_newsletter_cron.sql` (scheduling). The base
+   `newsletter_subscribers` table comes from the earlier `newsletter` migration.
+3. **Function secrets:**
+   ```bash
+   supabase secrets set RESEND_API_KEY=<your-resend-key>
+   supabase secrets set CRON_SECRET=<a-long-random-string>   # gate for the scheduled fns
+   ```
+4. **Deploy** (all allow anonymous callers — no user session):
+   ```bash
+   supabase functions deploy newsletter-subscribe   --no-verify-jwt
+   supabase functions deploy newsletter-broadcast   --no-verify-jwt
+   supabase functions deploy newsletter-reminders   --no-verify-jwt
+   supabase functions deploy newsletter-unsubscribe --no-verify-jwt
+   ```
+   `newsletter-broadcast`/`-reminders` are additionally gated by the
+   `x-cron-secret` header, so only the cron job (which holds `CRON_SECRET`) can
+   fire them.
+5. **Scheduling (pg_cron)** — in the SQL editor, once, with real values (kept out
+   of git, so `20260706_newsletter_cron.sql` reads them from Vault):
+   ```sql
+   create extension if not exists pg_cron;
+   create extension if not exists pg_net;
+   select vault.create_secret('https://YOUR_REF.supabase.co', 'project_url');
+   select vault.create_secret('<the same CRON_SECRET as above>', 'cron_secret');
+   ```
+   Then apply `20260706_newsletter_cron.sql`. It schedules `newsletter-monthly`
+   (`0 13 1 * *`) and `newsletter-reminders` (`0 13 * * *`) — 13:00 UTC = 9am ET
+   in summer, 8am ET in winter (a fixed cron can't follow DST; event dates are
+   always computed in ET regardless).
+
+### Testing before go-live
+
+```bash
+# preview to one address (no fan-out, no dedup log):
+curl -X POST "$FN/newsletter-broadcast" -H "x-cron-secret: $CRON_SECRET" \
+     -H 'Content-Type: application/json' -d '{"test":"you@example.com"}'
+# reminder preview for a specific ET day (must have an event that day):
+curl -X POST "$FN/newsletter-reminders" -H "x-cron-secret: $CRON_SECRET" \
+     -H 'Content-Type: application/json' -d '{"test":"you@example.com","date":"2026-07-05"}'
+```
+`{"force":true}` on `newsletter-broadcast` re-sends the real blast even if this
+month is already logged. Until Resend is configured, sign-ups still record the
+subscriber; the email is skipped (logged).

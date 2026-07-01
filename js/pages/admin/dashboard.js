@@ -6,6 +6,7 @@ import { html, raw } from '/js/utils/escape.js';
 import { render } from '/js/utils/render.js';
 import { sb, isAdmin, currentProfile, todayISO, MONTHS, DAY_NAMES } from './state.js';
 import { autoBalance } from './grid-balance.js';
+import { goToTab } from './event-views.js';
 
 
 
@@ -77,9 +78,7 @@ export async function loadDashboard() {
 
     if (cardsChanged) {
       cardsEl.querySelectorAll('[data-goto]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelector(`.tab-btn[data-tab="${btn.dataset.goto}"]`)?.click();
-        });
+        btn.addEventListener('click', () => goToTab(btn.dataset.goto));
       });
       autoBalance(cardsEl);   // last row stretches to fill — no orphan cards
     }

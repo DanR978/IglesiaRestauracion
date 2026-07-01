@@ -1,0 +1,15 @@
+/* admin/palette.css
+   Admin-only palette override — keeps the admin panel neutral and modern.
+   This file is bundled ONLY into css/admin.css (built from css/pages/admin/*),
+   which loads after style.css on /admin routes — so these token overrides
+   never reach the public website.
+
+   We drop the brand gold/orange and the teal "info" tint in favour of neutral
+   slate, and let the already-neutral --color-dark stay as the primary. Works in
+   both light and dark mode (slate reads fine on either background). */
+:root {
+  --color-info:      #334155;  /* slate-700 — was teal #2d4e57 */
+  --color-secondary: #475569;  /* slate-600 — was brand gold #9a6a2c */
+  --gold-bright:     #64748b;  /* slate-500 — was #c89858 */
+  --color-accent:    #475569;  /* slate-600 — was vivid orange #be660e */
+}

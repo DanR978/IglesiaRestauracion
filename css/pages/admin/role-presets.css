@@ -1,0 +1,142 @@
+/* admin/role-presets.css
+   "Roles y accesos" sub-tab: account ↔ roles toggle, preset cards, the preset
+   modal's icon picker and locked page-checklist items. */
+
+/* ── Accounts ↔ Roles sub-tabs ─────────────────────────────────────────────── */
+.users-admin__tabs { margin: 0.25rem 0 1.25rem; }
+.users-admin__panel { display: none; }
+.users-admin__panel.active { display: block; }
+.users-admin__bar { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+.users-admin__bar .btn { flex-shrink: 0; }
+
+/* ── Preset cards ──────────────────────────────────────────────────────────── */
+.rp-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: 0.85rem;
+  align-items: stretch;            /* every card the same height in its row */
+}
+.rp-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: var(--color-white);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.rp-card:hover { border-color: var(--gray-60); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07); }
+.rp-card__icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  color: var(--preset-color, #475569);
+  background: color-mix(in srgb, var(--preset-color, #475569) 14%, transparent);
+}
+.rp-card__body { flex: 1; min-width: 0; }
+/* Single row: name (truncates) · SISTEMA badge · count pinned right. */
+.rp-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+.rp-card__name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.rp-card__sys {
+  flex-shrink: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  background: var(--gray-20, #eef0f2);
+  color: var(--gray-70, #6b7280);
+}
+.rp-card__count {
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding-left: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+/* min-height keeps a one-chip card from looking cramped vs a multi-chip one. */
+.rp-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.4rem;
+  min-height: 1.55rem;
+}
+
+.rp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  border: 1px solid var(--gray-50);
+  color: var(--color-dark);
+}
+.rp-chip i { font-size: 0.72rem; color: var(--color-muted); }
+.rp-chip--all  { background: rgba(51, 65, 85, 0.10); border-color: transparent; color: var(--color-dark); }
+.rp-chip--all i { color: var(--color-dark); }
+.rp-chip--none,
+.rp-chip--more { background: var(--gray-20, #eef0f2); border-color: transparent; color: var(--gray-70, #6b7280); }
+
+/* ── Icon picker (preset modal) ────────────────────────────────────────────── */
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+  gap: 0.4rem;
+  max-height: 168px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-md);
+  background: var(--gray-10, #f8f8f8);
+}
+.icon-opt {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--color-white);
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+}
+.icon-opt:hover { color: var(--color-dark); border-color: var(--gray-50); transform: translateY(-1px); }
+.icon-opt.is-selected { background: var(--color-dark); border-color: var(--color-dark); color: var(--color-white); }
+
+/* ── Page checklist: locked (always-included) items — beats the checked-highlight. */
+.perm-item--locked,
+.perm-item--locked:has(input:checked) {
+  background: var(--gray-10, #f8f8f8);
+  border: 1px dashed var(--gray-40);
+  cursor: default;
+}
+.perm-item--locked:hover { background: var(--gray-10, #f8f8f8); }
+.perm-item--locked input { cursor: default; }
+
+@media (max-width: 560px) {
+  .users-admin__bar .btn { width: 100%; justify-content: center; }
+}

@@ -66,7 +66,7 @@ export function showView(name) {
 }
 
 // ─── Tabs ─────────────────────────────────────────────────────────────────────
-export function initTabs({ onInicio, onCalendario, onPast, onMinistries, onUsers, onDiscipulado, onGaleria, onAnalytics, onActivity, onSettings, onTreasury, onSpecialEvents }) {
+export function initTabs({ onInicio, onEventos, onCalendario, onPast, onMinistries, onUsers, onDiscipulado, onGaleria, onAnalytics, onActivity, onSettings, onTreasury, onSpecialEvents }) {
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -76,6 +76,7 @@ export function initTabs({ onInicio, onCalendario, onPast, onMinistries, onUsers
       if (panel) panel.classList.add('active');
 
       if (btn.dataset.tab === 'inicio')      onInicio?.();
+      if (btn.dataset.tab === 'eventos')     onEventos?.();
       if (btn.dataset.tab === 'past')        onPast?.();
       if (btn.dataset.tab === 'calendario')  onCalendario?.();
       if (btn.dataset.tab === 'ministries')  onMinistries?.();

@@ -11,6 +11,55 @@
 .trez-addbar { margin-bottom: 1.1rem; }
 .trez-addbar .btn { width: auto; }
 
+/* ── Per-project treasury (ministry users) ─────────────────────────────────── */
+.trez-projhead { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 1rem; }
+.trez-projhead__title { display: flex; align-items: center; gap: 0.5rem; margin: 0; font-size: 1.1rem; font-weight: 800; color: var(--color-dark); }
+.trez-addbar { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+/* Church budget income (read-only, from the treasurer). */
+.trez-budget { text-align: center; }
+.trez-budget__big { font-size: 2rem; font-weight: 800; color: #1c7a52; margin: 0.2rem 0; }
+.trez-budget__sub { font-size: 0.8rem; color: var(--color-muted); margin: 0; }
+
+/* Folder cards — each folder is its own separate budget (never summed). */
+.trez-projgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  gap: 0.85rem;
+}
+.trez-projcard {
+  display: flex; flex-direction: column; gap: 0.3rem;
+  width: 100%; text-align: left; font-family: inherit; cursor: pointer;
+  background: var(--color-white); border: 1px solid var(--gray-40);
+  border-left: 3px solid var(--preset-color, #475569);
+  border-radius: var(--radius-md, 0.625rem); padding: 1rem 1.1rem;
+  transition: box-shadow 0.15s, transform 0.1s;
+}
+.trez-projcard:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08); transform: translateY(-1px); }
+.trez-projcard__head { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.95rem; color: var(--color-dark); }
+.trez-projcard__icon {
+  width: 30px; height: 30px; flex-shrink: 0; border-radius: 8px;
+  display: grid; place-items: center; font-size: 0.85rem;
+  color: var(--preset-color, #475569);
+  background: color-mix(in srgb, var(--preset-color, #475569) 14%, transparent);
+}
+.trez-projcard__bal { font-size: 1.4rem; font-weight: 800; margin: 0.25rem 0; }
+.trez-projcard__bal.pos { color: #1c7a52; }
+.trez-projcard__bal.neg { color: #b02030; }
+.trez-projcard__row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--color-muted); }
+.trez-projcard__row .pos { color: #1c7a52; font-weight: 600; }
+.trez-projcard__row .neg { color: #b02030; font-weight: 600; }
+/* Assigned ministry with no budget yet — informational, not clickable. */
+.trez-projcard--muted { cursor: default; opacity: 0.72; }
+.trez-projcard--muted:hover { box-shadow: none; transform: none; }
+.trez-projcard--muted .trez-projcard__bal { color: var(--color-muted); }
+/* "Presupuesto de ministerio" tag next to a ministry tab's title. */
+.trez-projhead__tag {
+  font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--color-muted); background: var(--gray-20, #f1f5f9);
+  border: 1px solid var(--gray-40, #e2e8f0); border-radius: 999px;
+  padding: 0.1rem 0.5rem; white-space: nowrap;
+}
+
 /* Configurar — editable lists of funds / categories */
 .trez-conf__items { display: flex; flex-direction: column; }
 .trez-conf__item {
@@ -60,17 +109,12 @@
 .trez-card__title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.98rem; font-weight: 800; color: var(--color-dark); margin: 0 0 1rem; }
 .trez-card__title i { color: var(--color-secondary, #c89858); }
 
-/* Budget rows (resumen) */
-.trez-budtable { display: flex; flex-direction: column; gap: 1rem; }
-.trez-budrow__head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; margin-bottom: 0.4rem; }
+/* Spending-by-line rows (resumen) */
+.trez-budtable { display: flex; flex-direction: column; gap: 0.6rem; }
+.trez-budrow__head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
 .trez-budrow__name { font-weight: 600; font-size: 0.9rem; color: var(--color-dark); }
 .trez-budrow__nums { font-size: 0.88rem; font-weight: 700; color: var(--color-dark); }
 .trez-budrow__nums .muted, .muted { color: var(--color-muted); font-weight: 500; }
-.trez-budbar { height: 8px; background: var(--gray-30); border-radius: 999px; overflow: hidden; }
-.trez-budbar__fill { height: 100%; background: #1e6b61; border-radius: 999px; transition: width .4s ease; }
-.trez-budbar__fill.over { background: #b02030; }
-.trez-budrow__rem { font-size: 0.76rem; color: var(--color-muted); margin-top: 0.3rem; }
-.trez-budrow__rem.neg { color: #b02030; font-weight: 600; }
 
 /* Add/edit form */
 .trez-add {
@@ -154,15 +198,6 @@
 .trez-pill--pending { background: rgba(200,152,88,.16); color: #a05a10; }
 .trez-pill--owe     { background: rgba(176,32,48,.10);  color: #b02030; }
 
-/* Budget setter */
-.trez-budset { display: flex; flex-direction: column; gap: 0.6rem; }
-.trez-budset__row { display: flex; align-items: center; gap: 0.8rem; }
-.trez-budset__name { flex: 1; font-weight: 600; font-size: 0.9rem; color: var(--color-dark); }
-.trez-budset__input { display: flex; align-items: center; gap: 0.3rem; }
-.trez-budset__input span { color: var(--color-muted); font-weight: 600; }
-.trez-budset__input input { width: 130px; height: 2.4rem; padding: 0 0.6rem; border: 1px solid var(--gray-40); border-radius: 8px; font-family: inherit; font-size: 0.88rem; text-align: right; box-sizing: border-box; }
-.trez-budset__input input:focus { outline: none; border-color: var(--color-secondary, #c89858); }
-
 /* Notes */
 .trez-notes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; }
 .trez-note {
@@ -190,23 +225,6 @@
     border-radius: 12px;
   }
   .trez-subnav__btn i { width: 18px; text-align: center; font-size: 0.95rem; }
-
-  /* Budget rows: name on its own line, then input + Guardar — consistent
-     regardless of how long the ministry name is. */
-  .trez-budset__row {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "name name" "input save";
-    gap: 0.4rem 0.6rem;
-    align-items: center;
-    padding-bottom: 0.7rem;
-    border-bottom: 1px solid var(--gray-50);
-  }
-  .trez-budset__row:last-child { border-bottom: none; padding-bottom: 0; }
-  .trez-budset__name  { grid-area: name; }
-  .trez-budset__input { grid-area: input; }
-  .trez-budset__input input { width: 100%; }
-  .trez-budset__row > .btn { grid-area: save; }
 
   .trez-notes { grid-template-columns: 1fr; }
   .trez-addbar .btn { width: 100%; }

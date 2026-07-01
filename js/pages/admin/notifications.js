@@ -1,18 +1,22 @@
 import { esc } from '/js/utils/escape.js';
 // js/pages/admin/notifications.js
-// Topbar notification bell — unread badge + dropdown inbox, realtime.
+// Topbar notification bell — unread badge + paginated dropdown inbox, realtime.
 // Reads admin_notifications (admin-only via RLS); rows are created by DB triggers
-// (e.g. a new discipleship interest).
+// (e.g. a new discipleship interest). The list loads in batches ("Cargar más")
+// so it never grows unbounded, and a "Limpiar" button clears them all.
 
 import { sb, isAdmin } from './state.js';
-
-
+import { toast, confirm } from './ui.js';
+import { goToTab } from './event-views.js';
 
 const TYPE_ICON = {
   discipleship_interest: 'fa-hand-holding-heart',
 };
+const PAGE = 20;            // notifications fetched per batch
 
 let items = [];
+let reachedEnd = false;
+let loading = false;
 let channel = null;
 
 function timeAgo(iso) {
@@ -31,6 +35,12 @@ export async function initNotifications() {
 
   bell.addEventListener('click', (e) => { e.stopPropagation(); togglePanel(); });
   document.getElementById('notifMarkAll')?.addEventListener('click', markAllRead);
+  document.getElementById('notifClear')?.addEventListener('click', clearAll);
+
+  // "Cargar más" is re-rendered into the list — handle it via delegation.
+  document.getElementById('notifList')?.addEventListener('click', (e) => {
+    if (e.target.closest('#notifMore')) { e.stopPropagation(); loadMore(); }
+  });
 
   // Close on outside click
   document.addEventListener('click', (e) => {
@@ -42,7 +52,7 @@ export async function initNotifications() {
 
   await refresh();
 
-  // Realtime: new notifications pop in live.
+  // Realtime: new notifications pop in live (resets to the first batch).
   try {
     channel = sb.channel('admin-notifications')
       .on('postgres_changes',
@@ -52,24 +62,55 @@ export async function initNotifications() {
   } catch { /* realtime optional */ }
 }
 
-async function refresh() {
+async function fetchPage(offset) {
   const { data, error } = await sb
     .from('admin_notifications')
     .select('id,type,title,body,link,is_read,created_at')
     .order('created_at', { ascending: false })
-    .limit(30);
-  if (error) return;
-  items = data || [];
-  renderBadge();
+    .range(offset, offset + PAGE - 1);
+  if (error) return null;
+  return data || [];
+}
+
+// Initial / realtime load — reset to the first batch.
+async function refresh() {
+  const page = await fetchPage(0);
+  if (page === null) return;
+  items = page;
+  reachedEnd = page.length < PAGE;
+  await refreshBadge();
   renderList();
 }
 
-function renderBadge() {
+// Unread badge counts ALL unread rows, not just the loaded batch.
+async function refreshBadge() {
   const badge = document.getElementById('notifBadge');
   if (!badge) return;
-  const unread = items.filter(n => !n.is_read).length;
+  const { count } = await sb
+    .from('admin_notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('is_read', false);
+  const unread = count || 0;
   badge.textContent = unread > 9 ? '9+' : String(unread);
   badge.style.display = unread ? '' : 'none';
+}
+
+async function loadMore() {
+  if (loading || reachedEnd) return;
+  loading = true;
+  const moreBtn = document.getElementById('notifMore');
+  if (moreBtn) { moreBtn.disabled = true; moreBtn.textContent = 'Cargando…'; }
+
+  const page = await fetchPage(items.length);
+  loading = false;
+  if (page === null) {
+    if (moreBtn) { moreBtn.disabled = false; moreBtn.textContent = 'Cargar más'; }
+    return;
+  }
+  const seen = new Set(items.map(n => n.id));
+  items = items.concat(page.filter(n => !seen.has(n.id)));
+  reachedEnd = page.length < PAGE;
+  renderList();
 }
 
 function renderList() {
@@ -79,7 +120,7 @@ function renderList() {
     list.innerHTML = '<div class="notif-empty"><i class="fas fa-bell-slash"></i><p>Sin notificaciones.</p></div>';
     return;
   }
-  list.innerHTML = items.map(n => `
+  const rows = items.map(n => `
     <button class="notif-item${n.is_read ? '' : ' notif-item--unread'}" data-id="${n.id}" data-link="${esc(n.link || '')}">
       <span class="notif-item__icon"><i class="fas ${TYPE_ICON[n.type] || 'fa-bell'}"></i></span>
       <span class="notif-item__body">
@@ -89,31 +130,50 @@ function renderList() {
       </span>
     </button>`).join('');
 
+  const footer = reachedEnd
+    ? ''
+    : '<button type="button" class="notif-more" id="notifMore">Cargar más</button>';
+  list.innerHTML = rows + footer;
+
   list.querySelectorAll('.notif-item').forEach(btn =>
     btn.addEventListener('click', () => openItem(btn.dataset.id, btn.dataset.link)));
 }
 
 function togglePanel() {
-  const panel = document.getElementById('notifPanel');
-  if (!panel) return;
-  panel.classList.toggle('open');
+  document.getElementById('notifPanel')?.classList.toggle('open');
 }
 
 async function openItem(id, link) {
   // Mark this one read, then jump to its tab.
   const n = items.find(x => x.id === id);
   if (n && !n.is_read) {
-    n.is_read = true; renderBadge(); renderList();
-    sb.from('admin_notifications').update({ is_read: true }).eq('id', id).then(() => {});
+    n.is_read = true; renderList();
+    sb.from('admin_notifications').update({ is_read: true }).eq('id', id)
+      .then(() => refreshBadge());
   }
   document.getElementById('notifPanel')?.classList.remove('open');
-  if (link) document.querySelector(`.tab-btn[data-tab="${link}"]`)?.click();
+  if (link) goToTab(link);
 }
 
 async function markAllRead() {
-  const unreadIds = items.filter(n => !n.is_read).map(n => n.id);
-  if (!unreadIds.length) return;
+  if (!items.some(n => !n.is_read)) return;
   items.forEach(n => { n.is_read = true; });
-  renderBadge(); renderList();
-  await sb.from('admin_notifications').update({ is_read: true }).in('id', unreadIds);
+  renderList();
+  // Clear ALL unread (even batches not loaded yet), then refresh the badge.
+  await sb.from('admin_notifications').update({ is_read: true }).eq('is_read', false);
+  refreshBadge();
+}
+
+async function clearAll() {
+  if (!items.length) return;
+  const ok = await confirm('Limpiar notificaciones',
+    '¿Borrar todas las notificaciones? Esta acción no se puede deshacer.');
+  if (!ok) return;
+  // Requires the admin DELETE policy (supabase/migrations/20260630_admin_notifications_delete.sql).
+  const { error } = await sb.from('admin_notifications').delete().not('id', 'is', null);
+  if (error) { toast('No se pudo limpiar: ' + error.message, 'error'); return; }
+  items = []; reachedEnd = true;
+  renderList();
+  refreshBadge();
+  toast('Notificaciones limpiadas', 'success');
 }

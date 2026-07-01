@@ -15,16 +15,11 @@ export async function loadMinistries() {
   setMinistries(data || []);
 
   const opts = ministries.map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
-  ['evMinistry', 'invMinistry'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = opts;
-  });
+  const evSel = document.getElementById('evMinistry');
+  if (evSel) evSel.innerHTML = opts;
 
-  if (!isAdmin() && currentProfile?.ministry_id) {
-    ['evMinistry', 'invMinistry'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = currentProfile.ministry_id;
-    });
+  if (!isAdmin() && currentProfile?.ministry_id && evSel) {
+    evSel.value = currentProfile.ministry_id;
   }
 
   renderMinistriesTab();

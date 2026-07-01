@@ -63,13 +63,26 @@
   border-bottom: 1px solid var(--gray-50);
   font-weight: 700; font-size: 0.9rem; color: var(--color-dark);
 }
+.notif-dropdown__actions { display: flex; align-items: center; gap: 0.85rem; }
 .notif-markall {
-  border: 0; background: none; cursor: pointer;
-  font-size: 0.78rem; font-weight: 600; color: var(--color-secondary, #c89858);
+  border: 0; background: none; cursor: pointer; padding: 0;
+  font-size: 0.78rem; font-weight: 600; color: var(--color-dark);
 }
 .notif-markall:hover { text-decoration: underline; }
+.notif-clear { color: var(--color-muted); }
+.notif-clear:hover { color: var(--color-danger, #dc2626); }
 
 .notif-list { max-height: min(60vh, 420px); overflow-y: auto; }
+
+/* "Cargar más" — batch pagination so the inbox never grows unbounded. */
+.notif-more {
+  width: 100%; border: 0; border-top: 1px solid var(--gray-50);
+  background: var(--gray-10, #f8f8f8); color: var(--color-dark);
+  padding: 0.7rem 1rem; font-family: inherit; font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; transition: background-color 0.15s ease;
+}
+.notif-more:hover:not(:disabled) { background: var(--gray-20, #f0f0f0); }
+.notif-more:disabled { opacity: 0.6; cursor: default; }
 
 .notif-item {
   display: flex; gap: 0.7rem; width: 100%;
@@ -78,7 +91,7 @@
   font-family: inherit; transition: background-color 0.15s ease;
 }
 .notif-item:hover { background: rgba(57, 69, 72, 0.03); }
-.notif-item--unread { background: rgba(200, 152, 88, 0.07); }
+.notif-item--unread { background: rgba(51, 65, 85, 0.06); }
 
 .notif-item__icon {
   flex-shrink: 0; width: 32px; height: 32px; border-radius: 9px;

@@ -371,6 +371,10 @@
       // Fire-and-forget; the module skips itself on /admin routes.
       import("/js/lib/pwa.js").catch(() => {});
 
+      // Modo mantenimiento — covers the public site when the admin flag is on.
+      // Fire-and-forget; skips /admin routes and lets signed-in staff through.
+      import("/js/lib/maintenance.js").catch(() => {});
+
       // NEW: avoid browser restoring scroll before we mount header
       pinScrollTopOnce();
 

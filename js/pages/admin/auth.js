@@ -18,7 +18,9 @@ import { loadUpcoming }   from './events-tab.js';
 import { loadDashboard }  from './dashboard.js';
 import { initForms }      from './event-form.js';
 import { initNotifications } from './notifications.js';
-import { toast }          from './ui.js';
+import { renderNavAccount } from './account.js';
+import { applyLandingPref } from './prefs.js';
+import { toast, confirm }  from './ui.js';
 import * as mfa           from './mfa.js';
 
 // ─── Screen routing ───────────────────────────────────────────────────────────
@@ -269,9 +271,20 @@ async function submitForgot() {
 // is a ministry_leader scoped to its ministry and sees only the tabs an admin
 // granted (profile.allowed_tabs) — plus Inicio, always. The matching RLS in
 // 20260626_page_permissions.sql is the real guard; this is the UX layer.
+// The Eventos nav entry hosts three pill views; show the entry (and each pill)
+// only for the views this account may open.
+const EVENT_VIEWS = ['calendario', 'upcoming', 'special-events'];
+function applyEventAccess(nav, views) {
+  const visible = new Set(views);
+  const navBtn = nav?.querySelector('.tab-btn[data-tab="eventos"]');
+  if (navBtn) navBtn.style.display = visible.size ? 'flex' : 'none';
+  document.querySelectorAll('#evPills .ev-pill').forEach(p => {
+    p.style.display = visible.has(p.dataset.evView) ? '' : 'none';
+  });
+}
+
 function applyTabAccess(profile) {
   const nav    = document.getElementById('admNav');
-  const topMin = document.getElementById('topbarMinistry');
   document.body.classList.remove('is-admin', 'is-staff', 'is-finance', 'is-treasurer');
 
   // Reset any previous per-user inline overrides so role-based CSS can govern.
@@ -280,21 +293,30 @@ function applyTabAccess(profile) {
 
   if (profile.role === 'admin') {
     document.body.classList.add('is-admin', 'is-staff', 'is-finance');
-    if (topMin) topMin.textContent = '';
     document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
     clearInline();
+    // System tabs (Usuarios, Actividad, Configuración) show only when the preset
+    // grants them: Desarrollador gets all three; Administrador gets none.
+    const devTabs = new Set(Array.isArray(profile.allowed_tabs) ? profile.allowed_tabs : []);
+    ['users', 'activity', 'settings'].forEach(tab => {
+      const btn = nav?.querySelector(`.tab-btn[data-tab="${tab}"]`);
+      if (btn) btn.style.display = devTabs.has(tab) ? '' : 'none';
+    });
+    applyEventAccess(nav, EVENT_VIEWS);   // admins see all three event views
+    updateGroupHeadings(nav);
+    fallbackIfActiveHidden(nav);
     return;
   }
 
   if (profile.role === 'treasurer') {
     document.body.classList.add('is-finance', 'is-staff', 'is-treasurer');
-    if (topMin) topMin.textContent = '— Tesorería';
     clearInline();
+    // Treasurers keep the read-only Calendario + Próximos (never Registraciones).
+    applyEventAccess(nav, ['calendario', 'upcoming']);
     return;
   }
 
   // ── ministry_leader (and any other non-admin) — per-user grants ────────────
-  if (topMin) topMin.textContent = `— ${profile.ministries?.name || 'Ministerio'}`;
   // Before the page-permissions migration runs, `allowed_tabs` is absent — fall
   // back to the legacy ministry-leader tab set so nobody is locked out mid-deploy.
   const LEGACY_LEADER_TABS = ['upcoming', 'past', 'calendario'];
@@ -308,7 +330,16 @@ function applyTabAccess(profile) {
     btn.style.display = allowed.has(btn.dataset.tab) ? 'flex' : 'none';
   });
 
-  // Show a group heading only when at least one tab under it is visible.
+  // The three event views collapsed into one nav entry — show it (and each pill)
+  // for whichever of Calendario/Próximos/Registraciones this leader was granted.
+  applyEventAccess(nav, EVENT_VIEWS.filter(v => allowed.has(v)));
+
+  updateGroupHeadings(nav);
+  fallbackIfActiveHidden(nav);
+}
+
+// Show a nav group heading only when at least one tab under it is visible.
+function updateGroupHeadings(nav) {
   let group = null, groupHasVisible = false;
   const finalize = () => { if (group) group.style.display = groupHasVisible ? 'block' : 'none'; };
   nav?.querySelectorAll('.adm-nav__group, .tab-btn').forEach(el => {
@@ -316,8 +347,10 @@ function applyTabAccess(profile) {
     else if (el.style.display !== 'none')        { groupHasVisible = true; }
   });
   finalize();
+}
 
-  // If the active tab ended up hidden, fall back to Inicio.
+// If the active tab ended up hidden, fall back to Inicio.
+function fallbackIfActiveHidden(nav) {
   const active = nav?.querySelector('.tab-btn.active');
   if (active && active.style.display === 'none') {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -346,10 +379,18 @@ async function bootApp() {
     return;
   }
 
+  // Best-effort preset name for the topbar — kept out of the critical query
+  // above so login never breaks if the role_presets migration isn't applied yet.
+  if (profile.preset_id) {
+    const { data: rp } = await sb
+      .from('role_presets').select('name').eq('id', profile.preset_id).maybeSingle();
+    if (rp?.name) profile.role_presets = { name: rp.name };
+  }
+
   setCurrentUser(user);
   setCurrentProfile(profile);
 
-  document.getElementById('topbarUser').textContent = profile.display_name || user.email;
+  renderNavAccount();
   applyTabAccess(profile);
 
   showApp();
@@ -359,6 +400,10 @@ async function bootApp() {
   loadDashboard();
   initForms();
   initNotifications();   // bell (no-op for non-admins)
+
+  // Open the user's preferred landing tab (Apariencia preference), if any and
+  // if it's permitted. Runs last so every tab loader is ready to fire.
+  applyLandingPref();
 }
 
 // ─── Logout ──────────────────────────────────────────────────────────────────
@@ -473,8 +518,11 @@ export function initAuth() {
     e.preventDefault(); showCard('loginCard');
   });
 
-  // Topbar logout
-  document.getElementById('logoutBtn')?.addEventListener('click', logout);
+  // Sidebar logout — confirm first so a stray click can't end the session.
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    const ok = await confirm('Cerrar sesión', '¿Seguro que quieres cerrar tu sesión?');
+    if (ok) logout();
+  });
 
   boot();
 }

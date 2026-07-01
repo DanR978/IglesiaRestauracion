@@ -1,51 +1,24 @@
 import { esc } from '/js/utils/escape.js';
 // js/pages/admin/users.js
 // ─────────────────────────────────────────────────────────────────────────────
-// "Cuentas y Accesos" tab — invite-only account management.
+// "Cuentas y Accesos" sub-tab — invite-only account management.
 //   • Pending invitations  — resend / revoke
-//   • Active users         — edit role, reset 2FA, delete
+//   • Active users         — edit access (preset), reset 2FA, delete
+// Access is assigned by picking a preset (see role-presets.js); the preset
+// predetermines the role and the pages the account can open.
 // Every privileged operation goes through the `admin-invite` Edge Function,
 // which runs with the service-role key and re-checks that the caller is admin.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { sb, ministries, currentUser } from './state.js';
+import { currentUser, ministries } from './state.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { callAdmin } from './admin-fn.js';
+import { fetchPresets, getPresets } from './role-presets.js';
 
 const ROLE_LABEL = { admin: 'Administrador', ministry_leader: 'Líder de ministerio', treasurer: 'Tesorero' };
 
-// Pages an admin may grant to a ministry_leader. Keys MUST match the nav
-// data-tab values, the edge function GRANTABLE_TABS, and the RLS grant keys.
-const GRANTABLE_TABS = [
-  { key: 'analytics',      label: 'Analíticas',     icon: 'fa-chart-line' },
-  { key: 'upcoming',       label: 'Próximos',       icon: 'fa-calendar-day' },
-  { key: 'past',           label: 'Pasados',        icon: 'fa-history' },
-  { key: 'calendario',     label: 'Calendario',     icon: 'fa-calendar-week' },
-  { key: 'special-events', label: 'Registraciones', icon: 'fa-clipboard-list' },
-  { key: 'discipulado',    label: 'Discipulado',    icon: 'fa-hand-holding-heart' },
-  { key: 'galeria',        label: 'Galería',        icon: 'fa-images' },
-];
-const GRANTABLE_KEYS = GRANTABLE_TABS.map(t => t.key);
-const MEDIOS_PRESET  = ['analytics', 'upcoming', 'past', 'calendario', 'special-events', 'galeria'];
-
 let _cachedUsers = [];
-
-// ── Edge-function call helper ────────────────────────────────────────────────
-async function callAdmin(action, payload = {}) {
-  const { data, error } = await sb.functions.invoke('admin-invite', {
-    body: { action, ...payload },
-  });
-  if (error) {
-    let msg = 'No se pudo completar la operación.';
-    try {
-      const body = await error.context.json();
-      if (body?.error) msg = body.error;
-    } catch { msg = error.message || msg; }
-    throw new Error(msg);
-  }
-  if (data?.error) throw new Error(data.error);
-  return data;
-}
 
 // ── Small helpers ────────────────────────────────────────────────────────────
 function initials(name) {
@@ -53,6 +26,13 @@ function initials(name) {
     .map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 }
 
+// Avatar circle: cover photo when the user has one, else colored initials.
+function avatarCell(u, pending) {
+  const cls = `user-row__avatar${pending ? ' user-row__avatar--pending' : ''}${u.avatar_url ? ' user-row__avatar--img' : ''}`;
+  if (u.avatar_url) return `<div class="${cls}" style="background-image:url('${esc(u.avatar_url)}')"></div>`;
+  if (pending) return `<div class="${cls}"><i class="fas fa-paper-plane"></i></div>`;
+  return `<div class="${cls}">${esc(initials(u.display_name))}</div>`;
+}
 
 // ── Load + render ────────────────────────────────────────────────────────────
 export async function loadUsers() {
@@ -91,32 +71,39 @@ export async function loadUsers() {
   wireActions();
 }
 
-function roleBadge(role) {
-  return `<span class="role-badge role--${role}">${ROLE_LABEL[role] || role || '—'}</span>`;
+// Badge shows the preset name (its colour follows the underlying role).
+function accessBadge(u) {
+  const label = u.preset || ROLE_LABEL[u.role] || u.role || '—';
+  return `<span class="role-badge role--${u.role || 'none'}">${esc(label)}</span>`;
 }
 
-// Meta line for a ministry leader: ministry name + how many pages they can open.
-function leaderMeta(u) {
-  const ministry = esc(u.ministry || 'Sin ministerio');
+// Meta line describing what the account can reach.
+function accessMeta(u) {
+  if (u.role === 'admin') {
+    const sys = ['users', 'activity', 'settings'];
+    const full = Array.isArray(u.allowed_tabs) && sys.every(k => u.allowed_tabs.includes(k));
+    return full ? 'Acceso total' : 'Administración (sin usuarios/actividad/configuración)';
+  }
+  if (u.role === 'treasurer') return u.preset ? esc(u.preset) : 'Tesorería · solo finanzas';
   const n = Array.isArray(u.allowed_tabs) ? u.allowed_tabs.length : 0;
-  return `${ministry} · ${n} ${n === 1 ? 'página' : 'páginas'}`;
+  const label = u.preset ? esc(u.preset) : 'Personalizado';
+  return `${label} · ${n} ${n === 1 ? 'página' : 'páginas'}`;
 }
 
 function renderActive(u) {
   const mfaBadge = u.mfa
     ? '<span class="acc-badge acc-badge--ok"><i class="fas fa-shield-halved"></i> 2FA activo</span>'
     : '<span class="acc-badge acc-badge--warn"><i class="fas fa-triangle-exclamation"></i> sin 2FA</span>';
-  const meta   = u.role === 'ministry_leader' ? leaderMeta(u) : 'Acceso total';
   const isSelf = u.id === currentUser?.id;
   return `
     <div class="user-row" data-id="${u.id}">
-      <div class="user-row__avatar">${esc(initials(u.display_name))}</div>
+      ${avatarCell(u)}
       <div class="user-row__info">
         <div class="user-row__name">${esc(u.display_name || u.email)}${
           isSelf ? ' <span class="acc-you">(tú)</span>' : ''}</div>
-        <div class="user-row__meta">${esc(u.email)} · ${meta}</div>
+        <div class="user-row__meta">${esc(u.email)} · ${accessMeta(u)}</div>
+        <div class="user-row__badges">${accessBadge(u)} ${mfaBadge}</div>
       </div>
-      <div class="user-row__badges">${roleBadge(u.role)} ${mfaBadge}</div>
       <div class="user-row__actions">
         <button class="adm-icon-btn" data-act="kebab" data-id="${u.id}" title="Acciones" aria-label="Acciones">
           <i class="fas fa-ellipsis-vertical"></i></button>
@@ -125,15 +112,14 @@ function renderActive(u) {
 }
 
 function renderPending(u) {
-  const meta = u.role === 'ministry_leader' ? leaderMeta(u) : 'Acceso total';
   return `
     <div class="user-row user-row--pending" data-id="${u.id}">
-      <div class="user-row__avatar user-row__avatar--pending"><i class="fas fa-paper-plane"></i></div>
+      ${avatarCell(u, true)}
       <div class="user-row__info">
         <div class="user-row__name">${esc(u.display_name || u.email)}</div>
-        <div class="user-row__meta">${esc(u.email)} · ${meta} · esperando que acepte</div>
+        <div class="user-row__meta">${esc(u.email)} · ${accessMeta(u)} · esperando que acepte</div>
+        <div class="user-row__badges">${accessBadge(u)}</div>
       </div>
-      <div class="user-row__badges">${roleBadge(u.role)}</div>
       <div class="user-row__actions">
         <button class="adm-icon-btn" data-act="kebab" data-id="${u.id}" title="Acciones" aria-label="Acciones">
           <i class="fas fa-ellipsis-vertical"></i></button>
@@ -154,7 +140,7 @@ function openRowMenu(trigger) {
   const isSelf = u.id === currentUser?.id;
   const actions = u.confirmed
     ? [
-        { label: 'Editar rol / ministerio', icon: 'fa-user-pen', onClick: () => openEdit(u) },
+        { label: 'Editar acceso', icon: 'fa-user-pen', onClick: () => openEdit(u) },
         { label: 'Restablecer 2FA', icon: 'fa-shield-halved', onClick: () => doResetMfa(u) },
         ...(isSelf ? [] : [{ label: 'Eliminar cuenta', icon: 'fa-trash', variant: 'danger', onClick: () => doDelete(u) }]),
       ]
@@ -190,47 +176,84 @@ async function doRevoke(u) {
 }
 
 // ── Invite / edit modal ──────────────────────────────────────────────────────
-function fillMinistrySelect() {
-  const sel = document.getElementById('invMinistry');
-  if (sel) sel.innerHTML = ministries
-    .map(m => `<option value="${m.id}">${esc(m.name)}</option>`).join('');
+async function fillPresetSelect(selectedId) {
+  const sel = document.getElementById('invPreset');
+  if (!sel) return;
+  let presets;
+  try { presets = await fetchPresets(); }   // refresh so newly-created presets show
+  catch { presets = getPresets(); }
+  sel.innerHTML = presets.length
+    ? presets.map(p => `<option value="${p.id}">${esc(p.name)}</option>`).join('')
+    : '<option value="">No hay presets — crea uno en «Roles y accesos»</option>';
+  if (selectedId) sel.value = selectedId;
+}
+
+// A ministry/team is assigned only to ministry_leader-based presets — it links
+// the user to the treasurer's budget allocations for those ministries. A leader
+// may hold SEVERAL (e.g. a "Youth & Kids Manager" leads Youth + Kids), so the
+// picker is a checkbox dropdown.
+function presetBaseRole(presetId) {
+  return getPresets().find(p => p.id === presetId)?.base_role || null;
+}
+
+// Currently-checked ministry ids (Set of strings) for the open modal.
+let selMinistries = new Set();
+
+function updateMinistryLabel() {
+  const label = document.getElementById('invMinistryLabel');
+  if (!label) return;
+  const picked = ministries.filter(m => selMinistries.has(m.id));
+  label.textContent = picked.length === 0 ? 'Sin ministerio'
+    : picked.length === 1 ? picked[0].name
+    : `${picked.length} ministerios`;
+  label.classList.toggle('is-empty', picked.length === 0);
+}
+
+function fillMinistrySelect(selectedIds = []) {
+  selMinistries = new Set((selectedIds || []).filter(Boolean).map(String));
+  const menu = document.getElementById('invMinistryMenu');
+  if (menu) {
+    menu.innerHTML = ministries.length
+      ? ministries.map(m => `
+          <label class="ms-select__opt">
+            <input type="checkbox" value="${esc(m.id)}"${selMinistries.has(m.id) ? ' checked' : ''}>
+            <span>${esc(m.name)}</span>
+          </label>`).join('')
+      : '<p class="ms-select__empty">No hay ministerios. Créalos en «Ministerios».</p>';
+    menu.querySelectorAll('input[type="checkbox"]').forEach(cb =>
+      cb.addEventListener('change', () => {
+        cb.checked ? selMinistries.add(cb.value) : selMinistries.delete(cb.value);
+        updateMinistryLabel();
+      }));
+  }
+  updateMinistryLabel();
+}
+
+function closeMinistryMenu() {
+  const menu = document.getElementById('invMinistryMenu');
+  const btn  = document.getElementById('invMinistryBtn');
+  if (menu) menu.hidden = true;
+  btn?.setAttribute('aria-expanded', 'false');
+}
+
+// Open the menu above the field when the button sits low in the (scrollable)
+// modal, so the list never spills past the popup.
+function positionMinistryMenu(menu, btn) {
+  menu.classList.remove('ms-select__menu--up');
+  const modal = btn.closest('.modal');
+  if (!modal) return;
+  const b = btn.getBoundingClientRect();
+  const m = modal.getBoundingClientRect();
+  const needed = Math.min(menu.scrollHeight, 188) + 14;
+  const below = m.bottom - b.bottom;
+  const above = b.top - m.top;
+  if (below < needed && above > below) menu.classList.add('ms-select__menu--up');
 }
 
 function toggleMinistry() {
-  const isLeader = document.getElementById('invRole').value === 'ministry_leader';
-  // A ministry leader is scoped to one ministry; an admin spans them all,
-  // so the ministry picker is hidden (and never saved) for admins.
-  document.getElementById('invMinistryGroup').hidden = !isLeader;
-  // Page grants only apply to ministry leaders.
-  const tabsGroup = document.getElementById('invTabsGroup');
-  if (tabsGroup) tabsGroup.hidden = !isLeader;
-  const note = document.getElementById('invAdminNote');
-  if (note) note.hidden = isLeader;
-}
-
-// ── Page-permission checklist ─────────────────────────────────────────────────
-function renderTabChecklist(selected = []) {
-  const sel = new Set(selected);
-  const list = document.getElementById('invTabsList');
-  if (!list) return;
-  list.innerHTML = GRANTABLE_TABS.map(t => `
-    <label class="perm-item">
-      <input type="checkbox" value="${t.key}"${sel.has(t.key) ? ' checked' : ''}>
-      <i class="fas ${t.icon}"></i> <span>${esc(t.label)}</span>
-    </label>`).join('');
-}
-
-function getSelectedTabs() {
-  return Array.from(document.querySelectorAll('#invTabsList input:checked'))
-    .map(cb => cb.value)
-    .filter(v => GRANTABLE_KEYS.includes(v));
-}
-
-function applyMediosPreset() {
-  // The preset only makes sense for a scoped leader.
-  const roleSel = document.getElementById('invRole');
-  if (roleSel.value !== 'ministry_leader') { roleSel.value = 'ministry_leader'; toggleMinistry(); }
-  renderTabChecklist(MEDIOS_PRESET);
+  const grp = document.getElementById('invMinistryGroup');
+  if (grp) grp.hidden = presetBaseRole(document.getElementById('invPreset').value) !== 'ministry_leader';
+  if (grp?.hidden) closeMinistryMenu();
 }
 
 function setModalErr(msg) {
@@ -239,67 +262,63 @@ function setModalErr(msg) {
   el.style.display = msg ? 'block' : 'none';
 }
 
-function openInvite() {
+async function openInvite() {
   document.getElementById('userModalTitle').textContent = 'Invitar usuario';
   document.getElementById('invUserId').value = '';
   document.getElementById('invName').value   = '';
   document.getElementById('invEmail').value  = '';
-  document.getElementById('invRole').value   = 'ministry_leader';
   document.getElementById('invNameGroup').hidden  = false;
   document.getElementById('invEmailGroup').hidden = false;
-  document.getElementById('invNote').hidden = false;
   document.getElementById('userModalSave').innerHTML =
     '<i class="fas fa-paper-plane"></i> Enviar invitación';
-  fillMinistrySelect();
-  renderTabChecklist([]);
-  toggleMinistry();
   setModalErr('');
   openModal('userModal');
+  await fillPresetSelect();
+  fillMinistrySelect([]);
+  toggleMinistry();
 }
 
-function openEdit(u) {
-  document.getElementById('userModalTitle').textContent = 'Editar usuario';
+async function openEdit(u) {
+  document.getElementById('userModalTitle').textContent = 'Editar acceso';
   document.getElementById('invUserId').value = u.id;
   document.getElementById('invName').value   = u.display_name || '';
   document.getElementById('invEmail').value  = u.email || '';
-  document.getElementById('invRole').value   = u.role || 'ministry_leader';
   document.getElementById('invNameGroup').hidden  = true;
   document.getElementById('invEmailGroup').hidden = true;
-  document.getElementById('invNote').hidden = true;
   document.getElementById('userModalSave').innerHTML = '<i class="fas fa-save"></i> Guardar cambios';
-  fillMinistrySelect();
-  if (u.ministry_id) document.getElementById('invMinistry').value = u.ministry_id;
-  renderTabChecklist(u.allowed_tabs || []);
-  toggleMinistry();
   setModalErr('');
   openModal('userModal');
+  await fillPresetSelect(u.preset_id);
+  fillMinistrySelect(Array.isArray(u.ministry_ids) && u.ministry_ids.length
+    ? u.ministry_ids
+    : (u.ministry_id ? [u.ministry_id] : []));
+  toggleMinistry();
 }
 
 async function saveModal() {
-  const userId = document.getElementById('invUserId').value;
-  const role   = document.getElementById('invRole').value;
-  const minId  = document.getElementById('invMinistry').value;
-  const ministry_id = role === 'ministry_leader' ? minId : null;
-  const allowed_tabs = role === 'ministry_leader' ? getSelectedTabs() : [];
+  const userId    = document.getElementById('invUserId').value;
+  const preset_id = document.getElementById('invPreset').value;
   const btn = document.getElementById('userModalSave');
   setModalErr('');
 
-  if (role === 'ministry_leader' && !ministry_id) {
-    setModalErr('Selecciona el ministerio del líder.');
-    return;
-  }
+  if (!preset_id) { setModalErr('Selecciona un preset de acceso.'); return; }
+
+  // Send the array (new function) plus the first id as ministry_id (so an
+  // un-redeployed function still records at least the primary ministry).
+  const ministry_ids = presetBaseRole(preset_id) === 'ministry_leader' ? [...selMinistries] : [];
+  const ministry_id  = ministry_ids[0] || null;
 
   btn.disabled = true;
   try {
     if (userId) {
-      await callAdmin('set-role', { user_id: userId, role, ministry_id, allowed_tabs });
+      await callAdmin('set-role', { user_id: userId, preset_id, ministry_ids, ministry_id });
       toast('Usuario actualizado', 'success');
     } else {
       const name  = document.getElementById('invName').value.trim();
       const email = document.getElementById('invEmail').value.trim();
       if (!name)  { setModalErr('Ingresa el nombre de la persona.'); return; }
       if (!email) { setModalErr('Ingresa el correo electrónico.');   return; }
-      await callAdmin('invite', { email, role, ministry_id, display_name: name, allowed_tabs });
+      await callAdmin('invite', { email, preset_id, display_name: name, ministry_ids, ministry_id });
       toast('Invitación enviada a ' + email, 'success');
     }
     closeModal('userModal');
@@ -313,9 +332,22 @@ async function saveModal() {
 
 export function initUserModal() {
   document.getElementById('addUserBtn')?.addEventListener('click', openInvite);
-  document.getElementById('invRole')?.addEventListener('change', toggleMinistry);
-  document.getElementById('invMediosPreset')?.addEventListener('click', applyMediosPreset);
+  document.getElementById('invPreset')?.addEventListener('change', toggleMinistry);
   document.getElementById('userModalSave')?.addEventListener('click', saveModal);
   document.getElementById('userModalClose')?.addEventListener('click',  () => closeModal('userModal'));
   document.getElementById('userModalCancel')?.addEventListener('click', () => closeModal('userModal'));
+
+  // Ministry checkbox dropdown: toggle open, close on outside click.
+  const msBtn = document.getElementById('invMinistryBtn');
+  msBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const menu = document.getElementById('invMinistryMenu');
+    if (!menu) return;
+    const open = menu.hidden;
+    menu.hidden = !open;
+    msBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) positionMinistryMenu(menu, msBtn);
+  });
+  document.getElementById('invMinistrySelect')?.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('click', () => closeMinistryMenu());
 }

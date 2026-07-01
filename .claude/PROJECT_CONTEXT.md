@@ -54,8 +54,14 @@ no horizontal scroll, contrast) are documented in [docs/admin-ux.md](../docs/adm
 
 ## Current focus / in-flight work
 
-- **Admin auth hardening** — invite-only accounts, roles, MFA, RLS tightening, per-user page permissions
-  (recent commits: invite flow fix, page-permissions migration).
+> **Roles/access overhaul + treasury plan (2026-06-30):** see
+> **[CONTEXT-roles-treasury.md](CONTEXT-roles-treasury.md)** for full detail — the new
+> role-preset/access model (Desarrollador/Administrador/Tesorería/Medios), palette/maintenance/
+> notifications changes, the **pending manual deploy steps** (3 migrations + `admin-invite`
+> redeploy), and the planned treasury work (paid-payable bug, Presupuestos removal, per-ministry budgeting).
+
+- **Admin auth hardening** — invite-only accounts, **role presets** (replaced per-user ministry +
+  page checklists), two admin tiers (Desarrollador/Administrador), MFA, RLS tightening.
 - **Event registration improvements** — see [TASKS.md](TASKS.md): multiple children per parent,
   emergency contact, consent form w/ signature, celebration modal, QR landing animation,
   admin age-groups, registration lifecycle (close/complete/auto-complete).

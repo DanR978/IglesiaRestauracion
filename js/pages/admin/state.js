@@ -86,7 +86,10 @@ export const CAT_COLORS = {
 };
 
 // ─── Filter helper ────────────────────────────────────────────────────────────
+// The ministry filter chips only exist for admins; non-admins have no filter UI,
+// so they see everything they're allowed to read (RLS is the real boundary).
 export function filterEventsByMinistry(events) {
+  if (!isAdmin()) return events;
   if (!selectedMinistries.size) return [];
   return events.filter(ev => !ev.ministry_id || selectedMinistries.has(ev.ministry_id));
 }

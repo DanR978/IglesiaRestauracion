@@ -71,16 +71,8 @@ append_dir    "utilities"   "css/utilities"
 
 echo ""
 echo "Done: $OUT"
+echo ""
 
-# ── Admin-only bundle (css/admin.css) — loaded only by admin/index.html,
-#    layered on top of style.css. ──
-OUT="$ROOT/css/admin.css"
-> "$OUT"
-echo ""
-echo "Building css/admin.css..."
-echo ""
-append_dir "pages admin" "css/pages/admin"
-
-echo ""
-echo "Done: $OUT"
-echo ""
+# ── Admin page CSS is NOT bundled. admin/index.html loads each
+#    css/pages/admin/*.css file directly (one <link> per page/section), so
+#    there's no css/admin.css artifact to build. Edit those files in place. ──
