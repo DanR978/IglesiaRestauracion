@@ -58,6 +58,34 @@ Animations should be performant.
 
 Prefer CSS animations over JavaScript when possible.
 
+## Printable & downloadable documents (PDF) — STANDARD
+
+All generated/printable documents in this app use **pdfmake** through the shared
+module `js/lib/pdf.js`. This is the single, required standard — do NOT use
+`window.print()` / hidden print iframes for new document output.
+
+The pattern (mirrors the treasury Report Builder):
+
+- Build a **pdfmake document definition** (content array).
+- For a standard church document, wrap it with `churchDocDef({ content, title,
+  headRight, accent, wm })` — it supplies the running header (church name +
+  label + rule), footer page numbers, and the faint centered logo watermark.
+  Get `wm` from `await churchLogo()`.
+- Generate/deliver with **`savePdf(docDef, filename)`** (downloads a real vector
+  PDF) or `openPdf(docDef)` (opens in a new tab). Never hand-roll the pdfmake
+  loader — `js/lib/pdf.js` owns `loadPdfMake` / `loadPdfJs`.
+- Embed images with `imageDataUrl(url)` (pdfmake needs data URLs, not remote
+  URLs). Full-bleed backgrounds: bake the composite in a `<canvas>` first.
+- Reuse the shared building blocks: `sectionHeading`, `kpiBox`, `th`, `CONTENT_W`.
+- Keep any document that is ALSO rendered elsewhere (e.g. the liability waiver,
+  shown on-screen in the public wizard) single-sourced: put the text/constants in
+  one module (`js/lib/waiver.js`) and build both the HTML and the pdfmake version
+  from it so they never drift.
+
+Current consumers: `report-builder.js` (treasury), `project-treasury.js`
+(project + ministry reports), `special-events-tab.js` (cartel, roster, single
+registration, blank + signed waiver), `waiver.js` (`buildWaiverDocDef`).
+
 ## Code Quality
 
 Keep components small.

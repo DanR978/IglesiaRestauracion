@@ -112,6 +112,8 @@
 
 .tag-picker-btn:focus  { outline: none; border-color: var(--color-dark); }
 .tag-picker-btn.disabled { opacity: 0.55; background: #f5f5f5; cursor: not-allowed; pointer-events: none; }
+/* Keep the ▼ chevron from hugging the right border. */
+.tag-picker-btn > span:last-child { margin-right: 0.4rem; }
 
 .tag-dropdown {
   position: absolute;

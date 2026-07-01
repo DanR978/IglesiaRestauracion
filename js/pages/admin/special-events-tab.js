@@ -22,7 +22,8 @@ import { generateQrDataUrl, generateQrBlob, copyText, slugifyTitle } from '/js/l
 import { formatUSPhoneNational } from '/js/lib/validators.js';
 import { mountRichText } from '/js/lib/rich-text.js';
 import { htmlIsEmpty } from '/js/lib/sanitize-html.js';
-import { renderWaiverPrintDoc, WAIVER_CSS } from '/js/lib/waiver.js';
+import { buildWaiverDocDef } from '/js/lib/waiver.js';
+import { savePdf, imageDataUrl, churchDocDef, th } from '/js/lib/pdf.js';
 
 const DEFAULT_LOC = '2601 Clays Mill Rd, Lexington, KY 40503';
 const PUBLIC_ORIGIN = 'https://www.irdlex.org';
@@ -766,103 +767,61 @@ async function exportCsv() {
   toast(isMobile() ? 'Elige dónde guardar el CSV' : `${rows.length} inscripciones exportadas`, 'success');
 }
 
-// ── Print (browser-friendly) ─────────────────────────────────────────────────
-const PRINT_CSS = `
-  /* Zero page margin removes the browser's own header/footer (date · title ·
-     URL). Spacing is restored via body padding instead. */
-  @page { margin: 0; }
-  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { font-family: 'Lexend Deca', system-ui, sans-serif; color: #222; margin: 0; padding: 16mm 14mm; text-align: center; }
-  h1 { font-size: 20px; margin: 0 0 2px; color: #0e2d38; }
-  .meta { color: #666; font-size: 12px; margin-bottom: 16px; }
-  /* Table sizes to its content (tighter columns) and is centered on the page. */
-  table { border-collapse: collapse; font-size: 11px; margin: 0 auto; max-width: 100%; }
-  th { background: #394548; color: #fff; text-align: left; padding: 6px 8px; }
-  td { border-bottom: 1px solid #ddd; padding: 6px 8px; vertical-align: top; text-align: left; word-break: break-word; }
-  .card { border: 1px solid #ccc; border-radius: 8px; padding: 18px; max-width: 560px; margin: 0 auto; text-align: left; }
-  .card h2 { margin: 0 0 10px; font-size: 16px; color: #0e2d38; }
-  .row { display: flex; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 13px; }
-  .row b { width: 180px; color: #555; font-weight: 600; }
-`;
+// ── Printable documents (PDF via the app-wide standard: /js/lib/pdf.js) ───────
+// Every "imprimir" action builds a pdfmake document and downloads a real PDF —
+// consistent with the treasury report, no reliance on the browser print dialog.
 
-function printHtml(title, bodyHtml, css = PRINT_CSS) {
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
-  document.body.appendChild(iframe);
-  const doc = iframe.contentWindow.document;
-  doc.open();
-  doc.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>${esc(title)}</title><style>${css}</style></head><body>${bodyHtml}</body></html>`);
-  doc.close();
-  let done = false;
-  const go = () => {
-    if (done) return;
-    done = true;
-    try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) { console.error(e); }
-    setTimeout(() => iframe.remove(), 1500);
-  };
-  // onload is reliable for written docs; fall back to a short timer.
-  iframe.onload = go;
-  setTimeout(go, 600);
+// Compose the event photo + a dark gradient scrim into ONE full-page background
+// image (baked in a canvas so it embeds reliably — no pdfmake opacity needed).
+async function composeFlyerBg(imgDataUrl) {
+  const W = 1275, H = 1650;                       // Letter portrait @ ~150dpi
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0e2d38'; ctx.fillRect(0, 0, W, H);
+  if (imgDataUrl) {
+    try {
+      const img = await new Promise((res, rej) => {
+        const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = imgDataUrl;
+      });
+      const s = Math.max(W / img.naturalWidth, H / img.naturalHeight);   // cover-fit
+      const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+      ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    } catch { /* keep the solid fallback */ }
+  }
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, 'rgba(7,26,33,.72)'); g.addColorStop(0.42, 'rgba(7,26,33,.52)'); g.addColorStop(1, 'rgba(7,26,33,.88)');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  return c.toDataURL('image/jpeg', 0.9);
 }
 
-// ── Printable QR flyer (standard paper poster) ───────────────────────────────
-// The event image fills the whole page; a dark scrim keeps the (white) text
-// legible over any photo. The QR sits in a white rounded card so scanners read
-// it cleanly regardless of the background.
-const FLYER_CSS = `
-  @page { size: portrait; margin: 0; }
-  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  html, body { margin: 0; padding: 0; }
-  body { font-family: 'Lexend Deca', 'Signika', system-ui, sans-serif; }
-  .flyer { position: relative; width: 100%; min-height: 100vh; display: flex; background: #0e2d38; overflow: hidden; }
-  .flyer__bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-  .flyer__scrim {
-    position: absolute; inset: 0;
-    background: linear-gradient(180deg, rgba(7,26,33,.72) 0%, rgba(7,26,33,.52) 42%, rgba(7,26,33,.86) 100%);
-  }
-  .flyer__content {
-    position: relative; z-index: 2; flex: 1;
-    display: flex; flex-direction: column; align-items: center; text-align: center;
-    padding: 60px 52px 46px; color: #fff;
-  }
-  .flyer__brand {
-    font-size: 14px; letter-spacing: .26em; font-weight: 700;
-    color: #f0c98a; text-transform: uppercase; margin-bottom: 30px;
-    text-shadow: 0 1px 3px rgba(0,0,0,.45);
-  }
-  .flyer__kicker {
-    display: inline-block; font-size: 14px; letter-spacing: .12em; font-weight: 700;
-    text-transform: uppercase; color: #0e2d38; background: #e7b765;
-    padding: 6px 16px; border-radius: 999px; margin-bottom: 16px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.25);
-  }
-  .flyer__title { font-size: 46px; line-height: 1.05; font-weight: 800; color: #fff; margin: 0 0 12px; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
-  .flyer__meta { font-size: 18px; color: #eaf2f4; margin: 0 0 30px; text-shadow: 0 1px 5px rgba(0,0,0,.55); }
-  .flyer__scan {
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    font-size: 40px; font-weight: 800; letter-spacing: .03em; color: #fff; margin: 4px 0 16px;
-    text-shadow: 0 2px 10px rgba(0,0,0,.55);
-  }
-  .flyer__scan svg { width: 38px; height: 38px; }
-  .flyer__qrwrap {
-    padding: 22px; background: #fff;
-    border-radius: 26px; box-shadow: 0 18px 44px rgba(0,0,0,.45);
-  }
-  .flyer__qr { display: block; width: 330px; height: 330px; }
-  .flyer__instr { font-size: 18px; color: #eaf2f4; margin: 24px 0 0; max-width: 460px; line-height: 1.4; text-shadow: 0 1px 5px rgba(0,0,0,.55); }
-  .flyer__url { margin-top: auto; padding-top: 30px; font-size: 14px; color: #cdd9dc; word-break: break-all; }
-`;
-
-// Fetch a remote image → data URL so it reliably embeds in the print document
-// (falls back to the raw URL if the fetch is blocked).
-async function toDataUrl(url) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.onerror = () => r(url); fr.readAsDataURL(blob); });
-  } catch { return url; }
+// Draw the QR inside a white, rounded-corner card (transparent outside the
+// radius) so the poster background shows through the rounded corners.
+function roundedQrCard(qrDataUrl) {
+  return new Promise((resolve) => {
+    const im = new Image();
+    im.onload = () => {
+      const size = 760, pad = 66, r = 88;        // card px; QR fills the inset
+      const c = document.createElement('canvas'); c.width = size; c.height = size;
+      const ctx = c.getContext('2d');
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.arcTo(size, 0, size, size, r);
+      ctx.arcTo(size, size, 0, size, r);
+      ctx.arcTo(0, size, 0, 0, r);
+      ctx.arcTo(0, 0, size, 0, r);
+      ctx.closePath();
+      ctx.fillStyle = '#ffffff'; ctx.fill();
+      ctx.imageSmoothingEnabled = false;         // keep the QR modules crisp
+      const qs = size - pad * 2;
+      ctx.drawImage(im, pad, pad, qs, qs);
+      resolve(c.toDataURL('image/png'));
+    };
+    im.onerror = () => resolve(qrDataUrl);
+    im.src = qrDataUrl;
+  });
 }
 
+// Full-bleed poster: event photo background + QR in a white rounded card.
 async function printQrFlyer() {
   if (!currentEvent) return;
   const btn = $('seQrPrint');
@@ -870,27 +829,48 @@ async function printQrFlyer() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
   try {
     const url = publicUrl(currentEvent);
-    const [qr, bg] = await Promise.all([
+    const [qr, rawBg] = await Promise.all([
       generateQrDataUrl(url, 1024),
-      currentEvent.image_url ? toDataUrl(currentEvent.image_url) : Promise.resolve(''),
+      currentEvent.image_url ? imageDataUrl(currentEvent.image_url) : Promise.resolve(''),
     ]);
-    const metaBits = [fmtDate(currentEvent.event_at), currentEvent.location].filter(b => b && b !== '—');
-    // Down-chevron pointing at the QR — inline SVG (no FontAwesome in the print doc).
-    const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
-    printHtml(`Cartel — ${currentEvent.title || 'Evento'}`, `
-      <div class="flyer">
-        ${bg ? `<img class="flyer__bg" src="${esc(bg)}" alt=""><div class="flyer__scrim"></div>` : ''}
-        <div class="flyer__content">
-          <div class="flyer__brand">Iglesia Restauración Divina</div>
-          <div class="flyer__kicker">Inscripciones abiertas</div>
-          <h1 class="flyer__title">${esc(currentEvent.title || 'Evento')}</h1>
-          ${metaBits.length ? `<div class="flyer__meta">${esc(metaBits.join('  ·  '))}</div>` : ''}
-          <div class="flyer__scan">¡Escanéame! ${arrow}</div>
-          <div class="flyer__qrwrap"><img class="flyer__qr" src="${esc(qr)}" alt="Código QR"></div>
-          <div class="flyer__instr">Apunta la cámara de tu teléfono al código para registrarte.</div>
-          <div class="flyer__url">${esc(url)}</div>
-        </div>
-      </div>`, FLYER_CSS);
+    const bg = await composeFlyerBg(rawBg);
+    const qrCard = await roundedQrCard(qr);
+    const noPad = { hLineWidth: () => 0, vLineWidth: () => 0, paddingLeft: () => 0, paddingRight: () => 0, paddingTop: () => 0, paddingBottom: () => 0 };
+    const center = (node) => ({ columns: ['*', node, '*'], columnGap: 0 });
+    // White line-icons (no FontAwesome inside the PDF).
+    const calIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+    const pinIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+    // Centered row: icon on the left, bold white text beside it, spaced out.
+    const iconRow = (icon, textStr) => ({ columns: [
+      '*',
+      { width: 20, svg: icon, margin: [0, 1, 0, 0] },
+      { width: 'auto', text: textStr, bold: true, color: '#ffffff', fontSize: 15, margin: [0, 2, 0, 0] },
+      '*',
+    ], columnGap: 10, margin: [0, 0, 0, 8] });
+    const dateStr = currentEvent.event_at ? fmtDate(currentEvent.event_at) : '';
+    const locStr = currentEvent.location || '';
+    const detailRows = [];
+    if (dateStr) detailRows.push(iconRow(calIcon, dateStr));
+    if (locStr) detailRows.push(iconRow(pinIcon, locStr));
+    if (detailRows.length) detailRows[0].margin = [0, 22, 0, 8];   // space the first row below the QR
+    const def = {
+      pageSize: 'LETTER', pageOrientation: 'portrait', pageMargins: [56, 58, 56, 44],
+      info: { title: `Cartel — ${currentEvent.title || 'Evento'}` },
+      background: (cp, ps) => ({ image: bg, width: ps.width, height: ps.height, absolutePosition: { x: 0, y: 0 } }),
+      content: [
+        // Church name ~65% of the page width — the dominant header.
+        { text: 'IGLESIA RESTAURACIÓN DIVINA', alignment: 'center', color: '#f0c98a', bold: true, characterSpacing: 1, fontSize: 24, lineHeight: 1.05, margin: [0, 2, 0, 16] },
+        center({ width: 'auto', table: { body: [[{ text: 'INSCRIPCIONES ABIERTAS', color: '#0e2d38', bold: true, fontSize: 11, characterSpacing: 1, margin: [14, 5, 14, 5] }]] }, layout: { fillColor: () => '#e7b765', ...noPad } }),
+        { text: currentEvent.title || 'Evento', alignment: 'center', color: '#ffffff', bold: true, fontSize: 38, margin: [0, 14, 0, 8] },
+        { text: '¡Escanéame!', alignment: 'center', color: '#ffffff', bold: true, fontSize: 42, characterSpacing: 0.5, margin: [0, 0, 0, 6] },
+        { columns: ['*', { width: 300, image: qrCard }, '*'], columnGap: 0, margin: [0, 10, 0, 0] },
+        ...detailRows,
+        { text: 'Apunta la cámara de tu teléfono al código para registrarte.', alignment: 'center', color: '#eaf2f4', fontSize: 13, margin: [0, 12, 0, 0] },
+        { text: url, alignment: 'center', color: '#cdd9dc', fontSize: 10, margin: [0, 12, 0, 0] },
+      ],
+    };
+    await savePdf(def, `cartel-${currentEvent.slug}.pdf`);
+    toast('Cartel PDF generado', 'success');
   } catch (e) {
     console.error(e); toast('No se pudo generar el cartel', 'error');
   } finally {
@@ -898,49 +878,59 @@ async function printQrFlyer() {
   }
 }
 
-function printRoster() {
+// Full registration roster for the event (landscape table).
+async function printRoster() {
   if (!currentEvent) return;
   const rows = currentRows();
   if (!rows.length) { toast('No hay inscripciones para imprimir', 'error'); return; }
-  const head = ['#','Nombre','Apellido','Edad','Sexo','Contacto','Parentesco','Teléfono','Email','Alergias','Condiciones'];
-  const body = rows.map((r, i) => `
-    <tr>
-      <td>${i + 1}</td>
-      <td>${esc(r.first_name)}</td><td>${esc(r.last_name)}</td><td>${esc(r.age)}</td>
-      <td>${esc(r.sex || '—')}</td><td>${esc(r.contact_name)}</td><td>${esc(r.relationship)}</td>
-      <td>${esc(formatUSPhoneNational(r.contact_phone))}</td><td>${esc(r.contact_email || '—')}</td>
-      <td>${esc(r.allergies || '—')}</td><td>${esc(r.medical_conditions || '—')}</td>
-    </tr>`).join('');
-  printHtml(`Roster — ${currentEvent.title}`, `
-    <h1>${esc(currentEvent.title || 'Evento')}</h1>
-    <div class="meta">${esc(fmtDate(currentEvent.event_at))}${currentEvent.location ? ' · ' + esc(currentEvent.location) : ''} · ${rows.length} inscrito${rows.length === 1 ? '' : 's'}</div>
-    <table><thead><tr>${head.map(h => `<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${body}</tbody></table>`);
+  const heads = ['#', 'Nombre', 'Apellido', 'Edad', 'Sexo', 'Contacto', 'Parentesco', 'Teléfono', 'Email', 'Alergias', 'Condiciones'];
+  const cell = (v, right) => ({ text: (v == null || v === '') ? '—' : String(v), fontSize: 8.5, alignment: right ? 'right' : 'left' });
+  const body = [heads.map((h, i) => th(h, i === 0))];
+  rows.forEach((r, i) => body.push([
+    cell(i + 1, true), cell(r.first_name), cell(r.last_name), cell(r.age), cell(r.sex),
+    cell(r.contact_name), cell(r.relationship), cell(formatUSPhoneNational(r.contact_phone)),
+    cell(r.contact_email), cell(r.allergies), cell(r.medical_conditions),
+  ]));
+  const meta = `${fmtDate(currentEvent.event_at)}${currentEvent.location ? ' · ' + currentEvent.location : ''} · ${rows.length} inscrito${rows.length === 1 ? '' : 's'}`;
+  const content = [
+    { text: currentEvent.title || 'Evento', fontSize: 16, bold: true, alignment: 'center', margin: [0, 2, 0, 2] },
+    { text: meta, alignment: 'center', color: '#8a979c', fontSize: 9, margin: [0, 0, 0, 12] },
+    { table: { headerRows: 1, widths: ['auto', 'auto', 'auto', 'auto', 'auto', '*', 'auto', 'auto', '*', '*', '*'], body },
+      layout: { hLineWidth: (i, node) => (i <= 1 || i >= node.table.body.length) ? 0.8 : 0.4, hLineColor: () => '#e7ecec',
+        vLineWidth: () => 0, paddingTop: () => 3, paddingBottom: () => 3, paddingLeft: () => 5, paddingRight: () => 5 } },
+  ];
+  await savePdf(churchDocDef({ title: `Roster — ${currentEvent.title}`, headRight: 'Inscritos', content, orientation: 'landscape', margins: [36, 54, 36, 40] }),
+    `roster-${currentEvent.slug}.pdf`);
 }
 
-function printOne(id) {
+// One registration's full details.
+async function printOne(id) {
   const r = regsCache.find(x => x.id === id);
   if (!r || !currentEvent) return;
-  const row = (label, val) => `<div class="row"><b>${esc(label)}</b><span>${esc(val || '—')}</span></div>`;
-  printHtml(`${r.first_name} ${r.last_name} — ${currentEvent.title}`, `
-    <div class="card">
-      <h2>${esc(currentEvent.title || 'Evento')}</h2>
-      ${row('Nombre', `${r.first_name} ${r.last_name}`)}
-      ${row('Edad', r.age)}
-      ${row('Sexo', r.sex)}
-      ${row('Contacto de emergencia', r.contact_name)}
-      ${row('Parentesco', r.relationship)}
-      ${row('Teléfono', formatUSPhoneNational(r.contact_phone))}
-      ${row('Email', r.contact_email)}
-      ${row('Alergias', r.allergies)}
-      ${row('Condiciones médicas', r.medical_conditions)}
-      ${row('Notas', r.notes)}
-      ${row('Inscrito', fmtDateTime(r.submitted_at))}
-    </div>`);
+  const fields = [
+    ['Nombre', `${r.first_name} ${r.last_name}`], ['Edad', r.age], ['Sexo', r.sex],
+    ['Contacto de emergencia', r.contact_name], ['Parentesco', r.relationship],
+    ['Teléfono', formatUSPhoneNational(r.contact_phone)], ['Email', r.contact_email],
+    ['Alergias', r.allergies], ['Condiciones médicas', r.medical_conditions],
+    ['Notas', r.notes], ['Inscrito', fmtDateTime(r.submitted_at)],
+  ];
+  const body = fields.map(([k, v]) => [
+    { text: k, bold: true, color: '#5f6c71', fontSize: 9.5 },
+    { text: (v == null || v === '') ? '—' : String(v), fontSize: 9.5 },
+  ]);
+  const content = [
+    { text: currentEvent.title || 'Evento', fontSize: 15, bold: true, color: '#0e2d38', margin: [0, 2, 0, 10] },
+    { table: { widths: [155, '*'], body },
+      layout: { hLineWidth: () => 0.4, hLineColor: () => '#eef1f2', vLineWidth: () => 0,
+        paddingTop: () => 5, paddingBottom: () => 5, paddingLeft: () => 0, paddingRight: () => 6 } },
+  ];
+  await savePdf(churchDocDef({ title: `${r.first_name} ${r.last_name}`, headRight: currentEvent.title || 'Evento', content }),
+    `inscripcion-${r.last_name}-${r.first_name}.pdf`.replace(/\s+/g, '-'));
 }
 
 // ── Liability waiver (shared with the public wizard via js/lib/waiver.js) ─────
-// Same clause text + layout the attendee signed, so the blank form and the
-// signed copy never drift. Browser-print flow (Save as PDF) — no extra deps.
+// Same clause text + fields the attendee signed; buildWaiverDocDef renders the
+// PDF from the same source so the blank form and the signed copy never drift.
 function waiverEventCtx() {
   return {
     title: currentEvent.title || 'Evento',
@@ -952,8 +942,7 @@ function waiverEventCtx() {
 // Blank, fillable form for a whole event (print a stack to hand out).
 function printWaiver() {
   if (!currentEvent) return;
-  const event = waiverEventCtx();
-  printHtml(`Exoneración — ${event.title}`, renderWaiverPrintDoc({ event, blank: true }), WAIVER_CSS);
+  savePdf(buildWaiverDocDef({ event: waiverEventCtx(), blank: true }), `exoneracion-${currentEvent.slug}.pdf`);
 }
 
 // One registration's signed waiver, reproduced from the stored signature.
@@ -971,7 +960,7 @@ function printSignedWaiver(id) {
   const siblings = r.registration_group_id
     ? regsCache.filter(x => x.registration_group_id === r.registration_group_id)
     : [r];
-  printHtml(`Exoneración firmada — ${r.first_name} ${r.last_name}`, renderWaiverPrintDoc({
+  savePdf(buildWaiverDocDef({
     event: waiverEventCtx(),
     participants: siblings.map(s => ({ name: `${s.first_name} ${s.last_name}`.trim(), age: s.age })),
     guardian: {
@@ -984,5 +973,5 @@ function printSignedWaiver(id) {
     signature,
     signedDate: fmtDate(r.waiver_signed_at),
     blank: false,
-  }), WAIVER_CSS);
+  }), `exoneracion-firmada-${r.last_name}-${r.first_name}.pdf`.replace(/\s+/g, '-'));
 }

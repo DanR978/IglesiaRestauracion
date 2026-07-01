@@ -9,10 +9,9 @@ import { esc } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { sb } from './state.js';
+import { loadPdfMake, loadPdfJs, churchLogo } from '/js/lib/pdf.js';
 
 const CHURCH = 'Iglesia Restauración Divina';
-// Same-origin so it renders in the live preview AND can be drawn into the PDF.
-const LOGO = '/resources/report-logo.png';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
@@ -220,7 +219,7 @@ async function renderPreview() {
   const seq = ++_pvSeq;                          // ignore stale renders finishing late
   try {
     await Promise.all([loadPdfMake(), loadPdfJs()]);
-    const wm = await logoDataURL();
+    const wm = await churchLogo();
     if (seq !== _pvSeq) return;
     const buf = await new Promise(res => window.pdfMake.createPdf(buildDocDef(wm)).getBuffer(res));
     if (seq !== _pvSeq) return;
@@ -255,55 +254,8 @@ function requestPreview() {
 }
 
 /* ── PDF export — real vector PDF via pdfmake (proper pagination, repeating
-   header/footer + page numbers, faint per-page watermark). No screenshots. ─── */
-let _pm = null;
-function loadPdfMake() {
-  if (window.pdfMake && window.pdfMake.vfs) return Promise.resolve();
-  if (_pm) return _pm;
-  const load = src => new Promise((res, rej) => {
-    const s = document.createElement('script'); s.src = src;
-    s.onload = res; s.onerror = () => rej(new Error('No se pudo cargar el generador de PDF.'));
-    document.head.appendChild(s);
-  });
-  _pm = load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/pdfmake.min.js')
-    .then(() => load('https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.10/vfs_fonts.js'));
-  return _pm;
-}
-// pdf.js — used only to rasterize the document into the live preview.
-let _pjs = null;
-function loadPdfJs() {
-  if (window.pdfjsLib) return Promise.resolve();
-  if (_pjs) return _pjs;
-  const V = '3.11.174';
-  _pjs = new Promise((res, rej) => {
-    const s = document.createElement('script');
-    s.src = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${V}/pdf.min.js`;
-    s.onload = () => {
-      try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${V}/pdf.worker.min.js`; } catch {}
-      res();
-    };
-    s.onerror = () => rej(new Error('No se pudo cargar el visor de PDF.'));
-    document.head.appendChild(s);
-  });
-  return _pjs;
-}
-let _wm;
-function logoDataURL() {
-  if (_wm !== undefined) return Promise.resolve(_wm);
-  return new Promise(res => {
-    const img = new Image(); img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      try {
-        const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
-        c.getContext('2d').drawImage(img, 0, 0);
-        _wm = { url: c.toDataURL('image/png'), ratio: img.naturalHeight / img.naturalWidth };
-      } catch { _wm = null; }
-      res(_wm);
-    };
-    img.onerror = () => { _wm = null; res(null); };
-    img.src = LOGO;
-  });
-}
+   header/footer + page numbers, faint per-page watermark). The pdfmake / pdf.js
+   loaders + church logo watermark are the shared standard in /js/lib/pdf.js. ── */
 
 const PW = 515;   // content width (pt) — Letter (612) minus 40pt side margins
 
@@ -448,7 +400,7 @@ async function exportPDF() {
   try {
     if (!data) throw new Error('Abre un reporte primero.');
     await loadPdfMake();
-    const wm = await logoDataURL();
+    const wm = await churchLogo();
     const fname = `Reporte-Tesoreria-${String(data.range.headRight).replace(/[^0-9A-Za-z]+/g, '-')}.pdf`;
     window.pdfMake.createPdf(buildDocDef(wm)).download(fname);
   } catch (e) {

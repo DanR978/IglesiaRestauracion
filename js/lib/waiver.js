@@ -221,3 +221,130 @@ export function renderWaiverPrintDoc({
       </div>
     </div>`;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// pdfmake version — used by the admin tab to generate a real PDF (the app-wide
+// standard, see /js/lib/pdf.js) instead of the browser print dialog. Same
+// constants + clause text as renderWaiverPrintDoc above, so the on-screen /
+// signed document and this PDF stay identical. Takes the SAME opts object.
+// Returns a complete pdfmake document definition; hand it to savePdf/openPdf.
+// ─────────────────────────────────────────────────────────────────────────────
+const WV_DARK = '#0e2d38';
+const WV_MX = 44;                       // side margin (pt)
+const WV_W = 612 - WV_MX * 2;           // content width on Letter portrait
+const WV_GAP = 24;
+
+// A full-width dark band heading.
+function pdfBand(text) {
+  return {
+    table: { widths: ['*'], body: [[{ text: String(text).toUpperCase(), color: '#fff',
+      bold: true, fontSize: 9.5, characterSpacing: 0.3, margin: [8, 4, 8, 4] }]] },
+    layout: { fillColor: () => WV_DARK, hLineWidth: () => 0, vLineWidth: () => 0,
+      paddingLeft: () => 0, paddingRight: () => 0, paddingTop: () => 0, paddingBottom: () => 0 },
+    margin: [0, 16, 0, 9],
+  };
+}
+
+// A fill-in line: value (or blank) sitting on a rule, small-caps label beneath.
+function pdfLine(value, label, width, opts = {}) {
+  const stack = [];
+  if (opts.image) {
+    stack.push({ image: opts.image, fit: [width - 10, 50], margin: [0, 0, 0, 2] });
+  } else if (opts.typed) {
+    stack.push({ text: opts.typed, italics: true, fontSize: 16, color: '#111', margin: [0, 0, 0, 2] });
+    stack.push({ text: 'Firma electrónica (nombre escrito)', italics: true, fontSize: 7, color: '#777', margin: [0, 1, 0, 1] });
+  } else {
+    const has = value || value === 0;
+    stack.push({ text: has ? String(value) : ' ', bold: has, color: '#111', fontSize: 10, margin: [0, 0, 0, 3] });
+  }
+  stack.push({ canvas: [{ type: 'line', x1: 0, y1: 0, x2: width - 8, y2: 0, lineWidth: 0.8, lineColor: opts.strong ? '#333' : '#9aa4b2' }] });
+  if (label) stack.push({ text: String(label).toUpperCase(), fontSize: 7.5, color: '#5a5a5a', characterSpacing: 0.2, margin: [0, 3, 0, 0] });
+  return { width, stack };
+}
+// Two fill-in lines side by side. `split` = left column fraction.
+function pdfPair(a, b, { split = 0.5, strong = false, tall = false } = {}) {
+  const lw = Math.round((WV_W - WV_GAP) * split), rw = WV_W - WV_GAP - lw;
+  const extra = tall ? { strong } : {};
+  return { columns: [
+    pdfLine(a.value, a.label, lw, { ...extra, ...(a.opts || {}) }),
+    pdfLine(b.value, b.label, rw, { ...extra, ...(b.opts || {}) }),
+  ], columnGap: WV_GAP, margin: [0, 6, 0, 2] };
+}
+
+export function buildWaiverDocDef(opts = {}) {
+  const {
+    event = {}, participants = null, participant = null, guardian = null, emergency = null,
+    signer = null, signature = null, signedDate = '', blank = false,
+  } = opts;
+  const list = blank ? [] : (participants && participants.length ? participants : (participant ? [participant] : []));
+  const g = blank ? null : guardian;
+  const em = blank ? null : emergency;
+  const sgnr = blank ? null : (signer || guardian || participant);
+  const sig = blank ? null : signature;
+  const date = blank ? '' : signedDate;
+  const partLabel = list.length > 1 ? 'Participantes' : 'Participante';
+
+  // Participants block: numbered list for several; a name/age line otherwise.
+  const participantsBlock = (!blank && list.length > 1)
+    ? { ol: list.map((pp) => (pp.age != null && pp.age !== '')
+        ? `${pp.name}  —  ${pp.age} años` : `${pp.name}`), margin: [4, 2, 0, 4], fontSize: 10 }
+    : pdfPair(
+        { value: list[0]?.name, label: 'Nombre completo del participante' },
+        { value: list[0]?.age, label: 'Edad' }, { split: 0.7 });
+
+  // Signature cell: reproduced image, typed name, or a blank rule.
+  const sigOpts = { strong: true };
+  if (sig?.image) sigOpts.image = sig.image;
+  else if (sig?.name) sigOpts.typed = sig.name;
+
+  const content = [
+    { text: WAIVER_CHURCH.toUpperCase(), alignment: 'center', bold: true, fontSize: 17, color: WV_DARK },
+    { text: WAIVER_ADDRESS, alignment: 'center', fontSize: 8.5, color: '#5a5a5a', margin: [0, 2, 0, 10] },
+    { text: WAIVER_TITLE, alignment: 'center', bold: true, fontSize: 13.5, color: '#1a1a1a', margin: [0, 0, 0, 10] },
+    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: WV_W, y2: 0, lineWidth: 2, lineColor: WV_DARK }], margin: [0, 0, 0, 4] },
+
+    pdfBand('Evento / Actividad'),
+    { columns: [
+      { text: [{ text: 'Evento: ', bold: true, color: WV_DARK }, event.title || '—'], fontSize: 10 },
+      { text: [{ text: 'Fecha: ', bold: true, color: WV_DARK }, event.date || '—'], fontSize: 10 },
+      { text: [{ text: 'Lugar: ', bold: true, color: WV_DARK }, event.location || WAIVER_ADDRESS], fontSize: 10 },
+    ], columnGap: 16 },
+
+    pdfBand(partLabel),
+    participantsBlock,
+    { text: WAIVER_PARTICIPANT_NOTE, italics: true, fontSize: 8.5, color: '#5a5a5a', margin: [0, 4, 0, 0] },
+
+    pdfBand('Padre / Madre / Tutor legal'),
+    pdfPair({ value: g?.name, label: 'Nombre completo' }, { value: g?.relationship, label: 'Parentesco' }, { split: 0.6 }),
+    pdfPair({ value: g?.phone, label: 'Teléfono' }, { value: g?.email, label: 'Correo electrónico' }, { split: 0.6 }),
+
+    pdfBand('Contacto de emergencia'),
+    pdfPair({ value: em?.name, label: 'Nombre del contacto' }, { value: em?.phone, label: 'Teléfono' }, { split: 0.6 }),
+
+    { text: '', pageBreak: 'after' },
+
+    pdfBand('Términos de la exoneración'),
+    { ol: WAIVER_CLAUSES.map((c) => ({ text: c, alignment: 'justify', margin: [0, 0, 0, 7] })),
+      markerColor: WV_DARK, fontSize: 10, margin: [0, 2, 0, 4] },
+    { text: WAIVER_ACK, bold: true, margin: [0, 8, 0, 4] },
+
+    pdfBand('Firma'),
+    pdfPair({ value: '', label: 'Firma del padre / madre / tutor legal', opts: sigOpts },
+            { value: date, label: 'Fecha' }, { split: 0.62, tall: true, strong: true }),
+    pdfPair({ value: sgnr?.name, label: 'Nombre en letra de molde' },
+            { value: sgnr?.relationship, label: 'Parentesco' }, { split: 0.62 }),
+
+    { text: [
+      `${WAIVER_CHURCH} · ${WAIVER_ADDRESS} · irdlex.org`, blank ? '' : ` · Doc. ${WAIVER_VERSION}`,
+    ], alignment: 'center', fontSize: 7.5, color: '#5a5a5a', margin: [0, 22, 0, 2] },
+    { text: 'Documento legal — conservar una copia firmada en el archivo de la iglesia.',
+      alignment: 'center', italics: true, fontSize: 7.5, color: '#5a5a5a' },
+  ];
+
+  return {
+    pageSize: 'LETTER', pageOrientation: 'portrait', pageMargins: [WV_MX, 40, WV_MX, 36],
+    info: { title: `${WAIVER_TITLE} — ${event.title || 'Evento'}` },
+    content,
+    defaultStyle: { fontSize: 10, color: '#1a1a1a', lineHeight: 1.35 },
+  };
+}

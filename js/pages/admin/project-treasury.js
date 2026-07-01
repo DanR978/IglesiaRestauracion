@@ -15,10 +15,11 @@ import { esc } from '/js/utils/escape.js';
 // 20260704_ministry_budget_projects.sql.
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { sb, currentUser, currentProfile, ministries } from './state.js';
+import { sb, currentUser, currentProfile, ministries, MONTHS } from './state.js';
 import { toast, confirm } from './ui.js';
 import { openFormWizard } from './form-wizard.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { savePdf, churchDocDef, sectionHeading, kpiBox, th, churchLogo, CONTENT_W } from '/js/lib/pdf.js';
 
 const fmt = n => (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
 const sum = rows => (rows || []).reduce((a, r) => a + (Number(r.amount) || 0), 0);
@@ -251,7 +252,10 @@ async function renderProject(id) {
   root.innerHTML = `
     <div class="trez-projhead">
       <h2 class="trez-projhead__title"><i class="fas ${esc(p.icon || 'fa-folder')}" style="color:${esc(p.color || '#475569')}"></i> ${esc(p.name)}${isMinistry ? ' <span class="trez-projhead__tag">Presupuesto de ministerio</span>' : ''}</h2>
-      ${isMinistry ? '' : '<button class="adm-icon-btn" id="projMenu" title="Acciones" aria-label="Acciones"><i class="fas fa-ellipsis-vertical"></i></button>'}
+      <div style="display:flex;gap:.4rem;align-items:center">
+        <button class="adm-icon-btn" id="projReport" title="Descargar reporte PDF" aria-label="Descargar reporte PDF"><i class="fas fa-file-pdf"></i></button>
+        ${isMinistry ? '' : '<button class="adm-icon-btn" id="projMenu" title="Acciones" aria-label="Acciones"><i class="fas fa-ellipsis-vertical"></i></button>'}
+      </div>
     </div>
     ${tiles(income, expense)}
     <div class="trez-addbar">
@@ -275,6 +279,8 @@ async function renderProject(id) {
     const [kind, eid] = b.dataset.del.split(':');
     deleteEntry(kind, eid);
   }));
+  document.getElementById('projReport')?.addEventListener('click', () =>
+    isMinistry ? openMinistryReport(p) : generateProjectReport(p, null));
   document.getElementById('projMenu')?.addEventListener('click', () => showActionSheet({
     trigger: document.getElementById('projMenu'), title: p.name,
     actions: [
@@ -353,4 +359,98 @@ async function deleteProject(p) {
   toast('Proyecto eliminado', 'success');
   activeId = 'resumen';
   await loadProjects(); renderNav(); render();
+}
+
+// ── PDF report (shared standard, /js/lib/pdf.js) ──────────────────────────────
+// Projects are all-time; ministries offer a monthly or yearly report only.
+function reportRange(kind, val) {
+  const pad = (n) => String(n).padStart(2, '0');
+  if (kind === 'month') {
+    const [y, m] = val.split('-').map(Number);
+    const ld = new Date(y, m, 0).getDate();
+    return { start: `${val}-01`, end: `${val}-${pad(ld)}`, label: `${MONTHS[m - 1]} ${y}` };
+  }
+  if (kind === 'year') return { start: `${val}-01-01`, end: `${val}-12-31`, label: `Año ${val}` };
+  return null;   // all-time
+}
+
+// Ministry report: ask monthly-or-yearly (the only two options), then generate.
+function openMinistryReport(p) {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    return { value: `${d.getFullYear()}-${pad(d.getMonth() + 1)}`, label: `${MONTHS[d.getMonth()]} ${d.getFullYear()}` };
+  });
+  const years = [0, 1, 2, 3].map((k) => ({ value: String(now.getFullYear() - k), label: String(now.getFullYear() - k) }));
+  openFormWizard({
+    title: `Reporte de ${p.name}`, icon: 'fa-file-pdf', submitLabel: 'Descargar PDF',
+    data: { period: 'month', month: months[0].value, year: years[0].value },
+    steps: [
+      { label: '¿Qué período?', fields: [{ id: 'period', type: 'choice', default: 'month', options: [
+        { value: 'month', label: 'Mensual', desc: 'Un mes', icon: 'fa-calendar-days' },
+        { value: 'year', label: 'Anual', desc: 'Todo el año', icon: 'fa-calendar' }] }] },
+      { label: '¿Cuál?', fields: [
+        { id: 'month', label: 'Mes', type: 'select', showIf: (d) => d.period === 'month', options: months },
+        { id: 'year', label: 'Año', type: 'select', showIf: (d) => d.period === 'year', options: years }] },
+    ],
+    onSubmit: (d) => generateProjectReport(p, reportRange(d.period, d.period === 'month' ? d.month : d.year)),
+  });
+}
+
+async function generateProjectReport(p, range) {
+  const isMinistry = !!p.ministry_id;
+  const inRange = (d) => !range || (d && d >= range.start && d <= range.end);
+  const [inc, exp, bud] = await Promise.all([
+    sb.from('fin_income').select('*').eq('project_id', p.id),
+    sb.from('fin_expenses').select('*').eq('project_id', p.id),
+    isMinistry
+      ? sb.from('fin_expenses').select('*').is('project_id', null).eq('ministry_id', p.ministry_id)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const budgetRows = (bud.data || []).filter((r) => inRange(r.occurred_on));
+  const incomeRows = (inc.data || []).filter((r) => inRange(r.occurred_on));
+  const expenseRows = (exp.data || []).filter((r) => inRange(r.occurred_on));
+  const income = sum(budgetRows) + sum(incomeRows);
+  const expense = sum(expenseRows);
+  const balance = income - expense;
+
+  const entries = [
+    ...budgetRows.map((r) => ({ occurred_on: r.occurred_on, who: 'Presupuesto de la iglesia', kind: 'income', amount: r.amount })),
+    ...incomeRows.map((r) => ({ occurred_on: r.occurred_on, who: r.source || 'Ingreso', kind: 'income', amount: r.amount })),
+    ...expenseRows.map((r) => ({ occurred_on: r.occurred_on, who: r.payee || 'Gasto', kind: 'expense', amount: r.amount })),
+  ].sort((a, b) => String(a.occurred_on).localeCompare(String(b.occurred_on)));
+
+  const accent = p.color || '#345a65';
+  const bodyRows = entries.length
+    ? entries.map((e) => [
+      { text: fmtDate(e.occurred_on), fontSize: 9 },
+      { text: e.who, fontSize: 9, color: e.kind === 'income' ? '#1f2a2e' : '#6a767b' },
+      { text: (e.kind === 'income' ? '+' : '−') + fmt(e.amount), alignment: 'right', fontSize: 9, color: e.kind === 'income' ? '#1e6b61' : '#b02030' },
+    ])
+    : [[{ text: 'Sin movimientos en el período.', colSpan: 3, color: '#8a979c', fontSize: 9 }, {}, {}]];
+
+  const today = new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  const periodLabel = range ? range.label : 'Todo el período';
+  const content = [
+    { text: p.name, fontSize: 20, bold: true, alignment: 'center', margin: [0, 6, 0, 2] },
+    { text: `${isMinistry ? 'Presupuesto de ministerio' : 'Proyecto'} · ${periodLabel}`, alignment: 'center', color: '#8a979c', fontSize: 10 },
+    { text: 'Generado el ' + today, alignment: 'center', color: '#8a979c', fontSize: 9, margin: [0, 1, 0, 12] },
+    { canvas: [{ type: 'line', x1: 0, y1: 0, x2: CONTENT_W, y2: 0, lineWidth: 2, lineColor: accent }], margin: [0, 0, 0, 14] },
+    { columns: [
+      kpiBox(isMinistry ? 'Presupuesto' : 'Ingresos', fmt(income), '#1e6b61', accent),
+      kpiBox('Gastos', fmt(expense), '#b02030', accent),
+      kpiBox('Balance', fmt(balance), balance < 0 ? '#b02030' : '#1e6b61', accent),
+    ], columnGap: 8, margin: [0, 0, 0, 16] },
+    sectionHeading('Movimientos', accent),
+    { table: { headerRows: 1, widths: ['auto', '*', 'auto'], body: [[th('Fecha'), th('Detalle'), th('Monto', 1)], ...bodyRows] },
+      layout: { hLineWidth: (i, node) => (i <= 1 || i >= node.table.body.length) ? 0.8 : 0.4, hLineColor: () => '#e7ecec',
+        vLineWidth: () => 0, paddingTop: () => 3.2, paddingBottom: () => 3.2, paddingLeft: () => 6, paddingRight: () => 6 } },
+  ];
+
+  const wm = await churchLogo();
+  const safe = String(p.name).replace(/[^0-9A-Za-z]+/g, '-');
+  const suffix = range ? '-' + range.label.replace(/[^0-9A-Za-z]+/g, '-') : '';
+  await savePdf(churchDocDef({ title: `Reporte — ${p.name}`, headRight: periodLabel, content, accent, wm }),
+    `Reporte-${safe}${suffix}.pdf`);
 }
