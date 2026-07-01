@@ -192,7 +192,10 @@ const WIZ = {
         { value: 'pending', label: 'Pendiente', desc: 'Aún no se paga', icon: 'fa-clock' }] }] },
       { label: 'Detalles (opcional)', fields: [
         { id: 'occurred_on', label: 'Fecha', type: 'date', default: todayISO() },
-        { id: 'category', label: 'Categoría', type: 'text', placeholder: 'Renta / Materiales' },
+        { id: 'category', label: 'Categoría', type: 'select',
+          hint: EXPENSE_CATS.length ? '' : 'Agrega categorías de gasto en Configurar.',
+          options: [{ value: '', label: 'Selecciona una categoría…' },
+            ...EXPENSE_CATS.map(c => ({ value: c.name, label: c.name }))] },
         { id: 'note', label: 'Nota', type: 'textarea' }] },
     ],
     toData: r => ({ amount: r.amount, alloc: allocEncode(r), payee: r.payee, status: r.status, occurred_on: r.occurred_on, category: r.category, note: r.note }),
