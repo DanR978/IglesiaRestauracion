@@ -241,8 +241,8 @@
    • Forced LIGHT needs no block — it is just the :root defaults, and guarding
      the media query above already stops the OS dark palette from winning.
    • Forced DARK mirrors the prefers-color-scheme values so a user on a light OS
-     can still choose the dark panel. Public pages never set data-theme, so they
-     are unaffected by these rules. */
+     can still choose the dark panel. Kept next to the source above so the two
+     stay in sync. Public pages never set data-theme, so they are unaffected. */
 :root[data-theme="dark"] {
   --color-secondary: #9a6a2c;
   --gold-bright: #c89858;
