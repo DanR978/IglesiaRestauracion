@@ -7,9 +7,9 @@ import { esc } from '/js/utils/escape.js';
 //   • Editing a preset propagates to every account that carries it.
 // allowed_tabs meaning depends on base role:
 //   • ministry_leader → which OPERATIONAL pages show.
-//   • admin           → which SYSTEM pages (Usuarios/Actividad/Configuración)
-//     show on top of the always-on admin pages. Desarrollador grants all three;
-//     Administrador grants none.
+//   • admin           → which SYSTEM pages (Ministerios/Usuarios/Actividad/
+//     Configuración) show on top of the always-on admin pages. Desarrollador
+//     grants all four; Administrador grants none.
 //   • treasurer       → none (finance-only, gated by role).
 // All writes go through the `admin-invite` Edge Function (service-role).
 // ─────────────────────────────────────────────────────────────────────────────
@@ -30,9 +30,10 @@ const OPERATIONAL_TABS = [
 ];
 // System pages an admin-base preset may grant (Desarrollador = all, Administrador = none).
 const ADMIN_TABS = [
-  { key: 'users',    label: 'Usuarios',      icon: 'fa-users' },
-  { key: 'activity', label: 'Actividad',     icon: 'fa-clock-rotate-left' },
-  { key: 'settings', label: 'Configuración', icon: 'fa-gear' },
+  { key: 'ministries', label: 'Ministerios',    icon: 'fa-church' },
+  { key: 'users',      label: 'Usuarios',       icon: 'fa-users' },
+  { key: 'activity',   label: 'Actividad',      icon: 'fa-clock-rotate-left' },
+  { key: 'settings',   label: 'Configuración',  icon: 'fa-gear' },
 ];
 const SYSTEM_KEYS = ADMIN_TABS.map(t => t.key);
 const TAB_BY_KEY  = Object.fromEntries([...OPERATIONAL_TABS, ...ADMIN_TABS].map(t => [t.key, t]));

@@ -222,7 +222,6 @@ function _renderTab(container, evs, isSpecial) {
           </div>
           <div class="adm-list__actions">
             <button class="kebab-btn" title="Opciones" aria-label="Más opciones"
-              onclick="event.stopPropagation()"
               data-cal-menu="${esc(ev.id)}"
               data-cal-title="${esc(ev.title)}"
               data-cal-cancelled="${isCancelled ? '1' : '0'}"

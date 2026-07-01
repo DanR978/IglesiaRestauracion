@@ -295,10 +295,10 @@ function applyTabAccess(profile) {
     document.body.classList.add('is-admin', 'is-staff', 'is-finance');
     document.querySelectorAll('.admin-only').forEach(el => { el.style.display = ''; });
     clearInline();
-    // System tabs (Usuarios, Actividad, Configuración) show only when the preset
-    // grants them: Desarrollador gets all three; Administrador gets none.
+    // System tabs (Ministerios, Usuarios, Actividad, Configuración) show only when
+    // the preset grants them: Desarrollador gets all four; Administrador gets none.
     const devTabs = new Set(Array.isArray(profile.allowed_tabs) ? profile.allowed_tabs : []);
-    ['users', 'activity', 'settings'].forEach(tab => {
+    ['ministries', 'users', 'activity', 'settings'].forEach(tab => {
       const btn = nav?.querySelector(`.tab-btn[data-tab="${tab}"]`);
       if (btn) btn.style.display = devTabs.has(tab) ? '' : 'none';
     });

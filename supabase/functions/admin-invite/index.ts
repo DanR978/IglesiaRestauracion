@@ -32,15 +32,15 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // allowed_tabs meaning depends on the base role:
 //   • ministry_leader → which OPERATIONAL pages show (must match the nav
 //     data-tab keys and the RLS grant keys in 20260626_page_permissions.sql).
-//   • admin           → which SYSTEM pages (users/activity/settings) show on
-//     top of the always-on admin pages. Developer = all three; Administrador
-//     = none. Ministries + treasury stay always-on for admins.
+//   • admin           → which SYSTEM pages (ministries/users/activity/settings)
+//     show on top of the always-on admin pages. Developer = all four;
+//     Administrador = none. Treasury stays always-on for admins.
 //   • treasurer       → empty (finance-only, gated by role).
 const OPERATIONAL_TABS = [
   "upcoming", "calendario",
   "special-events", "discipulado", "galeria", "treasury",
 ];
-const ADMIN_SYSTEM_TABS = ["users", "activity", "settings"];
+const ADMIN_SYSTEM_TABS = ["ministries", "users", "activity", "settings"];
 
 function grantableFor(baseRole: string): string[] {
   if (baseRole === "ministry_leader") return OPERATIONAL_TABS;
@@ -407,7 +407,7 @@ async function resetMfa(admin: Sb, body: Sb): Promise<Response> {
 // Built-in presets — also used to auto-seed if the table is empty (e.g. the
 // migration seed rolled back). Mirrors 20260630_role_presets.sql.
 const SEED_PRESETS = [
-  { name: "Desarrollador", slug: "developer",     base_role: "admin",           allowed_tabs: ["users", "activity", "settings"], icon: "fa-user-gear",     color: "#5b21b6", is_system: true },
+  { name: "Desarrollador", slug: "developer",     base_role: "admin",           allowed_tabs: ["ministries", "users", "activity", "settings"], icon: "fa-user-gear",     color: "#5b21b6", is_system: true },
   { name: "Administrador", slug: "administrador", base_role: "admin",           allowed_tabs: [],                                 icon: "fa-shield-halved", color: "#475569", is_system: true },
   { name: "Tesorería",     slug: "tesoreria",     base_role: "treasurer",       allowed_tabs: [],                                 icon: "fa-coins",         color: "#9a6a2c", is_system: true },
   { name: "Medios",        slug: "medios",        base_role: "ministry_leader", allowed_tabs: ["upcoming", "calendario", "special-events", "galeria"], icon: "fa-photo-film", color: "#2a4a9e", is_system: true },

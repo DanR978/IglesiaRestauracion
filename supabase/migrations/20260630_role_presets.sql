@@ -42,7 +42,7 @@ alter table public.profiles
 -- treasurer → empty (finance by role).
 insert into public.role_presets (name, slug, base_role, allowed_tabs, icon, color, is_system)
 values
-  ('Desarrollador', 'developer',     'admin',           '{users,activity,settings}',                       'fa-user-gear',     '#5b21b6', true),
+  ('Desarrollador', 'developer',     'admin',           '{ministries,users,activity,settings}',             'fa-user-gear',     '#5b21b6', true),
   ('Administrador', 'administrador', 'admin',           '{}',                                              'fa-shield-halved', '#475569', true),
   ('Tesorería',     'tesoreria',     'treasurer',       '{}',                                              'fa-coins',         '#9a6a2c', true),
   ('Medios',        'medios',        'ministry_leader', '{upcoming,calendario,special-events,galeria}',    'fa-photo-film',    '#2a4a9e', true)
@@ -52,7 +52,7 @@ on conflict (slug) do nothing;
 -- Existing admins keep full access → Desarrollador (all system tabs).
 update public.profiles p
    set preset_id    = rp.id,
-       allowed_tabs = '{users,activity,settings}'
+       allowed_tabs = '{ministries,users,activity,settings}'
   from public.role_presets rp
  where p.preset_id is null and rp.slug = 'developer' and p.role = 'admin';
 

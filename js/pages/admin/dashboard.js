@@ -1,6 +1,7 @@
 // js/pages/admin/dashboard.js
 // "Inicio" — at-a-glance overview tab. Stat cards + next upcoming events.
-// Counts are scoped: a ministry leader only sees their own ministry.
+// Counts reflect everything the user is allowed to read; RLS is the boundary
+// (same model as the calendar/events lists — no client-side ministry scoping).
 
 import { html, raw } from '/js/utils/escape.js';
 import { render } from '/js/utils/render.js';
@@ -25,7 +26,6 @@ export async function loadDashboard() {
   if (nextEl) render(nextEl, '');
 
   const admin = isAdmin();
-  const mid   = currentProfile?.ministry_id;
   const today = todayISO();
   const now   = new Date();
   const lp    = n => String(n).padStart(2, '0');
@@ -33,15 +33,12 @@ export async function loadDashboard() {
   const mEnd   = `${now.getFullYear()}-${lp(now.getMonth() + 1)}-` +
                  `${lp(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate())}`;
 
-  // Ministry leaders see only their own ministry's rows.
-  const scoped = q => (!admin && mid) ? q.eq('ministry_id', mid) : q;
-
   try {
     const [up, month, special, interests, albums, nextRows] = await Promise.all([
-      scoped(sb.from('calendar_events').select('id', { count: 'exact', head: true })
-        .gte('date', today)),
-      scoped(sb.from('calendar_events').select('id', { count: 'exact', head: true })
-        .gte('date', mStart).lte('date', mEnd)),
+      sb.from('calendar_events').select('id', { count: 'exact', head: true })
+        .gte('date', today),
+      sb.from('calendar_events').select('id', { count: 'exact', head: true })
+        .gte('date', mStart).lte('date', mEnd),
       admin ? sb.from('events').select('id', { count: 'exact', head: true })
                 .gte('starts_at', now.toISOString())
             : Promise.resolve({ count: null }),
@@ -50,9 +47,9 @@ export async function loadDashboard() {
             : Promise.resolve({ count: null }),
       admin ? sb.from('gallery_albums').select('id', { count: 'exact', head: true })
             : Promise.resolve({ count: null }),
-      scoped(sb.from('calendar_events')
+      sb.from('calendar_events')
         .select('title,date,time,cancelled,ministries(name,color)')
-        .gte('date', today).order('date', { ascending: true }).limit(6)),
+        .gte('date', today).order('date', { ascending: true }).limit(6),
     ]);
 
     const cards = [
