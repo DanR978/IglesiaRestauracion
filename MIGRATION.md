@@ -1,0 +1,91 @@
+# MIGRATION LEDGER — Raw MPA → SvelteKit
+
+> **Single source of truth for the rewrite. A fresh Claude session reads THIS FILE FIRST**,
+> then `docs/migration/README.md`, then the specific `docs/migration/sessions/NN-*.md` it was asked to do.
+> Update this file in the SAME PR as the work. History is append-only — strike through, never delete.
+>
+> Last updated: 2026-07-13 · by: governance-session · Status: **NOT STARTED**
+
+---
+
+## 0. TL;DR for a fresh session
+
+- **Target:** SvelteKit + `adapter-static`, Svelte 5 (runes), TypeScript. **Same Supabase backend** (project `snqwxgyhfiinouewxgiy`), **same Deno edge functions**, **same RLS** — the DB does not change. Client uses the anon key; **RLS is the security boundary**.
+- **Strategy:** strangler-fig. The current raw-served site stays **LIVE at every URL** the whole time. The new app builds into `web/` and deploys to a **`/app/` subpath** in the *same* GitHub Pages artifact. Surfaces cut over **one PR at a time**; admin first internally, public URLs last.
+- **Order:** pre-flight → shared foundations → public site (cut over first) → admin shell → admin tabs → hard subsystems → decommission. Full backlog in [`docs/migration/ROADMAP.md`](docs/migration/ROADMAP.md).
+- **Before touching code:** read `CLAUDE.md`, run `git status`, confirm your branch, restate scope back to the human.
+- **~65 sessions, 7 phases.** This is a months-long effort. The machinery in `docs/migration/` is what makes it resumable across memoryless sessions.
+
+## 1. Status board
+
+Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done · ⛔ blocked
+
+| Phase | Sessions | Status |
+|---|---|---|
+| 0 · Pre-flight & scaffolding | S01–S05 | ⬜ |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | ⬜ |
+| 2 · Public site + cutover | S23–S36 | ⬜ |
+| 3 · Admin shell + auth | S37–S40 | ⬜ |
+| 4 · Admin CRUD tabs | S41–S51 | ⬜ |
+| 5 · Hard subsystems (treasury, registrations, designer) | S52–S63 | ⬜ |
+| 6 · Cutover & decommission | S64–S65 | ⬜ |
+
+**Current state (overwrite each session):**
+- Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
+- In `/app` staging, not cut over: nothing.
+- Open PRs: none.
+- Active freeze: **VBS/registration season** — do NOT cut over `eventos/registro` or `/admin` (see `DUAL-MAINTENANCE.md`).
+- Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
+
+**Next up:** `S01 — RLS audit + committed schema baseline`. See `docs/migration/sessions/`.
+
+## 2. Invariants & decisions — LOCKED (append-only; never silently reverse)
+
+- **D-001** Every legacy URL keeps answering at the identical path (trailing slash included). Port or add a redirect; never break a shared link or QR code.
+- **D-002** RLS is unchanged by the rewrite. The client holds the anon key only. The rewrite must not move any trust boundary to the client.
+- **D-003** Money is computed in **integer cents** in the new app (`src/lib/money.ts`); the DB column stays `numeric` dollars; convert on read/write. The legacy used floats — the treasury golden diff is an **approved, deliberate** change (recorded when S53 lands).
+- **D-004** `WAIVER_VERSION` changes ONLY via a reviewed decision here; clause text is snapshot-tested. `waiver.ts` stays single-sourced (one set of constants → both the on-screen HTML and the pdfmake PDF).
+- **D-005** The sanitizer allowlist is a security contract. Any change must keep the XSS corpus test green. Under Svelte, `{@html X}` is forbidden unless `X` is `sanitizeHtml()`/`renderRichText()` output (or the trusted static icon sprite).
+- **D-006** `visibleSurfacesFor(profile)` is the authz oracle. Its negative cases (leader ≠ treasury, treasurer ≠ registrations/PII) are **tests**, not comments. Client gating is UX-only; the real guard is RLS.
+- **D-007** Secrets are injected at build from GitHub Secrets → SvelteKit `$env/static/public` (`PUBLIC_*`). No service-role key ever reaches the browser.
+- **D-008** The new app builds under `BASE_PATH=/app` until a surface is cut over. Both sites ship in ONE Pages artifact (custom domain = one deployment).
+- **D-009** `pdf.js`, `fabric.js`, and the edge functions are **preserved nearly verbatim** (typed, imports fixed). Do not redesign them.
+- **D-010** MFA is enforced for `/admin` — client redirect AND an `aal2` RLS migration (S39). Client gating alone is bypassable.
+- **D-011** The Fabric designer canvas engine is **wrapped, not rewritten** (S59–S63). Only the design *library/list* is rewritten in Svelte.
+- **D-012** A qualifying legacy fix (`DUAL-FIX-BACKLOG.md`) satisfies the "ships with a test" rule (`DUAL-MAINTENANCE.md`) in two parts: **(a)** a **written, runnable reproduction** in that file — concrete inputs → observed wrong behavior → observed correct behavior after the fix — run by hand against a **staging** Supabase project (never prod, no real PII; VERIFICATION.md PII rule); and **(b)** the mirroring port session (tagged `dual-fix`) **converts that reproduction into an automated test in `web/`** (Vitest under `jsdom` per G-001, or Playwright for a flow). The `dual-fix` item is not closeable until both the legacy patch and the ported test land. Legacy has no harness (S05 builds it under `web/`); this is how the rule is honored without one. Applies now to DF-001 (test owed by S51).
+- **D-013** `.claude/REDESIGN-ADMIN.md` is **design & requirements input to the migration, NOT a work order against the legacy codebase** (2026-07-13). Its value is its diagnosis — the only document that says what the panel should look like and which of its behaviours are bugs — not a mandate to touch the frozen live admin. It is superseded by two migration-owned specs: **`DESIGN-SYSTEM.md`** (appearance — variants, state matrices, tokens) and **`PORT-DEBT.md`** (behaviour — the bugs a port must not re-implement). No redesign, restyle, or "while I was in there" refactor lands in legacy — `DUAL-MAINTENANCE.md` governs (features/redesigns wait for the new site). Do not re-open this and start restyling `/admin`.
+- **D-014** The admin palette is **neutral slate**, reproduced as a token override **scoped to the `(admin)` route group** so it never reaches the public site (S11): `--color-secondary #475569`, `--color-accent #475569`, `--gold-bright #64748b`, `--color-info #334155`. Gold/amber/orange/teal never appear as an admin accent; the residual amber (`shell.css:57-65` brand-dot glow, the `.dash-card` amber hover-wipe) is **dropped, not ported**. Semantic success/danger/warn/money is the only non-slate color in the admin — used because it *means* something.
+- **D-015** The admin type scale is **`--fs-*`** (fluid), **re-tuned monotonic — not ported as-is** (S11). Legacy is non-monotonic (`--fs-2xl` max `2rem` < `--fs-xl` max `2.1875rem`; `--fs-lg`/`--fs-2xl` share `2rem`) and jumps `~0.7rem` labels → `~1.85rem/800` KPI numbers with **nothing between** — the port adds the missing mid-range step. `--size-*` (static) does not govern admin type; `.ird-btn` reconciles from `--size-base` to `--fs-btn`. Never `font-size` in px or raw rem.
+- **D-016** Money color is a set of **semantic tokens** in `tokens/colors.css` (S11) that reverse via the `data-theme` dark override: `--money-pos`/`-bg`, `--money-neg`/`-bg`, `--money-warn`/`-bg`. The two legacy greens (`#1e6b61` + `#1c7a52`) **collapse to one**; the hardcoded `#b02030`/`#a05a10` and the `!important` on `.pos`/`.neg` are retired. No treasury file ships a money hex literal. Feeds S08 `money.ts`, consumed by S53/S56.
+- **D-017** **One dark-mode mechanism: a token override keyed on `data-theme` on `<html>`.** `tokens/colors.css` is the only file that mentions `data-theme`; every component consumes `var(--color-*)` and reverses for free. The ~27 component/section/page-level `@media (prefers-color-scheme: dark)` blocks in legacy are **bugs, not precedent** — they silently defeat the admin's forced-theme override. Never add one outside the token files; even there it opts out of forced themes with `:root:not([data-theme="light"]):not([data-theme="dark"])`. (Locks CLAUDE.md §4 as a migration invariant.)
+
+## 3. Gotchas discovered (append-only — save the next session the pain)
+
+- **G-001** `sanitize-html` uses `DOMParser` → its Vitest tests MUST run under `jsdom`/`happy-dom`, not `node`.
+- **G-002** Legacy mixes UTC-based ICS with local `new Date(y,m-1,d)` for treasury dates. Keep calendar dates as `YYYY-MM-DD` strings; pin `TZ` in date tests (run under both `America/New_York` and a non-US TZ).
+- **G-003** The service worker caches the shell. **Bump the SW cache version on every cutover PR** or cut-over users keep getting the old page.
+- **G-004** The base DB schema (`profiles`, `events`, `discipleship_interests` [minors' PII], `is_admin()`, `my_ministry_id()`) is **NOT in git** — dashboard-created. S01 closes this; nothing typed can be trusted before it.
+- **G-005** Fabric v6 is **named-exports only** (`FabricImage`, `FabricText`); keep the `/* @vite-ignore */` on its dynamic CDN import or Vite fails the build.
+- **G-006** The anon insert into `event_registrations` needs no `.select()` — anon has no SELECT policy; chaining `.select()` throws a false "violates RLS". Same for `discipleship_interests`.
+- **G-007** `pdf.js` relies on a CDN `<script>` + `window.pdfMake.vfs` memo. Keep that pattern; do NOT convert to an npm import.
+- **G-008** Custom domain ⇒ SvelteKit `paths.base` is `''` at final cutover (not the repo name); `/app` only during transition via `BASE_PATH`.
+- **G-009** Legacy shares **global element IDs across distinct modals** — two blocks both use `id="presetModal"` (+ `presetModalSave/Title/Error/Close`) in `admin/index.html`, so `getElementById` returns the **first** and both `initSmartPresets` and `initRolePresets` bind Save to the same button (saving an access preset also fires the calendar-preset `_savePreset`, saved only by an empty-name early return). Don't reason about "the preset modal"; every ported overlay owns local state — **no shared global IDs** (S16/S47).
+- **G-010** `grid-balance.js` / `autoBalance()` is **live, not dead** (the brief says dead — it's wrong). It mutates `element.style.gridColumn` at runtime to fill a short last row (dashboard `dashboard.js:80`, ministries). Replace with a pure-CSS grid (`repeat(auto-fit, minmax(180px,1fr))`); do **not** faithfully port the JS hack, and do **not** just delete it without the CSS replacement or the last row breaks. No ported component sets `style.gridColumn` at runtime (S41/S44).
+- **G-011** Several persisted admin toggles are **cosmetic — nothing reads them**: `pause_invites` (`admin-invite` never checks it) and the public-page feature flags `discipulado/galeria/eventos/donaciones` (no public-site reader). Only `features.maintenance` has a real consumer (`maintenance.js`). A port that wires UI to these ships controls that lie — **enforce the flag or drop it** (S40/S42/S47).
+- **G-012** The redesign brief **overstates dead code / severity in places** — verify every "dead"/"unconfirmed" claim against the code before acting (PORT-DEBT records the corrections). Four that were wrong: `autoBalance()` is live (G-010); the `#72BB72` "done" dot is reachable (`form-wizard.js:66` emits `.done`) — **re-theme, don't delete**; `#view-form` is reachable via edit (only create-new is dead); the project-treasury `⋮`-delete **is** `confirm()`-gated (a bad affordance, not an unconfirmed delete).
+
+## 4. How prod deploys today (don't relearn this every session)
+
+`.github/workflows/deploy.yml`: generate `js/lib/config.js` from GitHub Secrets → `scripts/build.sh` (concat CSS) → `build-heads.mjs` → `build-sitemap.mjs` → `inline-includes.mjs` → prune tooling dirs → `upload-pages-artifact` (`path: .`) → Pages. **No `vite build` runs in prod.** One Pages site, custom domain `www.irdlex.org` (`CNAME`) at root, `404.html` is the fallback. The SvelteKit stage (added in S03) builds `web/` and copies `web/build/*` → `./app/`.
+
+## 5. Links
+
+- Protocol & how-to: [`docs/migration/README.md`](docs/migration/README.md)
+- Full session backlog: [`docs/migration/ROADMAP.md`](docs/migration/ROADMAP.md)
+- Verification gate: [`docs/migration/VERIFICATION.md`](docs/migration/VERIFICATION.md)
+- Dual-maintenance & freeze rules: [`docs/migration/DUAL-MAINTENANCE.md`](docs/migration/DUAL-MAINTENANCE.md)
+- Dual-fix backlog (freeze audit trail): [`docs/migration/DUAL-FIX-BACKLOG.md`](docs/migration/DUAL-FIX-BACKLOG.md) — qualifying legacy critical fixes (+ the rejected ones).
+- Design-system spec (S11–S21): [`docs/migration/DESIGN-SYSTEM.md`](docs/migration/DESIGN-SYSTEM.md) — component appearance, variants, state matrices, tokens.
+- Port debt: [`docs/migration/PORT-DEBT.md`](docs/migration/PORT-DEBT.md) — the legacy bugs each port must NOT re-implement, filed per surface.
+- Per-session task template: [`docs/migration/SESSION-TEMPLATE.md`](docs/migration/SESSION-TEMPLATE.md)
+- Written session files: `docs/migration/sessions/NN-*.md`
