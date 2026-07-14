@@ -1,8 +1,8 @@
 -- ============================================================================
--- 20260702_multi_ministry.sql — a user (ministry_leader) can lead SEVERAL
+-- 20260702000002_multi_ministry.sql — a user (ministry_leader) can lead SEVERAL
 -- ministries, not just one
 -- ============================================================================
--- Run AFTER 20260701_ministry_budget.sql. Run in the Supabase SQL Editor.
+-- Run AFTER 20260701000002_ministry_budget.sql. Run in the Supabase SQL Editor.
 --
 -- Adds profiles.ministry_ids uuid[] as the canonical list of ministries a user
 -- leads (e.g. a "Youth & Kids Manager" leads both Youth AND Kids). The old

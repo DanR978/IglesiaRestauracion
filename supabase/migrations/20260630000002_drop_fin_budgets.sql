@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260630_drop_fin_budgets.sql — remove the Presupuestos feature
+-- 20260630000002_drop_fin_budgets.sql — remove the Presupuestos feature
 -- ============================================================================
 -- Run AFTER the treasury-tab.js change that stops reading/writing fin_budgets
 -- (Presupuestos sub-tab removed; Resumen no longer queries it). Recurrentes

@@ -1,7 +1,7 @@
 -- ============================================================================
--- 20260701_fin_projects.sql — per-user "project" financial trackers
+-- 20260701000001_fin_projects.sql — per-user "project" financial trackers
 -- ============================================================================
--- Run in the Supabase SQL Editor, AFTER 20260630_page_permission_rls.sql
+-- Run in the Supabase SQL Editor, AFTER 20260630000004_page_permission_rls.sql
 -- (it relies on the public.is_finance() helper, re-created here for safety).
 --
 -- A ministry user (ministry_leader) with the Tesorería page granted can create
@@ -50,6 +50,6 @@ create policy pp_fin_projects on public.fin_projects
 
 -- NOTE: the fin_income/fin_expenses access policies (treasurer = church books
 -- with project_id IS NULL; owner = their own project rows; media = their
--- ministry's budget) are owned entirely by 20260701_ministry_budget.sql so
+-- ministry's budget) are owned entirely by 20260701000002_ministry_budget.sql so
 -- there's a single source of truth and re-running this file can't resurrect
 -- broader access. Apply ministry_budget.sql right after this one.

@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260706_newsletter_cron.sql — schedule the newsletter edge functions.
+-- 20260706000001_newsletter_cron.sql — schedule the newsletter edge functions.
 -- ============================================================================
 -- Runs entirely inside Postgres via pg_cron + pg_net (no external scheduler):
 --   • newsletter-broadcast  → 1st of the month, 13:00 UTC

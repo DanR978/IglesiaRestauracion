@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260630_page_permission_rls.sql — let non-admin staff actually load the
+-- 20260630000004_page_permission_rls.sql — let non-admin staff actually load the
 -- pages their preset grants
 -- ============================================================================
 -- Run in the Supabase SQL Editor.

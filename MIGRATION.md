@@ -4,7 +4,7 @@
 > then `docs/migration/README.md`, then the specific `docs/migration/sessions/NN-*.md` it was asked to do.
 > Update this file in the SAME PR as the work. History is append-only — strike through, never delete.
 >
-> Last updated: 2026-07-13 · by: governance-session · Status: **NOT STARTED**
+> Last updated: 2026-07-14 · by: S01 (rls-baseline) · Status: **PHASE 0 IN PROGRESS**
 
 ---
 
@@ -22,7 +22,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 
 | Phase | Sessions | Status |
 |---|---|---|
-| 0 · Pre-flight & scaffolding | S01–S05 | ⬜ |
+| 0 · Pre-flight & scaffolding | S01–S05 | 🟨 S01 🟦 · S02–S05 ⬜ |
 | 1 · Shared foundations (libs, client, design system) | S06–S22 | ⬜ |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
@@ -33,11 +33,13 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 **Current state (overwrite each session):**
 - Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
 - In `/app` staging, not cut over: nothing.
-- Open PRs: none.
+- Open PRs: **`migrate/S01-rls-baseline`** (schema baseline + RLS audit; `supabase/` and docs only — no app code).
+- **The schema now rebuilds from git**: `supabase db reset` applies the two baseline files + the 16 migrations clean (G-004 closed). Local stack requires Docker.
+- **Prod was not touched by S01, and two things it surfaced are still open on the live site**: `Modo mantenimiento` is dead in prod (G-015 — one unapplied migration; a human must apply it), and `is_aal2()` is a `select true` stub so DB-side MFA is not actually enforced (G-016 — S39 owns it).
 - Active freeze: **VBS/registration season** — do NOT cut over `eventos/registro` or `/admin` (see `DUAL-MAINTENANCE.md`).
 - Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
 
-**Next up:** `S01 — RLS audit + committed schema baseline`. See `docs/migration/sessions/`.
+**Next up:** `S02 — SvelteKit + adapter-static scaffold in web/` (no prereqs; S01 is done). See `docs/migration/sessions/`.
 
 ## 2. Invariants & decisions — LOCKED (append-only; never silently reverse)
 
@@ -64,7 +66,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **G-001** `sanitize-html` uses `DOMParser` → its Vitest tests MUST run under `jsdom`/`happy-dom`, not `node`.
 - **G-002** Legacy mixes UTC-based ICS with local `new Date(y,m-1,d)` for treasury dates. Keep calendar dates as `YYYY-MM-DD` strings; pin `TZ` in date tests (run under both `America/New_York` and a non-US TZ).
 - **G-003** The service worker caches the shell. **Bump the SW cache version on every cutover PR** or cut-over users keep getting the old page.
-- **G-004** The base DB schema (`profiles`, `events`, `discipleship_interests` [minors' PII], `is_admin()`, `my_ministry_id()`) is **NOT in git** — dashboard-created. S01 closes this; nothing typed can be trusted before it.
+- ~~**G-004** The base DB schema (`profiles`, `events`, `discipleship_interests` [minors' PII], `is_admin()`, `my_ministry_id()`) is **NOT in git** — dashboard-created. S01 closes this; nothing typed can be trusted before it.~~ **CLOSED by S01 (2026-07-14)** — `00000000000000_baseline.sql` (public: 32 tables, 78 policies, 24 functions) + `00000000000001_baseline_storage.sql` (15 storage.objects policies). `supabase db reset` rebuilds the whole schema from git.
 - **G-005** Fabric v6 is **named-exports only** (`FabricImage`, `FabricText`); keep the `/* @vite-ignore */` on its dynamic CDN import or Vite fails the build.
 - **G-006** The anon insert into `event_registrations` needs no `.select()` — anon has no SELECT policy; chaining `.select()` throws a false "violates RLS". Same for `discipleship_interests`.
 - **G-007** `pdf.js` relies on a CDN `<script>` + `window.pdfMake.vfs` memo. Keep that pattern; do NOT convert to an npm import.
@@ -73,6 +75,11 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **G-010** `grid-balance.js` / `autoBalance()` is **live, not dead** (the brief says dead — it's wrong). It mutates `element.style.gridColumn` at runtime to fill a short last row (dashboard `dashboard.js:80`, ministries). Replace with a pure-CSS grid (`repeat(auto-fit, minmax(180px,1fr))`); do **not** faithfully port the JS hack, and do **not** just delete it without the CSS replacement or the last row breaks. No ported component sets `style.gridColumn` at runtime (S41/S44).
 - **G-011** Several persisted admin toggles are **cosmetic — nothing reads them**: `pause_invites` (`admin-invite` never checks it) and the public-page feature flags `discipulado/galeria/eventos/donaciones` (no public-site reader). Only `features.maintenance` has a real consumer (`maintenance.js`). A port that wires UI to these ships controls that lie — **enforce the flag or drop it** (S40/S42/S47).
 - **G-012** The redesign brief **overstates dead code / severity in places** — verify every "dead"/"unconfirmed" claim against the code before acting (PORT-DEBT records the corrections). Four that were wrong: `autoBalance()` is live (G-010); the `#72BB72` "done" dot is reachable (`form-wizard.js:66` emits `.done`) — **re-theme, don't delete**; `#view-form` is reachable via edit (only create-new is dead); the project-treasury `⋮`-delete **is** `confirm()`-gated (a bad affordance, not an unconfirmed delete).
+- **G-013** `supabase db dump --schema public` **does not capture the `storage.objects` policies** — 15 of them (gallery, event-images, avatars, design-assets) are half the real security boundary. That is why the baseline is **two** files (`…0000_baseline.sql` + `…0001_baseline_storage.sql`). If you ever regenerate the baseline from a single `--schema public` dump you will silently drop the storage half. The storage *schema itself* (its tables/functions) is owned by the Storage service and must NOT be dumped — the local stack recreates it and a dump fights it on `db reset`.
+- **G-014** **Migration filenames must be 14-digit `YYYYMMDDHHMMSS_name.sql`, not `YYYYMMDD_name.sql`.** The CLI keys `schema_migrations` on the leading digits of the filename, so the old 8-digit convention gave every same-day migration the *same* version — six files shared key `20260630` — and `supabase db reset` / `db push` died on a duplicate-key error. This is why migrations were only ever "applied manually in the SQL Editor". S01 renamed all 16 (content-preserving, order-preserving; old name → new name is just `_` → `0000NN_`) and fixed CLAUDE.md §7. Old filenames still appear in prose in `PORT-DEBT.md` / `DUAL-FIX-BACKLOG.md` / `.claude/*` and in `js/` comments — same files, don't be confused.
+- **G-015** **git and prod have drifted: two committed migrations were never applied to production.** Found by diffing the live dump against a local `db reset`. (a) `…0005_public_feature_flags.sql` — prod's only `app_settings` policy is admin-only, but `maintenance.js` reads `app_settings` as **anon**, so RLS returns zero rows and the code fails open: **"Modo mantenimiento" is silently dead in prod today** — the admin toggle saves, and no visitor ever sees the overlay (the G-011 "controls that lie" class, now with a confirmed cause). (b) `…0001_admin_notifications_delete.sql` — missing in prod but **harmless**: `admin_notifications_admin_all` has no `FOR` clause, so it is `FOR ALL` and already covers DELETE. Fix for (a) = apply that one migration to prod (idempotent, one policy). **S01 did not touch prod.**
+- **G-016** **`is_aal2()` is a stub — its body is literally `select true`.** Every policy that *reads* as MFA-gated is therefore only `is_admin()`: `dinterests_staff_all` (the visitor/minors' PII table) and the three `Gallery staff` storage write policies. **DB-side MFA is NOT enforced today**, which is consistent with D-010 (the `aal2` migration is owed by S39) but dangerously invisible — the policies look done. S39 must replace the body with a real `auth.jwt() ->> 'aal' = 'aal2'` check; until then never cite an `is_aal2()` policy as evidence that MFA is enforced.
+- **G-017** Audit findings **recorded, not fixed** (S01 captures current state; hardening is S39): (a) the `event-images` bucket's write policies are named "Admins can upload/delete" but never call `is_admin()` — **any authenticated user** can upload to or delete from it; (b) `fin_funds` / `fin_income_categories` / `fin_expense_categories` are `using (true)` for **all** authenticated users, not just finance (this is `supabase/README.md`'s own open question — names/categories only, no amounts); (c) `newsletter_subscribers` anon INSERT is `with check (true)` — no email validation or rate limit.
 
 ## 4. How prod deploys today (don't relearn this every session)
 

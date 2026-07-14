@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260703_profile_avatar.sql — self-service profile photo (avatar)
+-- 20260703000001_profile_avatar.sql — self-service profile photo (avatar)
 -- ============================================================================
 -- Run in the Supabase SQL Editor.
 --

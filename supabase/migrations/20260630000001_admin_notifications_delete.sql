@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260630_admin_notifications_delete.sql — allow admins to clear notifications
+-- 20260630000001_admin_notifications_delete.sql — allow admins to clear notifications
 -- ============================================================================
 -- The notification bell's "Limpiar" button deletes all admin_notifications rows.
 -- The table was read/insert/update only, so DELETE was blocked. Idempotent.

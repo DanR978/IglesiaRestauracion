@@ -1,7 +1,7 @@
 -- ============================================================================
--- 20260704_ministry_budget_projects.sql — ministry budgets as project tabs
+-- 20260704000001_ministry_budget_projects.sql — ministry budgets as project tabs
 -- ============================================================================
--- Run AFTER 20260701_fin_projects.sql and 20260702_multi_ministry.sql.
+-- Run AFTER 20260701000001_fin_projects.sql and 20260702000002_multi_ministry.sql.
 --
 -- A ministry a leader is assigned to becomes its OWN tab in their project
 -- treasury (a fin_projects row with ministry_id set, auto-created by the app the

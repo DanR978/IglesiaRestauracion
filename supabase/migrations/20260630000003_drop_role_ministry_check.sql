@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260630_drop_role_ministry_check.sql — retire "ministry_leader needs a
+-- 20260630000003_drop_role_ministry_check.sql — retire "ministry_leader needs a
 -- ministry" check constraints
 -- ============================================================================
 -- The old model required a ministry_leader to have a ministry_id, enforced by
