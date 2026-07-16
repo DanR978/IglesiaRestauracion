@@ -84,7 +84,7 @@
   display: none;
   align-items: center;
   justify-content: center;
-  color: var(--gray-100);
+  color: var(--color-muted);
   font-size: 4rem;
   background: var(--gray-20);
 }

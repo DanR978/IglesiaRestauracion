@@ -15,11 +15,11 @@
 .ev2-topbar {
   display: flex; align-items: center; justify-content: center;
   padding: 1rem; border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .15));
-  background: var(--color-white);
+  background: var(--color-surface);
 }
 .ev2-topbar__brand {
   font-family: var(--font-Signika); font-weight: 700; letter-spacing: .02em;
-  font-size: var(--fs-md); color: var(--color-dark); text-decoration: none;
+  font-size: var(--fs-md); color: var(--color-text); text-decoration: none;
 }
 
 /* ── Event detail — clean two-column (main: title/date/details · side: image/location) ── */
@@ -40,7 +40,7 @@
   font-size: var(--fs-base); color: var(--color-muted);
   margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
 }
-.ev2__crumbs a { color: var(--color-dark); text-decoration: none; font-weight: 600; }
+.ev2__crumbs a { color: var(--color-text); text-decoration: none; font-weight: 600; }
 .ev2__crumbs a:hover { text-decoration: underline; }
 
 .ev2__grid {
@@ -88,7 +88,7 @@
   border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .22));
 }
 .ev2__body { color: var(--color-text); line-height: 1.75; font-size: clamp(1.05rem, 1rem + .45vw, 1.2rem); }
-.ev2__orglink { color: var(--color-dark); text-decoration: underline; word-break: break-word; }
+.ev2__orglink { color: var(--color-text); text-decoration: underline; word-break: break-word; }
 
 /* Sidebar */
 .ev2__media {
@@ -101,7 +101,7 @@
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: 0 8px 26px rgba(14, 45, 56, .06);
 }
 /* Plain location section in the sidebar (replaces the old bordered card). */
@@ -119,10 +119,10 @@
   margin-top: .6rem; padding: .4rem .85rem;
   border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-full);
-  font-size: .82rem; font-weight: 600; color: var(--color-dark);
+  font-size: .82rem; font-weight: 600; color: var(--color-text);
   text-decoration: none; transition: border-color .2s, color .2s;
 }
-.ev2__pill:hover { border-color: var(--color-dark); }
+.ev2__pill:hover { border-color: var(--color-text); }
 
 /* Hide the floating WhatsApp cluster on these focused event pages to keep the
    single register CTA the clear, uncluttered call to action. */
@@ -148,7 +148,7 @@
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
   border-radius: var(--radius-lg);
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: 0 12px 32px rgba(14, 45, 56, .08);
 }
 .ee-reg-card .ed-title { margin: .35rem 0 0; }

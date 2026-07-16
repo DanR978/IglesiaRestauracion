@@ -665,7 +665,7 @@
 /* Section label between field groups (e.g. Padre/Tutor vs. Emergencia). */
 .sw-section-label {
   font-family: var(--font-Signika); font-weight: 700; font-size: 0.82rem;
-  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-dark, #2d4e57);
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text, #2d4e57);
   margin: 1.1rem 0 0.6rem; padding-bottom: 0.3rem;
   border-bottom: 1px solid rgba(45, 78, 87, 0.14);
 }
@@ -680,7 +680,7 @@
 .sw-pcard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
 .sw-pcard__title {
   font-family: var(--font-Signika); font-weight: 700; font-size: 0.84rem;
-  color: var(--color-dark, #2d4e57);
+  color: var(--color-text, #2d4e57);
 }
 .sw-pcard__remove {
   border: 0; background: transparent; color: var(--color-muted);
@@ -692,7 +692,7 @@
 .sw-add {
   display: inline-flex; align-items: center; gap: 0.45rem;
   border: 1.5px dashed rgba(45, 78, 87, 0.32); background: transparent;
-  color: var(--color-dark, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
+  color: var(--color-text, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
   font-size: 0.82rem; padding: 0.6rem 1.1rem; border-radius: 10px; cursor: pointer;
   transition: background 0.18s, border-color 0.18s;
 }

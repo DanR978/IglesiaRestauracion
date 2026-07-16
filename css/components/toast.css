@@ -43,8 +43,8 @@
 /* Card base (neutral defaults) */
 .toast {
   pointer-events: auto;
-  background-color: var(--color-white);
-  /* neutral = white */
+  background-color: var(--color-surface);
+  /* neutral = page panel */
   color: var(--color-text);
   /* neutral text */
   border-radius: 12px;

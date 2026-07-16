@@ -459,7 +459,7 @@
   line-height: 1;
 }
 
-.dscp-day__count--zero { color: var(--gray-100); }
+.dscp-day__count--zero { color: var(--color-muted); }
 
 .dscp-day__label {
   font-family: var(--font-Geist);

@@ -44,7 +44,7 @@
   cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
 }
-.gal-fbtn:hover   { border-color: var(--color-dark); }
+.gal-fbtn:hover   { border-color: var(--color-text); }
 .gal-fbtn:active  { transform: scale(0.98); }
 
 .gal-fbtn__icon {
@@ -170,7 +170,7 @@
   align-items: center;
   gap: 0.55rem;
   padding: 0.65rem 0.9rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid var(--gray-30);
   border-radius: var(--radius-md, 0.625rem);
   transition: border-color 0.18s ease;
@@ -237,7 +237,7 @@
 .gal-btn--solid { background: var(--color-dark); color: var(--color-white); }
 .gal-btn--solid:hover { filter: brightness(1.1); }
 .gal-btn--ghost { background: transparent; border-color: var(--gray-30); color: var(--color-muted); }
-.gal-btn--ghost:hover { border-color: var(--color-dark); color: var(--color-text); }
+.gal-btn--ghost:hover { border-color: var(--color-text); color: var(--color-text); }
 .gal-btn--full { flex: 1 1 100%; }
 
 /* ── iOS-style year wheel ────────────────────────────────────────────── */

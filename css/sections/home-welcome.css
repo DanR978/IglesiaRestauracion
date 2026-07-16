@@ -61,7 +61,7 @@
 .home-welcome__card {
   position: relative;
   padding: 2.25rem 1.75rem 2rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid var(--gray-30);
   border-radius: var(--radius-lg, 1rem);
   transition:

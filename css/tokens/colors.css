@@ -15,6 +15,14 @@
      Use this for headings/body text that should always read against the
      page background. (--color-dark is a fixed slate used for surfaces.) */
   --color-text: #394548;
+  /* --color-surface is the AUTO-REVERSING panel color: cards, modals, toasts,
+     form fields — anything raised off the page background.
+     Light mode → white. Dark mode → a slate lifted just off --color-bg-light.
+     Pair it with --color-text / --color-muted, which reverse to match.
+     Do NOT use --color-white for a panel: that token stays light in both
+     themes on purpose (it is the WHITE INK used on dark/teal fills), so a
+     panel built on it strands --color-text as light-on-light in dark mode. */
+  --color-surface: #ffffff;
   --color-white: #ffffff;
   --color-black: #000000;
   --color-darkmode-font: #c2e6ff;
@@ -142,6 +150,10 @@
     --color-dark: #313537;
     /* Foreground text auto-reverses to light here. */
     --color-text: #f0f5f7;
+    /* Panels lift just off --color-bg-light (#121c1f) rather than going white:
+       1.12:1 against the page (a visible edge, not a glare), while --color-text
+       clears 14.1:1 and --color-muted 5.7:1 on top of it. */
+    --color-surface: #1a262a;
     --color-white: #dfdedc;
     --color-black: #dfdedc;
     --color-darkmode-font: #e6faff;
@@ -229,7 +241,10 @@
 
   :root:not([data-theme="light"]):not([data-theme="dark"]) body {
     background-color: var(--color-bg-light) !important;
-    color: var(--color-dark);
+    /* --color-dark here set the default text to #313537 on a #121c1f page
+       (1.2:1 — invisible). Every element that does not set its own colour
+       inherits this, so it must be the reversing foreground token. */
+    color: var(--color-text);
   }
 }
 
@@ -249,6 +264,7 @@
   --color-muted: #aa9b8c;
   --color-dark: #313537;
   --color-text: #f0f5f7;
+  --color-surface: #1a262a;
   --color-white: #dfdedc;
   --color-black: #dfdedc;
   --color-darkmode-font: #e6faff;
@@ -332,5 +348,5 @@
 
 :root[data-theme="dark"] body {
   background-color: var(--color-bg-light) !important;
-  color: var(--color-dark);
+  color: var(--color-text);
 }

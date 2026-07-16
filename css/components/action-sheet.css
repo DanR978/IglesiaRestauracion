@@ -141,7 +141,7 @@
 }
 
 /* Variants */
-.act-sheet__row--default { color: var(--color-dark, #394548); }
+.act-sheet__row--default { color: var(--color-text, #394548); }
 .act-sheet__row--warn    { color: #d97706; }   /* amber */
 .act-sheet__row--danger  { color: #dc2626; }   /* red */
 

@@ -258,7 +258,7 @@
 
 .event__addcal:hover {
   background-color: var(--color-white);
-  color: var(--color-text);
+  color: var(--color-dark);
   text-decoration: none;
 }
 
