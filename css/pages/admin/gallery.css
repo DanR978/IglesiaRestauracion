@@ -328,3 +328,11 @@
 
 .gal-adm-photo__btn:hover { background: #fff; }
 .gal-adm-photo__btn--danger { color: var(--color-danger); }
+
+/* Field hint under a form control — e.g. what linking an album to an event does. */
+.gal-hint {
+  display: block;
+  font-size: .72rem;
+  color: var(--color-muted);
+  margin: .35rem 0 0;
+}

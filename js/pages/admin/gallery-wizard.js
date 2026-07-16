@@ -15,12 +15,14 @@ import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { EVENT_TYPES, EVENT_TYPE_LABEL, upsertAlbum } from '/js/lib/gallery.js';
+import { loadEventOptions, eventOptionsHtml } from './event-link.js';
 import { toast } from './ui.js';
 
 /* ── State ──────────────────────────────────────────────────────────── */
 let step = 1;
 let data = blankData();
 let onCreated = null;
+let eventOptions = [];
 
 function blankData() {
   return {
@@ -28,6 +30,7 @@ function blankData() {
     title: '',
     event_date: '',
     description: '',
+    special_event_id: '',
     is_published: true,
   };
 }
@@ -42,6 +45,9 @@ export function openGalleryWizard(opts = {}) {
   renderStep();
   $('gwizBackdrop')?.classList.add('open');
   document.body.style.overflow = 'hidden';
+  // Step 3 needs these. Warm the cache now (step 1 is a click-through, so it has
+  // landed long before), and re-render only if we're somehow already there.
+  loadEventOptions().then(list => { eventOptions = list; if (step === 3) renderStep3(); });
 }
 
 export function closeGalleryWizard() {
@@ -167,6 +173,12 @@ function renderStep3() {
     </div>
 
     <div class="wiz-field">
+      <label><i class="fas fa-calendar-star" style="margin-right:4px;opacity:.5"></i> Evento relacionado</label>
+      <select id="gwizEvent">${eventOptionsHtml(eventOptions, data.special_event_id)}</select>
+      <div class="wiz-hint">¿Son fotos de un evento con inscripción (EBV, retiro…)? Enlázalo y ese evento mostrará un botón “Ver fotos” en cuanto publiques el álbum con fotos</div>
+    </div>
+
+    <div class="wiz-field">
       <label style="display:flex;align-items:center;gap:.5rem;text-transform:none;font-size:.88rem;font-weight:500;letter-spacing:0;cursor:pointer">
         <input type="checkbox" id="gwizPublished" ${data.is_published ? 'checked' : ''} style="width:auto;accent-color:var(--color-dark)">
         Visible en la galería pública
@@ -183,10 +195,12 @@ function renderStep3() {
 
   // Persist on input so review reflects them
   $('gwizDesc')?.addEventListener('input', e => data.description = e.target.value);
+  $('gwizEvent')?.addEventListener('change', e => data.special_event_id = e.target.value);
   $('gwizPublished')?.addEventListener('change', e => data.is_published = e.target.checked);
 
   $('gwizStep3Next')?.addEventListener('click', () => {
     data.description = $('gwizDesc').value;
+    data.special_event_id = $('gwizEvent')?.value || '';
     data.is_published = $('gwizPublished').checked;
     step = 4; renderStep();
   });
@@ -205,6 +219,7 @@ function renderStep4() {
       <div class="dwiz-review__row"><i class="fas fa-folder-open"></i> ${escapeHtml(typeLabel)}</div>
       <div class="dwiz-review__row"><i class="fas fa-tag"></i> ${escapeHtml(data.title)}</div>
       <div class="dwiz-review__row"><i class="fas fa-calendar-day"></i> ${formatDate(data.event_date)}</div>
+      ${linkedEventTitle() ? `<div class="dwiz-review__row"><i class="fas fa-calendar-star"></i> ${escapeHtml(linkedEventTitle())}</div>` : ''}
       ${data.description ? `<div class="dwiz-review__row"><i class="fas fa-align-left"></i> ${escapeHtml(truncate(data.description, 90))}</div>` : ''}
       <div class="dwiz-review__row"><i class="fas fa-${data.is_published ? 'eye' : 'eye-slash'}"></i> ${data.is_published ? 'Visible al público' : 'Solo borrador'}</div>
     </div>
@@ -235,13 +250,14 @@ async function createAlbum() {
   const year = data.event_date ? Number(data.event_date.split('-')[0]) : new Date().getFullYear();
 
   const payload = {
-    title:        data.title,
+    title:            data.title,
     year,
-    event_type:   data.event_type || null,
-    event_date:   data.event_date || null,
-    description:  data.description?.trim() || null,
-    is_published: !!data.is_published,
-    is_featured:  false,
+    event_type:       data.event_type || null,
+    event_date:       data.event_date || null,
+    special_event_id: data.special_event_id || null,
+    description:      data.description?.trim() || null,
+    is_published:     !!data.is_published,
+    is_featured:      false,
   };
 
   try {
@@ -258,6 +274,11 @@ async function createAlbum() {
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
 
+
+function linkedEventTitle() {
+  if (!data.special_event_id) return '';
+  return eventOptions.find(e => e.id === data.special_event_id)?.title || '';
+}
 
 function escapeText(s) { return escapeHtml(s); }
 function truncate(s, n) { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '…' : s; }

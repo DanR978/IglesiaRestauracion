@@ -4,8 +4,8 @@
 // card with the event title + a button to (re)open it — so direct links and
 // closing the wizard both leave a sensible page.
 
-import { sb } from '/js/lib/supabase.js';
 import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
+import { fetchEventBy, isRegistrationOpen } from '/js/lib/special-events.js';
 
 const $ = (id) => document.getElementById(id);
 const show = (id) => { const el = $(id); if (el) el.style.display = ''; };
@@ -21,13 +21,11 @@ async function loadEvent() {
   if (!slug && !id) return showError();
 
   try {
-    let q = sb.from('special_events').select('*');
-    q = slug ? q.eq('slug', slug) : q.eq('id', id);
-    const { data, error } = await q.single();
-    if (error || !data) return showError();
-    const past = data.event_at ? (() => { try { return new Date(data.event_at).getTime() < Date.now(); } catch { return false; } })() : false;
-    const isOpen = data.registration_open && data.status !== 'closed' && data.status !== 'completed' && !past;
-    if (!isOpen) return showError('Las inscripciones se han cerrado. Por favor, contacta al pastor para recibir ayuda.');
+    const data = await fetchEventBy({ slug, id });
+    if (!data) return showError();
+    // `registration_open` alone, matching the `event_reg_insert` RLS policy —
+    // no date check, so an admin re-opening an ended event really re-opens it.
+    if (!isRegistrationOpen(data)) return showError('Las inscripciones se han cerrado. Por favor, contacta al pastor para recibir ayuda.');
 
     currentEvent = data;
     $('reg-event-title').textContent = data.title || 'Evento';

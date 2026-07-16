@@ -436,21 +436,29 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label for="seDate">Fecha y hora</label>
+            <label for="seDate">Fecha y hora de inicio</label>
             <input type="datetime-local" id="seDate">
           </div>
+          <div class="form-group">
+            <label for="seEndDate">Fecha y hora de término</label>
+            <input type="datetime-local" id="seEndDate">
+            <small class="se-hint">Cuándo termina el evento. Para uno de varios días (EBV), pon el último día. Si lo dejas vacío, termina al final del día de inicio.</small>
+          </div>
+        </div>
+        <div class="form-row">
           <div class="form-group">
             <label for="seLocation">Ubicación</label>
             <input type="text" id="seLocation" value="2601 Clays Mill Rd, Lexington, KY 40503">
           </div>
-        </div>
-        <div class="form-group">
-          <label for="seStatus">Estado de inscripción</label>
-          <select id="seStatus">
-            <option value="open">Abierto — acepta inscripciones</option>
-            <option value="closed">Cerrado — no acepta inscripciones</option>
-            <option value="completed">Completado — el evento ya terminó</option>
-          </select>
+          <div class="form-group">
+            <label for="seStatus">Estado de inscripción</label>
+            <select id="seStatus">
+              <option value="open">Abierto — acepta inscripciones</option>
+              <option value="closed">Cerrado — no acepta inscripciones</option>
+              <option value="completed">Completado — el evento ya terminó</option>
+            </select>
+            <small class="se-hint" id="seStatusHint" hidden></small>
+          </div>
         </div>
         <div class="form-group">
           <label>Grupos por edad (opcional)</label>
@@ -888,6 +896,12 @@
             <label>Fecha del evento</label>
             <input type="date" id="galAdmDate">
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="galAdmEvent">Evento relacionado</label>
+          <select id="galAdmEvent"></select>
+          <small class="gal-hint">Si estas fotos son de un evento con inscripción (EBV, retiro…), enlázalo aquí. El evento mostrará un botón “Ver fotos” en cuanto el álbum esté publicado y tenga fotos.</small>
         </div>
 
         <div class="form-group">

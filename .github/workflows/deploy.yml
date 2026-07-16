@@ -65,7 +65,7 @@ jobs:
       # backend, CI, and dependencies are stripped so they never reach the web.
       - name: Prune non-public files from the deploy artifact
         run: |
-          rm -rf node_modules .git .github scripts supabase \
+          rm -rf node_modules .git .github scripts supabase tests \
                  deno.lock vite.config.js \
                  package.json package-lock.json optimized
 

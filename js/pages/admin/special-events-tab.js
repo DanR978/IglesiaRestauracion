@@ -18,6 +18,8 @@ import { sb, currentUser } from './state.js';
 import { toast, confirm } from './ui.js';
 import { html, esc } from '/js/utils/escape.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { eventPhase, eventEndsAt } from '/js/lib/special-events.js';
+import { invalidateEventOptions } from './event-link.js';
 import { generateQrDataUrl, generateQrBlob, copyText, slugifyTitle } from '/js/lib/qr.js';
 import { formatUSPhoneNational } from '/js/lib/validators.js';
 import { mountRichText } from '/js/lib/rich-text.js';
@@ -109,24 +111,24 @@ function fmtDateTime(iso) {
     });
   } catch { return iso; }
 }
-// Effective lifecycle state for display: an explicit status, but an event whose
-// date has passed reads as "Finalizado" even if it was left open (the INSERT gate
-// also refuses past-date registrations — see 20260627_event_lifecycle.sql).
-function isPast(ev) {
-  if (!ev?.event_at) return false;
-  try { return new Date(ev.event_at).getTime() < Date.now(); } catch { return false; }
-}
+// Effective lifecycle state for display. An event that is still taking sign-ups
+// after it ended reads as "Abierto (terminado)" — that combination is legal now
+// (an admin can deliberately re-open an ended event), so the badge has to show
+// it rather than quietly relabel it. See 20260716_event_lifecycle.sql.
 function effectiveStatus(ev) {
   const s = ev?.status || (ev?.registration_open === false ? 'closed' : 'open');
-  if (s === 'open' && isPast(ev)) return 'finished';
-  return s;
+  if (s !== 'open') return s;
+  const phase = eventPhase(ev);
+  if (phase === 'running') return 'running';
+  return (phase === 'ended' || phase === 'gone') ? 'reopened' : 'open';
 }
 function statusBadge(ev) {
   const map = {
     open:      ['cat--servicio', 'Abierto'],
+    running:   ['cat--servicio', 'Abierto · En curso'],
+    reopened:  ['cat--especial', 'Abierto · Terminado'],
     closed:    ['cat--otro',     'Cerrado'],
     completed: ['cat--otro',     'Completado'],
-    finished:  ['cat--otro',     'Finalizado'],
   };
   const [cls, label] = map[effectiveStatus(ev)] || map.open;
   return `<span class="cat-badge ${cls}">${label}</span>`;
@@ -181,6 +183,10 @@ function boot() {
   $('sePrintWaiver')?.addEventListener('click', printWaiver);
 
   $('seAgeGroupAdd')?.addEventListener('click', addAgeGroup);
+
+  // Keep the "what happens when you save" hint honest while the dates change.
+  $('seDate')?.addEventListener('change', renderStatusHint);
+  $('seEndDate')?.addEventListener('change', renderStatusHint);
 
   mountImgPicker();
   if ($('seDescEditor')) descEditor = mountRichText($('seDescEditor'), { placeholder: 'De qué se trata el evento...' });
@@ -285,11 +291,13 @@ function openNewEvent() {
   descEditor?.setHtml('');
   infoEditor?.setHtml('');
   $('seDate').value     = '';
+  $('seEndDate').value  = '';
   $('seLocation').value = DEFAULT_LOC;
   $('seStatus').value   = 'open';
   ageGroupsDraft = [];
   renderAgeGroupEditor();
   clearImg();
+  renderStatusHint();
   $('seFormError').style.display = 'none';
   seShowView('form');
 }
@@ -303,14 +311,46 @@ function openEditEvent(id) {
   descEditor?.setHtml(ev.description || '');
   infoEditor?.setHtml(ev.information || '');
   $('seDate').value     = ev.event_at ? toLocalDTInput(ev.event_at) : '';
+  $('seEndDate').value  = ev.ends_at ? toLocalDTInput(ev.ends_at) : '';
   $('seLocation').value = ev.location || DEFAULT_LOC;
   $('seStatus').value   = ev.status || (ev.registration_open === false ? 'closed' : 'open');
   ageGroupsDraft = normalizeAgeGroups(ev.age_groups);
   renderAgeGroupEditor();
   clearImg();
   if (ev.image_url) setImg(ev.image_url);
+  renderStatusHint();
   $('seFormError').style.display = 'none';
   seShowView('form');
+}
+
+// Say plainly what the automation will do with the dates currently in the form —
+// this form used to let you set "Abierto" on an ended event and silently do
+// nothing. Reads the live inputs, not the stored row, so it stays true while the
+// admin edits (e.g. giving an ended event a future end date to reopen it).
+function renderStatusHint() {
+  const el = $('seStatusHint');
+  if (!el) return;
+  const dateVal = $('seDate')?.value;
+  if (!dateVal) {
+    el.textContent = 'Sin fecha de inicio: las inscripciones quedan abiertas hasta que las cierres tú.';
+    el.hidden = false;
+    return;
+  }
+  const endVal = $('seEndDate')?.value;
+  const draft = {
+    event_at: new Date(dateVal).toISOString(),
+    ends_at:  endVal ? new Date(endVal).toISOString() : null,
+  };
+  const phase = eventPhase(draft);
+  const ends  = eventEndsAt(draft);
+  if (phase === 'ended' || phase === 'gone') {
+    el.textContent = 'Este evento ya terminó. Si lo pones en “Abierto” se reabre de verdad y seguirá abierto hasta que lo cierres tú.';
+  } else if (phase === 'running') {
+    el.textContent = `En curso. Las inscripciones se cierran solas cuando termine (${fmtDateTime(ends?.toISOString())}).`;
+  } else {
+    el.textContent = `Las inscripciones se cierran solas al terminar el evento (${fmtDateTime(ends?.toISOString())}).`;
+  }
+  el.hidden = false;
 }
 
 // ── Age groups editor (stored as JSON on the event) ──────────────────────────
@@ -394,7 +434,22 @@ async function saveEvent() {
 
   const id = $('seId').value;
   const dateVal = $('seDate').value;
+  const endVal  = $('seEndDate').value;
   const status = $('seStatus').value || 'open';
+
+  // Mirrors the special_events_ends_after_start CHECK, so the admin gets a
+  // Spanish message instead of a Postgres constraint error.
+  if (endVal && dateVal && new Date(endVal).getTime() < new Date(dateVal).getTime()) {
+    errEl.textContent = 'La fecha de término no puede ser anterior a la de inicio.';
+    errEl.style.display = '';
+    return;
+  }
+  if (endVal && !dateVal) {
+    errEl.textContent = 'Pon primero la fecha de inicio.';
+    errEl.style.display = '';
+    return;
+  }
+
   const descHtml = descEditor?.getHtml() || '';   // already sanitized by the editor
   const infoHtml = infoEditor?.getHtml() || '';
   const payload = {
@@ -403,9 +458,10 @@ async function saveEvent() {
     description:       htmlIsEmpty(descHtml) ? null : descHtml,
     information:       htmlIsEmpty(infoHtml) ? null : infoHtml,
     event_at:          dateVal ? new Date(dateVal).toISOString() : null,
+    ends_at:           endVal ? new Date(endVal).toISOString() : null,
     location:          $('seLocation').value.trim() || null,
     status:            status,
-    // `registration_open` stays the RLS gate; keep it in sync with status.
+    // `registration_open` is the RLS gate; keep it in sync with status.
     registration_open: status === 'open',
     age_groups:        cleanAgeGroups(ageGroupsDraft),
   };
@@ -430,6 +486,10 @@ async function saveEvent() {
   btn.disabled = false;
   btn.innerHTML = original;
   if (error) { errEl.textContent = error.message; errEl.style.display = ''; return; }
+
+  // The Galería album picker caches this list — a renamed or brand-new event
+  // has to show up there without a page reload.
+  invalidateEventOptions();
 
   toast(id ? 'Evento actualizado' : 'Evento creado', 'success');
   if (savedId) openDetail(savedId);

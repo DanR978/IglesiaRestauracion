@@ -14,6 +14,7 @@ import { sb }           from '/js/lib/supabase.js';
 import { CalendarGrid } from '/js/components/CalendarGrid.js';
 import { esc }          from '/js/utils/escape.js';
 import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
+import { eventPhase, isRegistrationOpen, PHASE_LABEL } from '/js/lib/special-events.js';
 
 const DAYS_S = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const DAYS_L = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -54,7 +55,7 @@ async function load() {
   const [cal, evt, reg] = await Promise.all([
     sb.from('calendar_events').select('id, title, date, time, location, description, category, cancelled').order('date'),
     sb.from('events').select('id, title, starts_at, location, description, image_url, tag').order('starts_at'),
-    sb.from('special_events').select('id, title, slug, image_url, description, event_at, location, registration_open').order('event_at'),
+    sb.from('special_events').select('id, title, slug, image_url, description, event_at, ends_at, location, registration_open').order('event_at'),
   ]);
 
   const regular = (cal.data || []).map(r => ({
@@ -81,10 +82,11 @@ async function load() {
       time: `${(d.getHours() % 12) || 12}:${pad(d.getMinutes())} ${d.getHours() >= 12 ? 'PM' : 'AM'}`,
       location: r.location || '', description: r.description || '', category: 'registro', cancelled: false,
       image_url: r.image_url || '', _source: 'reg',
-      // Sign-up is offered only while open AND the date hasn't passed — matches
-      // the public page + the server-side INSERT gate (20260627_event_lifecycle.sql).
+      // `registration_open` is the whole gate — same as the public page and the
+      // server-side INSERT policy (20260716_event_lifecycle.sql).
       url: `/eventos/evento-especial.html?e=${encodeURIComponent(r.slug)}`,
-      signup: !!r.registration_open && d.getTime() >= Date.now(),
+      signup: isRegistrationOpen(r),
+      _row: r,   // phase is derived at render time — a tab left open overnight must not freeze it
     };
   });
 
@@ -156,8 +158,10 @@ function renderFeatured() {
   // EVB). The monthly scheduled "special" events (Caballeros, Damas, Vigilia… in
   // the events table) are predictable rhythm — they stay in the list below, not
   // here. Registration events are their own thing, so they're the right tag.
-  const feat = upcoming(filtered())
-    .filter(e => e._source === 'reg')
+  // Still worth attending: upcoming or under way. A multi-day event stays here
+  // while it runs — its start date is behind us, but it isn't over.
+  const feat = filtered()
+    .filter(e => e._source === 'reg' && ['upcoming', 'running'].includes(eventPhase(e._row)))
     .slice(0, 3);
   if (!feat.length) { host.innerHTML = ''; return; }
   host.innerHTML = `<h2 class="evhub__h">Destacado</h2>` + feat.map(e => `
@@ -167,6 +171,7 @@ function renderFeatured() {
       <div class="evhub-feat__body">
         <div class="evhub-feat__title">${esc(e.title)}</div>
         <div class="evhub-feat__date">${esc(longDate(e.date))}</div>
+        ${eventPhase(e._row) === 'running' ? `<span class="evhub-badge evhub-badge--live">${esc(PHASE_LABEL.running)}</span>` : ''}
         ${e.signup ? `<span class="evhub-badge evhub-badge--signup">Inscripciones disponibles</span>` : ''}
       </div>
     </a>`).join('');

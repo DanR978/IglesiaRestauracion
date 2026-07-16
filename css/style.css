@@ -17,6 +17,14 @@
      Use this for headings/body text that should always read against the
      page background. (--color-dark is a fixed slate used for surfaces.) */
   --color-text: #394548;
+  /* --color-surface is the AUTO-REVERSING panel color: cards, modals, toasts,
+     form fields — anything raised off the page background.
+     Light mode → white. Dark mode → a slate lifted just off --color-bg-light.
+     Pair it with --color-text / --color-muted, which reverse to match.
+     Do NOT use --color-white for a panel: that token stays light in both
+     themes on purpose (it is the WHITE INK used on dark/teal fills), so a
+     panel built on it strands --color-text as light-on-light in dark mode. */
+  --color-surface: #ffffff;
   --color-white: #ffffff;
   --color-black: #000000;
   --color-darkmode-font: #c2e6ff;
@@ -144,6 +152,10 @@
     --color-dark: #313537;
     /* Foreground text auto-reverses to light here. */
     --color-text: #f0f5f7;
+    /* Panels lift just off --color-bg-light (#121c1f) rather than going white:
+       1.12:1 against the page (a visible edge, not a glare), while --color-text
+       clears 14.1:1 and --color-muted 5.7:1 on top of it. */
+    --color-surface: #1a262a;
     --color-white: #dfdedc;
     --color-black: #dfdedc;
     --color-darkmode-font: #e6faff;
@@ -231,7 +243,10 @@
 
   :root:not([data-theme="light"]):not([data-theme="dark"]) body {
     background-color: var(--color-bg-light) !important;
-    color: var(--color-dark);
+    /* --color-dark here set the default text to #313537 on a #121c1f page
+       (1.2:1 — invisible). Every element that does not set its own colour
+       inherits this, so it must be the reversing foreground token. */
+    color: var(--color-text);
   }
 }
 
@@ -251,6 +266,7 @@
   --color-muted: #aa9b8c;
   --color-dark: #313537;
   --color-text: #f0f5f7;
+  --color-surface: #1a262a;
   --color-white: #dfdedc;
   --color-black: #dfdedc;
   --color-darkmode-font: #e6faff;
@@ -334,7 +350,7 @@
 
 :root[data-theme="dark"] body {
   background-color: var(--color-bg-light) !important;
-  color: var(--color-dark);
+  color: var(--color-text);
 }
 /* -- tokens radius -- */
 :root {
@@ -986,7 +1002,7 @@ main:focus {
 }
 
 /* Variants */
-.act-sheet__row--default { color: var(--color-dark, #394548); }
+.act-sheet__row--default { color: var(--color-text, #394548); }
 .act-sheet__row--warn    { color: #d97706; }   /* amber */
 .act-sheet__row--danger  { color: #dc2626; }   /* red */
 
@@ -1152,7 +1168,11 @@ main:focus {
 }
 
 .ird-btn--outline.ird-btn--white-empty {
-  color: var(--transparent);
+  /* Filled with --color-white, which stays light in both themes, so the label
+     needs fixed dark ink. (This previously said `var(--transparent)` — no such
+     token, so the declaration was invalid and the label silently inherited
+     body's colour, which only looked right while body was dark.) */
+  color: var(--color-dark);
   background-color: var(--color-white);
   border-color: transparent;
 }
@@ -1178,7 +1198,7 @@ main:focus {
 
 .ird-btn--outline.ird-btn--white-fill:hover {
   background-color: var(--color-white);
-  color: var(--color-text);
+  color: var(--color-dark);
   border-color: var(--color-white);
   box-shadow: 0 8px 20px rgba(45, 78, 87, 0.3);
 }
@@ -2150,8 +2170,8 @@ body.floating-ui--dismissed .whatsapp-fab { animation: none; }
 /* Card base (neutral defaults) */
 .toast {
   pointer-events: auto;
-  background-color: var(--color-white);
-  /* neutral = white */
+  background-color: var(--color-surface);
+  /* neutral = page panel */
   color: var(--color-text);
   /* neutral text */
   border-radius: 12px;
@@ -2505,7 +2525,7 @@ label {
   font-size: var(--fs-md);
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: var(--color-info);
+  color: var(--color-text);
 }
 
 input,
@@ -2987,7 +3007,7 @@ textarea {
 
 .event__addcal:hover {
   background-color: var(--color-white);
-  color: var(--color-text);
+  color: var(--color-dark);
   text-decoration: none;
 }
 
@@ -5630,7 +5650,7 @@ body.no-scroll {
   display: none;
   align-items: center;
   justify-content: center;
-  color: var(--gray-100);
+  color: var(--color-muted);
   font-size: 4rem;
   background: var(--gray-20);
 }
@@ -5805,7 +5825,7 @@ body.no-scroll {
 .home-welcome__card {
   position: relative;
   padding: 2.25rem 1.75rem 2rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid var(--gray-30);
   border-radius: var(--radius-lg, 1rem);
   transition:
@@ -6843,7 +6863,7 @@ body.no-scroll {
   width: 100%;
   max-width: 520px;
   max-height: min(82vh, 720px);
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-lg, 1rem);
   padding: 1.5rem 1.5rem calc(1.75rem + env(safe-area-inset-bottom));
   overflow-y: auto;
@@ -7032,7 +7052,7 @@ body.no-scroll {
    Depends on tokens: colors, radius, typography. */
 
 .cal-grid-wrap {
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -7044,7 +7064,7 @@ body.no-scroll {
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  background: var(--color-white);
+  background: var(--color-surface);
 }
 
 /* ── Weekday header row ──────────────────────────────── */
@@ -7115,7 +7135,10 @@ body.no-scroll {
   justify-content: center;
 }
 
-.cal-day--past .cal-day__num  { color: var(--gray-120); }
+/* De-emphasised day numbers use --color-muted, not the --gray-* surface scale:
+   those tokens get DARKER in dark mode (--gray-120 → #505050), so a dimmed
+   number sank into the cell. --color-muted reverses with the text instead. */
+.cal-day--past .cal-day__num  { color: var(--color-muted); }
 .cal-day--empty .cal-day__num { visibility: hidden; }
 
 /* ── Neighbor-month cells (iOS-style "ghost" days at the edges) ─── */
@@ -7124,8 +7147,8 @@ body.no-scroll {
   cursor: default;
 }
 .cal-day--neighbor .cal-day__num {
-  color: var(--gray-110);
-  opacity: 0.65;
+  color: var(--color-muted);
+  opacity: 0.7;
 }
 .cal-day--neighbor:hover { background: var(--gray-10); }
 
@@ -7265,7 +7288,6 @@ body.no-scroll {
   /* Neighbor-month cells in dark mode */
   .cal-day--neighbor { background: #1a2225; }
   .cal-day--neighbor:hover { background: #1a2225; }
-  .cal-day--neighbor .cal-day__num { color: rgba(230, 236, 238, 0.32); }
 
   /* Day number — readable light text */
   .cal-day__num { color: #e6ecee; }
@@ -7308,15 +7330,6 @@ body.no-scroll {
 
   .cal-day__events { display: none; }
   .cal-day__dot-row { display: flex; padding: 0 5px; }
-}
-
-@media (prefers-color-scheme: dark) {
-  .cal-day {
-    background: var(--gray-10);
-  }
-  .cal-day--past {
-    background: var(--gray-30);
-  }
 }
 /* -- pages calendar legend -- */
 /* calendar/legend.css
@@ -7451,7 +7464,7 @@ body.no-scroll {
   gap: 0.75rem;
   padding: 0.7rem 0.85rem;
   margin-bottom: 0.35rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1.5px solid var(--gray-50);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -7682,7 +7695,7 @@ body.no-scroll {
 }
 
 .cal-modal {
-  background: var(--color-white);
+  background: var(--color-surface);
   border-radius: 20px 20px 0 0;
   width: 100%;
   max-width: 480px;
@@ -8034,8 +8047,8 @@ body.no-scroll {
   gap: .5rem;
   padding: .3rem .8rem;
   border-radius: var(--radius-full);
-  background: rgba(57, 69, 72, .08);
-  color: var(--color-dark);
+  background: rgba(127, 127, 127, .14);
+  color: var(--color-text);
   font-family: var(--font-Signika);
   font-weight: 700;
   font-size: var(--fs-xs);
@@ -8064,7 +8077,7 @@ body.no-scroll {
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid rgba(127, 127, 127, .16);
   box-shadow: 0 10px 28px rgba(14, 45, 56, .08);
   text-decoration: none;
@@ -8122,7 +8135,7 @@ body.no-scroll {
   gap: .4rem;
   margin-top: auto;
   padding-top: .5rem;
-  color: var(--color-dark);
+  color: var(--color-text);
   font-family: var(--font-Signika);
   font-weight: 700;
   font-size: var(--fs-sm);
@@ -8135,6 +8148,58 @@ body.no-scroll {
 }
 @media (hover: hover) {
   .seh-card:hover .seh-card__cta svg { transform: translateX(4px); }
+}
+
+/* ── Lifecycle badge: Próximamente → En curso → Recién terminado ──────────── */
+.seh-card__phase {
+  position: absolute;
+  top: .6rem;
+  left: .6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  max-width: calc(100% - 1.2rem);
+  padding: .3rem .65rem;
+  border-radius: var(--radius-full);
+  /* A raised panel → --color-surface + the reversing foreground tokens.
+     --color-white here would strand --color-muted light-on-light in dark mode. */
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text, #394548);
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  box-shadow: 0 4px 12px rgba(14, 45, 56, .22);
+}
+.seh-card__phase i { opacity: .75; }
+
+/* Happening right now — the one state worth a solid fill. White ink on a dark
+   fill is exactly what --color-white is for, so this pair stays. */
+.seh-card__phase--running {
+  background: var(--color-dark, #394548);
+  color: var(--color-white, #ffffff);
+}
+.seh-card__phase--ended {
+  background: var(--color-surface, #ffffff);
+  color: var(--color-muted, #736960);
+}
+
+/* Live dot. Steady by default; the pulse is the only motion here. */
+.ev-live-dot {
+  flex: none;
+  width: .5rem;
+  height: .5rem;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  animation: ev-live-pulse 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes ev-live-pulse {
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%      { opacity: .45; transform: scale(.78); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ev-live-dot { animation: none; }
 }
 
 /* -- pages sermons latest-sermon -- */
@@ -8633,7 +8698,7 @@ body.no-scroll {
   gap: 0.45rem;
   padding: clamp(1.9rem, 3vw, 2.6rem) 1.4rem;
   border-radius: 20px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid rgba(57, 69, 72, 0.10);
   box-shadow: 0 12px 30px rgba(45, 78, 87, 0.08);
   transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
@@ -9391,7 +9456,7 @@ body.no-scroll {
 /* Section label between field groups (e.g. Padre/Tutor vs. Emergencia). */
 .sw-section-label {
   font-family: var(--font-Signika); font-weight: 700; font-size: 0.82rem;
-  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-dark, #2d4e57);
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text, #2d4e57);
   margin: 1.1rem 0 0.6rem; padding-bottom: 0.3rem;
   border-bottom: 1px solid rgba(45, 78, 87, 0.14);
 }
@@ -9406,7 +9471,7 @@ body.no-scroll {
 .sw-pcard__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; }
 .sw-pcard__title {
   font-family: var(--font-Signika); font-weight: 700; font-size: 0.84rem;
-  color: var(--color-dark, #2d4e57);
+  color: var(--color-text, #2d4e57);
 }
 .sw-pcard__remove {
   border: 0; background: transparent; color: var(--color-muted);
@@ -9418,7 +9483,7 @@ body.no-scroll {
 .sw-add {
   display: inline-flex; align-items: center; gap: 0.45rem;
   border: 1.5px dashed rgba(45, 78, 87, 0.32); background: transparent;
-  color: var(--color-dark, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
+  color: var(--color-text, #2d4e57); font-family: var(--font-Signika); font-weight: 600;
   font-size: 0.82rem; padding: 0.6rem 1.1rem; border-radius: 10px; cursor: pointer;
   transition: background 0.18s, border-color 0.18s;
 }
@@ -9900,7 +9965,7 @@ body.no-scroll {
   line-height: 1;
 }
 
-.dscp-day__count--zero { color: var(--gray-100); }
+.dscp-day__count--zero { color: var(--color-muted); }
 
 .dscp-day__label {
   font-family: var(--font-Geist);
@@ -10687,8 +10752,8 @@ body.no-scroll {
   padding: .6rem 2.6rem .6rem 1.25rem;
   border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-full);
-  background-color: var(--color-white);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23394548' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a9499' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: .8rem;
@@ -10703,7 +10768,7 @@ body.no-scroll {
   font-family: var(--font-Signika); font-weight: 600; font-size: var(--fs-sm);
   color: var(--color-muted); cursor: pointer; transition: color .15s, border-color .15s, background .15s;
 }
-.evhub__view:hover { color: var(--color-dark); }
+.evhub__view:hover { color: var(--color-text); }
 .evhub__view.active {
   background: var(--color-dark);
   color: var(--color-white);
@@ -10753,7 +10818,7 @@ body.no-scroll {
   width: 30px; height: 30px; border: none; background: transparent; cursor: pointer;
   color: var(--color-muted); border-radius: var(--radius-full); font-size: .8rem;
 }
-.evhub-mini__nav:hover { background: rgba(127, 127, 127, .12); color: var(--color-dark); }
+.evhub-mini__nav:hover { background: rgba(127, 127, 127, .12); color: var(--color-text); }
 .evhub-mini__grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center; }
 .evhub-mini__wd { font-size: .8rem; font-weight: 700; color: var(--color-muted); padding: .3rem 0; }
 .evhub-mini__cell {
@@ -10766,12 +10831,12 @@ body.no-scroll {
 }
 button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 .evhub-mini__cell--empty { visibility: hidden; }
-.evhub-mini__cell.is-today { box-shadow: inset 0 0 0 1.5px var(--color-dark); font-weight: 700; }
+.evhub-mini__cell.is-today { box-shadow: inset 0 0 0 1.5px var(--color-text); font-weight: 700; }
 .evhub-mini__cell.is-selected { background: var(--color-dark); color: #fff; font-weight: 700; }
 .evhub-mini__cell.has-events { font-weight: 700; }
 .evhub-mini__dot {
   position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%);
-  width: 4px; height: 4px; border-radius: 50%; background: var(--color-dark);
+  width: 4px; height: 4px; border-radius: 50%; background: var(--color-text);
 }
 .evhub-mini__cell.is-selected .evhub-mini__dot { background: #fff; }
 
@@ -10784,7 +10849,7 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 .evhub-up__selbar span { font-family: var(--font-Signika); font-weight: 700; }
 .evhub-up__clear {
   border: none; background: transparent; cursor: pointer;
-  color: var(--color-dark); font-weight: 600; font-size: var(--fs-sm); text-decoration: underline;
+  color: var(--color-text); font-weight: 600; font-size: var(--fs-sm); text-decoration: underline;
 }
 
 /* Featured */
@@ -10808,6 +10873,8 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
   font-size: .68rem; font-weight: 700; letter-spacing: .02em;
 }
 .evhub-badge--signup { background: rgba(22, 163, 74, .14); color: #15803d; }
+/* Under way right now — reads as the event's own state, not a sign-up prompt. */
+.evhub-badge--live { background: rgba(127, 127, 127, .16); color: var(--color-text, #394548); }
 
 /* Upcoming list */
 .evhub-up__month {
@@ -10827,7 +10894,7 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 }
 .evhub-up__item.is-cancelled .evhub-up__name { text-decoration: line-through; color: var(--color-muted); }
 .evhub-up__name {
-  font-family: var(--font-Signika); font-weight: 700; color: var(--color-dark);
+  font-family: var(--font-Signika); font-weight: 700; color: var(--color-text);
   font-size: var(--fs-lg); line-height: 1.2;
 }
 .evhub-up__item:hover .evhub-up__name { text-decoration: underline; }
@@ -10859,11 +10926,11 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 .evhub-card {
   display: flex; flex-direction: column; text-decoration: none; color: inherit;
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .16)); border-radius: var(--radius-lg);
-  overflow: hidden; background: var(--color-white); transition: box-shadow .2s, transform .2s;
+  overflow: hidden; background: var(--color-surface); transition: box-shadow .2s, transform .2s;
 }
 .evhub-card:hover { box-shadow: 0 14px 32px rgba(14, 45, 56, .14); transform: translateY(-3px); }
 /* Prominent, equally-shaped image; the card height then fits its content. */
-.evhub-card__media { aspect-ratio: 16 / 10; background: var(--gray-10, #eee); }
+.evhub-card__media { aspect-ratio: 16 / 10; background: rgba(127, 127, 127, .14); }
 .evhub-card__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .evhub-card__ph {
   width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
@@ -10886,17 +10953,17 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 .evhub-modal__backdrop.open { display: flex; }
 .evhub-modal {
   position: relative; width: min(440px, 92vw);
-  background: var(--color-white); border-radius: var(--radius-lg); padding: 1.6rem;
+  background: var(--color-surface); border-radius: var(--radius-lg); padding: 1.6rem;
   box-shadow: 0 24px 60px rgba(0, 0, 0, .3);
 }
 .evhub-modal__close {
   position: absolute; top: .75rem; right: .75rem; width: 32px; height: 32px;
-  border: none; border-radius: var(--radius-full); background: var(--gray-10, rgba(127, 127, 127, .1));
+  border: none; border-radius: var(--radius-full); background: rgba(127, 127, 127, .14);
   font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--color-text);
 }
 .evhub-modal__title { font-family: var(--font-Signika); font-weight: 700; margin: .5rem 0 .85rem; font-size: var(--fs-xl); }
 .evhub-modal__rows { display: flex; flex-direction: column; gap: .4rem; color: var(--color-text); }
-.evhub-modal__rows i { color: var(--color-dark); width: 1.1em; margin-right: .4rem; }
+.evhub-modal__rows i { color: var(--color-text); width: 1.1em; margin-right: .4rem; }
 .evhub-modal__desc { margin-top: 1rem; line-height: 1.6; color: var(--color-text); }
 .evhub-modal__cx {
   background: rgba(220, 38, 38, .1); color: #b91c1c; font-weight: 600; font-size: .82rem;
@@ -10950,7 +11017,7 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
   cursor: pointer;
   transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.1s ease;
 }
-.gal-fbtn:hover   { border-color: var(--color-dark); }
+.gal-fbtn:hover   { border-color: var(--color-text); }
 .gal-fbtn:active  { transform: scale(0.98); }
 
 .gal-fbtn__icon {
@@ -11076,7 +11143,7 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
   align-items: center;
   gap: 0.55rem;
   padding: 0.65rem 0.9rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid var(--gray-30);
   border-radius: var(--radius-md, 0.625rem);
   transition: border-color 0.18s ease;
@@ -11143,7 +11210,7 @@ button.evhub-mini__cell:hover { background: rgba(127, 127, 127, .12); }
 .gal-btn--solid { background: var(--color-dark); color: var(--color-white); }
 .gal-btn--solid:hover { filter: brightness(1.1); }
 .gal-btn--ghost { background: transparent; border-color: var(--gray-30); color: var(--color-muted); }
-.gal-btn--ghost:hover { border-color: var(--color-dark); color: var(--color-text); }
+.gal-btn--ghost:hover { border-color: var(--color-text); color: var(--color-text); }
 .gal-btn--full { flex: 1 1 100%; }
 
 /* ── iOS-style year wheel ────────────────────────────────────────────── */
@@ -11828,7 +11895,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   gap: 0.6rem;
   padding: clamp(1.4rem, 2.4vw, 1.9rem) 1rem;
   border-radius: 16px;
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid rgba(57, 69, 72, 0.10);
   box-shadow: 0 10px 24px rgba(45, 78, 87, 0.06);
   transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
@@ -12398,11 +12465,11 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
 .ev2-topbar {
   display: flex; align-items: center; justify-content: center;
   padding: 1rem; border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .15));
-  background: var(--color-white);
+  background: var(--color-surface);
 }
 .ev2-topbar__brand {
   font-family: var(--font-Signika); font-weight: 700; letter-spacing: .02em;
-  font-size: var(--fs-md); color: var(--color-dark); text-decoration: none;
+  font-size: var(--fs-md); color: var(--color-text); text-decoration: none;
 }
 
 /* ── Event detail — clean two-column (main: title/date/details · side: image/location) ── */
@@ -12423,7 +12490,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-size: var(--fs-base); color: var(--color-muted);
   margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
 }
-.ev2__crumbs a { color: var(--color-dark); text-decoration: none; font-weight: 600; }
+.ev2__crumbs a { color: var(--color-text); text-decoration: none; font-weight: 600; }
 .ev2__crumbs a:hover { text-decoration: underline; }
 
 .ev2__grid {
@@ -12471,7 +12538,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   border-bottom: 1px solid var(--gray-40, rgba(127, 127, 127, .22));
 }
 .ev2__body { color: var(--color-text); line-height: 1.75; font-size: clamp(1.05rem, 1rem + .45vw, 1.2rem); }
-.ev2__orglink { color: var(--color-dark); text-decoration: underline; word-break: break-word; }
+.ev2__orglink { color: var(--color-text); text-decoration: underline; word-break: break-word; }
 
 /* Sidebar */
 .ev2__media {
@@ -12484,7 +12551,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
   border-radius: var(--radius-lg);
   padding: 1.25rem;
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: 0 8px 26px rgba(14, 45, 56, .06);
 }
 /* Plain location section in the sidebar (replaces the old bordered card). */
@@ -12502,10 +12569,10 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   margin-top: .6rem; padding: .4rem .85rem;
   border: 1.5px solid var(--gray-50, rgba(127, 127, 127, .3));
   border-radius: var(--radius-full);
-  font-size: .82rem; font-weight: 600; color: var(--color-dark);
+  font-size: .82rem; font-weight: 600; color: var(--color-text);
   text-decoration: none; transition: border-color .2s, color .2s;
 }
-.ev2__pill:hover { border-color: var(--color-dark); }
+.ev2__pill:hover { border-color: var(--color-text); }
 
 /* Hide the floating WhatsApp cluster on these focused event pages to keep the
    single register CTA the clear, uncluttered call to action. */
@@ -12531,7 +12598,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border: 1px solid var(--gray-40, rgba(127, 127, 127, .18));
   border-radius: var(--radius-lg);
-  background: var(--color-white);
+  background: var(--color-surface);
   box-shadow: 0 12px 32px rgba(14, 45, 56, .08);
 }
 .ee-reg-card .ed-title { margin: .35rem 0 0; }

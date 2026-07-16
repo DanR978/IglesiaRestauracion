@@ -4,10 +4,10 @@
 // Reads ?e=<slug> (fallback ?id=<uuid>), fetches the event, fills the page, and
 // opens the step-by-step registration wizard from the single "Registrarse" CTA.
 
-import { sb } from '/js/lib/supabase.js';
 import { sanitizeHtml, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
 import { celebrateQrLanding } from '/js/lib/celebrate.js';
+import { fetchEventBy, isRegistrationOpen, eventPhase, eventAlbum, albumUrl } from '/js/lib/special-events.js';
 
 const TZ = 'America/New_York';
 
@@ -40,10 +40,8 @@ async function loadEvent() {
   const id   = params.get('id');
   if (!slug && !id) return showError();
   try {
-    let q = sb.from('special_events').select('*');
-    q = slug ? q.eq('slug', slug) : q.eq('id', id);
-    const { data, error } = await q.single();
-    if (error || !data) { console.error('[special-event] fetch error:', error); return showError(); }
+    const data = await fetchEventBy({ slug, id });
+    if (!data) return showError();
     renderEvent(data);
   } catch (err) {
     console.error('[special-event] error:', err);
@@ -100,12 +98,16 @@ function renderEvent(ev) {
   }
 
   // Single register CTA → opens the step-by-step wizard.
-  // Registration is offered only while the event is open AND its date hasn't
-  // passed — the same gate the RLS INSERT policy enforces server-side.
-  const past = ev.event_at ? (() => { try { return new Date(ev.event_at).getTime() < Date.now(); } catch { return false; } })() : false;
-  const isOpen = ev.registration_open && ev.status !== 'closed' && ev.status !== 'completed' && !past;
+  // `registration_open` is the whole gate, matching the `event_reg_insert` RLS
+  // policy exactly. Deliberately no date check: a past event that an admin has
+  // re-opened must really be open. A scheduled job clears the flag once the
+  // event ends — see 20260716_event_lifecycle.sql.
+  const phase = eventPhase(ev);
   const btn = $('event-register-btn');
-  if (isOpen) {
+  if (isRegistrationOpen(ev)) {
+    // The event is under way but still taking walk-ups — say so, rather than
+    // letting "Inscripciones abiertas" imply it hasn't started.
+    if (phase === 'running') setText('event-action-note', 'En curso — aún puedes inscribirte');
     if (btn) {
       btn.href = `/eventos/registro.html?e=${encodeURIComponent(ev.slug)}`;  // no-JS fallback
       btn.addEventListener('click', (e) => {
@@ -121,6 +123,14 @@ function renderEvent(ev) {
   } else {
     hide('event-action');
     show('event-register-closed');
+  }
+
+  // Once the event is over and its album has photos, point people at them.
+  const album = phase === 'ended' || phase === 'gone' ? eventAlbum(ev) : null;
+  if (album) {
+    const link = $('event-album-btn');
+    if (link) link.href = albumUrl(album);
+    show('event-album-action');
   }
 
   if (window.initAnimations) requestAnimationFrame(() => window.initAnimations());

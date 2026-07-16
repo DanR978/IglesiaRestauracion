@@ -126,8 +126,8 @@
   gap: .5rem;
   padding: .3rem .8rem;
   border-radius: var(--radius-full);
-  background: rgba(57, 69, 72, .08);
-  color: var(--color-dark);
+  background: rgba(127, 127, 127, .14);
+  color: var(--color-text);
   font-family: var(--font-Signika);
   font-weight: 700;
   font-size: var(--fs-xs);
@@ -156,7 +156,7 @@
   flex-direction: column;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  background: var(--color-white);
+  background: var(--color-surface);
   border: 1px solid rgba(127, 127, 127, .16);
   box-shadow: 0 10px 28px rgba(14, 45, 56, .08);
   text-decoration: none;
@@ -214,7 +214,7 @@
   gap: .4rem;
   margin-top: auto;
   padding-top: .5rem;
-  color: var(--color-dark);
+  color: var(--color-text);
   font-family: var(--font-Signika);
   font-weight: 700;
   font-size: var(--fs-sm);
@@ -227,4 +227,56 @@
 }
 @media (hover: hover) {
   .seh-card:hover .seh-card__cta svg { transform: translateX(4px); }
+}
+
+/* ── Lifecycle badge: Próximamente → En curso → Recién terminado ──────────── */
+.seh-card__phase {
+  position: absolute;
+  top: .6rem;
+  left: .6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  max-width: calc(100% - 1.2rem);
+  padding: .3rem .65rem;
+  border-radius: var(--radius-full);
+  /* A raised panel → --color-surface + the reversing foreground tokens.
+     --color-white here would strand --color-muted light-on-light in dark mode. */
+  background: var(--color-surface, #ffffff);
+  color: var(--color-text, #394548);
+  font-family: var(--font-Signika);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  box-shadow: 0 4px 12px rgba(14, 45, 56, .22);
+}
+.seh-card__phase i { opacity: .75; }
+
+/* Happening right now — the one state worth a solid fill. White ink on a dark
+   fill is exactly what --color-white is for, so this pair stays. */
+.seh-card__phase--running {
+  background: var(--color-dark, #394548);
+  color: var(--color-white, #ffffff);
+}
+.seh-card__phase--ended {
+  background: var(--color-surface, #ffffff);
+  color: var(--color-muted, #736960);
+}
+
+/* Live dot. Steady by default; the pulse is the only motion here. */
+.ev-live-dot {
+  flex: none;
+  width: .5rem;
+  height: .5rem;
+  border-radius: var(--radius-full);
+  background: currentColor;
+  animation: ev-live-pulse 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes ev-live-pulse {
+  0%, 100% { opacity: 1;  transform: scale(1); }
+  50%      { opacity: .45; transform: scale(.78); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ev-live-dot { animation: none; }
 }

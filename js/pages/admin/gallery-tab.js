@@ -19,6 +19,7 @@ import {
 
 import { toast, confirm } from './ui.js';
 import { openGalleryWizard } from './gallery-wizard.js';
+import { loadEventOptions, eventOptionsHtml } from './event-link.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -182,6 +183,11 @@ async function openEditor(albumId) {
   $('galAdmFeatured').checked = false;
   $('galAdmError').style.display = 'none';
 
+  // Awaited before the picker renders: an empty select would save as "no event"
+  // and silently drop an album's existing link.
+  const eventOptions = await loadEventOptions();
+  if ($('galAdmEvent')) $('galAdmEvent').innerHTML = eventOptionsHtml(eventOptions, null);
+
   unsubPhotos?.(); unsubPhotos = null;
 
   if (albumId) {
@@ -197,6 +203,7 @@ async function openEditor(albumId) {
     $('galAdmDesc').value   = a.description || '';
     $('galAdmPublished').checked = a.is_published !== false;
     $('galAdmFeatured').checked  = !!a.is_featured;
+    if ($('galAdmEvent')) $('galAdmEvent').innerHTML = eventOptionsHtml(eventOptions, a.special_event_id);
     $('galAdmDeleteBtn').style.display = '';
 
     // Show photos section
@@ -249,14 +256,15 @@ async function saveAlbumFromEditor({ silent = false } = {}) {
   }
 
   const payload = {
-    id:           $('galAdmId').value || undefined,
+    id:               $('galAdmId').value || undefined,
     title,
     year,
-    event_type:   $('galAdmType').value || null,
-    event_date:   $('galAdmDate').value || null,
-    description:  $('galAdmDesc').value.trim() || null,
-    is_published: $('galAdmPublished').checked,
-    is_featured:  $('galAdmFeatured').checked,
+    event_type:       $('galAdmType').value || null,
+    event_date:       $('galAdmDate').value || null,
+    special_event_id: $('galAdmEvent')?.value || null,
+    description:      $('galAdmDesc').value.trim() || null,
+    is_published:     $('galAdmPublished').checked,
+    is_featured:      $('galAdmFeatured').checked,
   };
   if (!payload.id) delete payload.id;
 
