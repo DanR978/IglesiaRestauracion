@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { money as fmt } from '/js/utils/number.js';
 // js/pages/admin/treasury-tab.js
 // "Tesorería" — church-wide treasury + per-ministry MONTHLY budgets.
 // Every add/edit is a step-by-step wizard (one question per screen, big
@@ -14,7 +15,7 @@ import { mountProjectTreasury } from './project-treasury.js';
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
 
-function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
+
 function todayISO() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
 function thisMonth() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}`; }
 function minName(id) { return ministries.find(m => m.id === id)?.name || '—'; }

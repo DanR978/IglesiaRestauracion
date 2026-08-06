@@ -3,7 +3,7 @@
 
 import { CalendarGrid } from '/js/components/CalendarGrid.js';
 import {
-  sb, pad2, todayISO, MONTHS, DAY_NAMES, CAT_COLORS,
+  sb, todayISO, MONTHS, DAY_NAMES, CAT_COLORS,
   calEventsList, admCalYear, admCalMonth,
   setCalEvents, setCalView,
   filterEventsByMinistry, normalizeEventsRow, ministries,

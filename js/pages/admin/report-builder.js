@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { money as fmt } from '/js/utils/number.js';
 // js/pages/admin/report-builder.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Treasury Report Builder — customizable report with a true-document preview.
@@ -16,7 +17,7 @@ const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto
 const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 
 
-function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
+
 const pad = n => String(n).padStart(2, '0');
 const lastDay = (y, m) => new Date(y, m, 0).getDate();
 const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;

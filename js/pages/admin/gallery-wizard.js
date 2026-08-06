@@ -16,6 +16,7 @@ import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 
 import { EVENT_TYPES, EVENT_TYPE_LABEL, upsertAlbum } from '/js/lib/gallery.js';
 import { loadEventOptions, eventOptionsHtml } from './event-link.js';
+import { fmtDateLong } from '/js/utils/format-date.js';
 import { toast } from './ui.js';
 
 /* ── State ──────────────────────────────────────────────────────────── */
@@ -169,7 +170,7 @@ function renderStep3() {
 
     <div class="wiz-field">
       <label><i class="fas fa-align-left" style="margin-right:4px;opacity:.5"></i> Descripción</label>
-      <textarea id="gwizDesc" rows="3" placeholder="Breve descripción de la actividad, lugar, momentos especiales...">${escapeText(data.description)}</textarea>
+      <textarea id="gwizDesc" rows="3" placeholder="Breve descripción de la actividad, lugar, momentos especiales...">${escapeHtml(data.description)}</textarea>
     </div>
 
     <div class="wiz-field">
@@ -218,7 +219,7 @@ function renderStep4() {
       <div class="dwiz-review__title">Resumen del álbum</div>
       <div class="dwiz-review__row"><i class="fas fa-folder-open"></i> ${escapeHtml(typeLabel)}</div>
       <div class="dwiz-review__row"><i class="fas fa-tag"></i> ${escapeHtml(data.title)}</div>
-      <div class="dwiz-review__row"><i class="fas fa-calendar-day"></i> ${formatDate(data.event_date)}</div>
+      <div class="dwiz-review__row"><i class="fas fa-calendar-day"></i> ${fmtDateLong(data.event_date)}</div>
       ${linkedEventTitle() ? `<div class="dwiz-review__row"><i class="fas fa-calendar-star"></i> ${escapeHtml(linkedEventTitle())}</div>` : ''}
       ${data.description ? `<div class="dwiz-review__row"><i class="fas fa-align-left"></i> ${escapeHtml(truncate(data.description, 90))}</div>` : ''}
       <div class="dwiz-review__row"><i class="fas fa-${data.is_published ? 'eye' : 'eye-slash'}"></i> ${data.is_published ? 'Visible al público' : 'Solo borrador'}</div>
@@ -280,10 +281,4 @@ function linkedEventTitle() {
   return eventOptions.find(e => e.id === data.special_event_id)?.title || '';
 }
 
-function escapeText(s) { return escapeHtml(s); }
 function truncate(s, n) { s = String(s ?? ''); return s.length > n ? s.slice(0, n) + '…' : s; }
-function formatDate(d) {
-  if (!d) return '';
-  const [y, mo, da] = d.split('-').map(Number);
-  return new Date(y, mo - 1, da).toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });
-}

@@ -2,7 +2,7 @@
 // Upcoming and Past event lists (table view).
 
 import {
-  sb, todayISO, pad2, MONTHS, isAdmin, currentProfile,
+  sb, todayISO, MONTHS, isAdmin, currentProfile,
   normalizeEventsRow, filterEventsByMinistry,
   setUpcoming, setPast,
   _upcomingSpecial, _upcomingRegular, _pastSpecial, _pastRegular,

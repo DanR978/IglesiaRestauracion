@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { money as fmt } from '/js/utils/number.js';
 // js/pages/admin/project-treasury.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-user "project" treasury for ministry accounts. Each user creates their
@@ -21,7 +22,7 @@ import { openFormWizard } from './form-wizard.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
 import { savePdf, churchDocDef, sectionHeading, kpiBox, th, churchLogo, CONTENT_W } from '/js/lib/pdf.js';
 
-const fmt = n => (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
 const sum = rows => (rows || []).reduce((a, r) => a + (Number(r.amount) || 0), 0);
 // Internal linkage tags (auto:recurring / auto:budget / auto:payable) live in
 // `note` on the treasurer's rows — never show them to the leader.
