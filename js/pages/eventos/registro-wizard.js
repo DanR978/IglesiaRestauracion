@@ -21,6 +21,7 @@ import { isValidEmail, isValidUSPhone, formatUSPhoneNational } from '/js/lib/val
 import { createSignaturePad } from '/js/components/signature-pad.js';
 import { WAIVER_VERSION, renderWaiverPrintDoc } from '/js/lib/waiver.js';
 import { celebrateModal } from '/js/lib/celebrate.js';
+import { el } from '/js/utils/dom.js';
 
 const TOTAL_STEPS = 5;
 const DEFAULT_LOC = '2601 Clays Mill Rd, Lexington, KY 40503';
@@ -83,23 +84,6 @@ function resetState() { Object.assign(state, FRESH()); }
 
 // Display name for a participant ("" until they type one).
 function participantName(p) { return `${p.first_name} ${p.last_name}`.trim(); }
-
-// ─── DOM utility ────────────────────────────────────────────────────────────
-function el(tag, attrs = {}, children = []) {
-  const n = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v == null || v === false) continue;
-    if (k === 'class')           n.className = v;
-    else if (k === 'html')       n.innerHTML = v;
-    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
-    else                         n.setAttribute(k, v === true ? '' : v);
-  }
-  for (const c of [].concat(children)) {
-    if (c == null || c === false) continue;
-    n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
-  }
-  return n;
-}
 
 // ─── Modal scaffold (built once, reused) ────────────────────────────────────
 let rootEl = null;

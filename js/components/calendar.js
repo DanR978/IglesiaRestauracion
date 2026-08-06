@@ -6,6 +6,7 @@ import { CalendarGrid }  from '/js/components/CalendarGrid.js';
 import { setupStickyNav, setupBurgerMenu } from '/js/app/ui.js';
 import { esc }           from '/js/utils/escape.js';
 import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
+import { pad2 as pad, ymd } from '/js/utils/date.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const CATS = {
@@ -21,8 +22,7 @@ const DAYS_L = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sáb
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
-const pad      = n => String(n).padStart(2, '0');
-const ymd      = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+
 const todayYMD = () => { const t = new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
 
 // ─── State ────────────────────────────────────────────────────────────────────

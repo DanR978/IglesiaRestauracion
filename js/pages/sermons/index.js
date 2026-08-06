@@ -8,6 +8,7 @@ import { esc } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { YT_API_KEY, YT_CHANNEL_HANDLE } from '/js/lib/supabase.js';
+import { $ } from '/js/utils/dom.js';
 
 const YT_API = 'https://www.googleapis.com/youtube/v3';
 
@@ -15,11 +16,6 @@ const YT_API = 'https://www.googleapis.com/youtube/v3';
 let _channelId  = '';
 let _playlists  = [];
 let _currentView = 'grid';  // 'grid' | 'videos'
-
-// ── DOM refs ────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-
-
 
 // ── YouTube API helpers ─────────────────────────────────────────────────────
 

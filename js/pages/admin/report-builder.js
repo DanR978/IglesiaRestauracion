@@ -11,6 +11,8 @@ import { money as fmt } from '/js/utils/number.js';
 
 import { sb } from './state.js';
 import { loadPdfMake, loadPdfJs, churchLogo } from '/js/lib/pdf.js';
+import { pad2 as pad, isoDate } from '/js/utils/date.js';
+import { fmtDateShort } from '/js/utils/format-date.js';
 
 const CHURCH = 'Iglesia Restauración Divina';
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -18,12 +20,9 @@ const DAYS = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábad
 
 
 
-const pad = n => String(n).padStart(2, '0');
 const lastDay = (y, m) => new Date(y, m, 0).getDate();
-const isoDate = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parseISO = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate()+n); return x; };
-function fmtDate(d) { if (!d) return ''; const [y,m,day] = String(d).split('-').map(Number); return new Date(y,m-1,day).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' }); }
 
 const SECTIONS = [
   { k: 'cover', label: 'Portada' },
@@ -90,7 +89,7 @@ function periodRange() {
   if (C.period === 'week') {
     const base = parseISO(C.weekDate); const sun = addDays(base, -base.getDay());
     const buckets = Array.from({length:7}, (_,i) => { const d = addDays(sun,i); return { label: `${DAYS[i]} ${d.getDate()}`, short: DAYS[i].slice(0,3), start: isoDate(d), end: isoDate(d) }; });
-    return { start: isoDate(sun), end: isoDate(addDays(sun,6)), buckets, col: 'Día', label: `Semana del ${fmtDate(isoDate(sun))}`, headRight: `Semana ${fmtDate(isoDate(sun))}` };
+    return { start: isoDate(sun), end: isoDate(addDays(sun,6)), buckets, col: 'Día', label: `Semana del ${fmtDateShort(isoDate(sun), { empty: '' })}`, headRight: `Semana ${fmtDateShort(isoDate(sun), { empty: '' })}` };
   }
   const buckets = Array.from({length:12}, (_,i) => ({ label: MONTHS[i], short: MONTHS[i].slice(0,3), start: `${C.year}-${pad(i+1)}-01`, end: `${C.year}-${pad(i+1)}-${pad(lastDay(C.year,i+1))}` }));
   return { start: `${C.year}-01-01`, end: `${C.year}-12-31`, buckets, col: 'Mes', label: `Año ${C.year}`, headRight: `${C.year}` };
@@ -320,7 +319,7 @@ function transactionsTable() {
   txns.forEach(t => {
     const isIn = t.kind === 'income';
     body.push([
-      { text: fmtDate(t.occurred_on), fontSize: 8.5 },
+      { text: fmtDateShort(t.occurred_on, { empty: '' }), fontSize: 8.5 },
       { text: t.type || '—', fontSize: 8.5 },
       { text: t.ministry || '—', fontSize: 8.5 },
       { text: t.concept || '—', fontSize: 8.5, color: '#6a767b' },

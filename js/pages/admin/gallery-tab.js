@@ -17,12 +17,10 @@ import {
   subscribePhotos,
 } from '/js/lib/gallery.js';
 
+import { $ } from '/js/utils/dom.js';
 import { toast, confirm } from './ui.js';
 import { openGalleryWizard } from './gallery-wizard.js';
 import { loadEventOptions, eventOptionsHtml } from './event-link.js';
-
-const $ = (id) => document.getElementById(id);
-
 
 let booted = false;
 let albumsCache = [];

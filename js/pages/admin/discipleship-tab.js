@@ -236,6 +236,7 @@ async function openGroupModal(id) {
    even when files are served raw (GitHub Pages deploy does not run `vite build`).
    Mirrors the pattern in js/lib/supabase.js. */
 import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm';
+import { capitalize } from '/js/utils/string.js';
 
 let _currentQrUrl = '';
 let _currentGroupName = '';
@@ -669,9 +670,6 @@ function groupBy(rows, key) {
   return Object.fromEntries(sorted);
 }
 
-function capitalize(s) {
-  return String(s ?? '').charAt(0).toUpperCase() + String(s ?? '').slice(1);
-}
 
 /** Render a single interest card. */
 function renderInterestCard(i) {

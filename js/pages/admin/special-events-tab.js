@@ -17,6 +17,7 @@
 import { sb, currentUser } from './state.js';
 import { toast, confirm } from './ui.js';
 import { html, esc } from '/js/utils/escape.js';
+import { $ } from '/js/utils/dom.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
 import { eventPhase, eventEndsAt } from '/js/lib/special-events.js';
 import { invalidateEventOptions } from './event-link.js';
@@ -44,8 +45,6 @@ let infoEditor    = null;
 let ageGroupsDraft = [];                 // working copy of the form's age groups
 
 // ── DOM helpers ──────────────────────────────────────────────────────────────
-const $ = (id) => document.getElementById(id);
-
 function seShowView(name) {
   ['list', 'form', 'detail'].forEach(v => {
     const el = $(`se-view-${v}`);

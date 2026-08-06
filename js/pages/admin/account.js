@@ -15,6 +15,7 @@
 import { sb, currentUser, currentProfile, ministries } from './state.js';
 import { toast, confirm } from './ui.js';
 import { esc } from '/js/utils/escape.js';
+import { $ } from '/js/utils/dom.js';
 import { reEnrollMfa } from './auth.js';
 import { mfaStatus } from './mfa.js';
 
@@ -24,8 +25,6 @@ const ROLE_LABEL = {
   ministry_leader: 'Líder de ministerio',
   pastor:          'Pastor',
 };
-
-const el = (id) => document.getElementById(id);
 
 // ── Small formatting helpers ──────────────────────────────────────────────────
 function initials(name) {
@@ -86,18 +85,18 @@ function ministryNames() {
 // ── Sidebar account footer (avatar + name + role). Called on boot + after edits.
 export function renderNavAccount() {
   const name = accountName();
-  paintAvatar(el('navAvatar'), name, currentProfile?.avatar_url);
-  const nameEl = el('navAccountName');
+  paintAvatar($('navAvatar'), name, currentProfile?.avatar_url);
+  const nameEl = $('navAccountName');
   if (nameEl) nameEl.textContent = name;
-  const roleEl = el('navAccountRole');
+  const roleEl = $('navAccountRole');
   if (roleEl) roleEl.textContent = roleLabel();
 }
 
 // Repaint every avatar surface (page + hero + sidebar) after an avatar change.
 function repaintAllAvatars(url) {
   const name = accountName();
-  paintAvatar(el('acctAvatar'), name, url);
-  paintAvatar(el('acctHeroAvatar'), name, url);
+  paintAvatar($('acctAvatar'), name, url);
+  paintAvatar($('acctHeroAvatar'), name, url);
   renderNavAccount();
 }
 
@@ -111,11 +110,11 @@ let profileDirty  = false;
 // ── Profile header (hero) ─────────────────────────────────────────────────────
 function renderHero() {
   const p = currentProfile || {};
-  paintAvatar(el('acctHeroAvatar'), accountName(), p.avatar_url);
-  el('acctHeroName').textContent = accountName();
-  el('acctHeroSub').textContent  = currentUser?.email || usernameHandle();
+  paintAvatar($('acctHeroAvatar'), accountName(), p.avatar_url);
+  $('acctHeroName').textContent = accountName();
+  $('acctHeroSub').textContent  = currentUser?.email || usernameHandle();
 
-  const badges = el('acctHeroBadges');
+  const badges = $('acctHeroBadges');
   const mins   = ministryNames();
   badges.innerHTML = `
     <span class="role-badge role--${esc(p.role || 'none')}">${esc(roleLabel())}</span>
@@ -133,7 +132,7 @@ const SECTIONS = [
 ];
 
 function buildShell() {
-  const root = el('acctRoot');
+  const root = $('acctRoot');
   if (!root) return;
   root.innerHTML = `
     <div class="acct">
@@ -153,7 +152,7 @@ function buildShell() {
       </div>
     </div>`;
 
-  const nav = el('acctNav');
+  const nav = $('acctNav');
   nav.innerHTML = SECTIONS.map(s => `
     <button class="acct-nav__item" data-acct-section="${s.key}" type="button">
       <i class="fas ${s.icon}" aria-hidden="true"></i> <span>${esc(s.label)}</span>
@@ -174,10 +173,10 @@ async function selectSection(key) {
     updateDirtyGuard();
   }
   activeSection = target;
-  el('acctNav')?.querySelectorAll('[data-acct-section]').forEach(b =>
+  $('acctNav')?.querySelectorAll('[data-acct-section]').forEach(b =>
     b.classList.toggle('active', b.dataset.acctSection === target));
   const section = SECTIONS.find(s => s.key === target);
-  const content = el('acctContent');
+  const content = $('acctContent');
   if (content && section) {
     content.innerHTML = section.render();
     section.wire?.();
@@ -189,8 +188,8 @@ async function selectSection(key) {
 function openAccountPage() {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  el('tab-account')?.classList.add('active');
-  el('navAccount')?.classList.add('is-active');
+  $('tab-account')?.classList.add('active');
+  $('navAccount')?.classList.add('is-active');
   if (!shellBuilt) buildShell();
   renderHero();
   selectSection(activeSection);
@@ -203,14 +202,14 @@ function openAccountPage() {
 //  Section: Perfil
 // ═══════════════════════════════════════════════════════════════════════════
 function setProfileErr(msg) {
-  const box = el('acctProfileError');
+  const box = $('acctProfileError');
   if (!box) return;
   box.textContent = msg || '';
   box.style.display = msg ? 'block' : 'none';
 }
 
 function updateDirtyGuard() {
-  const save = el('acctProfileSave');
+  const save = $('acctProfileSave');
   if (save) save.disabled = !profileDirty;
   if (profileDirty) window.addEventListener('beforeunload', beforeUnload);
   else              window.removeEventListener('beforeunload', beforeUnload);
@@ -278,34 +277,34 @@ function renderProfileSection() {
 
 function wireProfileSection() {
   profileDirty = false;
-  paintAvatar(el('acctAvatar'), accountName(), currentProfile?.avatar_url);
+  paintAvatar($('acctAvatar'), accountName(), currentProfile?.avatar_url);
   updateDirtyGuard();
 
-  const name = el('acctName');
+  const name = $('acctName');
   name?.addEventListener('input', () => {
     profileDirty = (name.value.trim() !== (currentProfile?.display_name || '').trim());
     updateDirtyGuard();
   });
 
-  el('acctProfileSave')?.addEventListener('click', saveProfile);
-  el('acctProfileCancel')?.addEventListener('click', () => {
+  $('acctProfileSave')?.addEventListener('click', saveProfile);
+  $('acctProfileCancel')?.addEventListener('click', () => {
     profileDirty = false;
     if (name) name.value = currentProfile?.display_name || '';
     setProfileErr('');
     updateDirtyGuard();
   });
 
-  el('acctAvatarBtn')?.addEventListener('click', () => el('acctAvatarFile')?.click());
-  el('acctAvatarFile')?.addEventListener('change', onAvatarPick);
-  el('acctAvatarRemove')?.addEventListener('click', removeAvatar);
+  $('acctAvatarBtn')?.addEventListener('click', () => $('acctAvatarFile')?.click());
+  $('acctAvatarFile')?.addEventListener('change', onAvatarPick);
+  $('acctAvatarRemove')?.addEventListener('click', removeAvatar);
 }
 
 async function saveProfile() {
-  const name = el('acctName')?.value.trim() || '';
+  const name = $('acctName')?.value.trim() || '';
   setProfileErr('');
   if (name.length < 2) { setProfileErr('El nombre debe tener al menos 2 caracteres.'); return; }
 
-  const btn = el('acctProfileSave');
+  const btn = $('acctProfileSave');
   if (btn) btn.disabled = true;
   try {
     const { data, error } = await sb.rpc('set_my_display_name', { p_name: name });
@@ -333,7 +332,7 @@ async function onAvatarPick(e) {
   if (file.size > 5 * 1024 * 1024) { setProfileErr('La imagen es muy grande (máx 5 MB).'); return; }
   if (!currentUser?.id) return;
 
-  const btn = el('acctAvatarBtn');
+  const btn = $('acctAvatarBtn');
   const orig = btn?.innerHTML;
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subiendo...'; }
   setProfileErr('');
@@ -348,7 +347,7 @@ async function onAvatarPick(e) {
     if (error) throw error;
     if (currentProfile) currentProfile.avatar_url = url;
     repaintAllAvatars(url);
-    el('acctAvatarRemove')?.removeAttribute('hidden');
+    $('acctAvatarRemove')?.removeAttribute('hidden');
     toast('Foto actualizada', 'success');
   } catch (err) {
     setProfileErr(err?.message || 'No se pudo subir la foto.');
@@ -364,7 +363,7 @@ async function removeAvatar() {
     if (error) throw error;
     if (currentProfile) currentProfile.avatar_url = null;
     repaintAllAvatars(null);
-    el('acctAvatarRemove')?.setAttribute('hidden', '');
+    $('acctAvatarRemove')?.setAttribute('hidden', '');
     toast('Foto eliminada', 'success');
   } catch (err) {
     setProfileErr(err?.message || 'No se pudo quitar la foto.');
@@ -438,15 +437,15 @@ function renderSecuritySection() {
 }
 
 function wireSecuritySection() {
-  el('acctPwBtn')?.addEventListener('click', changePassword);
+  $('acctPwBtn')?.addEventListener('click', changePassword);
   refresh2faRow();
 }
 
 async function changePassword() {
-  const p1  = el('acctPw1')?.value || '';
-  const p2  = el('acctPw2')?.value || '';
-  const box = el('acctPwError');
-  const btn = el('acctPwBtn');
+  const p1  = $('acctPw1')?.value || '';
+  const p2  = $('acctPw2')?.value || '';
+  const box = $('acctPwError');
+  const btn = $('acctPwBtn');
   const setPwErr = (m) => { if (box) { box.textContent = m || ''; box.style.display = m ? 'block' : 'none'; } };
 
   setPwErr('');
@@ -457,8 +456,8 @@ async function changePassword() {
   try {
     const { error } = await sb.auth.updateUser({ password: p1 });
     if (error) throw error;
-    if (el('acctPw1')) el('acctPw1').value = '';
-    if (el('acctPw2')) el('acctPw2').value = '';
+    if ($('acctPw1')) $('acctPw1').value = '';
+    if ($('acctPw2')) $('acctPw2').value = '';
     toast('Contraseña actualizada', 'success');
   } catch (e) {
     setPwErr(e.message || 'No se pudo cambiar la contraseña.');
@@ -468,7 +467,7 @@ async function changePassword() {
 }
 
 async function refresh2faRow() {
-  const row = el('acct2faRow');
+  const row = $('acct2faRow');
   if (!row) return;
   let status = 'enroll';
   try { status = await mfaStatus(); } catch { /* default to enroll */ }
@@ -482,7 +481,7 @@ async function refresh2faRow() {
     <button class="btn btn--ghost" id="acct2faBtn">
       <i class="fas fa-shield-alt"></i> ${enrolled ? 'Reconfigurar' : 'Configurar'}
     </button>`;
-  el('acct2faBtn')?.addEventListener('click', async () => {
+  $('acct2faBtn')?.addEventListener('click', async () => {
     const ok = await confirm(
       enrolled ? 'Reconfigurar verificación' : 'Configurar verificación',
       'Se te mostrará un código QR para escanear con tu app de autenticación. ' +
@@ -520,7 +519,7 @@ function timelineItem(icon, title, when) {
 }
 
 async function wireActivitySection() {
-  const list = el('acctTimeline');
+  const list = $('acctTimeline');
   if (!list) return;
   const u = currentUser || {};
   let twofa = 'enroll';
@@ -542,11 +541,11 @@ async function wireActivitySection() {
 //  Init — wire the sidebar footer entry point + tab-switch cleanup
 // ═══════════════════════════════════════════════════════════════════════════
 export function initAccountPage() {
-  el('navAccount')?.addEventListener('click', openAccountPage);
+  $('navAccount')?.addEventListener('click', openAccountPage);
 
   // When the user picks any real nav tab, drop the account footer highlight
   // (initTabs already hides #tab-account by toggling .tab-panel.active).
   document.getElementById('admNav')?.addEventListener('click', (e) => {
-    if (e.target.closest('.tab-btn')) el('navAccount')?.classList.remove('is-active');
+    if (e.target.closest('.tab-btn')) $('navAccount')?.classList.remove('is-active');
   });
 }

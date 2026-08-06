@@ -13,8 +13,10 @@
 import { sb }           from '/js/lib/supabase.js';
 import { CalendarGrid } from '/js/components/CalendarGrid.js';
 import { esc }          from '/js/utils/escape.js';
+import { $ }            from '/js/utils/dom.js';
 import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 import { eventPhase, isRegistrationOpen, PHASE_LABEL } from '/js/lib/special-events.js';
+import { pad2 as pad, ymd } from '/js/utils/date.js';
 
 const DAYS_S = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const DAYS_L = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -30,10 +32,8 @@ const CATS = {
   otro:           'Otro',
 };
 
-const pad      = n => String(n).padStart(2, '0');
-const ymd      = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+
 const todayYMD = () => { const t = new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
-const $ = (id) => document.getElementById(id);
 
 // ─── State ──────────────────────────────────────────────────────────────────
 let view      = 'list';

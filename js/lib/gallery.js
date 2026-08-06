@@ -7,6 +7,7 @@
 
 import { sb } from '/js/lib/supabase.js';
 import { optimizeImage } from '/js/lib/image-optimizer.js';
+import { fmtDateLong } from '/js/utils/format-date.js';
 
 /* ── Constants ─────────────────────────────────────────────────────────────── */
 
@@ -273,9 +274,7 @@ export function subscribePhotos(albumId, onChange) {
 /* ── Display helpers ──────────────────────────────────────────────────────── */
 
 export function formatEventDate(d) {
-  if (!d) return '';
-  const date = new Date(d + 'T00:00');
-  return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+  return fmtDateLong(d);
 }
 
 export function albumPublicUrl(album, origin = 'https://www.irdlex.org') {

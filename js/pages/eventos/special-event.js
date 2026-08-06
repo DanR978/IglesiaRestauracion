@@ -8,14 +8,15 @@ import { sanitizeHtml, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
 import { celebrateQrLanding } from '/js/lib/celebrate.js';
 import { fetchEventBy, isRegistrationOpen, eventPhase, eventAlbum, albumUrl } from '/js/lib/special-events.js';
+import { $, show, hide, setText } from '/js/utils/dom.js';
+import { capitalize } from '/js/utils/string.js';
 
 const TZ = 'America/New_York';
 
 // ── Helpers ──────────────────────────────────────────────
-const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 function formatDate(iso) {
   try {
-    return cap(new Date(iso).toLocaleDateString('es', {
+    return capitalize(new Date(iso).toLocaleDateString('es', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ,
     }));
   } catch { return ''; }
@@ -27,11 +28,6 @@ function formatTime(iso) {
     });
   } catch { return ''; }
 }
-
-const $ = (id) => document.getElementById(id);
-const show = (id) => { const el = $(id); if (el) el.style.display = ''; };
-const hide = (id) => { const el = $(id); if (el) el.style.display = 'none'; };
-const setText = (id, t) => { const el = $(id); if (el) el.textContent = t; };
 
 // ── Fetch & render ───────────────────────────────────────
 async function loadEvent() {

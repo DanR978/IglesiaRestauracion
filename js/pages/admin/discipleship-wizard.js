@@ -17,6 +17,7 @@ import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 import { upsertGroup, LEVELS } from '/js/lib/discipleship.js';
 import { capitalize } from '/js/utils/string.js';
 import { fmtDateLong, fmtClock } from '/js/utils/format-date.js';
+import { $ } from '/js/utils/dom.js';
 import { toast } from './ui.js';
 
 /* ── Level cards (visual picker for step 1) ─────────────────────────── */
@@ -59,9 +60,6 @@ function blankData() {
     published: true,
   };
 }
-
-/* ── DOM helpers ────────────────────────────────────────────────────── */
-const $ = id => document.getElementById(id);
 
 /* ── Public API ─────────────────────────────────────────────────────── */
 export function openDscpWizard(opts = {}) {

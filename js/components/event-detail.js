@@ -8,13 +8,14 @@ import { sb } from '/js/lib/supabase.js';
 import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 import { buildGoogleCalUrl, downloadICS } from '/js/utils/calendar.js';
 import { isIOS } from '/js/utils/detect-device.js';
+import { $, show, hide, setText } from '/js/utils/dom.js';
+import { capitalize } from '/js/utils/string.js';
 
 const TZ = 'America/New_York';
 
-const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 function formatDate(iso) {
   try {
-    return cap(new Date(iso).toLocaleDateString('es', {
+    return capitalize(new Date(iso).toLocaleDateString('es', {
       weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TZ,
     }));
   } catch { return ''; }
@@ -32,11 +33,6 @@ function timeRange(startsAt, endsAt) {
   const e = formatTime(endsAt);
   return e ? `${s} – ${e}` : s;
 }
-
-const $ = (id) => document.getElementById(id);
-const show = (id) => { const el = $(id); if (el) el.style.display = ''; };
-const hide = (id) => { const el = $(id); if (el) el.style.display = 'none'; };
-const setText = (id, t) => { const el = $(id); if (el) el.textContent = t; };
 
 async function loadEvent() {
   const id = new URLSearchParams(window.location.search).get('id');

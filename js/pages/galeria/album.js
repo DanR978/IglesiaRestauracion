@@ -15,13 +15,11 @@ import {
   formatEventDate, EVENT_TYPE_LABEL,
 } from '/js/lib/gallery.js';
 import { openLightbox } from '/js/components/lightbox.js';
+import { $ } from '/js/utils/dom.js';
 
 const params = new URLSearchParams(location.search);
 const SLUG = params.get('slug') || '';
 const ID   = params.get('id')   || '';
-
-const $ = (id) => document.getElementById(id);
-
 
 let currentAlbum  = null;
 let currentPhotos = [];

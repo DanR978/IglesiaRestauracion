@@ -19,13 +19,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { esc } from '/js/utils/escape.js';
+import { pad2 as pad, ymd } from '/js/utils/date.js';
 
 const DAYS_S    = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
 const DAYS_L    = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const MONTHS    = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
                    'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const pad       = n => String(n).padStart(2, '0');
-const ymd       = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
+
 const todayYMD  = () => { const t = new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
 
 const CATS = {

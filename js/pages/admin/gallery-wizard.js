@@ -17,6 +17,7 @@ import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 import { EVENT_TYPES, EVENT_TYPE_LABEL, upsertAlbum } from '/js/lib/gallery.js';
 import { loadEventOptions, eventOptionsHtml } from './event-link.js';
 import { fmtDateLong } from '/js/utils/format-date.js';
+import { $ } from '/js/utils/dom.js';
 import { toast } from './ui.js';
 
 /* ── State ──────────────────────────────────────────────────────────── */
@@ -35,8 +36,6 @@ function blankData() {
     is_published: true,
   };
 }
-
-const $ = id => document.getElementById(id);
 
 /* ── Public API ─────────────────────────────────────────────────────── */
 export function openGalleryWizard(opts = {}) {

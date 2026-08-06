@@ -12,6 +12,7 @@ import { toast, closeModal } from './ui.js';
 import { loadUpcoming } from './events-tab.js';
 import { loadCalendario } from './calendar-tab.js';
 import { EVENT_PRESETS, DEFAULT_LOC_ADDR } from './event-form.js';
+import { $ } from '/js/utils/dom.js';
 
 const IMG_BASE = import.meta.env?.VITE_STORAGE_EVENT_IMAGES
   ? import.meta.env.VITE_STORAGE_EVENT_IMAGES + '/'
@@ -31,9 +32,6 @@ let evType  = null;  // 'special' | 'regular'
 let preset  = null;  // index into EVENT_PRESETS or null for custom
 let cat     = null;  // category id for regular events
 let customTitle = '';
-
-// ─── DOM refs ───────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
 
 // ─── Open / Close ───────────────────────────────────────────────────────────
 export function openWizard() {
