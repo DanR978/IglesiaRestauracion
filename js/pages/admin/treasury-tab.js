@@ -9,6 +9,7 @@ import { money as fmt } from '/js/utils/number.js';
 import { sb, ministries, currentUser, currentProfile } from './state.js';
 import { toast, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { openFormWizard } from './form-wizard.js';
 import { mountReportBuilder } from './report-builder.js';
 import { mountProjectTreasury } from './project-treasury.js';
@@ -104,7 +105,7 @@ function syncNav() {
 function render() {
   const root = document.getElementById('treasuryBody');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   // Reportes uses the full screen width on desktop.
   document.getElementById('tab-treasury')?.classList.toggle('trez-wide', sub === 'reports');
   ({ resumen: renderResumen, income: renderIncome, expenses: renderExpenses, recurring: renderRecurring,
@@ -155,7 +156,7 @@ async function renderResumen(root) {
           <div class="trez-budrow__head"><span class="trez-budrow__name">${esc(r.name)}</span>
             <span class="trez-budrow__nums">${fmt(r.spent)}</span></div>
         </div>`).join('')}</div>`
-        : `<div class="empty-state"><i class="fas fa-arrow-up"></i><p>Aún no hay gastos para ${monthLbl()}.</p></div>`}
+        : emptyHtml('fa-arrow-up', `Aún no hay gastos para ${monthLbl()}.`)}
     </div>`;
 }
 
@@ -552,17 +553,17 @@ async function renderNotes(root) {
           <div class="trez-note__body">${esc(n.body)}</div>
           <div class="trez-note__meta">${esc(minName(n.ministry_id))} · ${fmtDateShort((n.created_at || '').slice(0,10))}</div>
           <button class="adm-icon-btn trez-note__del" data-kebab="${n.id}" title="Acciones"><i class="fas fa-ellipsis-vertical"></i></button>
-        </div>`).join('') : '<div class="empty-state"><i class="fas fa-note-sticky"></i><p>Sin notas todavía.</p></div>'}
+        </div>`).join('') : emptyHtml('fa-note-sticky', 'Sin notas todavía.')}
     </div>`;
   bindList(root, 'notes', 'fin_notes', WIZ.notes(), { title: r => r?.body });
 }
 
 /* ── shared building blocks ────────────────────────────────────────────────── */
-function errBox(e) { return `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(e?.message || 'Error')}</p></div>`; }
+function errBox(e) { return String(errorHtml(e?.message, { fallback: 'Error' })); }
 function addBtn(label) { return `<div class="trez-addbar"><button class="btn btn--primary" data-add-btn><i class="fas fa-plus"></i> ${esc(label)}</button></div>`; }
 function kebabCell(id) { return `<td class="row-act"><button class="adm-icon-btn" data-kebab="${id}" title="Acciones" aria-label="Acciones"><i class="fas fa-ellipsis-vertical"></i></button></td>`; }
 function table(heads, rowsHtml, emptyMsg) {
-  if (!rowsHtml) return `<div class="empty-state"><i class="fas fa-inbox"></i><p>${emptyMsg}</p></div>`;
+  if (!rowsHtml) return String(emptyHtml('fa-inbox', emptyMsg));
   const heading = h => `<th${/^(monto|ingresos|gastos|balance|acumulado)$/i.test(h) ? ' class="num"' : ''}>${h}</th>`;
   return `<div class="trez-tablewrap"><table class="trez-table">
     <thead><tr>${heads.map(heading).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>`;

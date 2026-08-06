@@ -283,7 +283,7 @@ async function showPlaylistVideos(playlistId, playlistTitle) {
     container.innerHTML = `
       <div class="sermon-empty">
         <i class="fas fa-exclamation-triangle"></i>
-        <p>Error: ${err.message}</p>
+        <p>Error: ${esc(err.message)}</p>
       </div>`;
   }
 }
@@ -321,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.innerHTML = `
       <div class="sermon-empty">
         <i class="fas fa-exclamation-triangle"></i>
-        <p>Error al cargar: ${err.message}</p>
+        <p>Error al cargar: ${esc(err.message)}</p>
       </div>`;
   }
 });

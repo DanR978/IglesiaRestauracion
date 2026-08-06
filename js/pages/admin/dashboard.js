@@ -5,6 +5,7 @@
 
 import { html, raw } from '/js/utils/escape.js';
 import { render } from '/js/utils/render.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { sb, isAdmin, currentProfile, todayISO, MONTHS, DAY_NAMES } from './state.js';
 import { autoBalance } from './grid-balance.js';
 import { goToTab } from './event-views.js';
@@ -22,7 +23,7 @@ export async function loadDashboard() {
     greet.textContent = first ? `Hola, ${first}` : 'Hola';
   }
 
-  render(cardsEl, html`<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>`);
+  render(cardsEl, loadingHtml());
   if (nextEl) render(nextEl, '');
 
   const admin = isAdmin();
@@ -101,10 +102,9 @@ export async function loadDashboard() {
                 </div>
               </div>`;
           })}`
-        : html`<div class="empty-state"><i class="fas fa-calendar-check"></i><p>No hay eventos próximos.</p></div>`);
+        : emptyHtml('fa-calendar-check', 'No hay eventos próximos.'));
     }
   } catch (e) {
-    render(cardsEl,
-      html`<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${e.message}</p></div>`);
+    render(cardsEl, errorHtml(e.message));
   }
 }

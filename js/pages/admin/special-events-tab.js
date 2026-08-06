@@ -19,6 +19,7 @@ import { toast, confirm } from './ui.js';
 import { html, esc } from '/js/utils/escape.js';
 import { $ } from '/js/utils/dom.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { eventPhase, eventEndsAt } from '/js/lib/special-events.js';
 import { invalidateEventOptions } from './event-link.js';
 import { generateQrDataUrl, generateQrBlob, copyText, slugifyTitle } from '/js/lib/qr.js';
@@ -196,14 +197,14 @@ function boot() {
 async function renderList() {
   const el = $('seList');
   if (!el) return;
-  el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  el.innerHTML = loadingHtml();
 
   const { data: events, error } = await sb
     .from('special_events')
     .select('*')
     .order('event_at', { ascending: false, nullsFirst: false });
   if (error) {
-    el.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error: ${esc(error.message)}</p></div>`;
+    el.innerHTML = errorHtml(error.message, { prefix: 'Error' });
     return;
   }
   eventsCache = events || [];
@@ -216,11 +217,7 @@ async function renderList() {
   }
 
   if (!eventsCache.length) {
-    el.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-clipboard-list"></i>
-        <p>Aún no hay eventos con registro. Crea el primero con el botón de arriba.</p>
-      </div>`;
+    el.innerHTML = emptyHtml('fa-clipboard-list', 'Aún no hay eventos con registro. Crea el primero con el botón de arriba.');
     return;
   }
 
@@ -602,10 +599,10 @@ async function openDetail(id) {
 
 async function loadRegistrations() {
   const el = $('seRegTable');
-  el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando inscripciones...</div>';
+  el.innerHTML = loadingHtml('Cargando inscripciones...');
   const { data, error } = await sb.from('event_registrations')
     .select('*').eq('event_id', currentEvent.id);
-  if (error) { el.innerHTML = `<div class="empty-state"><p>Error: ${esc(error.message)}</p></div>`; return; }
+  if (error) { el.innerHTML = errorHtml(error.message, { prefix: 'Error' }); return; }
   regsCache = data || [];
   renderRegistrations();
 }
@@ -655,7 +652,7 @@ function renderRegistrations() {
   $('seRegCount').textContent = `${regsCache.length} inscrito${regsCache.length === 1 ? '' : 's'}`;
 
   if (!regsCache.length) {
-    el.innerHTML = `<div class="empty-state"><i class="fas fa-user-plus"></i><p>Aún no hay inscripciones para este evento.</p></div>`;
+    el.innerHTML = emptyHtml('fa-user-plus', 'Aún no hay inscripciones para este evento.');
     return;
   }
 

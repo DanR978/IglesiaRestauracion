@@ -1,4 +1,4 @@
-import { esc } from '/js/utils/escape.js';
+import { esc, html, raw } from '/js/utils/escape.js';
 // js/pages/admin/gallery-tab.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Admin Galería tab — full CRUD for albums + photos.
@@ -21,6 +21,7 @@ import { $ } from '/js/utils/dom.js';
 import { toast, confirm } from './ui.js';
 import { openGalleryWizard } from './gallery-wizard.js';
 import { loadEventOptions, eventOptionsHtml } from './event-link.js';
+import { emptyHtml } from '/js/components/states.js';
 
 let booted = false;
 let albumsCache = [];
@@ -132,11 +133,7 @@ async function refreshLibrary() {
   }
 
   if (!albumsCache.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-images"></i>
-        <p>Aún no hay álbumes. Crea el primero con el botón <strong>Nuevo álbum</strong>.</p>
-      </div>`;
+    list.innerHTML = emptyHtml('fa-images', html`Aún no hay álbumes. Crea el primero con el botón <strong>Nuevo álbum</strong>.`);
     return;
   }
 

@@ -4,6 +4,7 @@ import { esc } from '/js/utils/escape.js';
 // Admin-only. Buckets are computed client-side from compact column fetches.
 
 import { sb } from './state.js';
+import { loadingHtml, errorHtml } from '/js/components/states.js';
 
 
 
@@ -16,7 +17,7 @@ function dayKey(d) {
 export async function loadAnalytics() {
   const root = document.getElementById('analyticsBody');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
 
   const now = new Date();
   const since56 = new Date(now); since56.setDate(now.getDate() - 55);
@@ -107,7 +108,7 @@ export async function loadAnalytics() {
         </div>
       </div>`;
   } catch (e) {
-    root.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(e.message)}</p></div>`;
+    root.innerHTML = errorHtml(e.message);
   }
 }
 

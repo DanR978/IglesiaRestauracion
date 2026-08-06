@@ -7,6 +7,7 @@ import { buildFilterChecks } from './filters.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
 import { autoBalance } from './grid-balance.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { emptyHtml } from '/js/components/states.js';
 
 
 
@@ -30,8 +31,7 @@ export function renderMinistriesTab() {
   const el = document.getElementById('ministriesList');
   if (!el) return;
   if (!ministries.length) {
-    el.innerHTML =
-      '<div class="empty-state"><i class="fas fa-church"></i><p>No hay ministerios todavía. Crea el primero.</p></div>';
+    el.innerHTML = emptyHtml('fa-church', 'No hay ministerios todavía. Crea el primero.');
     return;
   }
   el.innerHTML = ministries.map(m => `

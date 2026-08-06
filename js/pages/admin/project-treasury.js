@@ -20,6 +20,7 @@ import { sb, currentUser, currentProfile, ministries, MONTHS } from './state.js'
 import { toast, confirm } from './ui.js';
 import { openFormWizard } from './form-wizard.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml } from '/js/components/states.js';
 import { savePdf, churchDocDef, sectionHeading, kpiBox, th, churchLogo, CONTENT_W } from '/js/lib/pdf.js';
 import { pad2 as pad, todayISO } from '/js/utils/date.js';
 import { fmtDateShort } from '/js/utils/format-date.js';
@@ -46,7 +47,7 @@ export async function mountProjectTreasury() {
   const mInp = document.getElementById('trezMonth');
   if (mInp) { const bar = mInp.closest('div'); if (bar) bar.style.display = 'none'; }
 
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   await loadProjects();
   await ensureMinistryProjects();          // give each budgeted ministry its own tab
   if (!projects.some(p => p.id === activeId)) activeId = 'resumen';
@@ -186,7 +187,7 @@ function projCard(p, totals, opts = {}) {
 async function renderResumen() {
   const root = document.getElementById('treasuryBody');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   const totals = await projectTotals();
 
   const mids = myMinistryIds();
@@ -214,7 +215,7 @@ async function renderResumen() {
     <div class="section-divider"><i class="fas fa-folder"></i> Proyectos</div>
     ${regProjects.length
       ? `<div class="trez-projgrid">${regProjects.map(p => projCard(p, totals)).join('')}</div>`
-      : '<div class="empty-state"><i class="fas fa-folder-plus"></i><p>Crea una carpeta (proyecto) para registrar un presupuesto aparte.</p></div>'}`;
+      : emptyHtml('fa-folder-plus', 'Crea una carpeta (proyecto) para registrar un presupuesto aparte.')}`;
 
   root.innerHTML = `<p class="trez-lead">Cada ministerio y proyecto lleva su propio presupuesto. Toca uno para ver y registrar sus movimientos.</p>
     ${minSection}${projSection}`;
@@ -230,7 +231,7 @@ async function renderProject(id) {
   if (!p) { activeId = 'resumen'; renderNav(); return render(); }
 
   const isMinistry = !!p.ministry_id;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   const [inc, exp, bud] = await Promise.all([
     sb.from('fin_income').select('*').eq('project_id', id),
     sb.from('fin_expenses').select('*').eq('project_id', id),
@@ -269,7 +270,7 @@ async function renderProject(id) {
             ? '<span class="trez-sub" title="Asignado por la tesorería"><i class="fas fa-lock"></i></span>'
             : `<button class="adm-icon-btn" data-del="${e.kind}:${e.id}" title="Eliminar"><i class="fas fa-ellipsis-vertical"></i></button>`}</td>
         </tr>`).join('')}</tbody></table></div>`
-      : '<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin movimientos todavía. Agrega un ingreso o un gasto.</p></div>'}`;
+      : emptyHtml('fa-inbox', 'Sin movimientos todavía. Agrega un ingreso o un gasto.')}`;
 
   root.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => addEntry(b.dataset.add, id)));
   root.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => {
