@@ -22,7 +22,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 
 | Phase | Sessions | Status |
 |---|---|---|
-| 0 · Pre-flight & scaffolding | S01–S05 | 🟨 S01 ✅ · S02 ✅ · S03 🟦 · S04 🟦 · S05 ⬜ |
+| 0 · Pre-flight & scaffolding | S01–S05 | 🟨 S01 ✅ · S02 ✅ · S03 🟦 · S04 🟦 · S05 🟦 |
 | 1 · Shared foundations (libs, client, design system) | S06–S22 | ⬜ |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
@@ -33,7 +33,8 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 **Current state (overwrite each session):**
 - Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
 - In `/app` staging, not cut over: nothing.
-- Open PRs: **`migrate/S03-merged-deploy`** (`deploy.yml` only — web build stage + prune) and **`migrate/S04-config-env`** stacked on it (`config.ts` + `.env.example` + the env block; merge S03 → S04). S01, S02, and the S56b/S56c filing all merged to `main` 2026-08-23.
+- Open PRs (a stack — merge in order S03 → S04 → S05): **`migrate/S03-merged-deploy`** (`deploy.yml`: web build stage + prune), **`migrate/S04-config-env`** (`config.ts` + `.env.example` + env block), **`migrate/S05-test-harness`** (Vitest/Playwright/ESLint/Prettier + golden helper + `ci.yml` gate). S01, S02, and the S56b/S56c filing all merged to `main` 2026-08-23.
+- **Human one-time after S05 merges:** protect `main` requiring the `web` + `ledger` CI checks (Settings → Branches).
 - **The schema now rebuilds from git**: `supabase db reset` applies the two baseline files + the 16 migrations clean (G-004 closed). Local stack requires Docker.
 - **`web/` exists and builds**: SvelteKit 2 + Svelte 5 (runes) + `adapter-static`, TS strict. `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build` → `web/build/` with assets under `/app`; `npm run check` is clean. S03 (PR open) wires it into `deploy.yml` → `/app/`; verified locally (build + artifact-merge simulation: absolute `/app/_app/…` asset URLs, root untouched). Until S03 merges, the deploy ships `web/` *source* to the live site (see ⚠️ below).
 - **Prod was not touched by S01, and two things it surfaced are still open on the live site**: `Modo mantenimiento` is dead in prod (G-015 — one unapplied migration; a human must apply it), and `is_aal2()` is a `select true` stub so DB-side MFA is not actually enforced (G-016 — S39 owns it).
@@ -41,7 +42,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
 - 2026-08-23: treasury receipts + bulk-entry feature **filed** as Phase-5 sessions **S56b/S56c** (no code; D-018/D-019 locked below; specs in `docs/migration/sessions/`). The feature lands in the SvelteKit app in full roadmap order — nothing in legacy (DUAL-MAINTENANCE).
 
-**Next up:** merge S03 (⚠️ below) then S04, then `S05 — test harness + governance bootstrap` (stacked on S04). See `docs/migration/sessions/`.
+**Next up:** merge the S03 → S04 → S05 stack (⚠️ below), set branch protection, then **Phase 1**: the lib track `S06 — typed Supabase client` (prereqs S01+S04) → S07–S10, in parallel with the design-system track S11–S21. See `docs/migration/sessions/`.
 
 > ⚠️ **S03 is not optional housekeeping — merge it with (or right after) S02.** `deploy.yml` publishes the repo root, so once S02 is on `main` the deploy will happily upload `web/`'s *source* to the live site. Harmless (public repo, no secrets) but sloppy; S03 is what turns `web/` into `/app/` and prunes the source.
 

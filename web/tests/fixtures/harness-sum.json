@@ -1,0 +1,6 @@
+[
+  { "input": [1, 2], "expected": 3, "note": "smallest case" },
+  { "input": [0, 0], "expected": 0 },
+  { "input": [-5, 5], "expected": 0, "note": "negatives" },
+  { "input": [1250, 4305], "expected": 5555, "note": "cents-sized integers" }
+]

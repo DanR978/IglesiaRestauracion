@@ -1,0 +1,50 @@
+# CI gate for the SvelteKit rewrite (MIGRATION.md S05).
+# Job `web`: typecheck + lint + unit/golden tests + /app build must pass.
+# Job `ledger`: any PR labeled `migration` must touch MIGRATION.md in the same
+# PR ("a decision that isn't written down didn't happen").
+# Branch protection on main should require both checks (human task, one-time).
+name: CI
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - run: npm run check
+        working-directory: web
+      - run: npm run lint
+        working-directory: web
+      - run: npm run test
+        working-directory: web
+      - name: Build (/app)
+        # Same PUBLIC-by-design secrets as deploy.yml (D-007); a missing one
+        # fails here before it can fail a deploy.
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: BASE_PATH=/app npm run build
+        working-directory: web
+
+  ledger:
+    if: contains(github.event.pull_request.labels.*.name, 'migration')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: migration-labeled PRs must update MIGRATION.md
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qx 'MIGRATION.md' \
+            || { echo '::error::PR is labeled `migration` but does not touch MIGRATION.md (update the ledger in the same PR).'; exit 1; }
