@@ -27,7 +27,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
-| 5 · Hard subsystems (treasury, registrations, designer) | S52–S63 | ⬜ |
+| 5 · Hard subsystems (treasury, registrations, designer) | S52–S63 (+S56b, S56c) | ⬜ |
 | 6 · Cutover & decommission | S64–S65 | ⬜ |
 
 **Current state (overwrite each session):**
@@ -36,6 +36,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - Open PRs: none.
 - Active freeze: **VBS/registration season** — do NOT cut over `eventos/registro` or `/admin` (see `DUAL-MAINTENANCE.md`).
 - Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
+- 2026-08-23: treasury receipts + bulk-entry feature **filed** as Phase-5 sessions **S56b/S56c** (no code; D-018/D-019 locked below; specs in `docs/migration/sessions/`). The feature lands in the SvelteKit app in full roadmap order — nothing in legacy (DUAL-MAINTENANCE).
 
 **Next up:** `S01 — RLS audit + committed schema baseline`. See `docs/migration/sessions/`.
 
@@ -58,6 +59,8 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **D-015** The admin type scale is **`--fs-*`** (fluid), **re-tuned monotonic — not ported as-is** (S11). Legacy is non-monotonic (`--fs-2xl` max `2rem` < `--fs-xl` max `2.1875rem`; `--fs-lg`/`--fs-2xl` share `2rem`) and jumps `~0.7rem` labels → `~1.85rem/800` KPI numbers with **nothing between** — the port adds the missing mid-range step. `--size-*` (static) does not govern admin type; `.ird-btn` reconciles from `--size-base` to `--fs-btn`. Never `font-size` in px or raw rem.
 - **D-016** Money color is a set of **semantic tokens** in `tokens/colors.css` (S11) that reverse via the `data-theme` dark override: `--money-pos`/`-bg`, `--money-neg`/`-bg`, `--money-warn`/`-bg`. The two legacy greens (`#1e6b61` + `#1c7a52`) **collapse to one**; the hardcoded `#b02030`/`#a05a10` and the `!important` on `.pos`/`.neg` are retired. No treasury file ships a money hex literal. Feeds S08 `money.ts`, consumed by S53/S56.
 - **D-017** **One dark-mode mechanism: a token override keyed on `data-theme` on `<html>`.** `tokens/colors.css` is the only file that mentions `data-theme`; every component consumes `var(--color-*)` and reverses for free. The ~27 component/section/page-level `@media (prefers-color-scheme: dark)` blocks in legacy are **bugs, not precedent** — they silently defeat the admin's forced-theme override. Never add one outside the token files; even there it opts out of forced themes with `:root:not([data-theme="light"]):not([data-theme="dark"])`. (Locks CLAUDE.md §4 as a migration invariant.)
+- **D-018** (2026-08-23) Treasury receipts (`fin_receipts` + the **private** `receipts` storage bucket) are month-bucketed within **calendar-year retention**: year `Y`'s receipts are deleted after end of January of `Y+2` — an annual pg_cron (`'0 5 1 2 *'`, Feb 1) calls the `receipts-cleanup` edge fn (service-role, `x-cron-secret`, chunked `storage.remove` + row deletes, `year <= extract(year from now()) − 2`), so the books always hold the full previous year through the current year and every receipt lives ~13–25 months. The bucket is **never public-read** (unlike `gallery`/`event-images`/`avatars`) — the client reads via authenticated `.download()`, no public or long-lived signed URLs. Each receipt stores exactly **one client-compressed WebP main (≤1600px, ~q0.8) + one WebP thumb**, never upscaled. Ships with S56b (spec: `sessions/S56b-treasury-recibos.md`).
+- **D-019** (2026-08-23) **Ministry treasury data is ministry-shared, not owner-private** — deliberately supersedes the owner-only scoping of `pp_fin_income_owner`/`pp_fin_expenses_owner` **for ministry-linked projects only**. Every leader of a ministry (`ministry_id = ANY(my_ministry_ids())`) sees the same ministry-scoped data: `fin_projects` rows carrying that `ministry_id`, their `fin_income`/`fin_expenses` entries, and that ministry's `fin_receipts`. Personal (non-ministry) project entries and receipts stay owner-private — **invisible even to finance**, exactly as today. Applied as **additive** RLS policies in S56b — legacy UI behavior is unchanged because legacy filters by `owner_id` client-side, and S56 first ports the legacy behavior faithfully before S56b applies this approved change. Legacy `ensureMinistryProjects()`'s per-owner duplicate ministry projects are tolerated until a consolidation data-migration in the **S64 cutover PR**; the new app aggregates by `ministry_id`, never by project ownership.
 
 ## 3. Gotchas discovered (append-only — save the next session the pain)
 
