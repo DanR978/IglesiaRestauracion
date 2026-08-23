@@ -60,12 +60,31 @@ jobs:
       - name: Inline shared HTML fragments
         run: node scripts/inline-includes.mjs
 
+      # Build the SvelteKit rewrite and merge it into the SAME Pages artifact
+      # under /app/ (MIGRATION.md D-008: one artifact, custom domain). The
+      # legacy site at the root is untouched; web/ sources are pruned below so
+      # only the built app/ ships.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Build SvelteKit app (/app)
+        run: |
+          cd web
+          npm ci
+          BASE_PATH=/app npm run build
+      - name: Merge app build into the artifact
+        run: |
+          mkdir -p app
+          cp -r web/build/. app/
+
       # Keep the published artifact to what the static host actually serves.
       # src/ stays (include.js fetches it + sw.js precaches it); build tooling,
       # backend, CI, and dependencies are stripped so they never reach the web.
       - name: Prune non-public files from the deploy artifact
         run: |
-          rm -rf node_modules .git .github scripts supabase tests \
+          rm -rf node_modules .git .github scripts supabase tests web \
                  deno.lock vite.config.js \
                  package.json package-lock.json optimized
 
