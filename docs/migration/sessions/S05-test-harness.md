@@ -48,7 +48,7 @@ Give `web/` its permanent quality gate — Vitest (jsdom + coverage), Playwright
 - Branch: `migrate/S05-test-harness` (stacked on `migrate/S04-config-env`). Last known-good commit: see PR.
 - Done so far: everything in scope written and verified locally; awaiting CI on the PR.
 - Next concrete action: merge after S04; then the branch-protection human task.
-- Landmines: vitest needs `.svelte-kit/` to exist (`check` runs `svelte-kit sync` first — keep the CI order check→test); e2e webServer build needs `web/.env`; G-019 applies to every local `BASE_PATH` build.
+- Landmines: vitest needs `.svelte-kit/` to exist (`check` runs `svelte-kit sync` first — keep the CI order check→test); `svelte-kit sync` generates the `$env/static/public` TYPE module from the env it sees, so `npm run check` needs the `PUBLIC_*` names declared (locally via `web/.env`, in CI via the job-level `env:` — a step-level env on build alone breaks check); e2e webServer build needs `web/.env`; G-019 applies to every local `BASE_PATH` build.
 
 ## On completion
 - [ ] Update `MIGRATION.md`: status board, Current state, Next up.

@@ -12,6 +12,14 @@ on:
 jobs:
   web:
     runs-on: ubuntu-latest
+    # Job-level, not build-step-only: `svelte-kit sync` (inside npm run check)
+    # generates the $env/static/public TYPE module from the env it sees, so
+    # check needs the names declared too. Same PUBLIC-by-design secrets as
+    # deploy.yml (D-007). An UNSET secret interpolates to '' — still declared,
+    # and the required() guard in web/src/lib/config.ts then fails the build.
+    env:
+      PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,11 +36,6 @@ jobs:
       - run: npm run test
         working-directory: web
       - name: Build (/app)
-        # Same PUBLIC-by-design secrets as deploy.yml (D-007); a missing one
-        # fails here before it can fail a deploy.
-        env:
-          PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: BASE_PATH=/app npm run build
         working-directory: web
 
