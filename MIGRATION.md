@@ -4,7 +4,7 @@
 > then `docs/migration/README.md`, then the specific `docs/migration/sessions/NN-*.md` it was asked to do.
 > Update this file in the SAME PR as the work. History is append-only — strike through, never delete.
 >
-> Last updated: 2026-07-14 · by: S01 (rls-baseline) · Status: **PHASE 0 IN PROGRESS**
+> Last updated: 2026-07-14 · by: S02 (sveltekit-scaffold) · Status: **PHASE 0 IN PROGRESS**
 
 ---
 
@@ -22,7 +22,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 
 | Phase | Sessions | Status |
 |---|---|---|
-| 0 · Pre-flight & scaffolding | S01–S05 | 🟨 S01 🟦 · S02–S05 ⬜ |
+| 0 · Pre-flight & scaffolding | S01–S05 | 🟨 S01 🟦 · S02 🟦 · S03–S05 ⬜ |
 | 1 · Shared foundations (libs, client, design system) | S06–S22 | ⬜ |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
@@ -33,13 +33,16 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 **Current state (overwrite each session):**
 - Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
 - In `/app` staging, not cut over: nothing.
-- Open PRs: **`migrate/S01-rls-baseline`** (schema baseline + RLS audit; `supabase/` and docs only — no app code).
+- Open PRs: **`migrate/S01-rls-baseline`** (schema baseline + RLS audit; `supabase/` and docs only — no app code), and **`migrate/S02-sveltekit-scaffold`** stacked on it (`web/` only; retarget to `main` once S01 merges).
 - **The schema now rebuilds from git**: `supabase db reset` applies the two baseline files + the 16 migrations clean (G-004 closed). Local stack requires Docker.
+- **`web/` exists and builds**: SvelteKit 2 + Svelte 5 (runes) + `adapter-static`, TS strict. `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build` → `web/build/` with assets under `/app`; `npm run check` is clean. It is **not deployed yet** — S03 wires it into `deploy.yml`. Until then nothing about the live site changes.
 - **Prod was not touched by S01, and two things it surfaced are still open on the live site**: `Modo mantenimiento` is dead in prod (G-015 — one unapplied migration; a human must apply it), and `is_aal2()` is a `select true` stub so DB-side MFA is not actually enforced (G-016 — S39 owns it).
 - Active freeze: **VBS/registration season** — do NOT cut over `eventos/registro` or `/admin` (see `DUAL-MAINTENANCE.md`).
 - Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
 
-**Next up:** `S02 — SvelteKit + adapter-static scaffold in web/` (no prereqs; S01 is done). See `docs/migration/sessions/`.
+**Next up:** `S03 — Merged deploy: legacy + /app in one artifact` (prereq S02, done). S04 and S05 also unblock now and can run in parallel with S03. See `docs/migration/sessions/`.
+
+> ⚠️ **S03 is not optional housekeeping — merge it with (or right after) S02.** `deploy.yml` publishes the repo root, so once S02 is on `main` the deploy will happily upload `web/`'s *source* to the live site. Harmless (public repo, no secrets) but sloppy; S03 is what turns `web/` into `/app/` and prunes the source.
 
 ## 2. Invariants & decisions — LOCKED (append-only; never silently reverse)
 
@@ -80,6 +83,9 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **G-015** **git and prod have drifted: two committed migrations were never applied to production.** Found by diffing the live dump against a local `db reset`. (a) `…0005_public_feature_flags.sql` — prod's only `app_settings` policy is admin-only, but `maintenance.js` reads `app_settings` as **anon**, so RLS returns zero rows and the code fails open: **"Modo mantenimiento" is silently dead in prod today** — the admin toggle saves, and no visitor ever sees the overlay (the G-011 "controls that lie" class, now with a confirmed cause). (b) `…0001_admin_notifications_delete.sql` — missing in prod but **harmless**: `admin_notifications_admin_all` has no `FOR` clause, so it is `FOR ALL` and already covers DELETE. Fix for (a) = apply that one migration to prod (idempotent, one policy). **S01 did not touch prod.**
 - **G-016** **`is_aal2()` is a stub — its body is literally `select true`.** Every policy that *reads* as MFA-gated is therefore only `is_admin()`: `dinterests_staff_all` (the visitor/minors' PII table) and the three `Gallery staff` storage write policies. **DB-side MFA is NOT enforced today**, which is consistent with D-010 (the `aal2` migration is owed by S39) but dangerously invisible — the policies look done. S39 must replace the body with a real `auth.jwt() ->> 'aal' = 'aal2'` check; until then never cite an `is_aal2()` policy as evidence that MFA is enforced.
 - **G-017** Audit findings **recorded, not fixed** (S01 captures current state; hardening is S39): (a) the `event-images` bucket's write policies are named "Admins can upload/delete" but never call `is_admin()` — **any authenticated user** can upload to or delete from it; (b) `fin_funds` / `fin_income_categories` / `fin_expense_categories` are `using (true)` for **all** authenticated users, not just finance (this is `supabase/README.md`'s own open question — names/categories only, no amounts); (c) `newsletter_subscribers` anon INSERT is `with check (true)` — no email validation or rate limit.
+- **G-018** **`svelte-check` breaks on TypeScript 7.** A plain `npm i -D typescript` resolves to 7.x, whose module shape differs (`typescript.sys` is `undefined`), and `svelte-check@4` dies at startup with `TypeError: Cannot read properties of undefined (reading 'useCaseSensitiveFileNames')`. **`web/` pins `typescript@^5`** — don't "upgrade" it until svelte-check supports 7.
+- **G-019** **Git Bash mangles `BASE_PATH=/app`** into `C:/Program Files/Git/app` (MSYS path conversion), and the build then dies with *"paths.base must be … a root-relative path"*. On Windows use `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build`, or PowerShell (`$env:BASE_PATH='/app'`). CI (Linux) is unaffected — the documented `BASE_PATH=/app npm run build` is correct there. The same applies to `npm run preview`, which re-reads `svelte.config.js`: **without `BASE_PATH` it serves at `/`, not `/app`**, and every deep link 404s for the wrong reason.
+- **G-020** `paths.relative` is set to **`false`** in `web/svelte.config.js` (S02). SvelteKit's default (`true`) emits relative asset URLs (`./_app/…`) in prerendered pages; the **fallback** page is served at arbitrary depth (`/app/admin/gallery`), where those would resolve to `/app/admin/_app/…` and 404. Absolute keeps pages + fallback consistent and makes `base` resolve to `/app` at runtime instead of `.`. The admin deep-link/reload requirement (S37) depends on this.
 
 ## 4. How prod deploys today (don't relearn this every session)
 
