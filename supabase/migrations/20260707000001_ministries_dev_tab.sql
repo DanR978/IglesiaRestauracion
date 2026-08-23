@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260707_ministries_dev_tab.sql — make "Ministerios" a Desarrollador-only page
+-- 20260707000001_ministries_dev_tab.sql — make "Ministerios" a Desarrollador-only page
 -- ============================================================================
 -- Ministerios used to show for every admin (Desarrollador AND Administrador).
 -- It is now a grantable SYSTEM tab (like Usuarios/Actividad/Configuración):

@@ -1,7 +1,7 @@
 -- ============================================================================
--- 20260701_ministry_budget.sql — private project entries + ministry budget income
+-- 20260701000002_ministry_budget.sql — private project entries + ministry budget income
 -- ============================================================================
--- Run AFTER 20260630_page_permission_rls.sql and 20260701_fin_projects.sql.
+-- Run AFTER 20260630000004_page_permission_rls.sql and 20260701000001_fin_projects.sql.
 --
 -- Goal:
 --   • A media user's own project entries (fin_income/fin_expenses with a
@@ -36,6 +36,8 @@ end $$;
 --    income tied to a project they own. ───────────────────────────────────────
 drop policy if exists pp_fin_income          on public.fin_income;
 drop policy if exists pp_fin_income_projects on public.fin_income;
+drop policy if exists pp_fin_income_church   on public.fin_income;
+drop policy if exists pp_fin_income_owner    on public.fin_income;
 
 create policy pp_fin_income_church on public.fin_income for all to authenticated
   using       (public.is_finance() and project_id is null)
@@ -49,6 +51,8 @@ create policy pp_fin_income_owner on public.fin_income for all to authenticated
 --    expenses as budget income (read-only). ───────────────────────────────────
 drop policy if exists pp_fin_expenses          on public.fin_expenses;
 drop policy if exists pp_fin_expenses_projects on public.fin_expenses;
+drop policy if exists pp_fin_expenses_church   on public.fin_expenses;
+drop policy if exists pp_fin_expenses_owner    on public.fin_expenses;
 
 create policy pp_fin_expenses_church on public.fin_expenses for all to authenticated
   using       (public.is_finance() and project_id is null)

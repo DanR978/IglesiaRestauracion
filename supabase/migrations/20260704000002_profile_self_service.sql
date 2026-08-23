@@ -1,11 +1,11 @@
 -- ============================================================================
--- 20260704_profile_self_service.sql — let a signed-in user edit their own
+-- 20260704000002_profile_self_service.sql — let a signed-in user edit their own
 -- display name from the "Perfil y Configuración" page.
 -- ============================================================================
 -- Run in the Supabase SQL Editor.
 --
 --   • set_my_display_name(name) — the ONLY way a user changes their own name.
---     security definer, mirrors set_my_avatar (20260703_profile_avatar.sql):
+--     security definer, mirrors set_my_avatar (20260703000001_profile_avatar.sql):
 --     it never needs a broad "update own profile" RLS policy (which would also
 --     let a user change their own role / allowed_tabs). It touches display_name
 --     of auth.uid() and nothing else, trims whitespace, and rejects blanks so a

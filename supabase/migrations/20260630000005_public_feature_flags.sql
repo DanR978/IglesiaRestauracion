@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260630_public_feature_flags.sql — let the public site read feature flags
+-- 20260630000005_public_feature_flags.sql — let the public site read feature flags
 -- ============================================================================
 -- The admin "Configuración" tab stores site-wide toggles (Modo mantenimiento,
 -- Discipulado, …) in app_settings under key='features'. The table was admin-only

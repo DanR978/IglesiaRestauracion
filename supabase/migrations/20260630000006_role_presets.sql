@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260630_role_presets.sql — reusable access presets ("Presets de acceso")
+-- 20260630000006_role_presets.sql — reusable access presets ("Presets de acceso")
 -- ============================================================================
 -- Run in the Supabase SQL Editor (migrations are applied manually for this
 -- project). Replaces "pick a ministry + hand-check pages" with named presets.

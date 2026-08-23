@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20260705_newsletter_broadcast.sql — scheduled newsletter (monthly digest +
+-- 20260705000001_newsletter_broadcast.sql — scheduled newsletter (monthly digest +
 -- day-before event reminders) + one-click unsubscribe.
 -- ============================================================================
 -- Background: `newsletter-subscribe` only sends a one-time welcome email at
@@ -7,7 +7,7 @@
 --   1. per-subscriber unsubscribe token + an unsubscribed_at "soft delete"
 --   2. a dispatch log so a blast/reminder is never sent twice (idempotency)
 --
--- The cron scheduling itself lives in 20260706_newsletter_cron.sql.
+-- The cron scheduling itself lives in 20260706000001_newsletter_cron.sql.
 -- Idempotent — safe to re-run.
 -- ============================================================================
 
