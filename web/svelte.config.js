@@ -14,7 +14,7 @@ import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 const config = {
   preprocess: vitePreprocess(),
   compilerOptions: {
-    runes: true
+    runes: true,
   },
   kit: {
     adapter: adapter({
@@ -22,7 +22,7 @@ const config = {
       assets: 'build',
       fallback: '404.html',
       precompress: false,
-      strict: true
+      strict: true,
     }),
     paths: {
       base: process.env.BASE_PATH ?? '',
@@ -30,12 +30,12 @@ const config = {
       // served at ARBITRARY depth (/app/admin/gallery), where a relative href would resolve to
       // /app/admin/_app/… and 404. Absolute keeps every page and the fallback consistent, and
       // makes `base` resolve to '/app' at runtime instead of '.'.
-      relative: false
+      relative: false,
     },
     prerender: {
-      entries: ['*']
-    }
-  }
+      entries: ['*'],
+    },
+  },
 };
 
 export default config;
