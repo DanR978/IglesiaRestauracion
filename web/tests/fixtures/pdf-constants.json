@@ -1,0 +1,14 @@
+[
+  {
+    "input": "CONTENT_W",
+    "expected": 515
+  },
+  {
+    "input": "CHURCH",
+    "expected": "Iglesia Restauración Divina"
+  },
+  {
+    "input": "CHURCH_ADDRESS",
+    "expected": "2601 Clays Mill Rd, Lexington, KY 40503"
+  }
+]

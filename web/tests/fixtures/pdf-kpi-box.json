@@ -1,0 +1,88 @@
+[
+  {
+    "input": ["Ingresos", "$1,234.56"],
+    "expected": {
+      "table": {
+        "widths": ["*"],
+        "body": [
+          [
+            {
+              "margin": [10, 8, 10, 8],
+              "stack": [
+                {
+                  "text": "$1,234.56",
+                  "fontSize": 15,
+                  "bold": true,
+                  "color": "#1f2a2e"
+                },
+                {
+                  "text": "INGRESOS",
+                  "fontSize": 8,
+                  "bold": true,
+                  "color": "#6a767b",
+                  "margin": [0, 2, 0, 0]
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "layout": {
+        "hLineWidth": 1,
+        "vLineWidth0": 3,
+        "vLineWidth1": 1,
+        "hLineColor": "#e4e9ea",
+        "vLineColor0": "#394548",
+        "vLineColor1": "#e4e9ea",
+        "paddingLeft": 0,
+        "paddingRight": 0,
+        "paddingTop": 0,
+        "paddingBottom": 0
+      }
+    },
+    "note": "defaults (valColor #1f2a2e, accent #394548)"
+  },
+  {
+    "input": ["Balance", "-$50.00", "#b02030", "#1e6b61"],
+    "expected": {
+      "table": {
+        "widths": ["*"],
+        "body": [
+          [
+            {
+              "margin": [10, 8, 10, 8],
+              "stack": [
+                {
+                  "text": "-$50.00",
+                  "fontSize": 15,
+                  "bold": true,
+                  "color": "#b02030"
+                },
+                {
+                  "text": "BALANCE",
+                  "fontSize": 8,
+                  "bold": true,
+                  "color": "#6a767b",
+                  "margin": [0, 2, 0, 0]
+                }
+              ]
+            }
+          ]
+        ]
+      },
+      "layout": {
+        "hLineWidth": 1,
+        "vLineWidth0": 3,
+        "vLineWidth1": 1,
+        "hLineColor": "#e4e9ea",
+        "vLineColor0": "#1e6b61",
+        "vLineColor1": "#e4e9ea",
+        "paddingLeft": 0,
+        "paddingRight": 0,
+        "paddingTop": 0,
+        "paddingBottom": 0
+      }
+    },
+    "note": "custom colors; accent stripe at i=0"
+  }
+]
