@@ -100,7 +100,14 @@ function safeColor(raw: string | null): string {
 }
 
 function safeHref(raw: string | null): string {
-  const v = String(raw || '').trim();
+  // Control characters are stripped by the browser while it canonicalizes a
+  // URL, so the scheme test has to run on the canonicalized value: "java\nscript:"
+  // matches none of the patterns below, falls through as a bare relative path,
+  // and then executes as javascript: when clicked (DF-002).
+  const v = String(raw || '')
+    // eslint-disable-next-line no-control-regex -- stripping control chars is the point
+    .replace(/[\u0000-\u001F\u007F]/g, '')
+    .trim();
   if (!v) return '';
   // Relative, anchor, and explicit safe schemes only.
   if (/^(https?:|mailto:|tel:)/i.test(v)) return v;
