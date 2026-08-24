@@ -70,6 +70,12 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - name: Build SvelteKit app (/app)
+        # Same secrets the legacy config.js step consumes — PUBLIC by design
+        # (anon key only; RLS is the boundary, D-002/D-007). A missing value
+        # fails this build via web/src/lib/config.ts.
+        env:
+          PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
         run: |
           cd web
           npm ci
