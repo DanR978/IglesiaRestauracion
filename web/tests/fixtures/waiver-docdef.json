@@ -1,0 +1,5835 @@
+[
+  {
+    "input": {
+      "blank": true
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — Evento"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "—"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "—"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "2601 Clays Mill Rd, Lexington, KY 40503"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTE",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 350,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 342,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO DEL PARTICIPANTE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 150,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 142,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "EDAD",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            ""
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "DONE-WHEN gate: blank fillable PDF, no Doc. version in footer"
+  },
+  {
+    "input": {},
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — Evento"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "—"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "—"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "2601 Clays Mill Rd, Lexington, KY 40503"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTE",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 350,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 342,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO DEL PARTICIPANTE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 150,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 142,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "EDAD",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            " · Doc. 2026-06-v1"
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "default opts"
+  },
+  {
+    "input": {
+      "event": {
+        "title": "Campamento <Verano> \"2026\" & más",
+        "date": "15 de julio de 2026",
+        "location": "Parque O'Brien"
+      },
+      "participant": {
+        "name": "José <script>alert(1)</script> Pérez",
+        "age": 9
+      },
+      "guardian": {
+        "name": "María & \"Lupe\" Ejemplo",
+        "relationship": "Madre",
+        "phone": "(859) 555-0100",
+        "email": "maria@example.com"
+      },
+      "emergency": {
+        "name": "Ana O'Hara",
+        "phone": "(859) 555-0111"
+      },
+      "signature": {
+        "name": "María Ejemplo"
+      },
+      "signedDate": "1 de julio de 2026"
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — Campamento <Verano> \"2026\" & más"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "Campamento <Verano> \"2026\" & más"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "15 de julio de 2026"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "Parque O'Brien"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTE",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 350,
+              "stack": [
+                {
+                  "text": "José <script>alert(1)</script> Pérez",
+                  "bold": "José <script>alert(1)</script> Pérez",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 342,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO DEL PARTICIPANTE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 150,
+              "stack": [
+                {
+                  "text": "9",
+                  "bold": 9,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 142,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "EDAD",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "María & \"Lupe\" Ejemplo",
+                  "bold": "María & \"Lupe\" Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "Madre",
+                  "bold": "Madre",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "(859) 555-0100",
+                  "bold": "(859) 555-0100",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "maria@example.com",
+                  "bold": "maria@example.com",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "Ana O'Hara",
+                  "bold": "Ana O'Hara",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "(859) 555-0111",
+                  "bold": "(859) 555-0111",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "María Ejemplo",
+                  "italics": true,
+                  "fontSize": 16,
+                  "color": "#111",
+                  "margin": [0, 0, 0, 2]
+                },
+                {
+                  "text": "Firma electrónica (nombre escrito)",
+                  "italics": true,
+                  "fontSize": 7,
+                  "color": "#777",
+                  "margin": [0, 1, 0, 1]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "1 de julio de 2026",
+                  "bold": "1 de julio de 2026",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "María & \"Lupe\" Ejemplo",
+                  "bold": "María & \"Lupe\" Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "Madre",
+                  "bold": "Madre",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            " · Doc. 2026-06-v1"
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "single participant; pdfmake text is NOT html-escaped (raw chars); typed signature"
+  },
+  {
+    "input": {
+      "event": {
+        "title": "VBS 2026",
+        "date": "20 al 24 de julio de 2026"
+      },
+      "participants": [
+        {
+          "name": "Niño Uno",
+          "age": 0
+        },
+        {
+          "name": "Niña Dos",
+          "age": ""
+        },
+        {
+          "name": "Joven Tres",
+          "age": 12
+        },
+        {
+          "name": "Bebé <Cuatro>"
+        }
+      ],
+      "guardian": {
+        "name": "Pedro Ejemplo",
+        "relationship": "Padre",
+        "phone": "(859) 555-0122",
+        "email": "pedro@example.com"
+      },
+      "emergency": {
+        "name": "Rosa Ejemplo",
+        "phone": "(859) 555-0133"
+      },
+      "signature": {
+        "image": "data:image/png;base64,iVBORw0KGgo=",
+        "name": "Pedro Ejemplo"
+      },
+      "signedDate": "19 de julio de 2026"
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — VBS 2026"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "VBS 2026"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "20 al 24 de julio de 2026"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "2601 Clays Mill Rd, Lexington, KY 40503"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTES",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": ["Niño Uno  —  0 años", "Niña Dos", "Joven Tres  —  12 años", "Bebé <Cuatro>"],
+          "margin": [4, 2, 0, 4],
+          "fontSize": 10
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "Pedro Ejemplo",
+                  "bold": "Pedro Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "Padre",
+                  "bold": "Padre",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "(859) 555-0122",
+                  "bold": "(859) 555-0122",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "pedro@example.com",
+                  "bold": "pedro@example.com",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "Rosa Ejemplo",
+                  "bold": "Rosa Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "(859) 555-0133",
+                  "bold": "(859) 555-0133",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "image": "data:image/png;base64,iVBORw0KGgo=",
+                  "fit": [300, 50],
+                  "margin": [0, 0, 0, 2]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "19 de julio de 2026",
+                  "bold": "19 de julio de 2026",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "Pedro Ejemplo",
+                  "bold": "Pedro Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "Padre",
+                  "bold": "Padre",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            " · Doc. 2026-06-v1"
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "multi participants (ol): age 0 kept, \"\"/missing age omitted; image beats typed name"
+  },
+  {
+    "input": {
+      "event": {
+        "title": "Dedicación",
+        "date": "5 de agosto de 2026"
+      },
+      "participant": {
+        "name": "Bebé Cero",
+        "age": 0
+      },
+      "guardian": {
+        "name": "Madre Ejemplo",
+        "relationship": "Madre",
+        "phone": "555-0144",
+        "email": ""
+      },
+      "signedDate": ""
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — Dedicación"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "Dedicación"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "5 de agosto de 2026"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "2601 Clays Mill Rd, Lexington, KY 40503"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTE",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 350,
+              "stack": [
+                {
+                  "text": "Bebé Cero",
+                  "bold": "Bebé Cero",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 342,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO DEL PARTICIPANTE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 150,
+              "stack": [
+                {
+                  "text": "0",
+                  "bold": true,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 142,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "EDAD",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "Madre Ejemplo",
+                  "bold": "Madre Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "Madre",
+                  "bold": "Madre",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "555-0144",
+                  "bold": "555-0144",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "Madre Ejemplo",
+                  "bold": "Madre Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "Madre",
+                  "bold": "Madre",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            " · Doc. 2026-06-v1"
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "age 0 → bold filled value \"0\""
+  },
+  {
+    "input": {
+      "event": {
+        "title": "Retiro de adultos",
+        "date": "3 de agosto de 2026"
+      },
+      "participant": {
+        "name": "Pedro Adulto",
+        "age": 21
+      },
+      "emergency": {
+        "name": "Luisa Contacto",
+        "phone": "(859) 555-0155"
+      },
+      "signature": {
+        "name": "Pedro Adulto"
+      },
+      "signedDate": "3 de agosto de 2026"
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — Retiro de adultos"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "Retiro de adultos"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "3 de agosto de 2026"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "2601 Clays Mill Rd, Lexington, KY 40503"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTE",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 350,
+              "stack": [
+                {
+                  "text": "Pedro Adulto",
+                  "bold": "Pedro Adulto",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 342,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO DEL PARTICIPANTE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 150,
+              "stack": [
+                {
+                  "text": "21",
+                  "bold": 21,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 142,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "EDAD",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "Luisa Contacto",
+                  "bold": "Luisa Contacto",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "(859) 555-0155",
+                  "bold": "(859) 555-0155",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "Pedro Adulto",
+                  "italics": true,
+                  "fontSize": 16,
+                  "color": "#111",
+                  "margin": [0, 0, 0, 2]
+                },
+                {
+                  "text": "Firma electrónica (nombre escrito)",
+                  "italics": true,
+                  "fontSize": 7,
+                  "color": "#777",
+                  "margin": [0, 1, 0, 1]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "3 de agosto de 2026",
+                  "bold": "3 de agosto de 2026",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "Pedro Adulto",
+                  "bold": "Pedro Adulto",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            " · Doc. 2026-06-v1"
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "signer falls back to participant"
+  },
+  {
+    "input": {
+      "event": {
+        "title": "Viaje misionero",
+        "date": "10 de agosto de 2026",
+        "location": "Frankfort, KY"
+      },
+      "participant": {
+        "name": "Joven Cinco",
+        "age": 16
+      },
+      "guardian": {
+        "name": "Tutor Ejemplo",
+        "relationship": "Tutor legal",
+        "phone": "555-0166",
+        "email": "t@example.com"
+      },
+      "signer": {
+        "name": "Firmante Distinto",
+        "relationship": "Tutor legal"
+      },
+      "signature": {
+        "image": "data:image/png;base64,iVBORw0KGgo="
+      },
+      "signedDate": "9 de agosto de 2026"
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [44, 40, 44, 36],
+      "info": {
+        "title": "Exoneración de Responsabilidad y Asunción de Riesgo — Viaje misionero"
+      },
+      "content": [
+        {
+          "text": "IGLESIA RESTAURACIÓN DIVINA",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 17,
+          "color": "#0e2d38"
+        },
+        {
+          "text": "2601 Clays Mill Rd, Lexington, KY 40503",
+          "alignment": "center",
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 2, 0, 10]
+        },
+        {
+          "text": "Exoneración de Responsabilidad y Asunción de Riesgo",
+          "alignment": "center",
+          "bold": true,
+          "fontSize": 13.5,
+          "color": "#1a1a1a",
+          "margin": [0, 0, 0, 10]
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 0,
+              "x2": 524,
+              "y2": 0,
+              "lineWidth": 2,
+              "lineColor": "#0e2d38"
+            }
+          ],
+          "margin": [0, 0, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "EVENTO / ACTIVIDAD",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "text": [
+                {
+                  "text": "Evento: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "Viaje misionero"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Fecha: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "10 de agosto de 2026"
+              ],
+              "fontSize": 10
+            },
+            {
+              "text": [
+                {
+                  "text": "Lugar: ",
+                  "bold": true,
+                  "color": "#0e2d38"
+                },
+                "Frankfort, KY"
+              ],
+              "fontSize": 10
+            }
+          ],
+          "columnGap": 16
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PARTICIPANTE",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 350,
+              "stack": [
+                {
+                  "text": "Joven Cinco",
+                  "bold": "Joven Cinco",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 342,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO DEL PARTICIPANTE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 150,
+              "stack": [
+                {
+                  "text": "16",
+                  "bold": 16,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 142,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "EDAD",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "Si el participante es menor de edad, debe firmar el padre, la madre o el tutor legal en su representación.",
+          "italics": true,
+          "fontSize": 8.5,
+          "color": "#5a5a5a",
+          "margin": [0, 4, 0, 0]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "PADRE / MADRE / TUTOR LEGAL",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "Tutor Ejemplo",
+                  "bold": "Tutor Ejemplo",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE COMPLETO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "Tutor legal",
+                  "bold": "Tutor legal",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": "555-0166",
+                  "bold": "555-0166",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": "t@example.com",
+                  "bold": "t@example.com",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "CORREO ELECTRÓNICO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "CONTACTO DE EMERGENCIA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 300,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 292,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE DEL CONTACTO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 200,
+              "stack": [
+                {
+                  "text": " ",
+                  "bold": false,
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 192,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "TELÉFONO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": "",
+          "pageBreak": "after"
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "TÉRMINOS DE LA EXONERACIÓN",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "ol": [
+            {
+              "text": "Participo (o el/los menor(es) que represento participa(n)) de forma libre y voluntaria en el evento o actividad indicado anteriormente, organizado o auspiciado por la Iglesia Restauración Divina, y reconozco que dicha participación puede conllevar riesgos inherentes de lesión, daño o pérdida.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Asumo voluntariamente todos los riesgos asociados con dicha participación y, en mi nombre y el de mis herederos y representantes, libero, exonero y acuerdo no demandar a la Iglesia Restauración Divina, sus pastores, líderes, voluntarios, empleados y representantes (las «Partes Liberadas») de toda reclamación, responsabilidad, daño o gasto que surja de o esté relacionado con dicha participación, salvo en casos de negligencia grave o conducta dolosa.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Declaro que el/los participante(s) se encuentra(n) en condiciones físicas adecuadas para participar, y autorizo a las Partes Liberadas a procurar atención médica de emergencia si fuese necesario, aceptando ser responsable de los costos médicos derivados.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "Acepto que el/los participante(s) seguirá(n) las reglas e instrucciones del personal y entiendo que el incumplimiento de las normas de conducta puede resultar en el retiro de la actividad.",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            },
+            {
+              "text": "He leído y entendido este documento en su totalidad, firmo de forma libre y voluntaria, y confirmo que soy mayor de edad o el tutor legal con autoridad para firmar en representación del/de los menor(es) indicado(s).",
+              "alignment": "justify",
+              "margin": [0, 0, 0, 7]
+            }
+          ],
+          "markerColor": "#0e2d38",
+          "fontSize": 10,
+          "margin": [0, 2, 0, 4]
+        },
+        {
+          "text": "He leído, entendido y aceptado voluntariamente los términos de este documento.",
+          "bold": true,
+          "margin": [0, 8, 0, 4]
+        },
+        {
+          "table": {
+            "widths": ["*"],
+            "body": [
+              [
+                {
+                  "text": "FIRMA",
+                  "color": "#fff",
+                  "bold": true,
+                  "fontSize": 9.5,
+                  "characterSpacing": 0.3,
+                  "margin": [8, 4, 8, 4]
+                }
+              ]
+            ]
+          },
+          "layout": {
+            "fillColor": {
+              "__fn": "#0e2d38"
+            },
+            "hLineWidth": {
+              "__fn": 0
+            },
+            "vLineWidth": {
+              "__fn": 0
+            },
+            "paddingLeft": {
+              "__fn": 0
+            },
+            "paddingRight": {
+              "__fn": 0
+            },
+            "paddingTop": {
+              "__fn": 0
+            },
+            "paddingBottom": {
+              "__fn": 0
+            }
+          },
+          "margin": [0, 16, 0, 9]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "image": "data:image/png;base64,iVBORw0KGgo=",
+                  "fit": [300, 50],
+                  "margin": [0, 0, 0, 2]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FIRMA DEL PADRE / MADRE / TUTOR LEGAL",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "9 de agosto de 2026",
+                  "bold": "9 de agosto de 2026",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#333"
+                    }
+                  ]
+                },
+                {
+                  "text": "FECHA",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "columns": [
+            {
+              "width": 310,
+              "stack": [
+                {
+                  "text": "Firmante Distinto",
+                  "bold": "Firmante Distinto",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 302,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "NOMBRE EN LETRA DE MOLDE",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            },
+            {
+              "width": 190,
+              "stack": [
+                {
+                  "text": "Tutor legal",
+                  "bold": "Tutor legal",
+                  "color": "#111",
+                  "fontSize": 10,
+                  "margin": [0, 0, 0, 3]
+                },
+                {
+                  "canvas": [
+                    {
+                      "type": "line",
+                      "x1": 0,
+                      "y1": 0,
+                      "x2": 182,
+                      "y2": 0,
+                      "lineWidth": 0.8,
+                      "lineColor": "#9aa4b2"
+                    }
+                  ]
+                },
+                {
+                  "text": "PARENTESCO",
+                  "fontSize": 7.5,
+                  "color": "#5a5a5a",
+                  "characterSpacing": 0.2,
+                  "margin": [0, 3, 0, 0]
+                }
+              ]
+            }
+          ],
+          "columnGap": 24,
+          "margin": [0, 6, 0, 2]
+        },
+        {
+          "text": [
+            "Iglesia Restauración Divina · 2601 Clays Mill Rd, Lexington, KY 40503 · irdlex.org",
+            " · Doc. 2026-06-v1"
+          ],
+          "alignment": "center",
+          "fontSize": 7.5,
+          "color": "#5a5a5a",
+          "margin": [0, 22, 0, 2]
+        },
+        {
+          "text": "Documento legal — conservar una copia firmada en el archivo de la iglesia.",
+          "alignment": "center",
+          "italics": true,
+          "fontSize": 7.5,
+          "color": "#5a5a5a"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1a1a1a",
+        "lineHeight": 1.35
+      }
+    },
+    "note": "explicit signer + image signature"
+  }
+]
