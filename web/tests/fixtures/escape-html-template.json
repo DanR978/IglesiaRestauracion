@@ -1,0 +1,149 @@
+[
+  {
+    "input": {
+      "parts": ["<h3>", "</h3>"],
+      "values": ["<b>tí</b>"]
+    },
+    "expected": "<h3>&lt;b&gt;tí&lt;/b&gt;</h3>",
+    "note": "interpolation escaped by default"
+  },
+  {
+    "input": {
+      "parts": ["<div>", "</div>"],
+      "values": [
+        {
+          "$raw": "<b>ok</b>"
+        }
+      ]
+    },
+    "expected": "<div><b>ok</b></div>",
+    "note": "raw() opts out"
+  },
+  {
+    "input": {
+      "parts": ["<p>", "</p>"],
+      "values": [
+        {
+          "$html": {
+            "parts": ["<em>", "</em>"],
+            "values": ["a&b"]
+          }
+        }
+      ]
+    },
+    "expected": "<p><em>a&amp;b</em></p>",
+    "note": "nested html`` not double-escaped"
+  },
+  {
+    "input": {
+      "parts": ["<ul>", "</ul>"],
+      "values": [
+        [
+          {
+            "$html": {
+              "parts": ["<li>", "</li>"],
+              "values": ["x<y"]
+            }
+          },
+          {
+            "$html": {
+              "parts": ["<li>", "</li>"],
+              "values": ["z"]
+            }
+          }
+        ]
+      ]
+    },
+    "expected": "<ul><li>x&lt;y</li><li>z</li></ul>",
+    "note": "array of nested templates joined (map without join)"
+  },
+  {
+    "input": {
+      "parts": ["<span>", "</span>"],
+      "values": [["a<", "&b", "'c"]]
+    },
+    "expected": "<span>a&lt;&amp;b&#39;c</span>",
+    "note": "array of strings each escaped, joined"
+  },
+  {
+    "input": {
+      "parts": ["<i>", "</i>"],
+      "values": [null]
+    },
+    "expected": "<i></i>",
+    "note": "null interpolation → empty"
+  },
+  {
+    "input": {
+      "parts": ["<i>", "</i>"],
+      "values": [
+        {
+          "$undefined": true
+        }
+      ]
+    },
+    "expected": "<i></i>",
+    "note": "undefined interpolation → empty"
+  },
+  {
+    "input": {
+      "parts": ["<b>", "</b>"],
+      "values": [0]
+    },
+    "expected": "<b>0</b>",
+    "note": "number zero interpolates as \"0\" (not dropped)"
+  },
+  {
+    "input": {
+      "parts": ["<a title=\"", "\">", "</a>"],
+      "values": ["say \"hi\" & go", "O'Brien <3"]
+    },
+    "expected": "<a title=\"say &quot;hi&quot; &amp; go\">O&#39;Brien &lt;3</a>",
+    "note": "attribute + text contexts, quotes escaped"
+  },
+  {
+    "input": {
+      "parts": ["static only"],
+      "values": []
+    },
+    "expected": "static only",
+    "note": "no interpolations"
+  },
+  {
+    "input": {
+      "parts": ["", ""],
+      "values": ["<script>x</script>"]
+    },
+    "expected": "&lt;script&gt;x&lt;/script&gt;",
+    "note": "value-only template escaped"
+  },
+  {
+    "input": {
+      "parts": ["<div>", " — ", "</div>"],
+      "values": [
+        {
+          "$raw": "<hr>"
+        },
+        "<hr>"
+      ]
+    },
+    "expected": "<div><hr> — &lt;hr&gt;</div>",
+    "note": "raw and escaped side by side"
+  },
+  {
+    "input": {
+      "parts": ["<p>", "</p>"],
+      "values": [
+        [
+          "<",
+          {
+            "$raw": "<br>"
+          },
+          ["&", "ú"]
+        ]
+      ]
+    },
+    "expected": "<p>&lt;<br>&amp;ú</p>",
+    "note": "mixed nested array flattened"
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "input": "abc",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "   ",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": null,
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "12px",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "$5",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "1,000",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "--5",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  },
+  {
+    "input": "1.2.3",
+    "expected": "$0.00",
+    "note": "non-numeric → legacy renders $0.00; formatUSD keeps the same guard"
+  }
+]

@@ -1,0 +1,118 @@
+{
+  "pad2": [
+    {
+      "input": 0,
+      "expected": "00",
+      "note": "zero"
+    },
+    {
+      "input": 5,
+      "expected": "05",
+      "note": "single digit"
+    },
+    {
+      "input": 9,
+      "expected": "09",
+      "note": "nine"
+    },
+    {
+      "input": 10,
+      "expected": "10",
+      "note": "two digits"
+    },
+    {
+      "input": 99,
+      "expected": "99",
+      "note": "max two digits"
+    },
+    {
+      "input": 100,
+      "expected": "100",
+      "note": "three digits pass through"
+    },
+    {
+      "input": "7",
+      "expected": "07",
+      "note": "string input"
+    },
+    {
+      "input": "07",
+      "expected": "07",
+      "note": "already padded string"
+    },
+    {
+      "input": 3.5,
+      "expected": "3.5",
+      "note": "float passes through"
+    },
+    {
+      "input": -1,
+      "expected": "-1",
+      "note": "negative: already length 2"
+    }
+  ],
+  "ymd": [
+    {
+      "input": [2026, 7, 6],
+      "expected": "2026-08-06",
+      "note": "month is 0-indexed (7 → 08)"
+    },
+    {
+      "input": [2026, 0, 1],
+      "expected": "2026-01-01",
+      "note": "january 1"
+    },
+    {
+      "input": [2026, 11, 31],
+      "expected": "2026-12-31",
+      "note": "december 31"
+    },
+    {
+      "input": [1999, 8, 9],
+      "expected": "1999-09-09",
+      "note": "single-digit day padded"
+    },
+    {
+      "input": [2024, 1, 29],
+      "expected": "2024-02-29",
+      "note": "leap day"
+    },
+    {
+      "input": [2026, 9, 31],
+      "expected": "2026-10-31",
+      "note": "october 31"
+    }
+  ],
+  "isoDate": [
+    {
+      "input": [2026, 7, 6, 12, 0],
+      "expected": "2026-08-06",
+      "note": "midday, no boundary risk"
+    },
+    {
+      "input": [2026, 0, 1, 0, 0],
+      "expected": "2026-01-01",
+      "note": "local new year midnight"
+    },
+    {
+      "input": [2026, 11, 31, 23, 59],
+      "expected": "2026-12-31",
+      "note": "local year-end minute"
+    },
+    {
+      "input": [2024, 1, 29, 6, 30],
+      "expected": "2024-02-29",
+      "note": "leap day morning"
+    },
+    {
+      "input": [2026, 2, 8, 2, 30],
+      "expected": "2026-03-08",
+      "note": "US DST spring-forward date"
+    },
+    {
+      "input": [2026, 10, 1, 1, 30],
+      "expected": "2026-11-01",
+      "note": "US DST fall-back date"
+    }
+  ]
+}

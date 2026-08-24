@@ -1,0 +1,191 @@
+[
+  {
+    "input": "",
+    "expected": "",
+    "note": "empty string"
+  },
+  {
+    "input": "plain text",
+    "expected": "plain text",
+    "note": "no metachars — passthrough"
+  },
+  {
+    "input": "&",
+    "expected": "&amp;",
+    "note": "ampersand"
+  },
+  {
+    "input": "<",
+    "expected": "&lt;",
+    "note": "less-than"
+  },
+  {
+    "input": ">",
+    "expected": "&gt;",
+    "note": "greater-than"
+  },
+  {
+    "input": "\"",
+    "expected": "&quot;",
+    "note": "double quote"
+  },
+  {
+    "input": "'",
+    "expected": "&#39;",
+    "note": "single quote"
+  },
+  {
+    "input": "&<>\"'",
+    "expected": "&amp;&lt;&gt;&quot;&#39;",
+    "note": "all five metachars"
+  },
+  {
+    "input": "<script>alert(1)</script>",
+    "expected": "&lt;script&gt;alert(1)&lt;/script&gt;",
+    "note": "script tag"
+  },
+  {
+    "input": "<img src=x onerror=alert(1)>",
+    "expected": "&lt;img src=x onerror=alert(1)&gt;",
+    "note": "img onerror payload"
+  },
+  {
+    "input": "\"><script>alert(1)</script>",
+    "expected": "&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;",
+    "note": "attribute-breakout payload"
+  },
+  {
+    "input": "' onmouseover='alert(1)",
+    "expected": "&#39; onmouseover=&#39;alert(1)",
+    "note": "single-quote attribute breakout"
+  },
+  {
+    "input": "&amp;",
+    "expected": "&amp;amp;",
+    "note": "already-escaped entity double-escapes"
+  },
+  {
+    "input": "&lt;b&gt;",
+    "expected": "&amp;lt;b&amp;gt;",
+    "note": "escaped tag double-escapes"
+  },
+  {
+    "input": "a<b>c</b>",
+    "expected": "a&lt;b&gt;c&lt;/b&gt;",
+    "note": "tag embedded in text"
+  },
+  {
+    "input": "Tom & Jerry",
+    "expected": "Tom &amp; Jerry",
+    "note": "ampersand mid-sentence"
+  },
+  {
+    "input": "it's \"quoted\" & <tagged>",
+    "expected": "it&#39;s &quot;quoted&quot; &amp; &lt;tagged&gt;",
+    "note": "mixed quotes + amp + tag"
+  },
+  {
+    "input": "O'Brien",
+    "expected": "O&#39;Brien",
+    "note": "apostrophe in name"
+  },
+  {
+    "input": "javascript:alert(1)",
+    "expected": "javascript:alert(1)",
+    "note": "js url — no metachars, unchanged"
+  },
+  {
+    "input": "`backtick` =equals",
+    "expected": "`backtick` =equals",
+    "note": "backtick/equals NOT escaped (legacy contract)"
+  },
+  {
+    "input": "línea año ñandú",
+    "expected": "línea año ñandú",
+    "note": "accented Spanish"
+  },
+  {
+    "input": "¿Qué? ¡Sí! 中文 🎉",
+    "expected": "¿Qué? ¡Sí! 中文 🎉",
+    "note": "unicode + emoji passthrough"
+  },
+  {
+    "input": "a\nb\tc",
+    "expected": "a\nb\tc",
+    "note": "whitespace preserved"
+  },
+  {
+    "input": "  padded  ",
+    "expected": "  padded  ",
+    "note": "outer spaces preserved"
+  },
+  {
+    "input": "<<>>",
+    "expected": "&lt;&lt;&gt;&gt;",
+    "note": "repeated metachars"
+  },
+  {
+    "input": "a&b&c&d",
+    "expected": "a&amp;b&amp;c&amp;d",
+    "note": "multiple ampersands"
+  },
+  {
+    "input": 0,
+    "expected": "0",
+    "note": "number zero"
+  },
+  {
+    "input": 42,
+    "expected": "42",
+    "note": "integer"
+  },
+  {
+    "input": 3.14,
+    "expected": "3.14",
+    "note": "float"
+  },
+  {
+    "input": -1,
+    "expected": "-1",
+    "note": "negative"
+  },
+  {
+    "input": true,
+    "expected": "true",
+    "note": "boolean true"
+  },
+  {
+    "input": false,
+    "expected": "false",
+    "note": "boolean false"
+  },
+  {
+    "input": null,
+    "expected": "",
+    "note": "null → empty string"
+  },
+  {
+    "input": {
+      "$undefined": true
+    },
+    "expected": "",
+    "note": "undefined → empty string"
+  },
+  {
+    "input": [1, "<", 2],
+    "expected": "1,&lt;,2",
+    "note": "array stringifies then escapes"
+  },
+  {
+    "input": {},
+    "expected": "[object Object]",
+    "note": "plain object → [object Object]"
+  },
+  {
+    "input": {
+      "a": 1
+    },
+    "expected": "[object Object]",
+    "note": "object with keys → [object Object]"
+  }
+]
