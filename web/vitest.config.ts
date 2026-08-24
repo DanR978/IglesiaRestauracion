@@ -3,9 +3,16 @@ import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   resolve: {
-    // Enough for pure-logic tests; modules importing $env/$app belong in
-    // component/e2e tests, not here.
-    alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) },
+    // $lib plus stubs for the SvelteKit virtual modules, so unit tests can
+    // import config/client without a svelte-kit sync'd environment. The stubs
+    // report browser=false — the prerender posture client.ts must be safe under.
+    alias: {
+      $lib: fileURLToPath(new URL('./src/lib', import.meta.url)),
+      '$env/static/public': fileURLToPath(new URL('./tests/stubs/env-public.ts', import.meta.url)),
+      '$app/environment': fileURLToPath(
+        new URL('./tests/stubs/app-environment.ts', import.meta.url),
+      ),
+    },
   },
   test: {
     // G-001: sanitize-html (S07) uses DOMParser — the suite MUST run under
