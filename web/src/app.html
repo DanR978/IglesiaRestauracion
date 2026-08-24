@@ -8,6 +8,11 @@
       rel="icon"
       href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico"
     />
+    <!-- No-FOUC theme boot (S11, D-017): applies a forced light/dark choice before
+         first paint. Must stay byte-identical to THEME_BOOT_SCRIPT in
+         src/lib/theme.svelte.ts — tests/unit/theme.test.ts enforces it. -->
+    <!-- prettier-ignore -->
+    <script>try{var t=localStorage.getItem('ird.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

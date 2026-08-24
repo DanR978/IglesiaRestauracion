@@ -1,8 +1,16 @@
 import { defineConfig } from 'vitest/config';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
+  // S11: runes modules (`*.svelte.ts`, e.g. $lib/theme.svelte.ts) need the
+  // Svelte compiler at test time (it reads svelte.config.js for preprocess).
+  plugins: [svelte()],
   resolve: {
+    // Svelte's package exports a server build by default under Node; the
+    // `browser` condition picks the client runtime so runes state and
+    // svelte/reactivity (MediaQuery) behave as in the page, under jsdom.
+    conditions: ['browser'],
     // $lib plus stubs for the SvelteKit virtual modules, so unit tests can
     // import config/client without a svelte-kit sync'd environment. The stubs
     // report browser=false — the prerender posture client.ts must be safe under.

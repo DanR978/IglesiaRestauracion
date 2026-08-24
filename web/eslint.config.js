@@ -15,7 +15,9 @@ export default ts.config(
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
   {
-    files: ['**/*.svelte'],
+    // `.svelte.ts` runes modules (S11: theme.svelte.ts) go through the Svelte
+    // parser too and need the TS sub-parser for their script content.
+    files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
     languageOptions: { parserOptions: { parser: ts.parser } },
   },
 );

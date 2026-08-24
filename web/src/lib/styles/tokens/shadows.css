@@ -1,0 +1,29 @@
+/* ============================================================================
+ * tokens/shadows.css — the ONE shadow definition (S11)
+ * ----------------------------------------------------------------------------
+ * Resolves CLAUDE.md open question #6 / DESIGN-SYSTEM §2.3: legacy defined
+ * --btn-shadow / --container-shadow / --image-shadow in BOTH tokens/colors.css
+ * and tokens/shadows.css, and shadows.css's own dark block never fired under a
+ * forced data-theme. Here each shadow is declared exactly once and builds on
+ * --shadow-rgb (tokens/colors.css: `0 0 0` light, `255 255 255` dark), so the
+ * scale reverses with the theme without this file ever mentioning data-theme
+ * (D-017). The public dark-mode look (white shadows) is preserved; the admin
+ * surface pins --shadow-rgb back to black (tokens/admin.css) — calm flat
+ * surfaces, no glow.
+ *
+ *   Legacy names (kept for the public ports):
+ *   --btn-shadow · --container-shadow · --image-shadow · --dark-theme-shadow
+ *   The design-system scale (S14 Card/Button consume these, never a literal):
+ *   --shadow-sm (resting control) · --shadow-md (hover/raised) · --shadow-lg (panel)
+ * ========================================================================== */
+
+:root {
+  --shadow-sm: 0 1px 2px rgb(var(--shadow-rgb) / 0.12);
+  --shadow-md: 0 3px 9px rgb(var(--shadow-rgb) / 0.16);
+  --shadow-lg: 0 10px 30px rgb(var(--shadow-rgb) / 0.25);
+
+  --btn-shadow: 0 2px 6px rgb(var(--shadow-rgb) / 0.2);
+  --container-shadow: var(--shadow-lg);
+  --image-shadow: 0 0 10px rgb(var(--shadow-rgb) / 0.25);
+  --dark-theme-shadow: var(--shadow-lg);
+}

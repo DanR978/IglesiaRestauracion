@@ -1,0 +1,23 @@
+/* ============================================================================
+ * src/lib/styles/app.css — the global stylesheet (S11 tokens)
+ * ----------------------------------------------------------------------------
+ * Imported once by src/routes/+layout.svelte. Vite inlines these @imports at
+ * build time in THIS order, and order is the cascade (CLAUDE.md §4):
+ *
+ *   tokens → base → layout → utilities
+ *
+ * Only :root custom properties live in tokens/. Components own their own
+ * styles (scoped <style> blocks) and consume var(--…) — nothing component-
+ * shaped belongs here. tokens/admin.css is scoped to [data-surface="admin"]
+ * and is inert everywhere else, so it can safely ship in the one global file.
+ * S12 appends base/, layout/ and utilities/ below tokens.
+ * ========================================================================== */
+
+@import './tokens/colors.css';
+@import './tokens/typography.css';
+@import './tokens/sizes.css';
+@import './tokens/spacing.css';
+@import './tokens/radius.css';
+@import './tokens/shadows.css';
+@import './tokens/z-index.css';
+@import './tokens/admin.css';
