@@ -23,7 +23,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 | Phase | Sessions | Status |
 |---|---|---|
 | 0 · Pre-flight & scaffolding | S01–S05 | ✅ |
-| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S10 ✅ · S11 🟦 · S12 🟦 · S13–S22 ⬜ |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S10 ✅ · S11 🟦 · S12 🟦 · S13 🟦 · S14–S22 ⬜ |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
@@ -97,6 +97,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **G-020** `paths.relative` is set to **`false`** in `web/svelte.config.js` (S02). SvelteKit's default (`true`) emits relative asset URLs (`./_app/…`) in prerendered pages; the **fallback** page is served at arbitrary depth (`/app/admin/gallery`), where those would resolve to `/app/admin/_app/…` and 404. Absolute keeps pages + fallback consistent and makes `base` resolve to `/app` at runtime instead of `.`. The admin deep-link/reload requirement (S37) depends on this.
 - **G-021** **GitHub Pages only ever serves the ROOT `404.html`** — the SvelteKit fallback the adapter writes to `app/404.html` is dead weight on Pages: a missing `/app/*` path (any non-prerendered route, e.g. the future `/app/admin/gallery`) renders the **legacy** 404 page, not the app fallback. Prerendered folder-style routes are unaffected. S37 (admin shell, `ssr=false` + fallback) must solve this — options: make the root `404.html` a dual-purpose page that boots the app when `location.pathname` starts with `/app/`, or prerender every admin entry point. Also note: artifact-based Pages deploys skip Jekyll, so **no `.nojekyll` is needed** for `app/_app/` (verified S03).
 - **G-022** **Legacy `safeHref` (sanitize-html.js) lets `href="java\nscript:alert(1)"` through** — the scheme-reject regex doesn't survive embedded whitespace/control chars that browsers strip during URL canonicalization. Found by the S07 golden capture; the S07 fixture pins the wrong behavior on purpose (parity first). Fix is DF-002 in `DUAL-FIX-BACKLOG.md` (legacy + port in one dual-fix PR, fixture regenerated via the `CAPTURE=1` test). Until it lands, never cite `sanitizeHtml` as proof an `href` is safe.
+- **G-023** (S13) **SvelteKit's prerender crawler reads EVERY `href` — including `<use href="#id">`** — and fails the build on a sprite injected at runtime, because the id does not exist in the prerendered HTML. Fixed with `prerender.handleMissingId` in `svelte.config.js`, whitelisting only the ids actually present in `src/lib/assets/icons.svg`; anchor ids still fail the build (that guard is deliberate). Also: the sprite's `innerHTML` injection is the ONE sanctioned D-005 carve-out (a static, bundled, developer-authored asset), and `base/reset.css`'s `svg { display: block }` means an inline sprite icon must set `display: inline-block`.
 
 ## 4. How prod deploys today (don't relearn this every session)
 
