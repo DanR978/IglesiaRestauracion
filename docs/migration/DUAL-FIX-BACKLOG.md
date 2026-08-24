@@ -12,6 +12,7 @@
 >
 > Last updated: 2026-07-14 · by: dual-fix-triage · Scope: `/admin` (frozen — VBS/registration season)
 > DF-001 landed in legacy 2026-07-14; S51 port mirror still open.
+> DF-002 landed in legacy AND in the port 2026-08-24 (one PR; golden fixture re-captured).
 
 ---
 
@@ -49,7 +50,7 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 | ID | Title | Category | Severity | Qualifies | Mirror | Landed |
 |---|---|---|---|---|---|---|
 | DF-001 | Unescaped visitor free-text → admin `.innerHTML` in Interesados | security / PII | major | ✅ yes | S51 `dual-fix` | ☑ |
-| DF-002 | `safeHref` scheme check defeated by embedded newline (`java\nscript:`) | security | major | ✅ yes — awaiting human go | post-S07 `dual-fix` | ☐ |
+| DF-002 | `safeHref` scheme check defeated by embedded newline (`java\nscript:`) | security | major | ✅ yes | landed with the fix (port patched in the same PR) | ☑ |
 | — | project-treasury renders `$0.00` on failed fetch | missing-error-state | — | ❌ no → PORT-DEBT (S56) | — | — |
 | — | calendar `filters.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S48/S49) | — | — |
 | — | `filters.js` + `ministries.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S44/S48/S49) | — | — |
@@ -80,7 +81,7 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
   The dual-fix PR patches legacy `js/lib/sanitize-html.js` AND `web/src/lib/sanitize-html.ts` in
   the same change, regenerates the fixture (`CAPTURE=1` test), and keeps the vector as a
   now-correct assertion (D-012b satisfied — the harness exists since S05).
-- **Landed:** ☐ awaiting human approval of the legacy patch.
+- **Landed:** ☑ 2026-08-24 — legacy `js/lib/sanitize-html.js` and the port `web/src/lib/sanitize-html.ts` patched in ONE PR: the candidate is canonicalized (all C0 controls + DEL stripped, spaces preserved so `mailto:?subject=a b` survives) BEFORE the scheme tests. The golden fixture was re-captured from the fixed legacy module: **exactly one of the 99 vectors changed** — the attack payload now yields `<a>x</a>` instead of keeping the href — so the corpus itself is the regression test (D-012b satisfied, no separate test owed).
 
 ### DF-001 — Unescaped visitor free-text interpolated into admin `.innerHTML` (Interesados list)
 

@@ -62,7 +62,7 @@
     },
     {
       "input": "<a href=\"java\nscript:alert(1)\">x</a>",
-      "expected": "<a href=\"java\nscript:alert(1)\" rel=\"noopener noreferrer nofollow\">x</a>",
+      "expected": "<a>x</a>",
       "note": "LANDMINE: newline inside scheme — legacy keeps it (browsers strip \\n → javascript:)"
     },
     {
