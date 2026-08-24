@@ -1,16 +1,21 @@
 /* ============================================================================
- * src/lib/styles/app.css — the global stylesheet (S11 tokens)
+ * src/lib/styles/app.css — the global stylesheet (S11 tokens · S12 baseline)
  * ----------------------------------------------------------------------------
  * Imported once by src/routes/+layout.svelte. Vite inlines these @imports at
  * build time in THIS order, and order is the cascade (CLAUDE.md §4):
  *
  *   tokens → base → layout → utilities
  *
- * Only :root custom properties live in tokens/. Components own their own
- * styles (scoped <style> blocks) and consume var(--…) — nothing component-
- * shaped belongs here. tokens/admin.css is scoped to [data-surface="admin"]
- * and is inert everywhere else, so it can safely ship in the one global file.
- * S12 appends base/, layout/ and utilities/ below tokens.
+ *   tokens/     :root custom properties ONLY (tokens/admin.css is scoped to
+ *               [data-surface="admin"] and inert everywhere else).
+ *   base/       element resets, global element styles, the reduced-motion
+ *               guard, the ≥16px mobile-input floor. No classes.
+ *   layout/     page-agnostic structural scaffolds (.wrapper, zigzag grid).
+ *   utilities/  single-purpose helper classes + the keyframes library. Last,
+ *               so a utility beats a component style.
+ *
+ * Components own their own styles (scoped <style> blocks) and consume
+ * var(--…) — nothing component-shaped belongs here.
  * ========================================================================== */
 
 @import './tokens/colors.css';
@@ -21,3 +26,14 @@
 @import './tokens/shadows.css';
 @import './tokens/z-index.css';
 @import './tokens/admin.css';
+
+@import './base/reset.css';
+@import './base/forms.css';
+@import './base/motion.css';
+
+@import './layout/container.css';
+@import './layout/zigzag.css';
+
+@import './utilities/animations.css';
+@import './utilities/scroll-reveal.css';
+@import './utilities/a11y.css';

@@ -8,6 +8,18 @@
       rel="icon"
       href="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/light-church-logo.ico"
     />
+    <!-- Font Awesome 6.5.0 (S13): the SAME pinned, SRI-checked CDN stylesheet every
+         legacy page loads (scripts/build-heads.mjs), so it is shared from the browser
+         cache while legacy and /app coexist. URL + hash are held to
+         FA_CSS_URL / FA_CSS_INTEGRITY in src/lib/components/icon.ts by
+         tests/unit/icon.test.ts — bump both together, never one. -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <!-- No-FOUC theme boot (S11, D-017): applies a forced light/dark choice before
          first paint. Must stay byte-identical to THEME_BOOT_SCRIPT in
          src/lib/theme.svelte.ts — tests/unit/theme.test.ts enforces it. -->

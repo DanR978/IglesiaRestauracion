@@ -1,5 +1,20 @@
 import adapter from '@sveltejs/adapter-static';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+import { readFileSync } from 'node:fs';
+
+/**
+ * The SVG sprite's symbol ids (S13). Icon.svelte renders `<use href="#id">`, and the
+ * prerender crawler reads every `href` — so without this it fails the build with
+ * "no element with id=… exists", because the sprite is injected client-side, never
+ * server-rendered. Read from the asset itself so the list cannot drift.
+ */
+const SPRITE_IDS = new Set(
+  [
+    ...readFileSync(new URL('./src/lib/assets/icons.svg', import.meta.url), 'utf8').matchAll(
+      /<symbol\s+id="([^"]+)"/g,
+    ),
+  ].map((m) => m[1]),
+);
 
 /**
  * The new app is served from a SUBPATH (`/app`) until a surface is cut over, then from the
@@ -34,6 +49,11 @@ const config = {
     },
     prerender: {
       entries: ['*'],
+      // A sprite `<use href="#id">` is a glyph reference, not a page anchor; every other
+      // missing fragment target still fails the build (the default).
+      handleMissingId: ({ id, message }) => {
+        if (!SPRITE_IDS.has(id)) throw new Error(message);
+      },
     },
   },
 };
