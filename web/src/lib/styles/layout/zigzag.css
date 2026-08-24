@@ -1,0 +1,108 @@
+/* ============================================================================
+ * layout/zigzag.css — the split (zigzag) section grid (S12)
+ * ----------------------------------------------------------------------------
+ * Port of css/layout/zigzag.css. `.One … .Six` are the reorder helpers the
+ * public markup relies on (image-first on mobile) — kept verbatim so S25/S26
+ * can carry the HTML across; nothing new should use them. Not ported:
+ * `.service-subheading` (a section class, owned by the service band).
+ * ========================================================================== */
+
+.wrapper--zigzag-grid {
+  max-width: 100%;
+  margin: var(--mg-lg);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem 2.5rem;
+  padding: 1rem;
+}
+
+.zigzag-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  width: 100%;
+  border-radius: var(--radius-md);
+  max-height: clamp(300px, 50vw, 550px);
+}
+
+.img-cover-container {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: var(--image-shadow);
+}
+
+.zigzag-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  font-family: var(--font-Signika);
+  background-color: transparent;
+  border: 0;
+  justify-content: center;
+}
+
+.zigzag-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.zigzag-card h1,
+.zigzag-card h2 {
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: 2px;
+  color: var(--color-text);
+}
+
+.zigzag-card h5 {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+
+.zigzag-card p {
+  font-size: var(--fs-md);
+  font-weight: var(--fw-light);
+  color: var(--color-text);
+}
+
+/* Mobile: stack; image first; tweak sizes */
+@media (max-width: 768px) {
+  .wrapper--zigzag-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin: var(--mg-xs);
+    padding: var(--pd-md);
+  }
+
+  .zigzag-image {
+    margin-top: 2rem;
+  }
+  .zigzag-card p {
+    font-size: var(--fs-xl);
+  }
+
+  /* reorder helpers used in the public markup */
+  .One {
+    order: 2;
+  } /* Salvación content */
+  .Two {
+    order: 1;
+  } /* Salvación image  */
+  .Three {
+    order: 3;
+  } /* Bautismo image   */
+  .Four {
+    order: 4;
+  } /* Bautismo content */
+  .Five {
+    order: 6;
+  } /* Servir content   */
+  .Six {
+    order: 5;
+  } /* Servir image     */
+}

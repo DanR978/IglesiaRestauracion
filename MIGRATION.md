@@ -23,7 +23,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 | Phase | Sessions | Status |
 |---|---|---|
 | 0 · Pre-flight & scaffolding | S01–S05 | ✅ |
-| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S10 ✅ · S11 🟦 · S12–S22 ⬜ |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S10 ✅ · S11 🟦 · S12 🟦 · S13–S22 ⬜ |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
