@@ -49,6 +49,7 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 | ID | Title | Category | Severity | Qualifies | Mirror | Landed |
 |---|---|---|---|---|---|---|
 | DF-001 | Unescaped visitor free-text → admin `.innerHTML` in Interesados | security / PII | major | ✅ yes | S51 `dual-fix` | ☑ |
+| DF-002 | `safeHref` scheme check defeated by embedded newline (`java\nscript:`) | security | major | ✅ yes — awaiting human go | post-S07 `dual-fix` | ☐ |
 | — | project-treasury renders `$0.00` on failed fetch | missing-error-state | — | ❌ no → PORT-DEBT (S56) | — | — |
 | — | calendar `filters.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S48/S49) | — | — |
 | — | `filters.js` + `ministries.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S44/S48/S49) | — | — |
@@ -57,6 +58,29 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 ---
 
 ## CONFIRMED — land in legacy, mirror into the port
+
+### DF-002 — Sanitizer `safeHref` scheme check defeated by an embedded newline
+
+- **id:** `sanitize-safehref-newline-scheme-bypass`
+- **Category:** security — allowlist bypass in the sanitizer that is the D-005 security contract.
+  Found 2026-08-24 while capturing the S07 golden corpus from the legacy module.
+- **Severity:** major (not blocker — authoring rich text requires a staff session today, but the
+  sanitizer is also the defense-in-depth layer for ALL stored HTML, and this voids it for `href`).
+- **Surface:** every `sanitizeHtml`/`renderRichText` render — public site and admin. Security fix →
+  **legacy fix permitted** under the freeze.
+- **Sink:** `js/lib/sanitize-html.js` `safeHref` — the scheme-reject regex does not survive
+  whitespace/control characters inside the scheme. Browsers strip `\n`/`\t` when canonicalizing a
+  URL, so `href="java\nscript:alert(1)"` passes the regex and executes on click.
+- **Reproduction (D-012a):** `sanitizeHtml('<a href="java\nscript:alert(1)">x</a>')` keeps the
+  `href` today — the S07 fixture `web/tests/fixtures/sanitize-html.json` pins this exact wrong
+  output (the corpus contains the vector). After the fix the `href` must be dropped.
+- **Minimal fix (no allowlist change):** strip ASCII control/whitespace chars from the candidate before
+  the scheme test — `href.replace(/[\u0000-\u0020]/g, '')` — mirroring browser URL canonicalization.
+- **Mirror:** the S07 port carries the hole **byte-identically on purpose** (golden parity first).
+  The dual-fix PR patches legacy `js/lib/sanitize-html.js` AND `web/src/lib/sanitize-html.ts` in
+  the same change, regenerates the fixture (`CAPTURE=1` test), and keeps the vector as a
+  now-correct assertion (D-012b satisfied — the harness exists since S05).
+- **Landed:** ☐ awaiting human approval of the legacy patch.
 
 ### DF-001 — Unescaped visitor free-text interpolated into admin `.innerHTML` (Interesados list)
 

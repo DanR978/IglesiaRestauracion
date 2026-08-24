@@ -22,8 +22,8 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 
 | Phase | Sessions | Status |
 |---|---|---|
-| 0 · Pre-flight & scaffolding | S01–S05 | 🟨 S01 ✅ · S02 ✅ · S03 ✅ · S04 🟦 · S05 🟦 |
-| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06 🟦 · S07–S22 ⬜ |
+| 0 · Pre-flight & scaffolding | S01–S05 | ✅ |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06 🟦 · S07 🟦 · S08–S22 ⬜ |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
@@ -33,16 +33,17 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 **Current state (overwrite each session):**
 - Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
 - In `/app` staging, not cut over: nothing.
-- Open PRs (merge in this order — always the base-most first): **PR #7** (lands S04+S05 on `main` — the first stack merge went top-down, which routed #5/#6 into their base branches instead of `main`), then **`migrate/S06-typed-client`** stacked on it. S01–S03 and the S56b/S56c filing are on `main` (2026-08-23); S03's deploy has run — `/app/` is live.
-- **Human one-time after PR #7 merges:** protect `main` requiring the `web` + `ledger` CI checks (Settings → Branches).
+- Open PRs (merge in this order — always the base-most first; the `migrate/S0x` branches get deleted after landing so stacked PRs auto-retarget): **PR #9** (lands S06 on `main`), then the lib-port stack **S07 → S08 → S09 → S10**. Phase 0 (S01–S05) is fully on `main` (2026-08-24); the deploy has run — `/app/` is live with the S02 placeholder.
+- **Human one-time (pending):** protect `main` requiring the `web` + `ledger` CI checks (Settings → Branches).
 - **The schema now rebuilds from git**: `supabase db reset` applies the two baseline files + the 16 migrations clean (G-004 closed). Local stack requires Docker.
-- **`web/` exists and builds**: SvelteKit 2 + Svelte 5 (runes) + `adapter-static`, TS strict. `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build` → `web/build/` with assets under `/app`; `npm run check` is clean. S03 (PR open) wires it into `deploy.yml` → `/app/`; verified locally (build + artifact-merge simulation: absolute `/app/_app/…` asset URLs, root untouched). Until S03 merges, the deploy ships `web/` *source* to the live site (see ⚠️ below).
+- **`web/` exists and builds**: SvelteKit 2 + Svelte 5 (runes) + `adapter-static`, TS strict. `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build` → `web/build/` with assets under `/app`; `npm run check` is clean. S03 wires it into `deploy.yml` → `/app/` (merged; `web/` sources are pruned from the artifact).
 - **Prod was not touched by S01, and two things it surfaced are still open on the live site**: `Modo mantenimiento` is dead in prod (G-015 — one unapplied migration; a human must apply it), and `is_aal2()` is a `select true` stub so DB-side MFA is not actually enforced (G-016 — S39 owns it).
 - Active freeze: **VBS/registration season** — do NOT cut over `eventos/registro` or `/admin` (see `DUAL-MAINTENANCE.md`).
 - Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
 - 2026-08-23: treasury receipts + bulk-entry feature **filed** as Phase-5 sessions **S56b/S56c** (no code; D-018/D-019 locked below; specs in `docs/migration/sessions/`). The feature lands in the SvelteKit app in full roadmap order — nothing in legacy (DUAL-MAINTENANCE).
+- 2026-08-24: **DF-002 filed** (security — sanitizer `safeHref` scheme check defeated by an embedded newline, found while capturing the S07 golden corpus). Qualifies for a legacy fix; awaiting human go. The S07 port carries the hole byte-identically until the dual-fix lands (golden parity first). See `DUAL-FIX-BACKLOG.md`.
 
-**Next up:** merge PR #7, set branch protection, merge S06; S07–S10 (pure-lib ports) are being built now, then the design-system track S11–S21. See `docs/migration/sessions/`.
+**Next up:** merge PR #9 then the S07–S10 stack; decide DF-002; then the design-system track S11–S21 and S22 repos close Phase 1. See `docs/migration/sessions/`.
 
 > ⚠️ **S03 is not optional housekeeping — merge it with (or right after) S02.** `deploy.yml` publishes the repo root, so once S02 is on `main` the deploy will happily upload `web/`'s *source* to the live site. Harmless (public repo, no secrets) but sloppy; S03 is what turns `web/` into `/app/` and prunes the source.
 
@@ -91,6 +92,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **G-019** **Git Bash mangles `BASE_PATH=/app`** into `C:/Program Files/Git/app` (MSYS path conversion), and the build then dies with *"paths.base must be … a root-relative path"*. On Windows use `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build`, or PowerShell (`$env:BASE_PATH='/app'`). CI (Linux) is unaffected — the documented `BASE_PATH=/app npm run build` is correct there. The same applies to `npm run preview`, which re-reads `svelte.config.js`: **without `BASE_PATH` it serves at `/`, not `/app`**, and every deep link 404s for the wrong reason.
 - **G-020** `paths.relative` is set to **`false`** in `web/svelte.config.js` (S02). SvelteKit's default (`true`) emits relative asset URLs (`./_app/…`) in prerendered pages; the **fallback** page is served at arbitrary depth (`/app/admin/gallery`), where those would resolve to `/app/admin/_app/…` and 404. Absolute keeps pages + fallback consistent and makes `base` resolve to `/app` at runtime instead of `.`. The admin deep-link/reload requirement (S37) depends on this.
 - **G-021** **GitHub Pages only ever serves the ROOT `404.html`** — the SvelteKit fallback the adapter writes to `app/404.html` is dead weight on Pages: a missing `/app/*` path (any non-prerendered route, e.g. the future `/app/admin/gallery`) renders the **legacy** 404 page, not the app fallback. Prerendered folder-style routes are unaffected. S37 (admin shell, `ssr=false` + fallback) must solve this — options: make the root `404.html` a dual-purpose page that boots the app when `location.pathname` starts with `/app/`, or prerender every admin entry point. Also note: artifact-based Pages deploys skip Jekyll, so **no `.nojekyll` is needed** for `app/_app/` (verified S03).
+- **G-022** **Legacy `safeHref` (sanitize-html.js) lets `href="java\nscript:alert(1)"` through** — the scheme-reject regex doesn't survive embedded whitespace/control chars that browsers strip during URL canonicalization. Found by the S07 golden capture; the S07 fixture pins the wrong behavior on purpose (parity first). Fix is DF-002 in `DUAL-FIX-BACKLOG.md` (legacy + port in one dual-fix PR, fixture regenerated via the `CAPTURE=1` test). Until it lands, never cite `sanitizeHtml` as proof an `href` is safe.
 
 ## 4. How prod deploys today (don't relearn this every session)
 

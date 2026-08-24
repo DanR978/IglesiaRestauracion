@@ -1,0 +1,505 @@
+{
+  "sanitizeHtml": [
+    {
+      "input": "<script>alert(1)</script>",
+      "expected": "",
+      "note": "script tag dropped with content"
+    },
+    {
+      "input": "<script src=\"https://evil.com/x.js\"></script>hola",
+      "expected": "hola",
+      "note": "external script dropped, text kept"
+    },
+    {
+      "input": "a<script>b</script>c",
+      "expected": "ac",
+      "note": "script between text nodes"
+    },
+    {
+      "input": "<SCRIPT>alert(1)</SCRIPT>",
+      "expected": "",
+      "note": "uppercase script"
+    },
+    {
+      "input": "<scr<script>ipt>alert(1)</script>",
+      "expected": "ipt&gt;alert(1)",
+      "note": "nested-tag obfuscation"
+    },
+    {
+      "input": "<p onclick=\"alert(1)\">hola</p>",
+      "expected": "<p>hola</p>",
+      "note": "onclick stripped, tag kept"
+    },
+    {
+      "input": "<span onmouseover=alert(1)>s</span>",
+      "expected": "<span>s</span>",
+      "note": "unquoted handler stripped"
+    },
+    {
+      "input": "<b ONFOCUS=\"x\" autofocus>t</b>",
+      "expected": "<b>t</b>",
+      "note": "uppercase handler + autofocus stripped"
+    },
+    {
+      "input": "<div style=\"color:red\" onload=\"x\">d</div>",
+      "expected": "<div style=\"color: red\">d</div>",
+      "note": "handler stripped, safe style kept"
+    },
+    {
+      "input": "<a href=\"javascript:alert(1)\">x</a>",
+      "expected": "<a>x</a>",
+      "note": "javascript: href dropped"
+    },
+    {
+      "input": "<a href=\"JaVaScRiPt:alert(1)\">x</a>",
+      "expected": "<a>x</a>",
+      "note": "mixed-case javascript: dropped"
+    },
+    {
+      "input": "<a href=\"\tjavascript:alert(1)\">x</a>",
+      "expected": "<a>x</a>",
+      "note": "leading tab trimmed then scheme rejected"
+    },
+    {
+      "input": "<a href=\"java\nscript:alert(1)\">x</a>",
+      "expected": "<a href=\"java\nscript:alert(1)\" rel=\"noopener noreferrer nofollow\">x</a>",
+      "note": "LANDMINE: newline inside scheme — legacy keeps it (browsers strip \\n → javascript:)"
+    },
+    {
+      "input": "<a href=\"data:text/html,<script>alert(1)</script>\">x</a>",
+      "expected": "<a>x</a>",
+      "note": "data: URL dropped"
+    },
+    {
+      "input": "<a href=\"vbscript:msgbox(1)\">x</a>",
+      "expected": "<a>x</a>",
+      "note": "vbscript: dropped"
+    },
+    {
+      "input": "<a href=\"https://example.com\">ok</a>",
+      "expected": "<a href=\"https://example.com\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">ok</a>",
+      "note": "https link kept + rel + target"
+    },
+    {
+      "input": "<a href=\"http://example.com\">ok</a>",
+      "expected": "<a href=\"http://example.com\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">ok</a>",
+      "note": "http link kept + rel + target"
+    },
+    {
+      "input": "<a href=\"mailto:info@irdlex.org\">correo</a>",
+      "expected": "<a href=\"mailto:info@irdlex.org\" rel=\"noopener noreferrer nofollow\">correo</a>",
+      "note": "mailto kept, no target"
+    },
+    {
+      "input": "<a href=\"tel:+19155550123\">tel</a>",
+      "expected": "<a href=\"tel:+19155550123\" rel=\"noopener noreferrer nofollow\">tel</a>",
+      "note": "tel kept, no target"
+    },
+    {
+      "input": "<a href=\"/eventos/\">rel</a>",
+      "expected": "<a href=\"/eventos/\" rel=\"noopener noreferrer nofollow\">rel</a>",
+      "note": "site-relative kept"
+    },
+    {
+      "input": "<a href=\"#seccion\">ancla</a>",
+      "expected": "<a href=\"#seccion\" rel=\"noopener noreferrer nofollow\">ancla</a>",
+      "note": "anchor kept"
+    },
+    {
+      "input": "<a href=\"pagina.html\">bare</a>",
+      "expected": "<a href=\"pagina.html\" rel=\"noopener noreferrer nofollow\">bare</a>",
+      "note": "bare relative path kept"
+    },
+    {
+      "input": "<a href=\"  https://example.com  \">trim</a>",
+      "expected": "<a href=\"https://example.com\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">trim</a>",
+      "note": "href whitespace trimmed"
+    },
+    {
+      "input": "<A HREF=\"HTTPS://EXAMPLE.COM/X\">caps</A>",
+      "expected": "<a href=\"HTTPS://EXAMPLE.COM/X\" rel=\"noopener noreferrer nofollow\" target=\"_blank\">caps</a>",
+      "note": "uppercase tag + scheme"
+    },
+    {
+      "input": "<iframe src=\"https://evil.com\"></iframe>after",
+      "expected": "after",
+      "note": "iframe dropped"
+    },
+    {
+      "input": "<object data=\"x\">fallback</object>",
+      "expected": "",
+      "note": "object dropped with content"
+    },
+    {
+      "input": "<embed src=\"x\">tail",
+      "expected": "tail",
+      "note": "embed dropped"
+    },
+    {
+      "input": "<img src=x onerror=alert(1)>",
+      "expected": "",
+      "note": "img dropped entirely"
+    },
+    {
+      "input": "<img src=\"data:image/png;base64,AAAA\">",
+      "expected": "",
+      "note": "data-URI img dropped"
+    },
+    {
+      "input": "<svg onload=alert(1)><circle/></svg>",
+      "expected": "",
+      "note": "svg dropped with content"
+    },
+    {
+      "input": "<svg><script>alert(1)</script></svg>",
+      "expected": "",
+      "note": "script inside svg dropped"
+    },
+    {
+      "input": "<video src=x onerror=alert(1)></video>",
+      "expected": "",
+      "note": "video dropped"
+    },
+    {
+      "input": "<form action=\"/steal\"><input value=\"y\">campo</form>",
+      "expected": "",
+      "note": "form dropped with content"
+    },
+    {
+      "input": "<style>*{background:url(javascript:alert(1))}</style>hola",
+      "expected": "hola",
+      "note": "style element dropped"
+    },
+    {
+      "input": "<template><script>alert(1)</script></template>ok",
+      "expected": "ok",
+      "note": "template dropped"
+    },
+    {
+      "input": "<noscript><p title=\"</noscript><img src=x onerror=alert(1)>\">mx</noscript>",
+      "expected": "<p>mx</p>",
+      "note": "mXSS via noscript — dropped with content"
+    },
+    {
+      "input": "<link rel=\"stylesheet\" href=\"evil.css\">x",
+      "expected": "x",
+      "note": "link dropped"
+    },
+    {
+      "input": "<meta http-equiv=\"refresh\" content=\"0;url=javascript:alert(1)\">x",
+      "expected": "x",
+      "note": "meta dropped"
+    },
+    {
+      "input": "<h1>título</h1>",
+      "expected": "título",
+      "note": "h1 not allowlisted → unwrapped to text"
+    },
+    {
+      "input": "<math><mtext><script>alert(1)</script>mx</mtext></math>",
+      "expected": "mx",
+      "note": "math/mtext unwrap, script dropped"
+    },
+    {
+      "input": "<table><tr><td>celda</td></tr></table>",
+      "expected": "celda",
+      "note": "table structure unwrapped to text"
+    },
+    {
+      "input": "<details open ontoggle=alert(1)><summary>s</summary>d</details>",
+      "expected": "sd",
+      "note": "details/summary unwrapped, handler gone"
+    },
+    {
+      "input": "<div style=\"color: red; background-image: url(evil)\">x</div>",
+      "expected": "<div style=\"color: red\">x</div>",
+      "note": "bg-image not allowlisted → dropped, color kept"
+    },
+    {
+      "input": "<div style=\"color:red;position:fixed;top:0\">x</div>",
+      "expected": "<div style=\"color: red\">x</div>",
+      "note": "position/top filtered out"
+    },
+    {
+      "input": "<div style=\"color:expression(alert(1))\">x</div>",
+      "expected": "<div>x</div>",
+      "note": "expression() filtered"
+    },
+    {
+      "input": "<div style=\"color:url(x)\">x</div>",
+      "expected": "<div>x</div>",
+      "note": "url() in value filtered"
+    },
+    {
+      "input": "<div style=\"background-color:#ff0;color:rgb(0, 0, 0)\">x</div>",
+      "expected": "<div style=\"background-color: #ff0; color: rgb(0, 0, 0)\">x</div>",
+      "note": "hex + rgb() values kept"
+    },
+    {
+      "input": "<div style=\"COLOR: RED\">x</div>",
+      "expected": "<div style=\"color: RED\">x</div>",
+      "note": "property lowercased, value kept"
+    },
+    {
+      "input": "<div style=\"color:'red'\">x</div>",
+      "expected": "<div>x</div>",
+      "note": "quotes in value rejected"
+    },
+    {
+      "input": "<span style=\"font-weight:bold\">b</span>",
+      "expected": "<span style=\"font-weight: bold\">b</span>",
+      "note": "font-weight kept"
+    },
+    {
+      "input": "<p style=\"text-align:center\">c</p>",
+      "expected": "<p style=\"text-align: center\">c</p>",
+      "note": "text-align kept"
+    },
+    {
+      "input": "<li style=\"text-decoration:underline\">u</li>",
+      "expected": "<li style=\"text-decoration: underline\">u</li>",
+      "note": "li style kept"
+    },
+    {
+      "input": "<span style=\"color:red\">a</span><span style=\"color:blue\">b</span>",
+      "expected": "<span style=\"color: red\">a</span><span style=\"color: blue\">b</span>",
+      "note": "sibling styled spans"
+    },
+    {
+      "input": "<font color=\"red\">f</font>",
+      "expected": "<font color=\"red\">f</font>",
+      "note": "font color kept"
+    },
+    {
+      "input": "<font color=\"expression(alert(1))\">f</font>",
+      "expected": "<font>f</font>",
+      "note": "font color expression dropped"
+    },
+    {
+      "input": "<b>negrita</b> y <i>cursiva</i> y <u>subrayado</u>",
+      "expected": "<b>negrita</b> y <i>cursiva</i> y <u>subrayado</u>",
+      "note": "inline emphasis passthrough"
+    },
+    {
+      "input": "<strong>s</strong><em>e</em><s>t</s><strike>k</strike>",
+      "expected": "<strong>s</strong><em>e</em><s>t</s><strike>k</strike>",
+      "note": "emphasis aliases passthrough"
+    },
+    {
+      "input": "<ul><li style=\"color:blue\">uno</li><li>dos</li></ul>",
+      "expected": "<ul><li style=\"color: blue\">uno</li><li>dos</li></ul>",
+      "note": "list passthrough"
+    },
+    {
+      "input": "<ol><li>1</li><li>2</li></ol>",
+      "expected": "<ol><li>1</li><li>2</li></ol>",
+      "note": "ordered list passthrough"
+    },
+    {
+      "input": "<h3 style=\"text-align:right\">t</h3><h4>s</h4>",
+      "expected": "<h3 style=\"text-align: right\">t</h3><h4>s</h4>",
+      "note": "h3/h4 passthrough"
+    },
+    {
+      "input": "<blockquote>cita</blockquote>",
+      "expected": "<blockquote>cita</blockquote>",
+      "note": "blockquote passthrough"
+    },
+    {
+      "input": "línea1<br>línea2",
+      "expected": "línea1<br>línea2",
+      "note": "br passthrough"
+    },
+    {
+      "input": "<div><div><span style=\"color:red\">profundo</span></div></div>",
+      "expected": "<div><div><span style=\"color: red\">profundo</span></div></div>",
+      "note": "nested allowed structure"
+    },
+    {
+      "input": "<b>bold</b> & <i>it</i> \"quotes\" <escaped",
+      "expected": "<b>bold</b> &amp; <i>it</i> \"quotes\" ",
+      "note": "loose & + quotes + stray < re-serialized"
+    },
+    {
+      "input": "<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>",
+      "expected": "<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>",
+      "note": "pre-escaped entities stay escaped"
+    },
+    {
+      "input": "<p>ñandú á é í ó ú ¿qué? ¡sí!</p>",
+      "expected": "<p>ñandú á é í ó ú ¿qué? ¡sí!</p>",
+      "note": "Spanish accents preserved"
+    },
+    {
+      "input": "<p><b>sin cerrar",
+      "expected": "<p><b>sin cerrar</b></p>",
+      "note": "unclosed tags — parser recovers"
+    },
+    {
+      "input": "<p attr=\"unclosed>texto",
+      "expected": "",
+      "note": "attribute-breaking quote swallows text (parser behavior)"
+    },
+    {
+      "input": "<div style=\"color:red\">a<p>b</div>c",
+      "expected": "<div style=\"color: red\">a<p>b</p></div>c",
+      "note": "misnested block elements"
+    },
+    {
+      "input": "<!-- comentario --><p>x</p>",
+      "expected": "<p>x</p>",
+      "note": "comment dropped"
+    },
+    {
+      "input": "",
+      "expected": "",
+      "note": "empty string → empty"
+    },
+    {
+      "input": null,
+      "expected": "",
+      "note": "null → empty"
+    },
+    {
+      "input": 123,
+      "expected": "",
+      "note": "number → empty (typeof guard)"
+    }
+  ],
+  "renderRichText": [
+    {
+      "input": "hola mundo",
+      "expected": "<p>hola mundo</p>",
+      "note": "plain text → one paragraph"
+    },
+    {
+      "input": "línea1\nlínea2",
+      "expected": "<p>línea1<br>línea2</p>",
+      "note": "single newline → <br>"
+    },
+    {
+      "input": "párrafo uno\n\npárrafo dos",
+      "expected": "<p>párrafo uno</p><p>párrafo dos</p>",
+      "note": "blank line → two paragraphs"
+    },
+    {
+      "input": "a & b < c > d \"q\"",
+      "expected": "<p>a &amp; b &lt; c &gt; d &quot;q&quot;</p>",
+      "note": "plain path escapes metachars"
+    },
+    {
+      "input": "texto con 5 < 6 comparación",
+      "expected": "<p>texto con 5 &lt; 6 comparación</p>",
+      "note": "< not followed by tag char → plain path"
+    },
+    {
+      "input": "  \n\n  \n\nreal",
+      "expected": "<p>real</p>",
+      "note": "whitespace-only paragraphs filtered"
+    },
+    {
+      "input": "<b>rico</b>",
+      "expected": "<b>rico</b>",
+      "note": "HTML-looking → sanitize path"
+    },
+    {
+      "input": "<script>alert(1)</script>",
+      "expected": "",
+      "note": "HTML-looking hostile → sanitized away"
+    },
+    {
+      "input": "<p style=\"text-align:center\">centrado</p>",
+      "expected": "<p style=\"text-align: center\">centrado</p>",
+      "note": "rich value passes allowlist"
+    },
+    {
+      "input": "",
+      "expected": "",
+      "note": "empty → empty"
+    },
+    {
+      "input": null,
+      "expected": "",
+      "note": "null → empty"
+    }
+  ],
+  "richToPlain": [
+    {
+      "input": "<p>hola <b>mundo</b></p>",
+      "expected": "hola mundo",
+      "note": "tags flattened to text"
+    },
+    {
+      "input": "<ul><li>a</li><li>b</li></ul>",
+      "expected": "ab",
+      "note": "list items concatenated"
+    },
+    {
+      "input": "multi   espacio\n\ntexto",
+      "expected": "multi espacio texto",
+      "note": "whitespace collapsed (plain path)"
+    },
+    {
+      "input": "<div>uno</div><div>dos</div>",
+      "expected": "unodos",
+      "note": "block boundaries collapse (no space inserted)"
+    },
+    {
+      "input": "<script>alert(1)</script>visible",
+      "expected": "visible",
+      "note": "leading script parses into <head>, body text only"
+    },
+    {
+      "input": "sencillo",
+      "expected": "sencillo",
+      "note": "plain passthrough"
+    },
+    {
+      "input": "",
+      "expected": "",
+      "note": "empty → empty"
+    },
+    {
+      "input": null,
+      "expected": "",
+      "note": "null → empty"
+    }
+  ],
+  "htmlIsEmpty": [
+    {
+      "input": "",
+      "expected": true,
+      "note": "empty → true"
+    },
+    {
+      "input": null,
+      "expected": true,
+      "note": "null → true"
+    },
+    {
+      "input": "<p><br></p>",
+      "expected": true,
+      "note": "markup without text → true"
+    },
+    {
+      "input": "<p>   </p>",
+      "expected": true,
+      "note": "whitespace only → true"
+    },
+    {
+      "input": "<p>x</p>",
+      "expected": false,
+      "note": "has text → false"
+    },
+    {
+      "input": "texto",
+      "expected": false,
+      "note": "plain text → false"
+    },
+    {
+      "input": "<img src=x>",
+      "expected": true,
+      "note": "img only, no text → true"
+    }
+  ]
+}
