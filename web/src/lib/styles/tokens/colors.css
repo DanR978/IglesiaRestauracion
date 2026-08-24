@@ -1,0 +1,450 @@
+/* ============================================================================
+ * tokens/colors.css — colour tokens + THE dark-mode mechanism (S11)
+ * ----------------------------------------------------------------------------
+ * Port of css/tokens/colors.css. Same custom-property names, so consumers read
+ * var(--…) unchanged.
+ *
+ * This is the ONLY file in web/ that may mention `data-theme` or
+ * `prefers-color-scheme` (MIGRATION.md D-017). Every component consumes
+ * var(--color-*) and reverses for free. Never add a component-level
+ * @media (prefers-color-scheme: dark) — it silently defeats a forced theme.
+ *
+ * Three blocks, in this order:
+ *   1. :root                 — the light palette (also "forced light").
+ *   2. @media dark + :root:not([data-theme="light"]):not([data-theme="dark"])
+ *                            — the OS dark palette, "system" mode only.
+ *   3. :root[data-theme="dark"]
+ *                            — forced dark; MUST mirror block 2 token-for-token
+ *                              (tests/unit/tokens.test.ts asserts the two blocks
+ *                              declare the same set with identical values).
+ *
+ * New in the port (DESIGN-SYSTEM.md §2.4/§2.5/§2.7, D-016):
+ *   --money-*   semantic money ink + tint (the two legacy greens collapse to one)
+ *   --status-*  honest status vocabulary for Badge/DataTable
+ *   --color-done the slate "step done" dot (re-themed from --color-add #72BB72)
+ *   --shadow-rgb the ink the shadow scale is built from (tokens/shadows.css)
+ *
+ * Dropped from the legacy file (documented in the S11 NOTES):
+ *   • --btn-shadow / --container-shadow / --image-shadow → tokens/shadows.css
+ *     (one definition, DESIGN-SYSTEM §2.3).
+ *   • the `body { background-color }` rules → base/reset.css paints
+ *     var(--color-bg-light), which already reverses.
+ *   • `.theme-image-thorns` — a homepage component concern (S26), not a token.
+ *   • `!important` on --color-bg-light — nothing competes with it any more.
+ * ========================================================================== */
+
+:root {
+  /* --color-primary is intentionally removed. Use --color-dark instead. */
+  /* Brand gold, darkened from #c89858 (2.6:1) to an AA-compliant caramel.
+     At this luminance it clears 4.5:1 BOTH as white-text-on-gold (the DONAR /
+     PLANEA TU VISITA buttons) AND as gold-text-on-white (<strong>, kickers).
+     The bright original lives on as --gold-bright for decorative, non-text use. */
+  --color-secondary: #9a6a2c;
+  --gold-bright: #c89858;
+  --color-accent: #be660e;
+  --color-info: #2d4e57;
+  --color-muted: #736960;
+  --color-dark: #394548;
+  /* --color-text is the AUTO-REVERSING foreground text colour.
+     Light mode → dark slate. Dark mode → light off-white.
+     Use this for headings/body text that should always read against the
+     page background. (--color-dark is a fixed slate used for surfaces.) */
+  --color-text: #394548;
+  /* --color-surface is the AUTO-REVERSING panel colour: cards, modals, toasts,
+     form fields — anything raised off the page background.
+     Light mode → white. Dark mode → a slate lifted just off --color-bg-light.
+     Pair it with --color-text / --color-muted, which reverse to match.
+     Do NOT use --color-white for a panel: that token stays light in both
+     themes on purpose (it is the WHITE INK used on dark/teal fills), so a
+     panel built on it strands --color-text as light-on-light in dark mode. */
+  --color-surface: #ffffff;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-darkmode-font: #c2e6ff;
+
+  --color-bg-light: #ffffff;
+  --mobile-menu-bg: #ffffff;
+  /* Public-site "add" green (10 legacy uses). NOT an admin token — the admin
+     wizard's "step done" dot uses --color-done below (DESIGN-SYSTEM §2.7). */
+  --color-add: #72bb72;
+  --color-done: #64748b;
+
+  /* Focus ring ink. Reverses with the page so the ring is visible on both
+     palettes; base/reset.css draws it with outline-offset so it also reads
+     around a --color-dark fill. */
+  --color-focus: #394548;
+
+  /* The ink the shadow scale is built from (tokens/shadows.css uses
+     rgb(var(--shadow-rgb) / alpha)). Legacy dark mode used white shadows;
+     the admin surface pins this back to black (tokens/admin.css). */
+  --shadow-rgb: 0 0 0;
+
+  --color-0: #000000;
+  --color-5: #090f11;
+  --color-10: #111e22;
+  --color-15: #1a2d32;
+  --color-20: #233c43;
+  --color-25: #2b4b54;
+  --color-26: #2d4e57;
+  --color-30: #345a65;
+  --color-35: #3d6976;
+  --color-40: #457887;
+  --color-45: #4e8897;
+  --color-50: #5797a8;
+  --color-55: #68a1b1;
+  --color-60: #78abba;
+  --color-65: #89b6c2;
+  --color-70: #9ac0cb;
+  --color-75: #abccd4;
+  --color-80: #bcd5dc;
+  --color-85: #d6e1e5;
+  /* Soft surface tints neutralised toward gray so light section bands read less
+     "green". Accent tokens (buttons/links/logo) are untouched. */
+  --color-90: #e6eaeb;
+  --color-95: #f1f4f4;
+  --color-100: #ffffff;
+
+  --orange-0: #000000;
+  --orange-5: #180d02;
+  --orange-10: #2f1a04;
+  --orange-15: #472605;
+  --orange-20: #5f3307;
+  --orange-25: #774009;
+  --orange-30: #8e4d0b;
+  --orange-35: #a6590c;
+  --orange-40: #be660e;
+  --orange-45: #c89858; /* brand secondary alias */
+  --orange-50: #ed8012;
+  --orange-55: #c89858; /* brand secondary alias */
+  --orange-60: #f19941;
+  --orange-64: #f2a152;
+  --orange-65: #f3a659;
+  --orange-70: #f4b371;
+  --orange-75: #f6bf88;
+  --orange-80: #f8cca0;
+  /* Soft orange surface tints neutralised toward warm-gray (less "orange
+     everywhere"); the saturated gold accent tokens above stay as-is. */
+  --orange-85: #ecdfd2;
+  --orange-90: #f0e9e1;
+  --orange-95: #f7f3ee;
+  --orange-100: #ffffff;
+
+  /* The --gray-* scale is a light-mode SURFACE ramp (its dark values get
+     darker). Never use it for text — dimmed text is --color-muted.
+     --gray-50 is the house control-border gray. */
+  --gray-160: #a0a0a0;
+  --gray-150: #a8a8a8;
+  --gray-140: #a9a9a9;
+  --gray-130: #b0b0b0;
+  --gray-120: #b8b8b8;
+  --gray-110: #bebebe;
+  --gray-100: #c0c0c0;
+  --gray-90: #c8c8c8;
+  --gray-80: #d0d0d0;
+  --gray-70: #d3d3d3;
+  --gray-65: #d8d8d8;
+  --gray-60: #dcdcdc;
+  --gray-50: #e0e0e0;
+  --gray-40: #e8e8e8;
+  --gray-30: #f0f0f0;
+  --gray-20: #f5f5f5;
+  --gray-10: #f8f8f8;
+  --gray-0: #ffffff;
+
+  /* Semantic status — the only non-slate colour allowed in the admin, because
+     it MEANS something. These are FILL colours (white ink on top). As TEXT on
+     white, --color-success is only 3.3:1 — use --money-pos / --status-* ink. */
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-warn: #d97706;
+
+  /* Event-category tints — AA-tuned bg/text pairs, and THE one source of
+     category colour (DESIGN-SYSTEM §2.6). No JS hex map, no inline
+     style="background:…". Fixed-light pills: identical in both themes. */
+  --cat-servicio: #e0f0ef;
+  --cat-servicio-t: #1e6b61;
+  --cat-estudio: #e3eaf8;
+  --cat-estudio-t: #2a4a9e;
+  --cat-oracion: #ede8f5;
+  --cat-oracion-t: #5c3d9c;
+  --cat-evangelizacion: #fef0e0;
+  --cat-evangelizacion-t: #a05a10;
+  --cat-especial: #fde8ea;
+  --cat-especial-t: #b02030;
+  --cat-otro: #f0f0f0;
+  --cat-otro-t: #555555;
+
+  /* Money semantics (D-016) — AA-contrast-tuned ink + faint tint, reversed in
+     the dark blocks. The ONE place non-slate colour is intentional in the
+     treasury: +/- is meaning, not decoration. Legacy #1e6b61 and #1c7a52
+     collapse to one green; #b02030 and #a05a10 keep their hue.
+     Ink on white: pos 6.2:1 · neg 6.8:1 · warn 5.3:1. */
+  --money-pos: #1e6b61;
+  --money-pos-bg: rgba(30, 107, 97, 0.12);
+  --money-neg: #b02030;
+  --money-neg-bg: rgba(176, 32, 48, 0.1);
+  --money-warn: #a05a10;
+  --money-warn-bg: rgba(160, 90, 16, 0.14);
+
+  /* Honest status vocabulary (DESIGN-SYSTEM §2.5) — one ink + tint pair per
+     real state, so Badge/DataTable never carry meaning by variant reuse.
+     Hue = meaning (green settled · amber pending · red overdue/closed ·
+     blue open · neutral finished/inactive · slate-ink restricted); Badge
+     pairs every pill with an icon + label so colour is never the only cue. */
+  --status-open: #2a4a9e;
+  --status-open-bg: rgba(42, 74, 158, 0.12);
+  --status-neutral-bg: rgba(127, 127, 127, 0.12);
+  --status-restricted-bg: rgba(127, 127, 127, 0.22);
+  --status-paid: var(--money-pos);
+  --status-paid-bg: var(--money-pos-bg);
+  --status-pending: var(--money-warn);
+  --status-pending-bg: var(--money-warn-bg);
+  --status-overdue: var(--money-neg);
+  --status-overdue-bg: var(--money-neg-bg);
+  --status-closed: var(--money-neg);
+  --status-closed-bg: var(--money-neg-bg);
+  --status-completed: var(--money-pos);
+  --status-completed-bg: var(--money-pos-bg);
+  --status-finished: var(--color-muted);
+  --status-finished-bg: var(--status-neutral-bg);
+  --status-active: var(--money-pos);
+  --status-active-bg: var(--money-pos-bg);
+  --status-inactive: var(--color-muted);
+  --status-inactive-bg: var(--status-neutral-bg);
+  --status-restricted: var(--color-text);
+
+  --color-transparent: transparent;
+
+  /* Decorative rail gradients (home / events / sermons) neutralised from teal
+     to slate-gray so they read less "green". Purely decorative — no text. */
+  --rail-g1: #46505a;
+  --rail-g2: #6c7882;
+  --rail-g3: #aab2b8;
+
+  --static-black: #000000;
+  --static-white: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  /* Applies only in "system" theme mode — i.e. when <html> has no data-theme
+     override. A forced light/dark theme is handled by the [data-theme] block
+     below, which is why this selector opts out of both. */
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    /* Same AA caramel in dark mode so the gold buttons keep white-text
+       contrast (white on the old bright gold was 2.6:1 here too). */
+    --color-secondary: #9a6a2c;
+    --gold-bright: #c89858;
+    --color-accent: #be660e;
+    --color-info: #2d4e57;
+    --color-muted: #aa9b8c; /* warmer light brown that reads on dark */
+    --color-dark: #313537;
+    /* Foreground text auto-reverses to light here. */
+    --color-text: #f0f5f7;
+    /* Panels lift just off --color-bg-light (#121c1f) rather than going white:
+       1.12:1 against the page (a visible edge, not a glare), while --color-text
+       clears 14.1:1 and --color-muted 5.7:1 on top of it. */
+    --color-surface: #1a262a;
+    --color-white: #dfdedc;
+    --color-black: #dfdedc;
+    --color-darkmode-font: #e6faff;
+
+    --color-bg-light: #121c1f;
+    --mobile-menu-bg: #121c1f;
+    --color-done: #94a3b8;
+    --color-focus: #f0f5f7;
+    --shadow-rgb: 255 255 255;
+
+    --color-0: #ffffff;
+    --color-5: #eef5f6;
+    --color-10: #ddeaee;
+    --color-15: #cde0e5;
+    --color-20: #bcd5dc;
+    --color-25: #abccd4;
+    --color-26: #9ac0cb;
+    --color-30: #89b6c2;
+    --color-35: #78abba;
+    --color-40: #68a1b1;
+    --color-45: #5797a8;
+    --color-50: #4e8897;
+    --color-55: #457887;
+    --color-60: #3d6976;
+    --color-65: #345a65;
+    --color-70: #2b4b54;
+    --color-75: #233c43;
+    --color-80: #1a2d32;
+    --color-85: #111e22;
+    --color-90: #090f11;
+    --color-95: #040708;
+    --color-100: #000000;
+
+    --orange-0: #ffffff;
+    --orange-5: #fdf2e7;
+    --orange-10: #fbe6d0;
+    --orange-15: #fad9b8;
+    --orange-20: #f8cca0;
+    --orange-25: #f6bf88;
+    --orange-30: #f4b371;
+    --orange-35: #f3a659;
+    --orange-40: #f2a152;
+    --orange-45: #f19941;
+    --orange-50: #ed8012;
+    --orange-55: #c89858; /* brand secondary alias */
+    --orange-60: #be660e;
+    --orange-64: #a6590c;
+    --orange-65: #8e4d0b;
+    --orange-70: #774009;
+    --orange-75: #5f3307;
+    --orange-80: #472605;
+    --orange-85: #2f1a04;
+    --orange-90: #180d02;
+    --orange-95: #0c0601;
+    --orange-100: #000000;
+
+    --gray-160: #2a2a2a;
+    --gray-150: #333333;
+    --gray-140: #3d3d3d;
+    --gray-130: #444444;
+    --gray-120: #505050;
+    --gray-110: #5c5c5c;
+    --gray-100: #666666;
+    --gray-90: #808080;
+    --gray-80: #999999;
+    --gray-70: #aaaaaa;
+    --gray-65: #b3b3b3;
+    --gray-60: #c0c0c0;
+    --gray-50: #cccccc;
+    --gray-40: #d8d8d8;
+    --gray-30: #e5e5e5;
+    --gray-20: #f0f0f0;
+    --gray-10: #f8f8f8;
+    --gray-0: #ffffff;
+
+    /* Money ink lifted for the #1a262a surface: pos 7.1:1 · neg 6.5:1 · warn 8.2:1. */
+    --money-pos: #4fc3a1;
+    --money-pos-bg: rgba(79, 195, 161, 0.16);
+    --money-neg: #f28b8b;
+    --money-neg-bg: rgba(242, 139, 139, 0.14);
+    --money-warn: #f0b25a;
+    --money-warn-bg: rgba(240, 178, 90, 0.16);
+
+    --status-open: #9db4f0; /* 7.5:1 on #1a262a */
+    --status-open-bg: rgba(157, 180, 240, 0.16);
+    --status-neutral-bg: rgba(127, 127, 127, 0.18);
+    --status-restricted-bg: rgba(127, 127, 127, 0.28);
+
+    --color-transparent: transparent;
+
+    --static-black: #000000;
+    --static-white: #ffffff;
+  }
+}
+
+/* ── Manual theme override (Apariencia preference, theme.svelte.ts) ──────────
+   <html data-theme="light|dark"> forces a palette regardless of the OS setting;
+   "system" removes the attribute so the media query above governs again.
+   • Forced LIGHT needs no block — it is just the :root defaults, and guarding
+     the media query above already stops the OS dark palette from winning.
+   • Forced DARK mirrors the prefers-color-scheme values so a user on a light OS
+     can still choose the dark panel. Kept next to the source above so the two
+     stay in sync — and tokens.test.ts fails the build if they drift. */
+:root[data-theme='dark'] {
+  --color-secondary: #9a6a2c;
+  --gold-bright: #c89858;
+  --color-accent: #be660e;
+  --color-info: #2d4e57;
+  --color-muted: #aa9b8c;
+  --color-dark: #313537;
+  --color-text: #f0f5f7;
+  --color-surface: #1a262a;
+  --color-white: #dfdedc;
+  --color-black: #dfdedc;
+  --color-darkmode-font: #e6faff;
+
+  --color-bg-light: #121c1f;
+  --mobile-menu-bg: #121c1f;
+  --color-done: #94a3b8;
+  --color-focus: #f0f5f7;
+  --shadow-rgb: 255 255 255;
+
+  --color-0: #ffffff;
+  --color-5: #eef5f6;
+  --color-10: #ddeaee;
+  --color-15: #cde0e5;
+  --color-20: #bcd5dc;
+  --color-25: #abccd4;
+  --color-26: #9ac0cb;
+  --color-30: #89b6c2;
+  --color-35: #78abba;
+  --color-40: #68a1b1;
+  --color-45: #5797a8;
+  --color-50: #4e8897;
+  --color-55: #457887;
+  --color-60: #3d6976;
+  --color-65: #345a65;
+  --color-70: #2b4b54;
+  --color-75: #233c43;
+  --color-80: #1a2d32;
+  --color-85: #111e22;
+  --color-90: #090f11;
+  --color-95: #040708;
+  --color-100: #000000;
+
+  --orange-0: #ffffff;
+  --orange-5: #fdf2e7;
+  --orange-10: #fbe6d0;
+  --orange-15: #fad9b8;
+  --orange-20: #f8cca0;
+  --orange-25: #f6bf88;
+  --orange-30: #f4b371;
+  --orange-35: #f3a659;
+  --orange-40: #f2a152;
+  --orange-45: #f19941;
+  --orange-50: #ed8012;
+  --orange-55: #c89858; /* brand secondary alias */
+  --orange-60: #be660e;
+  --orange-64: #a6590c;
+  --orange-65: #8e4d0b;
+  --orange-70: #774009;
+  --orange-75: #5f3307;
+  --orange-80: #472605;
+  --orange-85: #2f1a04;
+  --orange-90: #180d02;
+  --orange-95: #0c0601;
+  --orange-100: #000000;
+
+  --gray-160: #2a2a2a;
+  --gray-150: #333333;
+  --gray-140: #3d3d3d;
+  --gray-130: #444444;
+  --gray-120: #505050;
+  --gray-110: #5c5c5c;
+  --gray-100: #666666;
+  --gray-90: #808080;
+  --gray-80: #999999;
+  --gray-70: #aaaaaa;
+  --gray-65: #b3b3b3;
+  --gray-60: #c0c0c0;
+  --gray-50: #cccccc;
+  --gray-40: #d8d8d8;
+  --gray-30: #e5e5e5;
+  --gray-20: #f0f0f0;
+  --gray-10: #f8f8f8;
+  --gray-0: #ffffff;
+
+  --money-pos: #4fc3a1;
+  --money-pos-bg: rgba(79, 195, 161, 0.16);
+  --money-neg: #f28b8b;
+  --money-neg-bg: rgba(242, 139, 139, 0.14);
+  --money-warn: #f0b25a;
+  --money-warn-bg: rgba(240, 178, 90, 0.16);
+
+  --status-open: #9db4f0;
+  --status-open-bg: rgba(157, 180, 240, 0.16);
+  --status-neutral-bg: rgba(127, 127, 127, 0.18);
+  --status-restricted-bg: rgba(127, 127, 127, 0.28);
+
+  --color-transparent: transparent;
+
+  --static-black: #000000;
+  --static-white: #ffffff;
+}

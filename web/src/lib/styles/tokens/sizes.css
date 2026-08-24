@@ -1,0 +1,28 @@
+/* ============================================================================
+ * tokens/sizes.css — the STATIC rem scale (S11)
+ * ----------------------------------------------------------------------------
+ * Verbatim port of css/tokens/sizes.css. Kept because ~55 public-site rules
+ * (footer, header, hero, buttons…) read --size-*; the public ports (S23–S36)
+ * need them for parity.
+ *
+ * This scale does NOT govern admin type (D-015): admin components use the
+ * fluid --fs-* scale in tokens/typography.css. Do not add new --size-* uses.
+ * ========================================================================== */
+
+:root {
+  --size-xxs: 0.5rem;
+  --size-xs: 0.75rem;
+  --size-sm: 0.875rem;
+  --size-base: 1rem;
+  --size-lg: 1.125rem;
+  --size-xl: 1.25rem;
+  --size-2xl: 1.5rem;
+  --size-3xl: 1.875rem;
+  --size-4xl: 2.25rem;
+  --size-5xl: 3rem;
+  --size-6xl: 3.75rem;
+  --size-7xl: 4.5rem;
+  --size-8xl: 6rem;
+  --size-9xl: 8rem;
+  --size-10xl: 10rem;
+}

@@ -1,0 +1,36 @@
+/* ============================================================================
+ * tokens/admin.css — the neutral-slate admin override (S11, D-014)
+ * ----------------------------------------------------------------------------
+ * Port of css/pages/admin/palette.css, SCOPED so it never reaches the public
+ * site. The legacy file overrode :root and relied on being bundled only into
+ * the admin page; here it is part of the one global app.css, so the scope IS
+ * the selector.
+ *
+ * SELECTOR CONTRACT — `[data-surface="admin"]`
+ *   • The (admin) route group's +layout.svelte puts data-surface="admin" on its
+ *     ROOT ELEMENT (a wrapper inside <body>, e.g. <div data-surface="admin">).
+ *   • Every element the admin renders — including position:fixed overlay hosts
+ *     (toasts, modals, confirm, action sheet) — must be a DOM descendant of
+ *     that element. Custom properties inherit; a host portaled to <body>
+ *     would fall back to the public gold.
+ *   • Do NOT put the attribute on <html>: the dark-mode selectors in
+ *     tokens/colors.css ((0,3,1) and (0,1,1)) outrank a plain attribute
+ *     selector there and the override would lose in dark mode.
+ *   • Public routes never set it. Components must not hardcode either palette;
+ *     they read var(--color-secondary) etc. and get slate here, gold elsewhere.
+ *
+ * Gold / amber / orange / teal never appear as an admin accent. Semantic
+ * success / danger / warn / money / status is the only non-slate colour in the
+ * admin — used because it means something (DESIGN-SYSTEM §1).
+ * ========================================================================== */
+
+[data-surface='admin'] {
+  --color-info: #334155; /* slate-700 — was teal #2d4e57 */
+  --color-secondary: #475569; /* slate-600 — was brand gold #9a6a2c */
+  --gold-bright: #64748b; /* slate-500 — was #c89858 (decorative only) */
+  --color-accent: #475569; /* slate-600 — was vivid orange #be660e */
+
+  /* Calm flat surfaces, no glow: the admin keeps black shadows in dark mode
+     (the public site keeps its legacy white ones). See tokens/shadows.css. */
+  --shadow-rgb: 0 0 0;
+}

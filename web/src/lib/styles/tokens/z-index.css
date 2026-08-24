@@ -1,0 +1,26 @@
+/* ============================================================================
+ * tokens/z-index.css — the stacking order (S11)
+ * ----------------------------------------------------------------------------
+ * Verbatim port of css/tokens/z-index.css. Preserve the numeric order exactly —
+ * components depend on it (confirm = calc(var(--z-modal) + 10) stacks above a
+ * modal; action sheet above fullscreen; lightbox topmost).
+ * ========================================================================== */
+
+:root {
+  --z-negative: -1;
+  --z-base: 1;
+  --z-menu: 10;
+  --z-overlay: 50;
+  --z-modal: 100;
+  --z-max: 999;
+
+  /* Top-layer tiers. These keep the exact numeric values that were
+     previously hardcoded across components, so stacking is unchanged —
+     they just give the magic numbers names and a documented order. */
+  --z-fullscreen: 9000; /* full-screen wizards / gallery overlay */
+  --z-action-backdrop: 9990; /* action-sheet scrim */
+  --z-action-sheet: 9991; /* action-sheet panel */
+  --z-page-transition: 9998; /* route transition curtain */
+  --z-splash: 9999; /* first-load splash / auth animation */
+  --z-lightbox: 10000; /* gallery lightbox (topmost) */
+}
