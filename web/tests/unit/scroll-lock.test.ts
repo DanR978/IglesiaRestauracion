@@ -3,7 +3,7 @@
 // it to '' on close, so a confirm nested in a modal unlocked the page under it
 // (DESIGN-SYSTEM §4.2 / PORT-DEBT S16).
 import { afterEach, describe, expect, it } from 'vitest';
-import { bodyScrollLockDepth, lockBodyScroll } from '$lib/scroll-lock';
+import { FLOATING_POPUP_CLASS, bodyScrollLockDepth, lockBodyScroll } from '$lib/scroll-lock';
 
 const overflow = () => document.body.style.overflow;
 
@@ -62,5 +62,20 @@ describe('lockBodyScroll', () => {
     expect(overflow()).toBe('hidden');
     second();
     expect(overflow()).toBe('');
+  });
+});
+
+describe('floating-popup class (S16 behaviour, folded in)', () => {
+  it('is added on the first lock and removed only by the last release', () => {
+    const first = lockBodyScroll();
+    expect(document.body.classList.contains(FLOATING_POPUP_CLASS)).toBe(true);
+
+    const second = lockBodyScroll();
+    first();
+    // still one overlay up — the class must survive
+    expect(document.body.classList.contains(FLOATING_POPUP_CLASS)).toBe(true);
+
+    second();
+    expect(document.body.classList.contains(FLOATING_POPUP_CLASS)).toBe(false);
   });
 });

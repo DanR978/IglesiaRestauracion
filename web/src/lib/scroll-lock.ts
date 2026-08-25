@@ -30,12 +30,20 @@ let restoreTo = '';
  * Releasing is idempotent — calling it twice does not unbalance the counter,
  * so a component may release in both a teardown and an explicit close.
  */
+/**
+ * The legacy body class that hides floating page furniture (the WhatsApp FAB,
+ * the mobile bar) while an overlay covers the page. Carried over from S16 so
+ * one module owns every body-level side effect of opening an overlay.
+ */
+export const FLOATING_POPUP_CLASS = 'has-floating-popup';
+
 export function lockBodyScroll(): () => void {
   if (typeof document === 'undefined') return () => {};
 
   if (depth === 0) {
     restoreTo = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
+    document.body.classList.add(FLOATING_POPUP_CLASS);
   }
   depth += 1;
 
@@ -47,6 +55,7 @@ export function lockBodyScroll(): () => void {
     if (depth <= 0) {
       depth = 0;
       document.body.style.overflow = restoreTo;
+      document.body.classList.remove(FLOATING_POPUP_CLASS);
       restoreTo = '';
     }
   };
