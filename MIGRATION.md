@@ -23,7 +23,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 | Phase | Sessions | Status |
 |---|---|---|
 | 0 · Pre-flight & scaffolding | S01–S05 | ✅ |
-| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S13 ✅ · S22 ✅ · S14–S21 built, PRs landing |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | ✅ **complete** (S06–S22) |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
@@ -33,7 +33,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 **Current state (overwrite each session):**
 - Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
 - In `/app` staging, not cut over: nothing.
-- Open PRs (merge in this order — always the base-most first; every merged `migrate/*` branch is deleted so stacked PRs auto-retarget to `main`): the treasury stack **S52 → S56c parser → S56b backend**, and the component stack **S14 · S15 · S17 · S19 · S21** as they land. **S01–S13 + S22 + the DF-002 security fix are on `main` (2026-08-25)**; the deploy has run — `/app/` is live (placeholder page; the design-system `/app/kit/*` showcase pages arrive with S11+).
+- Open PRs: **S16 · S18 · S20** (the last of Phase 1). Everything else is on `main`. **S01–S13 + S22 + the DF-002 security fix are on `main` (2026-08-25)**; the deploy has run — `/app/` is live (placeholder page; the design-system `/app/kit/*` showcase pages arrive with S11+).
 - **Human one-time (pending):** protect `main` requiring the `web` + `ledger` CI checks (Settings → Branches).
 - **The schema now rebuilds from git**: `supabase db reset` applies the two baseline files + the 16 migrations clean (G-004 closed). Local stack requires Docker.
 - **`web/` exists and builds**: SvelteKit 2 + Svelte 5 (runes) + `adapter-static`, TS strict. `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build` → `web/build/` with assets under `/app`; `npm run check` is clean. S03 wires it into `deploy.yml` → `/app/` (merged; `web/` sources are pruned from the artifact).
@@ -45,7 +45,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 
 - **Sequencing (2026-08-25, owner decision):** the public-site port (Phase 2, S23–S36) is OUT of the critical path. Order is now: finish the design system (S14–S21) → admin shell + auth/MFA (S37–S39) → treasury (S52/S53/S56) → the owner-requested features **S56b** (recibos) and **S56c** (registro rápido). The legacy public site keeps serving every public URL meanwhile; Phase 2 resumes once the treasury features ship.
 
-**Next up:** merge the treasury stack (S52 → S56c → S56b) and the S14–S21 component PRs; then S37–S39 (admin shell + auth) so the treasury UI has somewhere to live. S14–S21 (Button/Card, Toast, Modal/Confirm, ActionSheet, RichTextEditor, SignaturePad, Lightbox, Disclosure/DataTable/FormWizard) close Phase 1. See `docs/migration/sessions/`.
+**Next up:** **Phase 1 is complete** — every shared lib, the typed client, the whole component library and the public-read repos are on `main`. Per the 2026-08-25 sequencing decision the next step is **S37 → S38 → S39** (admin shell, state stores, auth + MFA), which is the only thing standing between the built treasury layer and a screen the treasurer can open. Then S53 (books UI) → S56 (ministry/project) → **S56b recibos UI** + **S56c registro rápido UI**.
 
 > ⚠️ **S03 is not optional housekeeping — merge it with (or right after) S02.** `deploy.yml` publishes the repo root, so once S02 is on `main` the deploy will happily upload `web/`'s *source* to the live site. Harmless (public repo, no secrets) but sloppy; S03 is what turns `web/` into `/app/` and prunes the source.
 
@@ -105,6 +105,9 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 
 - **G-026** (S56b) **A dated retention rule needs boundary tests at the DATE boundary, not at the happy instant.** D-018 says year Y dies *after end of January* of Y+2, but the first cut of `retentionCutoffYear()` encoded only the year half (`year - 2`), so every January it reported a year as expired a month early — and the manual off-cycle re-run the README recommends after a missed sweep is exactly a January invocation, which would have destroyed a year of financial documents irreversibly. The suite missed it because all six sampled instants were Feb 1. Rule for any future dated job: sample the day before, the day of, and the day after the boundary. Fixed before merge; the January cases are now pinned. (Same root cause hid a still-retained year from the year picker for the whole of January.)
 - **G-027** (S56b) **`net.http_post` records the cron job as SUCCEEDED whatever the edge function answers**, and the receipts sweep runs once a year — so a rotated `CRON_SECRET` would fail silently and retention would simply not happen for another 12 months. The worker also returns 200 with a populated `failures[]`. Any annual job needs a POST-run check (`cron.job_run_details` + `net._http_response` + a data assertion); the daily/weekly precedents this was cloned from self-correct, an annual one does not. Checklist added to `supabase/README.md`.
+
+- **G-028** (S16/S20/S21) **Parallel sessions can build the same primitive twice.** S21 and S16 each shipped a reference-counted `scroll-lock.ts` — same semantics, different export names (`lockBodyScroll/bodyScrollLockDepth` vs `lockScroll/scrollLockDepth`), and S16 additionally owned the legacy `has-floating-popup` body class. Resolved by keeping ONE module — S21 names are canonical because they merged first and its components already import them — folding S16 class handling into it, and renaming S16 callers and tests. When fanning sessions out in parallel, name the shared primitives up front, or expect this merge every time.
+- **G-029** (S18) **D-005 is now a CI gate, not a convention.** `web/eslint-rules/no-raw-html.js` (registered as `local/no-raw-html`) allows `{@html X}` only where X is `sanitizeHtml()`/`renderRichText()` output or the trusted sprite, and also covers the `innerHTML`-style sinks that would route around it. `svelte/no-at-html-tags` is deliberately OFF: it bans the tag outright, which would force a blanket disable at the two legitimate sites and stop checking them forever. The rule fixtures live under `tests/fixtures/no-raw-html/` and are eslint-ignored on purpose — they contain the violations the rule must catch.
 
 ## 4. How prod deploys today (don't relearn this every session)
 

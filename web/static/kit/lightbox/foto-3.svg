@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000" role="img" aria-label="Navidad">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3f5a34"/>
+      <stop offset="1" stop-color="#16210f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="1000" fill="url(#g)"/>
+  <circle cx="250" cy="250" r="125" fill="#ffffff" fill-opacity=".18"/>
+  <path d="M0 1000 L333 500 L666 750 L1000 333 L1000 1000 Z" fill="#000000" fill-opacity=".22"/>
+  <text x="500" y="500" text-anchor="middle" dominant-baseline="middle" font-family="Geist, system-ui, sans-serif" font-size="100" fill="#ffffff" fill-opacity=".92">Navidad</text>
+  <text x="500" y="625" text-anchor="middle" dominant-baseline="middle" font-family="Geist, system-ui, sans-serif" font-size="45" fill="#ffffff" fill-opacity=".7">1000 × 1000</text>
+</svg>
