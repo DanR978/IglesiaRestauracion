@@ -137,3 +137,115 @@ curl -X POST "$FN/newsletter-reminders" -H "x-cron-secret: $CRON_SECRET" \
 `{"force":true}` on `newsletter-broadcast` re-sends the real blast even if this
 month is already logged. Until Resend is configured, sign-ups still record the
 subscriber; the email is skipped (logged).
+
+## Recibos de tesorería — private receipt images + annual retention
+
+Receipt photos for the church books, for each ministry a leader is assigned to,
+and for personal projects. Three pieces:
+
+| Piece | What it is |
+| --- | --- |
+| `public.fin_receipts` | one row per receipt — scope (`church`/`ministry`/`project`), year, **month**, the two object paths, size, note |
+| the `receipts` storage bucket | **private** (`public = false`), `image/webp` only, 10 MB per object |
+| `functions/receipts-cleanup/` | the annual retention worker, fired by pg_cron |
+
+**The retention rule in one sentence:** a year's receipts are kept until the end
+of January of the second following year — the run of **February 1st of year N**
+deletes everything filed in **N−2 or earlier**, so the books always hold the full
+previous year plus the current one (Feb 1 2028 deletes 2026 and older, keeps 2027
+and 2028). Each receipt therefore lives ~13–25 months.
+
+**The bucket is never public-read.** Unlike `gallery` / `event-images` /
+`avatars`, a receipt is a financial document: the app reads it with an
+authenticated `.download()`, so no public URL and no long-lived signed URL ever
+exists. If a change ever sets `public = true` on this bucket, that is a security
+regression (MIGRATION.md D-018).
+
+**Who sees what** (D-019 — enforced by RLS, never by the client):
+
+| scope | who |
+| --- | --- |
+| `church` | finance only (`is_finance()` = role `admin` or `treasurer`) |
+| `ministry` | finance **and every leader of that ministry** — shared, not owner-private |
+| `project` | the project's owner **only** — invisible even to finance |
+
+Object paths are `church/<year>/<uuid>.webp`,
+`ministry/<ministry_id>/<year>/<uuid>.webp`, `project/<project_id>/<year>/<uuid>.webp`
+(plus a `-thumb.webp` sibling). The **year folder is what the cleanup job sweeps;
+the month lives in the row**, so re-filing a receipt never moves an object. The
+`receipts_insert` policy enforces that exact shape (folder depth + 4-digit year),
+which is the only reason the `::uuid` casts in the read/delete policies can never
+meet a malformed name — **never loosen those shape checks**. There is deliberately
+**no UPDATE policy**: receipts are immutable, replacing one is delete + re-upload.
+
+### One-time setup
+
+1. **Migrations** — apply in this order in the SQL editor:
+   ```
+   20260824120000_fin_receipts.sql          -- table + RLS + private bucket + storage policies
+   20260824120100_fin_ministry_shared.sql   -- D-019 additive widening of fin_projects/income/expenses
+   20260824120200_receipts_cleanup_cron.sql -- run AFTER deploying the function (step 2)
+   ```
+   All three are idempotent. After the first one, confirm the bucket really is
+   private:
+   ```sql
+   select id, public, file_size_limit, allowed_mime_types from storage.buckets where id = 'receipts';
+   -- expected: receipts | f | 10485760 | {image/webp}
+   ```
+2. **Deploy the function** (server-to-server; no user session, so no JWT check):
+   ```bash
+   supabase functions deploy receipts-cleanup --no-verify-jwt
+   ```
+3. **Secrets — nothing new.** It reuses the `CRON_SECRET` function secret and the
+   Vault `project_url` / `cron_secret` from the newsletter setup above. Only if
+   that was never done, do it now (see the newsletter section), then apply
+   `20260824120200_receipts_cleanup_cron.sql`; without the Vault values that
+   migration raises a `notice` and schedules nothing.
+4. **Confirm the job:**
+   ```sql
+   select jobname, schedule, active from cron.job where jobname = 'receipts-cleanup-annual';
+   -- expected: receipts-cleanup-annual | 0 5 1 2 * | t
+   ```
+
+### Testing before go-live
+
+```bash
+# SAFE NO-OP — no receipt is from 1990, so this deletes nothing and proves the
+# secret, the routing and the service-role client all work:
+curl -X POST "$FN/receipts-cleanup" -H "x-cron-secret: $CRON_SECRET" \
+     -H 'Content-Type: application/json' -d '{"cutoffYear":1990}'
+# → {"ok":true,"cutoff":1990,"deletedRows":0,"deletedObjects":0,"failures":[]}
+```
+
+Omit `cutoffYear` (or send `{}`) and it uses the real cutoff — **that deletes
+production data**, so only do it on a staging project with seeded old rows. A
+wrong or missing `x-cron-secret` returns `401 {"error":"No autorizado."}`; a GET
+returns `405`. Re-running is always a no-op (`deletedRows: 0`) because the sweep
+is `year <= cutoff`, which is also what makes a missed annual run self-heal at
+the next firing.
+
+#### Comprobación después de cada ejecución (1 de febrero)
+
+This job runs **once a year**, and `net.http_post` records success no matter what the
+function answered — a rotated `CRON_SECRET` would produce a silent 401 and retention
+simply would not happen for another 12 months. Check it the same week:
+
+```sql
+select start_time, status from cron.job_run_details
+  where jobname = 'receipts-cleanup-annual' order by start_time desc limit 3;
+
+select created, (response).status_code, (response).body
+  from net._http_response order by created desc limit 5;   -- expect 200 and "failures":[]
+
+select year, count(*) from public.fin_receipts group by year order by year;
+-- no row should remain for a year <= (current year - 2)
+```
+
+If it did not run, re-trigger it **with an explicit `cutoffYear`** rather than an empty
+body, so the year being deleted is a deliberate choice:
+
+```bash
+curl -X POST "$PROJECT_URL/functions/v1/receipts-cleanup" \
+  -H "x-cron-secret: $CRON_SECRET" -H "Content-Type: application/json" \
+  -d '{"cutoffYear": 2026}'
+```
