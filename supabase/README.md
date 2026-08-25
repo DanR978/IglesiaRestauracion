@@ -176,7 +176,7 @@ the month lives in the row**, so re-filing a receipt never moves an object. The
 `receipts_insert` policy enforces that exact shape (folder depth + 4-digit year),
 which is the only reason the `::uuid` casts in the read/delete policies can never
 meet a malformed name — **never loosen those shape checks**. There is deliberately
-**no UPDATE policy**: receipts are immutable, replacing one is delete + re-upload.
+**no UPDATE policy on storage.objects and no UPDATE grant on the table**: receipts are immutable end to end, so replacing one is delete + re-upload. (A granted UPDATE would let a leader re-point a co-leader receipt into a private project, or rewrite the year that retention keys on — permissive policies OR their USING and WITH CHECK independently.)
 
 ### One-time setup
 

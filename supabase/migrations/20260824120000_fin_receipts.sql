@@ -45,7 +45,7 @@ create table if not exists public.fin_receipts (
   year          int  not null check (year between 2000 and 2100),
   month         int  not null check (month between 1 and 12),
   storage_path  text not null unique,     -- receipts bucket, main webp
-  thumb_path    text not null,            -- receipts bucket, thumb webp
+  thumb_path    text not null unique,     -- receipts bucket, thumb webp
   file_size     int,
   original_name text,
   note          text,
@@ -54,7 +54,23 @@ create table if not exists public.fin_receipts (
   constraint fin_receipts_scope_ids check (
     (scope = 'church'   and ministry_id is null     and project_id is null) or
     (scope = 'ministry' and ministry_id is not null and project_id is null) or
-    (scope = 'project'  and project_id is not null  and ministry_id is null))
+    (scope = 'project'  and project_id is not null  and ministry_id is null)),
+  -- Bind BOTH paths to scope/ids/year. Without this the row year and the object
+  -- folder can disagree, and since the cleanup worker reclaims objects by FOLDER
+  -- year but deletes rows by COLUMN year, a live receipt loses its images with no
+  -- error recorded. It also stops a row a leader may write from naming an object
+  -- they may not read.
+  constraint fin_receipts_path_scope check (
+    storage_path like (case scope
+        when 'church'   then 'church/'   || year::text
+        when 'ministry' then 'ministry/' || ministry_id::text || '/' || year::text
+        else                 'project/'  || project_id::text  || '/' || year::text
+      end) || '/%'
+    and thumb_path like (case scope
+        when 'church'   then 'church/'   || year::text
+        when 'ministry' then 'ministry/' || ministry_id::text || '/' || year::text
+        else                 'project/'  || project_id::text  || '/' || year::text
+      end) || '/%')
 );
 
 comment on table public.fin_receipts is
@@ -74,7 +90,16 @@ alter table public.fin_receipts enable row level security;
 -- so revoke it too — defence in depth, and PostgREST then hides the table from
 -- unauthenticated callers entirely.
 revoke all on table public.fin_receipts from anon;
-grant select, insert, update, delete on table public.fin_receipts to authenticated;
+-- NO UPDATE (deliberate): permissive policies OR their USING and WITH CHECK
+-- independently, so a granted UPDATE would let a leader satisfy USING via the
+-- ministry policy on the OLD row and WITH CHECK via the project policy on the
+-- NEW row — re-pointing a co-leader receipt into their own private project, and
+-- likewise rewriting `year` (the only key retention uses) or `uploaded_by` (the
+-- only provenance on a financial document), none of it audited. This is what
+-- makes the "receipts are immutable" contract below TRUE of the table and not
+-- only of storage.objects. When month re-filing ships, re-grant UPDATE together
+-- with a before-update trigger that raises unless ONLY month/note changed.
+grant select, insert, delete on table public.fin_receipts to authenticated;
 grant all on table public.fin_receipts to service_role;
 
 -- church: finance only.
@@ -146,14 +171,20 @@ create policy receipts_insert on storage.objects for insert to authenticated
        ((storage.foldername(name))[1] = 'church'
           and array_length(storage.foldername(name), 1) = 2
           and (storage.foldername(name))[2] ~ '^\d{4}$'
+          and (storage.foldername(name))[2] between (extract(year from now())::int - 3)::text
+                                                and (extract(year from now())::int + 1)::text
           and public.is_finance())
     or ((storage.foldername(name))[1] = 'ministry'
           and array_length(storage.foldername(name), 1) = 3
           and (storage.foldername(name))[3] ~ '^\d{4}$'
+          and (storage.foldername(name))[3] between (extract(year from now())::int - 3)::text
+                                                and (extract(year from now())::int + 1)::text
           and ((storage.foldername(name))[2]::uuid = any(public.my_ministry_ids()) or public.is_finance()))
     or ((storage.foldername(name))[1] = 'project'
           and array_length(storage.foldername(name), 1) = 3
           and (storage.foldername(name))[3] ~ '^\d{4}$'
+          and (storage.foldername(name))[3] between (extract(year from now())::int - 3)::text
+                                                and (extract(year from now())::int + 1)::text
           and exists (select 1 from public.fin_projects fp
                 where fp.id = (storage.foldername(name))[2]::uuid and fp.owner_id = auth.uid()))));
 
