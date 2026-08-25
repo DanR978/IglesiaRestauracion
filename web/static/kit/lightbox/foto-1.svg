@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800" role="img" aria-label="Retiro de jovenes">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2f6f7e"/>
+      <stop offset="1" stop-color="#123038"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="300" cy="200" r="100" fill="#ffffff" fill-opacity=".18"/>
+  <path d="M0 800 L400 400 L800 600 L1200 266 L1200 800 Z" fill="#000000" fill-opacity=".22"/>
+  <text x="600" y="400" text-anchor="middle" dominant-baseline="middle" font-family="Geist, system-ui, sans-serif" font-size="80" fill="#ffffff" fill-opacity=".92">Retiro de jovenes</text>
+  <text x="600" y="500" text-anchor="middle" dominant-baseline="middle" font-family="Geist, system-ui, sans-serif" font-size="36" fill="#ffffff" fill-opacity=".7">1200 × 800</text>
+</svg>
