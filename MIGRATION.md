@@ -23,17 +23,17 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 | Phase | Sessions | Status |
 |---|---|---|
 | 0 · Pre-flight & scaffolding | S01–S05 | ✅ |
-| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S13 ✅ · S22 ✅ · S14/S15/S17/S19/S21 🟦 · S16/S18/S20 in build |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S13 ✅ · S22 ✅ · S14–S21 built, PRs landing |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
-| 5 · Hard subsystems (treasury, registrations, designer) | S52–S63 (+S56b, S56c) | ⬜ |
+| 5 · Hard subsystems (treasury, registrations, designer) | S52–S63 (+S56b, S56c) | 🟨 S52 🟦 · S56b backend 🟦 · S56c parser 🟦 · rest ⬜ |
 | 6 · Cutover & decommission | S64–S65 | ⬜ |
 
 **Current state (overwrite each session):**
 - Live on www.irdlex.org right now: **100% legacy** (nothing cut over).
 - In `/app` staging, not cut over: nothing.
-- Open PRs (merge in this order — always the base-most first; every merged `migrate/*` branch is deleted so stacked PRs auto-retarget to `main`): the design-system stack **S11 → S12 → S13 → S22**, with S14–S21 following as they land. **S01–S10 are fully on `main` (2026-08-24)**; the deploy has run — `/app/` is live (placeholder page; `/app/kit/*` showcase pages arrive with S11+).
+- Open PRs (merge in this order — always the base-most first; every merged `migrate/*` branch is deleted so stacked PRs auto-retarget to `main`): the treasury stack **S52 → S56c parser → S56b backend**, and the component stack **S14 · S15 · S17 · S19 · S21** as they land. **S01–S13 + S22 + the DF-002 security fix are on `main` (2026-08-25)**; the deploy has run — `/app/` is live (placeholder page; the design-system `/app/kit/*` showcase pages arrive with S11+).
 - **Human one-time (pending):** protect `main` requiring the `web` + `ledger` CI checks (Settings → Branches).
 - **The schema now rebuilds from git**: `supabase db reset` applies the two baseline files + the 16 migrations clean (G-004 closed). Local stack requires Docker.
 - **`web/` exists and builds**: SvelteKit 2 + Svelte 5 (runes) + `adapter-static`, TS strict. `MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build` → `web/build/` with assets under `/app`; `npm run check` is clean. S03 wires it into `deploy.yml` → `/app/` (merged; `web/` sources are pruned from the artifact).
@@ -43,9 +43,9 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - 2026-08-23: treasury receipts + bulk-entry feature **filed** as Phase-5 sessions **S56b/S56c** (no code; D-018/D-019 locked below; specs in `docs/migration/sessions/`). The feature lands in the SvelteKit app in full roadmap order — nothing in legacy (DUAL-MAINTENANCE).
 - 2026-08-24: **DF-002 filed AND fixed** (security — sanitizer `safeHref` scheme bypass via an embedded newline, found while capturing the S07 golden corpus). Legacy + port patched in one PR, golden corpus re-captured. See `DUAL-FIX-BACKLOG.md`.
 
-- **Protocol deviation (2026-08-25, recorded):** S14/S15/S17/S19/S21 ship as FIVE COMMITS ON ONE branch and one PR, not five stacked PRs. Reason: the stacked-PR flow misrouted four times in a row (a stacked PR merges into its BASE branch, so only the base-most one reaches `main`), costing three remediation PRs. The five sessions are independent, touch disjoint files, and add no shared config, so per-session revertability is preserved at commit granularity (`git revert <sha>`). Future stacks: keep one PR per session, but delete each branch on merge so GitHub retargets the next to `main`.
+- **Sequencing (2026-08-25, owner decision):** the public-site port (Phase 2, S23–S36) is OUT of the critical path. Order is now: finish the design system (S14–S21) → admin shell + auth/MFA (S37–S39) → treasury (S52/S53/S56) → the owner-requested features **S56b** (recibos) and **S56c** (registro rápido). The legacy public site keeps serving every public URL meanwhile; Phase 2 resumes once the treasury features ship.
 
-**Next up:** merge the S11 → S12 → S13 → S22 stack; decide DF-002; S14–S21 (Button/Card, Toast, Modal/Confirm, ActionSheet, RichTextEditor, SignaturePad, Lightbox, Disclosure/DataTable/FormWizard) close Phase 1. See `docs/migration/sessions/`.
+**Next up:** merge the treasury stack (S52 → S56c → S56b) and the S14–S21 component PRs; then S37–S39 (admin shell + auth) so the treasury UI has somewhere to live. S14–S21 (Button/Card, Toast, Modal/Confirm, ActionSheet, RichTextEditor, SignaturePad, Lightbox, Disclosure/DataTable/FormWizard) close Phase 1. See `docs/migration/sessions/`.
 
 > ⚠️ **S03 is not optional housekeeping — merge it with (or right after) S02.** `deploy.yml` publishes the repo root, so once S02 is on `main` the deploy will happily upload `web/`'s *source* to the live site. Harmless (public repo, no secrets) but sloppy; S03 is what turns `web/` into `/app/` and prunes the source.
 
@@ -101,7 +101,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - **G-022** **Legacy `safeHref` (sanitize-html.js) lets `href="java\nscript:alert(1)"` through** — the scheme-reject regex doesn't survive embedded whitespace/control chars that browsers strip during URL canonicalization. Found by the S07 golden capture; the S07 fixture pins the wrong behavior on purpose (parity first). **FIXED 2026-08-24** (DF-002, legacy + port in one PR): `safeHref` now strips C0 controls + DEL before the scheme tests, and the re-captured golden corpus pins the corrected output (1 of 99 vectors changed). Note for future sanitizer work: ESLint's `no-control-regex` guards that character class — the disable comment there is deliberate, do not 'clean it up'.
 - **G-023** (S13) **SvelteKit's prerender crawler reads EVERY `href` — including `<use href="#id">`** — and fails the build on a sprite injected at runtime, because the id does not exist in the prerendered HTML. Fixed with `prerender.handleMissingId` in `svelte.config.js`, whitelisting only the ids actually present in `src/lib/assets/icons.svg`; anchor ids still fail the build (that guard is deliberate). Also: the sprite's `innerHTML` injection is the ONE sanctioned D-005 carve-out (a static, bundled, developer-authored asset), and `base/reset.css`'s `svg { display: block }` means an inline sprite icon must set `display: inline-block`.
 - **G-024** (S22) **A supabase-js `.select()` argument must be a LITERAL string.** The client's types parse the column list at compile time, so any computed string — `'a,b' + extra`, a template with an interpolation, a `const` built by `join()` — silently degrades the row type to `GenericStringError` and every field access downstream becomes an error or `any`. Write the column list inline, space-free, even when it repeats. (Corollary for repos: share column lists by duplicating the literal, not by concatenating.)
-- **G-025** **`git archive` on this Windows checkout emits CRLF** (`core.autocrlf=true`), so a scratch harness extracted that way fails `prettier --check` on ~60 pristine baseline files. Extract with `git -c core.autocrlf=false archive` when building a verification harness outside the worktree.
+- **G-025** **`git archive` on this Windows checkout emits CRLF** (`core.autocrlf=true`), so a scratch harness extracted that way fails `prettier --check` on ~60 pristine baseline files. Extract with **`git -c core.autocrlf=false -c core.eol=lf archive`** when building a verification harness outside the worktree — the `autocrlf` flag ALONE IS NOT ENOUGH: the root `.gitattributes` sets `* text=auto`, so the archive still normalises via `core.eol` (= native = CRLF on Windows) and prettier then flags ~127 pristine files.
 
 ## 4. How prod deploys today (don't relearn this every session)
 
