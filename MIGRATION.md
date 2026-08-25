@@ -23,7 +23,7 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 | Phase | Sessions | Status |
 |---|---|---|
 | 0 · Pre-flight & scaffolding | S01–S05 | ✅ |
-| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S10 ✅ · S11–S13 🟦 · S22 🟦 · S14–S21 ⬜ |
+| 1 · Shared foundations (libs, client, design system) | S06–S22 | 🟨 S06–S13 ✅ · S22 ✅ · S14/S15/S17/S19/S21 🟦 · S16/S18/S20 in build |
 | 2 · Public site + cutover | S23–S36 | ⬜ |
 | 3 · Admin shell + auth | S37–S40 | ⬜ |
 | 4 · Admin CRUD tabs | S41–S51 | ⬜ |
@@ -42,6 +42,8 @@ Legend: ⬜ not started · 🟨 in progress · 🟦 PR open · ✅ merged/done �
 - Specs now written (no code): `DESIGN-SYSTEM.md` (appearance, S11–S21) and `PORT-DEBT.md` (per-surface bugs not to re-port) specify the design system and the port debt; `DUAL-FIX-BACKLOG.md` is **open** — DF-001 (Interesados unescaped free-text) is ☑ landed in legacy (2026-07-14) · ☐ not yet mirrored to S51. A legacy dual-fix is not a ported surface; nothing is ported and the board stays **NOT STARTED**.
 - 2026-08-23: treasury receipts + bulk-entry feature **filed** as Phase-5 sessions **S56b/S56c** (no code; D-018/D-019 locked below; specs in `docs/migration/sessions/`). The feature lands in the SvelteKit app in full roadmap order — nothing in legacy (DUAL-MAINTENANCE).
 - 2026-08-24: **DF-002 filed AND fixed** (security — sanitizer `safeHref` scheme bypass via an embedded newline, found while capturing the S07 golden corpus). Legacy + port patched in one PR, golden corpus re-captured. See `DUAL-FIX-BACKLOG.md`.
+
+- **Protocol deviation (2026-08-25, recorded):** S14/S15/S17/S19/S21 ship as FIVE COMMITS ON ONE branch and one PR, not five stacked PRs. Reason: the stacked-PR flow misrouted four times in a row (a stacked PR merges into its BASE branch, so only the base-most one reaches `main`), costing three remediation PRs. The five sessions are independent, touch disjoint files, and add no shared config, so per-session revertability is preserved at commit granularity (`git revert <sha>`). Future stacks: keep one PR per session, but delete each branch on merge so GitHub retargets the next to `main`.
 
 **Next up:** merge the S11 → S12 → S13 → S22 stack; decide DF-002; S14–S21 (Button/Card, Toast, Modal/Confirm, ActionSheet, RichTextEditor, SignaturePad, Lightbox, Disclosure/DataTable/FormWizard) close Phase 1. See `docs/migration/sessions/`.
 
