@@ -16,6 +16,7 @@ import {
   fetchAlbums, fetchAvailableYears, subscribeAlbums,
   formatEventDate,
 } from '/js/lib/gallery.js';
+import { $ } from '/js/utils/dom.js';
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -25,9 +26,6 @@ const state = {
   search: '',
   all:    [],
 };
-
-const $ = (id) => document.getElementById(id);
-
 
 /* ── Filter bar ───────────────────────────────────────────────────────────── */
 

@@ -6,9 +6,9 @@
 // right primitive to expose.
 
 import { isIOS } from './detect-device.js';
+import { pad2 as pad } from './date.js';
 import { richToPlain } from '/js/lib/sanitize-html.js';
 
-const pad = (n) => String(n).padStart(2, '0');
 
 // UTC stamp in iCalendar form: 20260621T180000Z
 const fmtUTC = (d) =>

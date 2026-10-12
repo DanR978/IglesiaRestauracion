@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { money as fmt } from '/js/utils/number.js';
 // js/pages/admin/project-treasury.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Per-user "project" treasury for ministry accounts. Each user creates their
@@ -19,9 +20,12 @@ import { sb, currentUser, currentProfile, ministries, MONTHS } from './state.js'
 import { toast, confirm } from './ui.js';
 import { openFormWizard } from './form-wizard.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml } from '/js/components/states.js';
 import { savePdf, churchDocDef, sectionHeading, kpiBox, th, churchLogo, CONTENT_W } from '/js/lib/pdf.js';
+import { pad2 as pad, todayISO } from '/js/utils/date.js';
+import { fmtDateShort } from '/js/utils/format-date.js';
 
-const fmt = n => (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
 const sum = rows => (rows || []).reduce((a, r) => a + (Number(r.amount) || 0), 0);
 // Internal linkage tags (auto:recurring / auto:budget / auto:payable) live in
 // `note` on the treasurer's rows — never show them to the leader.
@@ -30,12 +34,6 @@ function entrySub(e) {
   if (e.locked) return '<span class="trez-sub">Asignado por la tesorería</span>';
   const n = cleanNote(e.note);
   return n ? `<span class="trez-sub">${esc(n)}</span>` : '';
-}
-function todayISO() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
-function fmtDate(d) {
-  if (!d) return '—';
-  const [y, m, day] = String(d).split('-').map(Number);
-  return new Date(y, m - 1, day).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 const PALETTE = ['#345a65', '#2a4a9e', '#5c3d9c', '#a05a10', '#1e6b61', '#b02030', '#475569'];
 
@@ -49,7 +47,7 @@ export async function mountProjectTreasury() {
   const mInp = document.getElementById('trezMonth');
   if (mInp) { const bar = mInp.closest('div'); if (bar) bar.style.display = 'none'; }
 
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   await loadProjects();
   await ensureMinistryProjects();          // give each budgeted ministry its own tab
   if (!projects.some(p => p.id === activeId)) activeId = 'resumen';
@@ -189,7 +187,7 @@ function projCard(p, totals, opts = {}) {
 async function renderResumen() {
   const root = document.getElementById('treasuryBody');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   const totals = await projectTotals();
 
   const mids = myMinistryIds();
@@ -217,7 +215,7 @@ async function renderResumen() {
     <div class="section-divider"><i class="fas fa-folder"></i> Proyectos</div>
     ${regProjects.length
       ? `<div class="trez-projgrid">${regProjects.map(p => projCard(p, totals)).join('')}</div>`
-      : '<div class="empty-state"><i class="fas fa-folder-plus"></i><p>Crea una carpeta (proyecto) para registrar un presupuesto aparte.</p></div>'}`;
+      : emptyHtml('fa-folder-plus', 'Crea una carpeta (proyecto) para registrar un presupuesto aparte.')}`;
 
   root.innerHTML = `<p class="trez-lead">Cada ministerio y proyecto lleva su propio presupuesto. Toca uno para ver y registrar sus movimientos.</p>
     ${minSection}${projSection}`;
@@ -233,7 +231,7 @@ async function renderProject(id) {
   if (!p) { activeId = 'resumen'; renderNav(); return render(); }
 
   const isMinistry = !!p.ministry_id;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   const [inc, exp, bud] = await Promise.all([
     sb.from('fin_income').select('*').eq('project_id', id),
     sb.from('fin_expenses').select('*').eq('project_id', id),
@@ -265,14 +263,14 @@ async function renderProject(id) {
     ${entries.length ? `<div class="trez-tablewrap"><table class="trez-table">
       <thead><tr><th>Fecha</th><th>Detalle</th><th class="num">Monto</th><th></th></tr></thead>
       <tbody>${entries.map(e => `
-        <tr><td>${fmtDate(e.occurred_on)}</td>
+        <tr><td>${fmtDateShort(e.occurred_on)}</td>
           <td>${esc(e.who || (e.kind === 'income' ? 'Ingreso' : 'Gasto'))}${entrySub(e)}</td>
           <td class="num ${e.kind === 'income' ? 'pos' : 'neg'}">${e.kind === 'income' ? '+' : '−'}${fmt(e.amount)}</td>
           <td class="row-act">${e.locked
             ? '<span class="trez-sub" title="Asignado por la tesorería"><i class="fas fa-lock"></i></span>'
             : `<button class="adm-icon-btn" data-del="${e.kind}:${e.id}" title="Eliminar"><i class="fas fa-ellipsis-vertical"></i></button>`}</td>
         </tr>`).join('')}</tbody></table></div>`
-      : '<div class="empty-state"><i class="fas fa-inbox"></i><p>Sin movimientos todavía. Agrega un ingreso o un gasto.</p></div>'}`;
+      : emptyHtml('fa-inbox', 'Sin movimientos todavía. Agrega un ingreso o un gasto.')}`;
 
   root.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', () => addEntry(b.dataset.add, id)));
   root.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', () => {
@@ -364,7 +362,6 @@ async function deleteProject(p) {
 // ── PDF report (shared standard, /js/lib/pdf.js) ──────────────────────────────
 // Projects are all-time; ministries offer a monthly or yearly report only.
 function reportRange(kind, val) {
-  const pad = (n) => String(n).padStart(2, '0');
   if (kind === 'month') {
     const [y, m] = val.split('-').map(Number);
     const ld = new Date(y, m, 0).getDate();
@@ -377,7 +374,6 @@ function reportRange(kind, val) {
 // Ministry report: ask monthly-or-yearly (the only two options), then generate.
 function openMinistryReport(p) {
   const now = new Date();
-  const pad = (n) => String(n).padStart(2, '0');
   const months = Array.from({ length: 12 }, (_, i) => {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     return { value: `${d.getFullYear()}-${pad(d.getMonth() + 1)}`, label: `${MONTHS[d.getMonth()]} ${d.getFullYear()}` };
@@ -424,7 +420,7 @@ async function generateProjectReport(p, range) {
   const accent = p.color || '#345a65';
   const bodyRows = entries.length
     ? entries.map((e) => [
-      { text: fmtDate(e.occurred_on), fontSize: 9 },
+      { text: fmtDateShort(e.occurred_on), fontSize: 9 },
       { text: e.who, fontSize: 9, color: e.kind === 'income' ? '#1f2a2e' : '#6a767b' },
       { text: (e.kind === 'income' ? '+' : '−') + fmt(e.amount), alignment: 'right', fontSize: 9, color: e.kind === 'income' ? '#1e6b61' : '#b02030' },
     ])

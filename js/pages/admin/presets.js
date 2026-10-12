@@ -3,7 +3,7 @@
 // Admins can create, edit, and delete presets. They persist in calendar_presets.
 // Falls back to empty list if DB unavailable (shows "no presets" message).
 
-import { sb, pad2, currentUser, MONTHS } from './state.js';
+import { sb, ymd, currentUser, MONTHS } from './state.js';
 import { toast, openModal, closeModal } from './ui.js';
 import { loadCalendario } from './calendar-tab.js';
 
@@ -125,7 +125,6 @@ function updateSmartPreview(idx) {
 function getDates(p, year, month) {
   const days = new Date(year, month + 1, 0).getDate();
   const result = [];
-  const ymd = (y, m, d) => `${y}-${pad2(m + 1)}-${pad2(d)}`;
 
   if (p.pattern_type === 'weekly') {
     for (let d = 1; d <= days; d++)

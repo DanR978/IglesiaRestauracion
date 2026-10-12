@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { money } from '/js/utils/number.js';
 // js/pages/admin/form-wizard.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Reusable step-by-step wizard — one clear question per screen, big choices,
@@ -158,7 +159,7 @@ export function openFormWizard(cfg) {
   function fmtVal(f) {
     const v = data[f.id];
     if (v == null || String(v).trim() === '') return '—';
-    if (f.type === 'money') return (Number(v) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+    if (f.type === 'money') return money(v);
     if (f.type === 'choice' || f.type === 'select') return (f.options.find(o => String(o.value) === String(v))?.label) || v;
     if (f.type === 'date') { const [y, m, d] = String(v).split('-').map(Number); return new Date(y, m-1, d).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }); }
     return v;

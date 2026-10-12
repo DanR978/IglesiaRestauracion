@@ -15,6 +15,7 @@ import { toast, openModal, closeModal, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
 import { callAdmin } from './admin-fn.js';
 import { fetchPresets, getPresets } from './role-presets.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 
 const ROLE_LABEL = { admin: 'Administrador', ministry_leader: 'Líder de ministerio', treasurer: 'Tesorero' };
 
@@ -41,16 +42,14 @@ export async function loadUsers() {
   const invSec  = document.getElementById('invitesSection');
   if (!usersEl) return;
 
-  usersEl.innerHTML =
-    '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando cuentas...</div>';
+  usersEl.innerHTML = loadingHtml('Cargando cuentas...');
   if (invEl) invEl.innerHTML = '';
 
   let res;
   try {
     res = await callAdmin('list');
   } catch (e) {
-    usersEl.innerHTML =
-      `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(e.message)}</p></div>`;
+    usersEl.innerHTML = errorHtml(e.message);
     if (invSec) invSec.hidden = true;
     return;
   }
@@ -66,7 +65,7 @@ export async function loadUsers() {
 
   usersEl.innerHTML = active.length
     ? active.map(renderActive).join('')
-    : '<div class="empty-state"><i class="fas fa-users"></i><p>No hay usuarios activos todavía.</p></div>';
+    : emptyHtml('fa-users', 'No hay usuarios activos todavía.');
 
   wireActions();
 }

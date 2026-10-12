@@ -1,4 +1,5 @@
 import { escapeHtml } from '/js/utils/escape.js';
+import { $ } from '/js/utils/dom.js';
 import { renderRichText, htmlIsEmpty } from '/js/lib/sanitize-html.js';
 // js/pages/discipulado/grupo.js
 // ─────────────────────────────────────────────────────────────────────────────
@@ -18,8 +19,6 @@ import { openSignupWizard } from './signup-wizard.js';
 const params = new URLSearchParams(location.search);
 const SLUG = params.get('slug') || '';
 const ID   = params.get('id')   || '';
-
-const $ = (id) => document.getElementById(id);
 
 
 

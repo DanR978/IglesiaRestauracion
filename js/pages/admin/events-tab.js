@@ -2,7 +2,7 @@
 // Upcoming and Past event lists (table view).
 
 import {
-  sb, todayISO, pad2, MONTHS, isAdmin, currentProfile,
+  sb, todayISO, MONTHS, isAdmin, currentProfile,
   normalizeEventsRow, filterEventsByMinistry,
   setUpcoming, setPast,
   _upcomingSpecial, _upcomingRegular, _pastSpecial, _pastRegular,
@@ -12,6 +12,7 @@ import { esc } from '/js/utils/escape.js';
 import { showView } from './ui.js';
 import { onFilterChange } from './filters.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 
 // Re-render when filter changes
 onFilterChange(() => {
@@ -22,7 +23,7 @@ onFilterChange(() => {
 // ─── Load ─────────────────────────────────────────────────────────────────────
 export async function loadUpcoming() {
   const el = document.getElementById('upcomingList');
-  el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  el.innerHTML = loadingHtml();
   try {
     const today = todayISO();
     // Staff with an events tab see ALL events (RLS is the real boundary) — the
@@ -42,14 +43,14 @@ export async function loadUpcoming() {
     setUpcoming(specialData, calData || []);
     renderUpcomingFiltered();
   } catch (e) {
-    el.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></div>`;
+    el.innerHTML = errorHtml(e.message, { prefix: 'Error' });
   }
 }
 
 export async function loadPast() {
   const el = document.getElementById('pastList');
   if (!el) return;   // Pasados page was removed — nothing to render into.
-  el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  el.innerHTML = loadingHtml();
   try {
     const today = todayISO();
     let specialData = [];
@@ -72,7 +73,7 @@ export async function loadPast() {
     setPast(specialData, calData || []);
     renderPastFiltered();
   } catch (e) {
-    el.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Error: ${e.message}</p></div>`;
+    el.innerHTML = errorHtml(e.message, { prefix: 'Error' });
   }
 }
 
@@ -84,7 +85,7 @@ export function renderUpcomingFiltered() {
   // the special events, rendered as cards (same style as the registration list).
   const sp = filterEventsByMinistry(_upcomingSpecial);
   if (!sp.length) {
-    el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos con estos filtros.</p></div>';
+    el.innerHTML = emptyHtml('fa-calendar-times', 'No hay eventos con estos filtros.');
     return;
   }
   el.innerHTML = buildEventsCardsHtml(sp, false);
@@ -143,7 +144,7 @@ export function renderPastFiltered() {
   const sp = filterEventsByMinistry(_pastSpecial);
   const rg = filterEventsByMinistry(_pastRegular);
   if (!sp.length && !rg.length) {
-    el.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-times"></i><p>No hay eventos con estos filtros.</p></div>';
+    el.innerHTML = emptyHtml('fa-calendar-times', 'No hay eventos con estos filtros.');
     return;
   }
   let html = '';

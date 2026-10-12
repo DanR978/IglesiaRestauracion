@@ -17,6 +17,7 @@ import { esc } from '/js/utils/escape.js';
 import { callAdmin } from './admin-fn.js';
 import { toast, openModal, closeModal, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 
 // Operational pages (ministry_leader base). Keys must match the nav data-tab
 // values and the edge-function OPERATIONAL_TABS / RLS grant keys.
@@ -81,13 +82,11 @@ export async function fetchPresets() {
 export async function loadRolePresets() {
   const el = document.getElementById('presetsList');
   if (!el) return;
-  el.innerHTML =
-    '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando presets...</div>';
+  el.innerHTML = loadingHtml('Cargando presets...');
   try {
     await fetchPresets();
   } catch (e) {
-    el.innerHTML =
-      `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(e.message)}</p></div>`;
+    el.innerHTML = errorHtml(e.message);
     return;
   }
   renderPresets();
@@ -127,8 +126,7 @@ function renderPresets() {
   const el = document.getElementById('presetsList');
   if (!el) return;
   if (!_presets.length) {
-    el.innerHTML =
-      '<div class="empty-state"><i class="fas fa-id-badge"></i><p>No hay presets todavía. Crea el primero.</p></div>';
+    el.innerHTML = emptyHtml('fa-id-badge', 'No hay presets todavía. Crea el primero.');
     return;
   }
   el.innerHTML = _presets.map(p => {

@@ -399,39 +399,8 @@ body.is-finance .tab-btn[data-finance-only]         { display: flex; }
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   EMPTY / LOADING STATES — calm, professional
-   ═══════════════════════════════════════════════════════════════ */
-.empty-state {
-  text-align: center;
-  padding: 4rem 1.5rem;
-  color: var(--color-muted);
-  border: 1px dashed var(--gray-50);
-  border-radius: var(--radius-lg, 1rem);
-  background: var(--color-white);
-}
-
-.empty-state i {
-  font-size: 2.2rem;
-  margin-bottom: 0.9rem;
-  opacity: 0.35;
-  display: block;
-  color: var(--color-dark);
-}
-
-.empty-state p {
-  font-size: 0.92rem;
-  margin: 0 auto;
-  max-width: 40ch;
-  line-height: 1.5;
-}
-
-.loading {
-  text-align: center;
-  padding: 2.5rem 1rem;
-  color: var(--color-muted);
-  font-size: 0.9rem;
-}
+/* Empty / loading states moved to css/components/states.css so the public
+   site gets them too — see the note in that file. */
 
 /* ═══════════════════════════════════════════════════════════════
    MOBILE

@@ -8,6 +8,7 @@ import { esc } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { YT_API_KEY, YT_CHANNEL_HANDLE } from '/js/lib/supabase.js';
+import { $ } from '/js/utils/dom.js';
 
 const YT_API = 'https://www.googleapis.com/youtube/v3';
 
@@ -15,11 +16,6 @@ const YT_API = 'https://www.googleapis.com/youtube/v3';
 let _channelId  = '';
 let _playlists  = [];
 let _currentView = 'grid';  // 'grid' | 'videos'
-
-// ── DOM refs ────────────────────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-
-
 
 // ── YouTube API helpers ─────────────────────────────────────────────────────
 
@@ -287,7 +283,7 @@ async function showPlaylistVideos(playlistId, playlistTitle) {
     container.innerHTML = `
       <div class="sermon-empty">
         <i class="fas fa-exclamation-triangle"></i>
-        <p>Error: ${err.message}</p>
+        <p>Error: ${esc(err.message)}</p>
       </div>`;
   }
 }
@@ -325,7 +321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.innerHTML = `
       <div class="sermon-empty">
         <i class="fas fa-exclamation-triangle"></i>
-        <p>Error al cargar: ${err.message}</p>
+        <p>Error al cargar: ${esc(err.message)}</p>
       </div>`;
   }
 });

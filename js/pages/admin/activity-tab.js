@@ -4,6 +4,7 @@ import { esc } from '/js/utils/escape.js';
 // Rows are written automatically by the audit_capture() DB trigger.
 
 import { sb } from './state.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 
 
 
@@ -45,7 +46,7 @@ function timeAgo(iso) {
 export async function loadActivity() {
   const root = document.getElementById('activityList');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
 
   const { data, error } = await sb
     .from('audit_log')
@@ -54,11 +55,11 @@ export async function loadActivity() {
     .limit(100);
 
   if (error) {
-    root.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(error.message)}</p></div>`;
+    root.innerHTML = errorHtml(error.message);
     return;
   }
   if (!data?.length) {
-    root.innerHTML = '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><p>Aún no hay actividad registrada.</p></div>';
+    root.innerHTML = emptyHtml('fa-clock-rotate-left', 'Aún no hay actividad registrada.');
     return;
   }
 

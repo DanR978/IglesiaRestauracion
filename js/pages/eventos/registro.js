@@ -6,10 +6,7 @@
 
 import { openRegistrationWizard } from '/js/pages/eventos/registro-wizard.js';
 import { fetchEventBy, isRegistrationOpen } from '/js/lib/special-events.js';
-
-const $ = (id) => document.getElementById(id);
-const show = (id) => { const el = $(id); if (el) el.style.display = ''; };
-const hide = (id) => { const el = $(id); if (el) el.style.display = 'none'; };
+import { $, show, hide } from '/js/utils/dom.js';
 
 let currentEvent = null;
 let booted = false;
