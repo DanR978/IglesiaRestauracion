@@ -1,0 +1,12 @@
+[
+  {
+    "input": "1.004999999999999999999",
+    "expected": "$1.01",
+    "note": "over-precise string below the cent midpoint — legacy(float) $1.01 vs cents-path $1.00"
+  },
+  {
+    "input": "2.674999999999999999999",
+    "expected": "$2.68",
+    "note": "over-precise string below the cent midpoint — legacy(float) $2.68 vs cents-path $2.67"
+  }
+]

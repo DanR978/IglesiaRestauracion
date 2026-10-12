@@ -1,0 +1,118 @@
+[
+  {
+    "input": ["Resumen"],
+    "expected": {
+      "stack": [
+        {
+          "text": "RESUMEN",
+          "color": "#394548",
+          "bold": true,
+          "fontSize": 11,
+          "characterSpacing": 0.4
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 3,
+              "x2": 515,
+              "y2": 3,
+              "lineWidth": 1,
+              "lineColor": "#ccd4d5"
+            }
+          ]
+        }
+      ],
+      "margin": [0, 6, 0, 8]
+    },
+    "note": "defaults (accent #394548, width CONTENT_W)"
+  },
+  {
+    "input": ["ingresos por fondo", "#1e6b61"],
+    "expected": {
+      "stack": [
+        {
+          "text": "INGRESOS POR FONDO",
+          "color": "#1e6b61",
+          "bold": true,
+          "fontSize": 11,
+          "characterSpacing": 0.4
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 3,
+              "x2": 515,
+              "y2": 3,
+              "lineWidth": 1,
+              "lineColor": "#ccd4d5"
+            }
+          ]
+        }
+      ],
+      "margin": [0, 6, 0, 8]
+    },
+    "note": "custom accent, uppercases text"
+  },
+  {
+    "input": ["Detalle", "#394548", 300],
+    "expected": {
+      "stack": [
+        {
+          "text": "DETALLE",
+          "color": "#394548",
+          "bold": true,
+          "fontSize": 11,
+          "characterSpacing": 0.4
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 3,
+              "x2": 300,
+              "y2": 3,
+              "lineWidth": 1,
+              "lineColor": "#ccd4d5"
+            }
+          ]
+        }
+      ],
+      "margin": [0, 6, 0, 8]
+    },
+    "note": "custom underline width"
+  },
+  {
+    "input": [123],
+    "expected": {
+      "stack": [
+        {
+          "text": "123",
+          "color": "#394548",
+          "bold": true,
+          "fontSize": 11,
+          "characterSpacing": 0.4
+        },
+        {
+          "canvas": [
+            {
+              "type": "line",
+              "x1": 0,
+              "y1": 3,
+              "x2": 515,
+              "y2": 3,
+              "lineWidth": 1,
+              "lineColor": "#ccd4d5"
+            }
+          ]
+        }
+      ],
+      "margin": [0, 6, 0, 8]
+    },
+    "note": "non-string coerced via String()"
+  }
+]

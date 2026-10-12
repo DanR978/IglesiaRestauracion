@@ -1,0 +1,38 @@
+[
+  {
+    "input": ["Fecha"],
+    "expected": {
+      "text": "FECHA",
+      "bold": true,
+      "fontSize": 7.5,
+      "color": "#5f6c71",
+      "alignment": "left",
+      "fillColor": "#f2f5f5"
+    },
+    "note": "right omitted → left-aligned"
+  },
+  {
+    "input": ["Monto", true],
+    "expected": {
+      "text": "MONTO",
+      "bold": true,
+      "fontSize": 7.5,
+      "color": "#5f6c71",
+      "alignment": "right",
+      "fillColor": "#f2f5f5"
+    },
+    "note": "right=true → right-aligned (money)"
+  },
+  {
+    "input": ["descripción", false],
+    "expected": {
+      "text": "DESCRIPCIÓN",
+      "bold": true,
+      "fontSize": 7.5,
+      "color": "#5f6c71",
+      "alignment": "left",
+      "fillColor": "#f2f5f5"
+    },
+    "note": "uppercase keeps the accent (Ó)"
+  }
+]

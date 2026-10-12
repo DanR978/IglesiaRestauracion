@@ -27,7 +27,7 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 | S06 | **Typed Supabase client** (non-nullable, browser-guarded) | S01, S04 | `web/src/lib/db/client.ts` + generated `database.types.ts` (`supabase gen types --local`); npm `@supabase/supabase-js` | typed `supabase.from('events')` compiles strict; prerender (Node) opens no socket |
 | S07 | **Pure-logic libs port + golden tests** | S05 | `sanitize-html.ts`, `validators.ts`, `calendar.ts`, `escape.ts` → `src/lib/`; fixture vectors + golden snapshots | ported modules byte-identical to legacy goldens (`test:golden`); XSS corpus green (G-001) |
 | S08 | **`money.ts` (integer cents) + golden** | S05 | `src/lib/money.ts` (`toCents/sumC/formatUSD/toNumeric`) | `formatUSD` matches legacy `fmt` for whole & fractional; `sumC` exact vs hand-computed (D-003) |
-| S09 | **`pdf.ts` port (verbatim + types)** | — | `src/lib/pdf.ts` (`churchDocDef/savePdf/openPdf/loadPdfJs/imageDataUrl/sectionHeading/kpiBox/th`) | a scratch call downloads a churchDocDef PDF and rasterizes a page (G-007 preserved) |
+| S09 | **`pdf.ts` port (verbatim + types)** | — | `src/lib/pdf.ts` (all 13 legacy exports: `CHURCH/CHURCH_ADDRESS/CONTENT_W/loadPdfMake/loadPdfJs/imageDataUrl/churchLogo/sectionHeading/kpiBox/th/churchDocDef/savePdf/openPdf`) | a scratch call downloads a churchDocDef PDF and rasterizes a page (G-007 preserved) |
 | S10 | **`waiver.ts` port (single-sourced)** | S09 | `src/lib/waiver.ts` (constants + `WAIVER_CLAUSES` + HTML builder + `buildWaiverDocDef`) | `buildWaiverDocDef({blank:true})` matches legacy; HTML == PDF content (D-004) |
 | S11 | **Design tokens + theme** | S02 | `src/lib/styles/tokens/*` → `app.css`; `theme.ts` (`data-theme` + no-FOUC inline script) | `var(--fs-lg)` resolves; light/dark/system toggle flips palette; no reload flash |
 | S12 | **Global CSS baseline + a11y** | S11 | base/layout/utilities global; `prefers-reduced-motion` block; ≥16px mobile inputs; `reduced-motion.ts` | container/zigzag render; mobile inputs compute ≥16px; reduce-motion kills transitions |
@@ -88,7 +88,7 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 | S50 | **Discipleship groups** | S38, S21, S22 | XL (split) |
 | S51 | **Discipleship interests** | S50 | L |
 
-## Phase 5 — Hard subsystems · S52–S63
+## Phase 5 — Hard subsystems · S52–S63 (+S56b, S56c)
 *Treasury (+ cents fix), registrations admin, and the Fabric designer (wrapped). The riskiest ports — over-verify S55, S58, S62.*
 
 | # | Session | Prereqs | Done when |
@@ -98,6 +98,8 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 | S54 | **Treasury Recurrentes + Por pagar + Notas + Config** | S53 | `materializeRecurring(month)` idempotent; `markPaid` mirror + delete; `auto:` notes hidden; funds/categories CRUD |
 | S55 | **Treasury Reportes** (report builder + live preview) | S53, S09 | preview == download byte-for-byte (**over-verify**); period bucketing; consolidated pdf helpers; drops the dead `window.print()` path |
 | S56 | **Ministry/project treasury + reports** | S53, S09 | budgeted-ministry auto-tab; church-allocated income read-only; project/ministry PDF matches; range-pushdown |
+| S56b | **Treasury Recibos** (receipt images: private bucket, month grid, retention cron) | S53, S56, S20 | `fin_receipts` + private `receipts` bucket + storage policies + D-019 additive RLS; `receipts-cleanup` edge fn + annual cron migration; `repos/receipts.ts`; 4×3 month-grid UI (upload / view / month+year ZIP via fflate) in church books + ministry/project treasury (D-018, D-019) |
+| S56c | **Treasury Registro rápido** (bulk entry + paste import) | S53, S56 | `bulk-parse.ts` (+Vitest) parses tab/;/, pastes, dd/mm/yyyy + yyyy-mm-dd dates, locale money → cents; quick-row grid with live total; ONE atomic `.insert(rows)` per save; mounted in Ingresos, Gastos, ministry/project quick-add |
 | S57 | **Admin Registraciones: list + form + age groups + images** | S40, S18, S17 | event CRUD; age-group JSON round-trips; slug uniqueness; status↔`registration_open` sync |
 | S58 | **Admin Registraciones: detail + realtime + PDF/CSV exports** | S57, S10, S09 | realtime add/delete refresh; age-group buckets; CSV (UTF-8 BOM) + roster/cartel/single/waiver PDFs match; **signed waiver reproduced from frozen row** (**over-verify**, G-006) |
 | S59 | **Designer A1: Fabric loader + engine** | S06, S09 | scratch route mounts engine, adds a rect, exports PNG; snapping + zoom (G-005) |
@@ -119,5 +121,6 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 
 - **Critical path:** S01 → S06 → S22 → S26 → S36 (public live), then S37 → S39 → S41… → S64 (admin live). Everything else hangs off these.
 - **Parallelizable now:** the entire design-system set (S11–S21) is independent of the lib set (S06–S10) — different sittings can take either. Within Phase 4, tabs with disjoint prereqs (S41/S42/S43/S45) can be done in any order.
-- **Backend migrations** (S01 baseline, S39 `aal2`) are the only DB changes and both are additive. Everything else is client-side.
+- **Backend migrations** (S01 baseline, S39 `aal2`, plus the S56b receipts/D-019 set) are the only DB changes and all are additive. Everything else is client-side.
+- **S56b/S56c** extend Phase 5 behind S56 (filed 2026-08-23; specs in `sessions/`). They can run in parallel with the registrations (S57–S58) and designer (S59–S63) chains, but not with each other (both touch the treasury routes).
 - **Foundations to freeze early** (their contracts ripple everywhere): `money.ts` (S08), the `SignaturePad`/`Modal`/`ActionSheet`/`FormWizard` prop shapes (S16–S21), and the repo method signatures (S22/S40/S52).

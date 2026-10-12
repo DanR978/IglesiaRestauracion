@@ -1,0 +1,217 @@
+[
+  {
+    "input": {
+      "content": [
+        {
+          "text": "Hola"
+        }
+      ],
+      "title": "Reporte",
+      "headRight": "EBV 2026"
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [40, 58, 40, 44],
+      "info": {
+        "title": "Reporte"
+      },
+      "content": [
+        {
+          "text": "Hola"
+        }
+      ],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1f2a2e",
+        "lineHeight": 1.2
+      },
+      "header": {
+        "margin": [40, 22, 40, 0],
+        "stack": [
+          {
+            "columns": [
+              {
+                "text": "Iglesia Restauración Divina",
+                "fontSize": 8,
+                "color": "#7a868b",
+                "bold": true
+              },
+              {
+                "text": "EBV 2026",
+                "fontSize": 8,
+                "color": "#394548",
+                "bold": true,
+                "alignment": "right"
+              }
+            ]
+          },
+          {
+            "canvas": [
+              {
+                "type": "line",
+                "x1": 0,
+                "y1": 5,
+                "x2": 515,
+                "y2": 5,
+                "lineWidth": 0.5,
+                "lineColor": "#dde3e4"
+              }
+            ]
+          }
+        ]
+      },
+      "footer": {
+        "margin": [40, 4, 40, 0],
+        "text": "2 / 5",
+        "alignment": "right",
+        "fontSize": 8,
+        "color": "#9aa6a8"
+      },
+      "hasBackground": false,
+      "background": null
+    },
+    "note": "defaults: LETTER portrait, margins [40,58,40,44], no watermark"
+  },
+  {
+    "input": {
+      "content": [],
+      "accent": "#1e6b61",
+      "orientation": "landscape",
+      "margins": [30, 50, 30, 40],
+      "wm": {
+        "url": "data:image/png;base64,iVBORw0KGgo=",
+        "ratio": 0.5
+      }
+    },
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "landscape",
+      "pageMargins": [30, 50, 30, 40],
+      "info": {
+        "title": "Iglesia Restauración Divina"
+      },
+      "content": [],
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1f2a2e",
+        "lineHeight": 1.2
+      },
+      "header": {
+        "margin": [30, 22, 30, 0],
+        "stack": [
+          {
+            "columns": [
+              {
+                "text": "Iglesia Restauración Divina",
+                "fontSize": 8,
+                "color": "#7a868b",
+                "bold": true
+              },
+              {
+                "text": "",
+                "fontSize": 8,
+                "color": "#1e6b61",
+                "bold": true,
+                "alignment": "right"
+              }
+            ]
+          },
+          {
+            "canvas": [
+              {
+                "type": "line",
+                "x1": 0,
+                "y1": 5,
+                "x2": 515,
+                "y2": 5,
+                "lineWidth": 0.5,
+                "lineColor": "#dde3e4"
+              }
+            ]
+          }
+        ]
+      },
+      "footer": {
+        "margin": [30, 4, 30, 0],
+        "text": "2 / 5",
+        "alignment": "right",
+        "fontSize": 8,
+        "color": "#9aa6a8"
+      },
+      "hasBackground": true,
+      "background": {
+        "image": "data:image/png;base64,iVBORw0KGgo=",
+        "width": 281.52000000000004,
+        "opacity": 0.05,
+        "absolutePosition": {
+          "x": 165.23999999999998,
+          "y": 325.62
+        }
+      }
+    },
+    "note": "custom accent/orientation/margins + stub wm → background wired"
+  },
+  {
+    "input": {},
+    "expected": {
+      "pageSize": "LETTER",
+      "pageOrientation": "portrait",
+      "pageMargins": [40, 58, 40, 44],
+      "info": {
+        "title": "Iglesia Restauración Divina"
+      },
+      "content": null,
+      "defaultStyle": {
+        "fontSize": 10,
+        "color": "#1f2a2e",
+        "lineHeight": 1.2
+      },
+      "header": {
+        "margin": [40, 22, 40, 0],
+        "stack": [
+          {
+            "columns": [
+              {
+                "text": "Iglesia Restauración Divina",
+                "fontSize": 8,
+                "color": "#7a868b",
+                "bold": true
+              },
+              {
+                "text": "",
+                "fontSize": 8,
+                "color": "#394548",
+                "bold": true,
+                "alignment": "right"
+              }
+            ]
+          },
+          {
+            "canvas": [
+              {
+                "type": "line",
+                "x1": 0,
+                "y1": 5,
+                "x2": 515,
+                "y2": 5,
+                "lineWidth": 0.5,
+                "lineColor": "#dde3e4"
+              }
+            ]
+          }
+        ]
+      },
+      "footer": {
+        "margin": [40, 4, 40, 0],
+        "text": "2 / 5",
+        "alignment": "right",
+        "fontSize": 8,
+        "color": "#9aa6a8"
+      },
+      "hasBackground": false,
+      "background": null
+    },
+    "note": "no args object member set: title falls back to CHURCH, content undefined→null"
+  }
+]

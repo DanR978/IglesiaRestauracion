@@ -248,10 +248,20 @@ All printable/downloadable documents use **pdfmake via [`js/lib/pdf.js`](js/lib/
 
 ## 7. Supabase
 
-- **Migrations:** `supabase/migrations/YYYYMMDD_snake_case.sql`. Idempotent
-  (`create … if not exists`, `create or replace`, `drop policy if exists` before `create policy`).
-  Applied **manually in the SQL Editor** — CI never touches the DB. State ordering in a header
-  comment when same-day order matters.
+- **Migrations:** `supabase/migrations/YYYYMMDDHHMMSS_snake_case.sql` — **14 digits, not 8.** The CLI
+  keys `schema_migrations` on the leading digits, so two same-day `YYYYMMDD_` files collide on one
+  version and `supabase db reset` / `db push` die on a duplicate key. Use a real timestamp (or
+  `YYYYMMDD` + a `0000NN` intra-day sequence, which is what the existing files use).
+  Idempotent (`create … if not exists`, `create or replace`, `drop policy if exists` before
+  `create policy` — **including the policy names the file itself creates**, or a re-run fails).
+  Still applied **manually in the SQL Editor** against prod — CI never touches the DB — but the
+  schema is now reproducible locally: `supabase db reset` rebuilds it from
+  `00000000000000_baseline.sql` + `00000000000001_baseline_storage.sql` + the migrations.
+  State ordering in a header comment when same-day order matters.
+- **The baseline is two files.** `db dump --schema public` does **not** capture the
+  `storage.objects` policies (gallery / event-images / avatars / design-assets) — those are the other
+  half of the security boundary and live in `00000000000001_baseline_storage.sql`. Never regenerate
+  the baseline from a single `--schema public` dump.
 - **RLS on every table.** Helpers are `language sql stable security definer set search_path = public`
   with an explicit `grant execute … to authenticated`.
 - **Edge Functions (Deno):** pinned URL imports (`https://deno.land/std@0.177.0/http/server.ts`,

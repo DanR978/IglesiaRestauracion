@@ -1,0 +1,117 @@
+/* ============================================================================
+ * layout/container.css — page-agnostic structural scaffolds (S12)
+ * ----------------------------------------------------------------------------
+ * Port of css/layout/container.css. Not ported (see the S12 NOTES):
+ *   • the `@media (max-width: var(--bp-xs))` block — var() is illegal in a
+ *     media query, so it never applied in legacy; making it fire would be a
+ *     behaviour change for the public pages (S23+ decide).
+ *   • `.row-default { width: minmax(100%, 500px) }` — minmax() is grid-only
+ *     and the declaration was dropped by every browser.
+ * ========================================================================== */
+
+/* =========================================================
+   CONTAINERS
+   ---------------------------------------------------------
+   IMPORTANT: Use overflow:clip NOT overflow:hidden on .wrapper.
+   overflow:hidden creates a new Block Formatting Context which
+   breaks position:fixed for any child element (nav, hero content,
+   modals) — they scroll with the wrapper instead of the viewport.
+   overflow:clip provides identical visual clipping WITHOUT
+   creating a new formatting context.
+   ========================================================= */
+.wrapper,
+.wrapper--footer {
+  max-width: 100%;
+  min-width: var(--min-div-size);
+  margin: var(--mg-md);
+  border-radius: var(--radius-md);
+  overflow: clip; /* ← was overflow:hidden — DO NOT change back */
+  box-shadow: var(--container-shadow);
+}
+
+/* simple padding helper */
+.rg-pd {
+  padding: var(--pd-sm);
+}
+
+/* Section container used on dark bands */
+.info-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--min-div-size);
+  width: 100%;
+  background-color: var(--color-dark);
+}
+
+/* =========================================================
+   FLEX LAYOUT HELPERS
+   ========================================================= */
+.row-default,
+.temp-default {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.row-default {
+  margin: var(--mg-sm);
+  max-width: 100%;
+}
+
+.temp-default {
+  width: clamp(330px, 60vw, 800px);
+  margin: 5rem 0;
+}
+
+.column-default {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pd-md);
+}
+
+/* =========================================================
+   MEDIA / IMAGES
+   ========================================================= */
+.overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* Bottom-weighted scrim: keeps the top of the hero bright and airy, but
+     guarantees enough contrast for the white hero title + CTA, which sit in
+     the lower third. A flat 20% tint left white text as low as ~1.6:1 over
+     bright photo regions. Scrim ink is always black — it sits on a photo,
+     not on a themed surface. */
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 0.58) 0%,
+    rgb(0 0 0 / 0.34) 30%,
+    rgb(0 0 0 / 0.14) 58%,
+    rgb(0 0 0 / 0.2) 100%
+  );
+  z-index: var(--z-base);
+}
+
+.img-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(300px, 40vw, 800px);
+  height: clamp(300px, 30vh, 800px);
+  margin: clamp(var(--mg-xs), 4vw, var(--mg-lg)) var(--mg-sm);
+  border-radius: var(--radius-md);
+  overflow: hidden; /* img-wrapper has no fixed children — hidden is fine here */
+  object-fit: cover;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}

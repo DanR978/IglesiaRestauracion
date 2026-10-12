@@ -1,0 +1,528 @@
+{
+  "LEVELS": [
+    {
+      "n": 1,
+      "label": "Fundamentos",
+      "blurb": "Tu primer paso. Quién es Jesús, qué creemos, y la base del evangelio."
+    },
+    {
+      "n": 2,
+      "label": "Crecimiento",
+      "blurb": "La vida del creyente — oración, lectura bíblica, comunidad y obediencia."
+    },
+    {
+      "n": 3,
+      "label": "Discípulo",
+      "blurb": "Carácter cristiano, doctrina sólida y cómo aplicar la Palabra en cada área."
+    },
+    {
+      "n": 4,
+      "label": "Servidor",
+      "blurb": "Dones espirituales, servir en la iglesia, y comenzar a ministrar a otros."
+    },
+    {
+      "n": 5,
+      "label": "Multiplicador",
+      "blurb": "Liderar un grupo, hacer discípulos, y reproducir la fe en nuevos creyentes."
+    }
+  ],
+  "WEEKDAYS": [
+    {
+      "value": "domingo",
+      "label": "Domingo"
+    },
+    {
+      "value": "lunes",
+      "label": "Lunes"
+    },
+    {
+      "value": "martes",
+      "label": "Martes"
+    },
+    {
+      "value": "miércoles",
+      "label": "Miércoles"
+    },
+    {
+      "value": "jueves",
+      "label": "Jueves"
+    },
+    {
+      "value": "viernes",
+      "label": "Viernes"
+    },
+    {
+      "value": "sábado",
+      "label": "Sábado"
+    }
+  ],
+  "STATUS_LABEL": {
+    "open": "Abierto",
+    "active": "En curso",
+    "completed": "Finalizado",
+    "cancelled": "Cancelado"
+  },
+  "GENDERS": [
+    {
+      "value": "masculino",
+      "label": "Masculino"
+    },
+    {
+      "value": "femenino",
+      "label": "Femenino"
+    },
+    {
+      "value": "no-especifica",
+      "label": "Prefiero no decir"
+    }
+  ],
+  "AGE_LABEL": {
+    "teen": "Adolescente",
+    "young-adult": "Joven adulto",
+    "adult": "Adulto",
+    "senior": "Adulto mayor"
+  },
+  "DISPLAY_STATUS_LABEL": {
+    "open": "Abierto",
+    "full": "Lleno · Lista de espera",
+    "in_progress": "En curso",
+    "completed": "Finalizado",
+    "cancelled": "Cancelado"
+  },
+  "PUBLIC_BASE": "https://www.irdlex.org",
+  "displayStatus": [
+    {
+      "input": {
+        "status": "cancelled",
+        "starts_on": "2999-01-01",
+        "capacity": 10,
+        "member_count": 0
+      },
+      "expected": "cancelled",
+      "note": "cancelled"
+    },
+    {
+      "input": {
+        "status": "completed",
+        "starts_on": "2000-01-01"
+      },
+      "expected": "completed",
+      "note": "completed"
+    },
+    {
+      "input": {
+        "status": "active",
+        "starts_on": "2999-01-01",
+        "capacity": 10,
+        "member_count": 0
+      },
+      "expected": "in_progress",
+      "note": "active"
+    },
+    {
+      "input": {
+        "status": "open",
+        "starts_on": "2000-01-01",
+        "capacity": 10,
+        "member_count": 0
+      },
+      "expected": "in_progress",
+      "note": "openPast"
+    },
+    {
+      "input": {
+        "status": "open",
+        "starts_on": "2999-06-15",
+        "capacity": 10,
+        "member_count": 3
+      },
+      "expected": "open",
+      "note": "openFuture"
+    },
+    {
+      "input": {
+        "status": "open",
+        "starts_on": "2999-06-15",
+        "capacity": 3,
+        "member_count": 3
+      },
+      "expected": "full",
+      "note": "openFull"
+    },
+    {
+      "input": {
+        "status": "open",
+        "starts_on": "2999-06-15",
+        "capacity": 3,
+        "member_count": 5
+      },
+      "expected": "full",
+      "note": "openOver"
+    },
+    {
+      "input": {
+        "status": "open",
+        "starts_on": null,
+        "capacity": null,
+        "member_count": 40
+      },
+      "expected": "open",
+      "note": "openNoCap"
+    },
+    {
+      "input": {
+        "status": "open",
+        "capacity": 5
+      },
+      "expected": "open",
+      "note": "openNoDate"
+    },
+    {
+      "input": {
+        "status": "open",
+        "starts_on": "2999-01-01",
+        "capacity": 0,
+        "member_count": 0
+      },
+      "expected": "full",
+      "note": "openZeroCap"
+    },
+    {
+      "input": null,
+      "expected": "cancelled",
+      "note": "null group"
+    }
+  ],
+  "spotsRemaining": [
+    {
+      "input": {
+        "capacity": 10,
+        "member_count": 3
+      },
+      "expected": 7,
+      "note": "room"
+    },
+    {
+      "input": {
+        "capacity": 3,
+        "member_count": 5
+      },
+      "expected": 0,
+      "note": "over → 0"
+    },
+    {
+      "input": {
+        "capacity": 3
+      },
+      "expected": 3,
+      "note": "no member_count"
+    },
+    {
+      "input": {
+        "capacity": null,
+        "member_count": 2
+      },
+      "expected": null,
+      "note": "no cap"
+    },
+    {
+      "input": {
+        "capacity": 0,
+        "member_count": 0
+      },
+      "expected": null,
+      "note": "zero cap → null"
+    },
+    {
+      "input": null,
+      "expected": null,
+      "note": "null"
+    }
+  ],
+  "formatTime": [
+    {
+      "input": "19:00:00",
+      "expected": "7:00 PM"
+    },
+    {
+      "input": "19:00",
+      "expected": "7:00 PM"
+    },
+    {
+      "input": "00:30",
+      "expected": "12:30 AM"
+    },
+    {
+      "input": "12:00:00",
+      "expected": "12:00 PM"
+    },
+    {
+      "input": "12:05",
+      "expected": "12:05 PM"
+    },
+    {
+      "input": "9:07",
+      "expected": "9:07 AM"
+    },
+    {
+      "input": "23:59:59",
+      "expected": "11:59 PM"
+    },
+    {
+      "input": "7",
+      "expected": "7:00 AM"
+    },
+    {
+      "input": "",
+      "expected": "12:00 AM"
+    }
+  ],
+  "formatSchedule": [
+    {
+      "input": {
+        "meeting_day": "martes",
+        "meeting_time": "19:00:00"
+      },
+      "expected": "Martes · 7:00 PM"
+    },
+    {
+      "input": {
+        "meeting_day": "miércoles",
+        "meeting_time": null
+      },
+      "expected": "Miércoles"
+    },
+    {
+      "input": {
+        "meeting_day": null,
+        "meeting_time": "10:30"
+      },
+      "expected": "10:30 AM"
+    },
+    {
+      "input": {
+        "meeting_day": "nope",
+        "meeting_time": ""
+      },
+      "expected": "Por definir"
+    },
+    {
+      "input": {},
+      "expected": "Por definir"
+    },
+    {
+      "input": null,
+      "expected": ""
+    }
+  ],
+  "formatDateRange": [
+    {
+      "input": {
+        "starts_on": "2026-08-06",
+        "ends_on": "2026-11-19"
+      },
+      "expected": "6 de agosto de 2026 → 19 de noviembre de 2026"
+    },
+    {
+      "input": {
+        "starts_on": "2026-01-01"
+      },
+      "expected": "Inicia el 1 de enero de 2026"
+    },
+    {
+      "input": {
+        "starts_on": "2026-12-31",
+        "ends_on": null
+      },
+      "expected": "Inicia el 31 de diciembre de 2026"
+    },
+    {
+      "input": {
+        "ends_on": "2026-11-19"
+      },
+      "expected": ""
+    },
+    {
+      "input": {},
+      "expected": ""
+    },
+    {
+      "input": null,
+      "expected": ""
+    }
+  ],
+  "levelMeta": [
+    {
+      "input": 1,
+      "expected": {
+        "n": 1,
+        "label": "Fundamentos",
+        "blurb": "Tu primer paso. Quién es Jesús, qué creemos, y la base del evangelio."
+      }
+    },
+    {
+      "input": 2,
+      "expected": {
+        "n": 2,
+        "label": "Crecimiento",
+        "blurb": "La vida del creyente — oración, lectura bíblica, comunidad y obediencia."
+      }
+    },
+    {
+      "input": 3,
+      "expected": {
+        "n": 3,
+        "label": "Discípulo",
+        "blurb": "Carácter cristiano, doctrina sólida y cómo aplicar la Palabra en cada área."
+      }
+    },
+    {
+      "input": 4,
+      "expected": {
+        "n": 4,
+        "label": "Servidor",
+        "blurb": "Dones espirituales, servir en la iglesia, y comenzar a ministrar a otros."
+      }
+    },
+    {
+      "input": 5,
+      "expected": {
+        "n": 5,
+        "label": "Multiplicador",
+        "blurb": "Liderar un grupo, hacer discípulos, y reproducir la fe en nuevos creyentes."
+      }
+    },
+    {
+      "input": "3",
+      "expected": {
+        "n": 3,
+        "label": "Discípulo",
+        "blurb": "Carácter cristiano, doctrina sólida y cómo aplicar la Palabra en cada área."
+      }
+    },
+    {
+      "input": 0,
+      "expected": {
+        "n": 1,
+        "label": "Fundamentos",
+        "blurb": "Tu primer paso. Quién es Jesús, qué creemos, y la base del evangelio."
+      }
+    },
+    {
+      "input": 9,
+      "expected": {
+        "n": 1,
+        "label": "Fundamentos",
+        "blurb": "Tu primer paso. Quién es Jesús, qué creemos, y la base del evangelio."
+      }
+    },
+    {
+      "input": "x",
+      "expected": {
+        "n": 1,
+        "label": "Fundamentos",
+        "blurb": "Tu primer paso. Quién es Jesús, qué creemos, y la base del evangelio."
+      }
+    },
+    {
+      "input": null,
+      "expected": {
+        "n": 1,
+        "label": "Fundamentos",
+        "blurb": "Tu primer paso. Quién es Jesús, qué creemos, y la base del evangelio."
+      }
+    }
+  ],
+  "formatPhone": [
+    {
+      "input": "6173200354",
+      "expected": "(617) 320-0354"
+    },
+    {
+      "input": "16173200354",
+      "expected": "+1 (617) 320-0354"
+    },
+    {
+      "input": "(617) 320-0354",
+      "expected": "(617) 320-0354"
+    },
+    {
+      "input": "+1 617-320-0354",
+      "expected": "+1 (617) 320-0354"
+    },
+    {
+      "input": "+52 55 1234 5678",
+      "expected": "+52 55 1234 5678"
+    },
+    {
+      "input": "617320",
+      "expected": "617320"
+    },
+    {
+      "input": "",
+      "expected": ""
+    },
+    {
+      "input": null,
+      "expected": ""
+    },
+    {
+      "input": "  6173200354  ",
+      "expected": "(617) 320-0354"
+    },
+    {
+      "input": "26173200354",
+      "expected": "26173200354"
+    }
+  ],
+  "groupPublicUrl": [
+    {
+      "input": [
+        {
+          "slug": "fundamentos-2026",
+          "id": "abc"
+        }
+      ],
+      "expected": "https://www.irdlex.org/discipulado/grupo/?slug=fundamentos-2026",
+      "note": "slug wins"
+    },
+    {
+      "input": [
+        {
+          "id": "abc"
+        }
+      ],
+      "expected": "https://www.irdlex.org/discipulado/grupo/?id=abc",
+      "note": "id only"
+    },
+    {
+      "input": [
+        {
+          "slug": "a b/c?"
+        }
+      ],
+      "expected": "https://www.irdlex.org/discipulado/grupo/?slug=a%20b%2Fc%3F",
+      "note": "encoded slug"
+    },
+    {
+      "input": [{}],
+      "expected": "https://www.irdlex.org/discipulado",
+      "note": "neither"
+    },
+    {
+      "input": [null],
+      "expected": "https://www.irdlex.org/discipulado",
+      "note": "null"
+    },
+    {
+      "input": [
+        {
+          "slug": "x"
+        },
+        "http://localhost:3000"
+      ],
+      "expected": "http://localhost:3000/discipulado/grupo/?slug=x",
+      "note": "origin override"
+    }
+  ]
+}
