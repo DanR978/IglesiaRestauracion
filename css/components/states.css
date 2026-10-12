@@ -1,0 +1,43 @@
+/* ═══════════════════════════════════════════════════════════════
+   EMPTY / LOADING STATES — calm, professional
+   Moved here from css/pages/admin/shell.css: the public site renders
+   .empty-state markup too (galería, álbum, sermones), but shell.css is
+   admin-only and deliberately excluded from the bundle, so those public
+   states were rendering completely unstyled. Living in components/ puts
+   them in style.css, which admin/index.html also loads.
+   ═══════════════════════════════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 4rem 1.5rem;
+  color: var(--color-muted);
+  /* Theme-neutral so the dashed edge doesn't glare white on a dark panel. */
+  border: 1px dashed rgba(127, 127, 127, 0.25);
+  border-radius: var(--radius-lg, 1rem);
+  /* --color-surface reverses with the theme; --color-white does not, and
+     stranded --color-muted text on it in dark mode. */
+  background: var(--color-surface, #fff);
+}
+
+.empty-state i {
+  font-size: 2.2rem;
+  margin-bottom: 0.9rem;
+  opacity: 0.35;
+  display: block;
+  /* --color-dark is a SURFACE token (#313537 in dark mode) — as ink it
+     disappeared against the panel. --color-text reverses correctly. */
+  color: var(--color-text);
+}
+
+.empty-state p {
+  font-size: 0.92rem;
+  margin: 0 auto;
+  max-width: 40ch;
+  line-height: 1.5;
+}
+
+.loading {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}

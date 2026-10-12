@@ -3,6 +3,7 @@
 // Import and mutate these directly — no framework needed for a panel this size.
 
 import { sb as _sb } from '/js/lib/supabase.js';
+import { pad2, todayISO, ymd, isoDate } from '/js/utils/date.js';
 
 // Re-export for all admin modules
 export const sb = _sb;
@@ -60,12 +61,11 @@ export function setConfirmResolve(fn) { confirmResolve = fn; }
 export function setGalleryImages(arr) { galleryImages  = arr; }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-export const pad2     = n => String(n).padStart(2, '0');
-export const todayISO = () => {
-  const t = new Date();
-  return `${t.getFullYear()}-${pad2(t.getMonth() + 1)}-${pad2(t.getDate())}`;
-};
-export const ymd = (y, m, d) => `${y}-${pad2(m + 1)}-${pad2(d)}`;
+// These now live in js/utils/date.js so the public site can use them too, and
+// are re-exported here unchanged for the admin modules that import them from
+// this file. Public modules must import from utils directly — this one pulls in
+// Supabase and the admin auth singletons at module scope.
+export { pad2, todayISO, ymd };
 
 export const MONTHS = [
   'Enero','Febrero','Marzo','Abril','Mayo','Junio',
@@ -103,7 +103,7 @@ export function normalizeEventsRow(row) {
   return {
     id:            `evt-${row.id}`,
     title:         row.title || 'Evento',
-    date:          `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`,
+    date:          isoDate(d),
     time:          `${(d.getHours() % 12) || 12}:${pad2(d.getMinutes())} ${d.getHours() >= 12 ? 'PM' : 'AM'}`,
     location:      row.location || '',
     description:   row.description || '',

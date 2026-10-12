@@ -5,6 +5,7 @@ import { esc } from '/js/utils/escape.js';
 
 import { sb, currentUser } from './state.js';
 import { toast } from './ui.js';
+import { loadingHtml, errorHtml } from '/js/components/states.js';
 
 
 
@@ -30,11 +31,11 @@ const FEATURE_FLAGS = [
 export async function loadSettings() {
   const root = document.getElementById('settingsBody');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
 
   const { data, error } = await sb.from('app_settings').select('key,value');
   if (error) {
-    root.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(error.message)}</p></div>`;
+    root.innerHTML = errorHtml(error.message);
     return;
   }
   SETTINGS = { church: {}, features: {} };

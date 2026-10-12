@@ -168,7 +168,7 @@ function renderError(message) {
     playerEl.innerHTML = `
       <div class="sermon-empty">
         <i class="fas fa-exclamation-triangle"></i>
-        <p>${message}</p>
+        <p>${esc(message)}</p>
       </div>`;
   }
 }

@@ -10,6 +10,8 @@
 // Disallowed: scripts, styles, iframes, images, event handlers, javascript:/data:
 // URLs, and every CSS property outside the allowlist.
 
+import { esc } from '/js/utils/escape.js';
+
 const ALLOWED = {
   B: [], STRONG: [], I: [], EM: [], U: [], S: [], STRIKE: [], BR: [],
   P: ['style'], DIV: ['style'], SPAN: ['style'],
@@ -118,7 +120,6 @@ export function htmlIsEmpty(htmlStr) {
 }
 
 const LOOKS_LIKE_HTML = /<[a-z!/][\s\S]*>/i;
-const escapeText = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 /**
  * Render a stored description/info value as safe HTML for a public page.
@@ -131,7 +132,7 @@ export function renderRichText(value) {
   if (LOOKS_LIKE_HTML.test(value)) return sanitizeHtml(value);
   return String(value)
     .split(/\n\n+/).map(p => p.trim()).filter(Boolean)
-    .map(p => `<p>${escapeText(p).replace(/\n/g, '<br>')}</p>`).join('');
+    .map(p => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`).join('');
 }
 
 /**

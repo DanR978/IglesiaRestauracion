@@ -45,7 +45,7 @@ import { richToPlain } from '/js/lib/sanitize-html.js';
   const fmtDate = (dateStr) => {
     try {
       const [y, m, d] = (dateStr || '').split('-').map(Number);
-      return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      return new Date(y, m - 1, d).toLocaleDateString('es', { month: 'long', day: 'numeric', year: 'numeric' });
     } catch { return dateStr || ''; }
   };
 

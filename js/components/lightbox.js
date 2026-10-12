@@ -13,7 +13,7 @@
 //     photos: [{ public_url, thumbnail_url, caption?, width?, height? }, ...]
 // ─────────────────────────────────────────────────────────────────────────────
 
-const $ = (id) => document.getElementById(id);
+import { $ } from '/js/utils/dom.js';
 
 let state = {
   photos: [],

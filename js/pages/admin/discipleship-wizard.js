@@ -15,6 +15,9 @@ import { escapeHtml, escapeAttr } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { upsertGroup, LEVELS } from '/js/lib/discipleship.js';
+import { capitalize } from '/js/utils/string.js';
+import { fmtDateLong, fmtClock } from '/js/utils/format-date.js';
+import { $ } from '/js/utils/dom.js';
 import { toast } from './ui.js';
 
 /* ── Level cards (visual picker for step 1) ─────────────────────────── */
@@ -57,9 +60,6 @@ function blankData() {
     published: true,
   };
 }
-
-/* ── DOM helpers ────────────────────────────────────────────────────── */
-const $ = id => document.getElementById(id);
 
 /* ── Public API ─────────────────────────────────────────────────────── */
 export function openDscpWizard(opts = {}) {
@@ -213,7 +213,7 @@ function renderStep3() {
         <label><i class="fas fa-calendar-week" style="margin-right:4px;opacity:.5"></i> Día de reunión</label>
         <select id="dwizDay">
           <option value="">— Escoge un día —</option>
-          ${DAYS.map(d => `<option value="${d}"${data.day === d ? ' selected' : ''}>${cap(d)}</option>`).join('')}
+          ${DAYS.map(d => `<option value="${d}"${data.day === d ? ' selected' : ''}>${capitalize(d)}</option>`).join('')}
         </select>
       </div>
       <div class="wiz-field">
@@ -270,7 +270,7 @@ function renderStep4() {
 
     <div class="wiz-field">
       <label><i class="fas fa-align-left" style="margin-right:4px;opacity:.5"></i> Descripción</label>
-      <textarea id="dwizDesc" rows="2" placeholder="Énfasis del grupo, materiales, etc. (opcional)">${escapeText(data.description)}</textarea>
+      <textarea id="dwizDesc" rows="2" placeholder="Énfasis del grupo, materiales, etc. (opcional)">${escapeHtml(data.description)}</textarea>
     </div>
 
     <div class="wiz-row">
@@ -359,29 +359,17 @@ async function createGroup() {
 }
 
 /* ── Helpers ────────────────────────────────────────────────────────── */
-function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
 
 
-function escapeText(s) { return escapeHtml(s); }
-function formatTime(t) {
-  if (!t) return '';
-  const [h, m] = t.split(':').map(Number);
-  return `${(h % 12) || 12}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
-}
-function formatDate(d) {
-  if (!d) return '';
-  const [y, mo, da] = d.split('-').map(Number);
-  return new Date(y, mo - 1, da).toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' });
-}
 function reviewSchedule(day, time) {
-  if (day && time) return `${cap(day)} a las ${formatTime(time)}`;
-  if (day)         return cap(day);
-  if (time)        return `A las ${formatTime(time)}`;
+  if (day && time) return `${capitalize(day)} a las ${fmtClock(time)}`;
+  if (day)         return capitalize(day);
+  if (time)        return `A las ${fmtClock(time)}`;
   return 'Horario por definir';
 }
 function reviewDates(start, end) {
-  if (start && end) return `Del ${formatDate(start)} al ${formatDate(end)}`;
-  if (start)        return `Desde ${formatDate(start)}`;
-  if (end)          return `Hasta ${formatDate(end)}`;
+  if (start && end) return `Del ${fmtDateLong(start)} al ${fmtDateLong(end)}`;
+  if (start)        return `Desde ${fmtDateLong(start)}`;
+  if (end)          return `Hasta ${fmtDateLong(end)}`;
   return 'Fechas por definir';
 }

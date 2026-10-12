@@ -1,4 +1,5 @@
 import { esc } from '/js/utils/escape.js';
+import { money as fmt } from '/js/utils/number.js';
 // js/pages/admin/treasury-tab.js
 // "Tesorería" — church-wide treasury + per-ministry MONTHLY budgets.
 // Every add/edit is a step-by-step wizard (one question per screen, big
@@ -8,21 +9,18 @@ import { esc } from '/js/utils/escape.js';
 import { sb, ministries, currentUser, currentProfile } from './state.js';
 import { toast, confirm } from './ui.js';
 import { showActionSheet } from '/js/components/action-sheet.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { openFormWizard } from './form-wizard.js';
 import { mountReportBuilder } from './report-builder.js';
 import { mountProjectTreasury } from './project-treasury.js';
+import { fmtDateShort } from '/js/utils/format-date.js';
 
 /* ── helpers ──────────────────────────────────────────────────────────────── */
 
-function fmt(n) { return (Number(n) || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' }); }
+
 function todayISO() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
 function thisMonth() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}`; }
 function minName(id) { return ministries.find(m => m.id === id)?.name || '—'; }
-function fmtDate(d) {
-  if (!d) return '—';
-  const [y, m, day] = String(d).split('-').map(Number);
-  return new Date(y, m - 1, day).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 const sum = (rows, f = r => r.amount) => (rows || []).reduce((a, r) => a + (Number(f(r)) || 0), 0);
 // Internal linkage tags (auto:budget / auto:recurring) live in `note`; never show them.
@@ -107,7 +105,7 @@ function syncNav() {
 function render() {
   const root = document.getElementById('treasuryBody');
   if (!root) return;
-  root.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>';
+  root.innerHTML = loadingHtml();
   // Reportes uses the full screen width on desktop.
   document.getElementById('tab-treasury')?.classList.toggle('trez-wide', sub === 'reports');
   ({ resumen: renderResumen, income: renderIncome, expenses: renderExpenses, recurring: renderRecurring,
@@ -158,7 +156,7 @@ async function renderResumen(root) {
           <div class="trez-budrow__head"><span class="trez-budrow__name">${esc(r.name)}</span>
             <span class="trez-budrow__nums">${fmt(r.spent)}</span></div>
         </div>`).join('')}</div>`
-        : `<div class="empty-state"><i class="fas fa-arrow-up"></i><p>Aún no hay gastos para ${monthLbl()}.</p></div>`}
+        : emptyHtml('fa-arrow-up', `Aún no hay gastos para ${monthLbl()}.`)}
     </div>`;
 }
 
@@ -335,7 +333,7 @@ async function renderIncome(root) {
          <p class="trez-hint" style="margin:.4rem 0 0"><i class="fas fa-circle-info"></i> Agrega categorías de ingreso en <strong>Configurar</strong> primero.</p></div>`}
     <div class="trez-total">Total recaudado · ${monthLbl()}: <strong class="pos">${fmt(sum(data))}</strong></div>
     ${table(['Fecha', 'Fuente', 'Fondo', 'Monto', ''], (data || []).map(r => `
-      <tr><td>${fmtDate(r.occurred_on)}</td>
+      <tr><td>${fmtDateShort(r.occurred_on)}</td>
         <td>${esc(r.source)}${r.note ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
         <td>${esc(r.fund || '—')}</td><td class="num pos">${fmt(r.amount)}</td>${kebabCell(r.id)}</tr>`).join(''), 'No hay ingresos este mes.')}`;
   bindList(root, 'income', 'fin_income', WIZ.income(), { title: r => r?.source });
@@ -351,7 +349,7 @@ async function renderExpenses(root) {
     ${addBtn('Agregar gasto')}
     <div class="trez-total">Total gastado · ${monthLbl()}: <strong class="neg">${fmt(sum(data))}</strong></div>
     ${table(['Fecha', 'Asignado a', 'Pagado a', 'Monto', 'Estado', ''], (data || []).map(r => `
-      <tr><td>${fmtDate(r.occurred_on)}</td>
+      <tr><td>${fmtDateShort(r.occurred_on)}</td>
         <td>${esc(allocName(r))}${r.category ? `<span class="trez-sub">${esc(r.category)}</span>` : ''}</td>
         <td>${esc(r.payee || '—')}${cleanNote(r.note) ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
         <td class="num neg">${fmt(r.amount)}</td><td>${statusPill(r.status)}</td>${kebabCell(r.id)}</tr>`).join(''), 'No hay gastos este mes.')}`;
@@ -412,7 +410,7 @@ async function renderPayables(root) {
     <div class="trez-total">Total abierto: <strong class="neg">${fmt(sum(open))}</strong></div>
     ${table(['Se le debe a', 'Monto', 'Vence', 'Ministerio', 'Estado', ''], (data || []).map(r => `
       <tr class="${r.status === 'paid' ? 'is-paid' : ''}"><td>${esc(r.creditor)}${r.note ? `<span class="trez-sub">${esc(r.note)}</span>` : ''}</td>
-        <td class="num neg">${fmt(r.amount)}</td><td>${fmtDate(r.due_on)}</td><td>${esc(minName(r.ministry_id))}</td>
+        <td class="num neg">${fmt(r.amount)}</td><td>${fmtDateShort(r.due_on)}</td><td>${esc(minName(r.ministry_id))}</td>
         <td>${r.status === 'paid' ? statusPill('paid') : '<span class="trez-pill trez-pill--owe">Abierto</span>'}</td>${kebabCell(r.id)}</tr>`).join(''), 'No hay cuentas por pagar.')}`;
   bindList(root, 'payables', 'fin_payables', WIZ.payables(), {
     title: r => r?.creditor,
@@ -456,9 +454,9 @@ async function renderReports(root) {
     const detail = has ? `
       <tr class="trez-report__detail" id="rep-${i}" hidden><td colspan="5"><div class="trez-report__cols">
         <div><h4 class="pos"><i class="fas fa-arrow-down"></i> Ingresos</h4>
-          ${m.income.length ? m.income.map(r => `<div class="trez-report__line"><span>${fmtDate(r.occurred_on)} · ${esc(r.source)}${r.fund?` · ${esc(r.fund)}`:''}</span><span class="pos">${fmt(r.amount)}</span></div>`).join('') : '<p class="muted">—</p>'}</div>
+          ${m.income.length ? m.income.map(r => `<div class="trez-report__line"><span>${fmtDateShort(r.occurred_on)} · ${esc(r.source)}${r.fund?` · ${esc(r.fund)}`:''}</span><span class="pos">${fmt(r.amount)}</span></div>`).join('') : '<p class="muted">—</p>'}</div>
         <div><h4 class="neg"><i class="fas fa-arrow-up"></i> Gastos</h4>
-          ${m.expense.length ? m.expense.map(r => `<div class="trez-report__line"><span>${fmtDate(r.occurred_on)} · ${esc(r.payee || allocName(r))}</span><span class="neg">${fmt(r.amount)}</span></div>`).join('') : '<p class="muted">—</p>'}</div>
+          ${m.expense.length ? m.expense.map(r => `<div class="trez-report__line"><span>${fmtDateShort(r.occurred_on)} · ${esc(r.payee || allocName(r))}</span><span class="neg">${fmt(r.amount)}</span></div>`).join('') : '<p class="muted">—</p>'}</div>
       </div></td></tr>` : '';
     return `<tr class="trez-report__row${has ? '' : ' is-muted'}" ${has ? `data-rep="${i}"` : ''}>
         <td>${has ? '<i class="fas fa-chevron-right trez-report__chev"></i> ' : ''}${MONTHS[i]}</td>
@@ -506,8 +504,8 @@ function printReport(months, totIn, totOut, yr) {
     const bal = m.in - m.out; ytd += bal; const has = m.in || m.out;
     const detail = has ? `
       <tr class="sub"><td colspan="5">
-        ${m.income.map(r => `<div class="ln"><span>+ ${fmtDate(r.occurred_on)} · ${esc(r.source)}</span><span class="p">${fmt(r.amount)}</span></div>`).join('')}
-        ${m.expense.map(r => `<div class="ln"><span>− ${fmtDate(r.occurred_on)} · ${esc(r.payee || allocName(r))}</span><span class="n">${fmt(r.amount)}</span></div>`).join('')}
+        ${m.income.map(r => `<div class="ln"><span>+ ${fmtDateShort(r.occurred_on)} · ${esc(r.source)}</span><span class="p">${fmt(r.amount)}</span></div>`).join('')}
+        ${m.expense.map(r => `<div class="ln"><span>− ${fmtDateShort(r.occurred_on)} · ${esc(r.payee || allocName(r))}</span><span class="n">${fmt(r.amount)}</span></div>`).join('')}
       </td></tr>` : '';
     return `<tr><td><b>${MONTHS[i]}</b></td><td class="r p">${m.in?fmt(m.in):'—'}</td><td class="r n">${m.out?fmt(m.out):'—'}</td>
       <td class="r">${has?fmt(bal):'—'}</td><td class="r">${fmt(ytd)}</td></tr>${detail}`;
@@ -553,19 +551,19 @@ async function renderNotes(root) {
         <div class="trez-note${n.pinned ? ' pinned' : ''}">
           ${n.pinned ? '<i class="fas fa-thumbtack trez-note__pin"></i>' : ''}
           <div class="trez-note__body">${esc(n.body)}</div>
-          <div class="trez-note__meta">${esc(minName(n.ministry_id))} · ${fmtDate((n.created_at || '').slice(0,10))}</div>
+          <div class="trez-note__meta">${esc(minName(n.ministry_id))} · ${fmtDateShort((n.created_at || '').slice(0,10))}</div>
           <button class="adm-icon-btn trez-note__del" data-kebab="${n.id}" title="Acciones"><i class="fas fa-ellipsis-vertical"></i></button>
-        </div>`).join('') : '<div class="empty-state"><i class="fas fa-note-sticky"></i><p>Sin notas todavía.</p></div>'}
+        </div>`).join('') : emptyHtml('fa-note-sticky', 'Sin notas todavía.')}
     </div>`;
   bindList(root, 'notes', 'fin_notes', WIZ.notes(), { title: r => r?.body });
 }
 
 /* ── shared building blocks ────────────────────────────────────────────────── */
-function errBox(e) { return `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>${esc(e?.message || 'Error')}</p></div>`; }
+function errBox(e) { return String(errorHtml(e?.message, { fallback: 'Error' })); }
 function addBtn(label) { return `<div class="trez-addbar"><button class="btn btn--primary" data-add-btn><i class="fas fa-plus"></i> ${esc(label)}</button></div>`; }
 function kebabCell(id) { return `<td class="row-act"><button class="adm-icon-btn" data-kebab="${id}" title="Acciones" aria-label="Acciones"><i class="fas fa-ellipsis-vertical"></i></button></td>`; }
 function table(heads, rowsHtml, emptyMsg) {
-  if (!rowsHtml) return `<div class="empty-state"><i class="fas fa-inbox"></i><p>${emptyMsg}</p></div>`;
+  if (!rowsHtml) return String(emptyHtml('fa-inbox', emptyMsg));
   const heading = h => `<th${/^(monto|ingresos|gastos|balance|acumulado)$/i.test(h) ? ' class="num"' : ''}>${h}</th>`;
   return `<div class="trez-tablewrap"><table class="trez-table">
     <thead><tr>${heads.map(heading).join('')}</tr></thead><tbody>${rowsHtml}</tbody></table></div>`;

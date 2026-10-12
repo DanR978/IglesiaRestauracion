@@ -16,6 +16,7 @@ import { escapeHtml } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { submitInterest } from '/js/lib/discipleship.js';
+import { el } from '/js/utils/dom.js';
 
 const TOTAL_STEPS = 4;
 
@@ -67,25 +68,6 @@ const state = {
   has_transportation: 'yes',
   message: '',
 };
-
-// ─── DOM utility ────────────────────────────────────────────────────────────
-function el(tag, attrs = {}, children = []) {
-  const n = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (v == null || v === false) continue;
-    if (k === 'class')      n.className = v;
-    else if (k === 'html')  n.innerHTML = v;
-    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
-    else                    n.setAttribute(k, v === true ? '' : v);
-  }
-  for (const c of [].concat(children)) {
-    if (c == null || c === false) continue;
-    n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
-  }
-  return n;
-}
-
-
 
 // ─── Modal scaffold (built once, reused) ────────────────────────────────────
 let rootEl = null;

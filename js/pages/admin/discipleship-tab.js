@@ -19,6 +19,7 @@ import {
 
 import { toast, openModal, closeModal, confirm } from './ui.js';
 import { openDscpWizard } from './discipleship-wizard.js';
+import { loadingHtml, emptyHtml } from '/js/components/states.js';
 
 /* ── Module state ──────────────────────────────────────────────────────── */
 let groupsCache       = [];
@@ -141,11 +142,7 @@ async function refreshGroups() {
   refreshMessageGroupSelect();
 
   if (!groupsCache.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-people-group"></i>
-        <p>Aún no has creado ningún grupo. Crea el primero arriba.</p>
-      </div>`;
+    list.innerHTML = emptyHtml('fa-people-group', 'Aún no has creado ningún grupo. Crea el primero arriba.');
     return;
   }
 
@@ -236,6 +233,7 @@ async function openGroupModal(id) {
    even when files are served raw (GitHub Pages deploy does not run `vite build`).
    Mirrors the pattern in js/lib/supabase.js. */
 import QRCode from 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/+esm';
+import { capitalize } from '/js/utils/string.js';
 
 let _currentQrUrl = '';
 let _currentGroupName = '';
@@ -426,7 +424,7 @@ async function openMembersInline(groupId) {
 
   panel = document.createElement('div');
   panel.className = 'dscp-members-panel';
-  panel.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando miembros...</div>`;
+  panel.innerHTML = loadingHtml('Cargando miembros...');
   card.insertAdjacentElement('afterend', panel);
 
   const members = await fetchMembers(groupId);
@@ -609,11 +607,7 @@ async function refreshInterests() {
     const friendly = interestOrigin === 'pool'
       ? `Aún no hay personas esperando un grupo. Cuando alguien llene el formulario sin escoger un grupo, aparecerá aquí.`
       : `Aún no hay personas que hayan escaneado un código QR de un grupo. Cuando lo hagan, aparecerán aquí.`;
-    list.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-hand-holding-heart"></i>
-        <p>${friendly}</p>
-      </div>`;
+    list.innerHTML = emptyHtml('fa-hand-holding-heart', friendly);
     return;
   }
 
@@ -669,9 +663,6 @@ function groupBy(rows, key) {
   return Object.fromEntries(sorted);
 }
 
-function capitalize(s) {
-  return String(s ?? '').charAt(0).toUpperCase() + String(s ?? '').slice(1);
-}
 
 /** Render a single interest card. */
 function renderInterestCard(i) {
@@ -932,7 +923,7 @@ async function refreshMessageHistory() {
   const hist = document.getElementById('dscpMessagesHistory');
   const sel  = document.getElementById('dscpMsgGroup');
   if (!hist || !sel?.value) { if (hist) hist.innerHTML = ''; return; }
-  hist.innerHTML = `<div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>`;
+  hist.innerHTML = loadingHtml();
   const msgs = await fetchMessages(sel.value);
   if (!msgs.length) {
     hist.innerHTML = `<p style="color:var(--color-muted);font-size:.85rem">Aún no se han enviado mensajes a este grupo.</p>`;
