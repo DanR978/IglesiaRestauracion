@@ -1,0 +1,173 @@
+{
+  "pinnedNow": "2026-08-24T12:00:00Z",
+  "buildGoogleCalUrl": [
+    {
+      "input": {
+        "id": "ev-001",
+        "title": "Noche de Adoración",
+        "description": "Una noche   de alabanza\ny oración.",
+        "location": "1234 Montana Ave, El Paso, TX",
+        "starts_at": "2026-06-21T18:00:00-04:00",
+        "ends_at": "2026-06-21T20:30:00-04:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Noche+de+Adoraci%C3%B3n&dates=20260621T220000Z%2F20260622T003000Z&details=Una+noche+de+alabanza+y+oraci%C3%B3n.&location=1234+Montana+Ave%2C+El+Paso%2C+TX",
+      "note": "full event, offset timestamps, multi-space + newline description collapsed"
+    },
+    {
+      "input": {
+        "id": "ev-002",
+        "title": "Estudio Bíblico",
+        "starts_at": "2026-07-01T19:00:00Z"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Estudio+B%C3%ADblico&dates=20260701T190000Z%2F20260701T200000Z&details=&location=",
+      "note": "no ends_at → +1h default; no description/location"
+    },
+    {
+      "input": {
+        "id": "ev-003",
+        "starts_at": "2026-09-15T09:00:00-06:00",
+        "ends_at": "2026-09-15T11:00:00-06:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Evento&dates=20260915T150000Z%2F20260915T170000Z&details=&location=",
+      "note": "no title → \"Evento\""
+    },
+    {
+      "input": {
+        "id": "ev-004",
+        "title": "Retiro & Ayuno: ¿listos?",
+        "description": "Trae < 5 amigos & Biblia",
+        "location": "Salón #2, planta baja; entrada B",
+        "starts_at": "2026-10-03T08:00:00+00:00",
+        "ends_at": "2026-10-04T16:00:00+00:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Retiro+%26+Ayuno%3A+%C2%BFlistos%3F&dates=20261003T080000Z%2F20261004T160000Z&details=Trae+%3C+5+amigos+%26+Biblia&location=Sal%C3%B3n+%232%2C+planta+baja%3B+entrada+B",
+      "note": "accents, &, ¿, <-not-a-tag, commas + semicolons in location"
+    },
+    {
+      "input": {
+        "id": 7,
+        "title": "Culto; Especial, con\\todo",
+        "description": null,
+        "location": "",
+        "starts_at": "2026-12-24T23:00:00-07:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Culto%3B+Especial%2C+con%5Ctodo&dates=20261225T060000Z%2F20261225T070000Z&details=&location=",
+      "note": "numeric id; RFC5545 metachars (; , \\) in title; empty/null extras"
+    },
+    {
+      "input": {
+        "title": "Vigilia de Año Nuevo",
+        "starts_at": "2026-12-31T22:00:00-07:00",
+        "ends_at": "2027-01-01T02:00:00-07:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Vigilia+de+A%C3%B1o+Nuevo&dates=20270101T050000Z%2F20270101T090000Z&details=&location=",
+      "note": "no id → UID falls back to DTSTART stamp; crosses year in UTC"
+    },
+    {
+      "input": {
+        "id": "ev-005",
+        "title": "Línea1\nLínea2",
+        "description": "texto  con   espacios",
+        "location": "Iglesia",
+        "starts_at": "2026-03-08T02:30:00-05:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=L%C3%ADnea1%0AL%C3%ADnea2&dates=20260308T073000Z%2F20260308T083000Z&details=texto+con+espacios&location=Iglesia",
+      "note": "newline inside title (icsEscape → \\n); DST-adjacent instant"
+    },
+    {
+      "input": {
+        "id": "ev-006",
+        "title": "",
+        "description": "",
+        "starts_at": "2026-05-05T17:45:30+02:00"
+      },
+      "expected": "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Evento&dates=20260505T154530Z%2F20260505T164530Z&details=&location=",
+      "note": "empty title → \"Evento\"; empty description dropped; seconds preserved"
+    }
+  ],
+  "buildICS": [
+    {
+      "input": {
+        "id": "ev-001",
+        "title": "Noche de Adoración",
+        "description": "Una noche   de alabanza\ny oración.",
+        "location": "1234 Montana Ave, El Paso, TX",
+        "starts_at": "2026-06-21T18:00:00-04:00",
+        "ends_at": "2026-06-21T20:30:00-04:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:ev-001@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20260621T220000Z\r\nDTEND:20260622T003000Z\r\nSUMMARY:Noche de Adoración\r\nDESCRIPTION:Una noche de alabanza y oración.\r\nLOCATION:1234 Montana Ave\\, El Paso\\, TX\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "full event, offset timestamps, multi-space + newline description collapsed"
+    },
+    {
+      "input": {
+        "id": "ev-002",
+        "title": "Estudio Bíblico",
+        "starts_at": "2026-07-01T19:00:00Z"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:ev-002@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20260701T190000Z\r\nDTEND:20260701T200000Z\r\nSUMMARY:Estudio Bíblico\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "no ends_at → +1h default; no description/location"
+    },
+    {
+      "input": {
+        "id": "ev-003",
+        "starts_at": "2026-09-15T09:00:00-06:00",
+        "ends_at": "2026-09-15T11:00:00-06:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:ev-003@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20260915T150000Z\r\nDTEND:20260915T170000Z\r\nSUMMARY:Evento\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "no title → \"Evento\""
+    },
+    {
+      "input": {
+        "id": "ev-004",
+        "title": "Retiro & Ayuno: ¿listos?",
+        "description": "Trae < 5 amigos & Biblia",
+        "location": "Salón #2, planta baja; entrada B",
+        "starts_at": "2026-10-03T08:00:00+00:00",
+        "ends_at": "2026-10-04T16:00:00+00:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:ev-004@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20261003T080000Z\r\nDTEND:20261004T160000Z\r\nSUMMARY:Retiro & Ayuno: ¿listos?\r\nDESCRIPTION:Trae < 5 amigos & Biblia\r\nLOCATION:Salón #2\\, planta baja\\; entrada B\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "accents, &, ¿, <-not-a-tag, commas + semicolons in location"
+    },
+    {
+      "input": {
+        "id": 7,
+        "title": "Culto; Especial, con\\todo",
+        "description": null,
+        "location": "",
+        "starts_at": "2026-12-24T23:00:00-07:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:7@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20261225T060000Z\r\nDTEND:20261225T070000Z\r\nSUMMARY:Culto\\; Especial\\, con\\\\todo\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "numeric id; RFC5545 metachars (; , \\) in title; empty/null extras"
+    },
+    {
+      "input": {
+        "title": "Vigilia de Año Nuevo",
+        "starts_at": "2026-12-31T22:00:00-07:00",
+        "ends_at": "2027-01-01T02:00:00-07:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:20270101T050000Z@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20270101T050000Z\r\nDTEND:20270101T090000Z\r\nSUMMARY:Vigilia de Año Nuevo\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "no id → UID falls back to DTSTART stamp; crosses year in UTC"
+    },
+    {
+      "input": {
+        "id": "ev-005",
+        "title": "Línea1\nLínea2",
+        "description": "texto  con   espacios",
+        "location": "Iglesia",
+        "starts_at": "2026-03-08T02:30:00-05:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:ev-005@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20260308T073000Z\r\nDTEND:20260308T083000Z\r\nSUMMARY:Línea1\\nLínea2\r\nDESCRIPTION:texto con espacios\r\nLOCATION:Iglesia\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "newline inside title (icsEscape → \\n); DST-adjacent instant"
+    },
+    {
+      "input": {
+        "id": "ev-006",
+        "title": "",
+        "description": "",
+        "starts_at": "2026-05-05T17:45:30+02:00"
+      },
+      "expected": "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Iglesia Restauración Divina//irdlex.org//ES\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nBEGIN:VEVENT\r\nUID:ev-006@irdlex.org\r\nDTSTAMP:20260824T120000Z\r\nDTSTART:20260505T154530Z\r\nDTEND:20260505T164530Z\r\nSUMMARY:Evento\r\nEND:VEVENT\r\nEND:VCALENDAR",
+      "note": "empty title → \"Evento\"; empty description dropped; seconds preserved"
+    }
+  ]
+}

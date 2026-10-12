@@ -2,7 +2,7 @@
 
 **Stream:** foundation
 **Depends on:** none (this is the first session — it gates every typed session)   **PR:** <#___>   **Branch:** `migrate/S01-rls-baseline`
-**Status:** ⬜ not started
+**Status:** ✅ done (2026-07-14) — PR `migrate/S01-rls-baseline`
 
 ## Goal (one sentence)
 Make the Supabase schema + RLS policies reproducible from git (they are currently dashboard-only), so DB types can be generated deterministically and the security boundary the new client relies on is reviewable.
@@ -30,18 +30,38 @@ Make the Supabase schema + RLS policies reproducible from git (they are currentl
 5. If the audit surfaced a real hole (e.g. a permissive `profiles` UPDATE that allows self-role-escalation, or an anon SELECT on a PII table), **do not fix it here** — record it as a new `G-xxx` gotcha and a `post-migration`/security issue, and flag it to the human. (These map to audit findings SEC-02.)
 
 ## Acceptance criteria
-- [ ] `supabase/migrations/00000000000000_baseline.sql` committed; `supabase db reset` applies baseline + all existing migrations with no error.
-- [ ] `is_admin()`, `my_ministry_id()`, `has_tab()`, `is_finance()` exist in the local DB after reset.
-- [ ] PR body records the audit result and confirms (or flags) the anon-INSERT-only / no-anon-SELECT invariant on `event_registrations` and `discipleship_interests`.
-- [ ] `MIGRATION.md` G-004 struck through as closed.
+- [x] `supabase/migrations/00000000000000_baseline.sql` committed **+ `00000000000001_baseline_storage.sql`** (a `--schema public` dump misses the 15 `storage.objects` policies — G-013); `supabase db reset` applies both baselines + all 16 migrations with no error.
+- [x] `is_admin()`, `my_ministry_id()`, `has_tab()`, `is_finance()` exist in the local DB after reset (24 functions total).
+- [x] Audit run; the anon-INSERT-only / no-anon-SELECT invariant on `event_registrations` and `discipleship_interests` is **CONFIRMED**. Findings recorded as G-013…G-017.
+- [x] `MIGRATION.md` G-004 struck through as closed.
 
 ## Verification gate
-- [ ] Applicable boxes from `docs/migration/VERIFICATION.md` (here: #4 not yet, #12 secrets clean, #13 ledger). No app build yet.
+- [x] Applicable boxes from `docs/migration/VERIFICATION.md` (#8 legacy untouched, #12 secrets clean, #13 ledger). No app build yet — `web/` does not exist until S02.
 
 ## How to resume if interrupted
 - Branch: `migrate/S01-rls-baseline`. Done so far: <bullets>. Next action: <…>.
 - Landmines: never edit existing migrations; a `db dump` may miss cross-schema helper functions (verify each one is in the dump).
 
 ## On completion
-- [ ] Update `MIGRATION.md`: mark S01 ✅ (Phase 0), set Next up = S02, strike G-004, append any audit-found gotcha as G-xxx.
-- [ ] Open PR; link this file.
+- [x] Update `MIGRATION.md`: S01 ✅, Next up = S02, G-004 struck, G-013…G-017 appended.
+- [x] Open PR; link this file.
+
+## Outcome (2026-07-14)
+
+**Departures from the "out of scope" line, both forced by the acceptance criterion** (`db reset`
+applies clean) and both content-preserving — call them out in review:
+
+1. **The 16 migrations were renamed** `YYYYMMDD_x.sql` → `YYYYMMDDHHMMSS_x.sql`. The CLI keys
+   `schema_migrations` on the leading digits, so six files shared version `20260630` and `db reset`
+   died on a duplicate key. Order preserved; SQL untouched; only the self/cross-referencing filename
+   comments inside them were rewritten (G-014).
+2. **`…_ministry_budget.sql` gained 4 `drop policy if exists` lines.** It drops the *old* policy
+   names but not the *new* ones it creates, so despite its "Idempotent" header it failed on re-run
+   (`pp_fin_income_church already exists`). No semantic change.
+
+**Not fixed here, by instruction (step 5) — flagged for the human / S39:** G-015 (Modo
+mantenimiento is dead in prod — one unapplied migration), G-016 (`is_aal2()` is a `select true`
+stub, so DB-side MFA is not enforced), G-017 (event-images bucket writable by any authenticated
+user; `fin_*` category reads open to all authenticated; unvalidated anon newsletter insert).
+
+**Prod was not modified.**

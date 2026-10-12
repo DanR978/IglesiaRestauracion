@@ -16,6 +16,7 @@ import { escapeHtml } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { submitInterest } from '/js/lib/discipleship.js';
+import { trackEvent } from '/js/lib/track.js';
 import { el } from '/js/utils/dom.js';
 
 const TOTAL_STEPS = 4;
@@ -357,6 +358,7 @@ async function submit() {
   }
 
   renderSuccess(payload.full_name);
+  trackEvent('discipleship_signup', groupCtx?.name || '');
   if (typeof onSuccess === 'function') {
     try { onSuccess({ full_name: payload.full_name }); } catch {}
   }

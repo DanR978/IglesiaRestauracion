@@ -1,0 +1,357 @@
+[
+  {
+    "input": 0,
+    "expected": "$0.00",
+    "note": "zero"
+  },
+  {
+    "input": 0.01,
+    "expected": "$0.01",
+    "note": "one cent"
+  },
+  {
+    "input": 0.05,
+    "expected": "$0.05",
+    "note": "five cents"
+  },
+  {
+    "input": 0.1,
+    "expected": "$0.10",
+    "note": "cents-only, one decimal"
+  },
+  {
+    "input": 0.25,
+    "expected": "$0.25",
+    "note": "quarter"
+  },
+  {
+    "input": 0.5,
+    "expected": "$0.50",
+    "note": "half dollar"
+  },
+  {
+    "input": 0.99,
+    "expected": "$0.99",
+    "note": "just under a dollar"
+  },
+  {
+    "input": 1,
+    "expected": "$1.00",
+    "note": "one whole dollar"
+  },
+  {
+    "input": 1.5,
+    "expected": "$1.50",
+    "note": "one decimal place"
+  },
+  {
+    "input": 2,
+    "expected": "$2.00",
+    "note": "small whole"
+  },
+  {
+    "input": 5,
+    "expected": "$5.00",
+    "note": "small whole"
+  },
+  {
+    "input": 9.99,
+    "expected": "$9.99"
+  },
+  {
+    "input": 10,
+    "expected": "$10.00"
+  },
+  {
+    "input": 33.33,
+    "expected": "$33.33"
+  },
+  {
+    "input": 99.99,
+    "expected": "$99.99"
+  },
+  {
+    "input": 100,
+    "expected": "$100.00"
+  },
+  {
+    "input": 123.45,
+    "expected": "$123.45"
+  },
+  {
+    "input": 199.999,
+    "expected": "$200.00",
+    "note": "three decimals, rounds up to $200.00 on both paths"
+  },
+  {
+    "input": 999.99,
+    "expected": "$999.99"
+  },
+  {
+    "input": 1000,
+    "expected": "$1,000.00",
+    "note": "first thousands separator"
+  },
+  {
+    "input": 1234.5,
+    "expected": "$1,234.50",
+    "note": "the doc example: money(1234.5) === \"$1,234.50\""
+  },
+  {
+    "input": 1234.56,
+    "expected": "$1,234.56"
+  },
+  {
+    "input": 2500,
+    "expected": "$2,500.00"
+  },
+  {
+    "input": 9999.99,
+    "expected": "$9,999.99"
+  },
+  {
+    "input": 10000,
+    "expected": "$10,000.00"
+  },
+  {
+    "input": 50000.5,
+    "expected": "$50,000.50"
+  },
+  {
+    "input": 123456.78,
+    "expected": "$123,456.78"
+  },
+  {
+    "input": 1000000,
+    "expected": "$1,000,000.00",
+    "note": "two separators"
+  },
+  {
+    "input": 1234567.89,
+    "expected": "$1,234,567.89"
+  },
+  {
+    "input": 99999999.99,
+    "expected": "$99,999,999.99"
+  },
+  {
+    "input": 1000000000,
+    "expected": "$1,000,000,000.00",
+    "note": "billions"
+  },
+  {
+    "input": 123456789012.34,
+    "expected": "$123,456,789,012.34",
+    "note": "hundreds of billions, fractional"
+  },
+  {
+    "input": -0.01,
+    "expected": "-$0.01",
+    "note": "negative cent"
+  },
+  {
+    "input": -0.5,
+    "expected": "-$0.50",
+    "note": "negative fraction"
+  },
+  {
+    "input": -1,
+    "expected": "-$1.00",
+    "note": "negative whole"
+  },
+  {
+    "input": -1234.56,
+    "expected": "-$1,234.56",
+    "note": "negative with separator"
+  },
+  {
+    "input": -1000000,
+    "expected": "-$1,000,000.00",
+    "note": "negative millions"
+  },
+  {
+    "input": -99999999.99,
+    "expected": "-$99,999,999.99",
+    "note": "large negative fractional"
+  },
+  {
+    "input": 0.30000000000000004,
+    "expected": "$0.30",
+    "note": "float trap: the literal value of 0.1+0.2"
+  },
+  {
+    "input": 0.7999999999999999,
+    "expected": "$0.80",
+    "note": "float trap: the literal value of 0.1+0.7"
+  },
+  {
+    "input": 3.3000000000000003,
+    "expected": "$3.30",
+    "note": "float trap: the literal value of 1.1+2.2"
+  },
+  {
+    "input": 0.19999999999999998,
+    "expected": "$0.20",
+    "note": "float trap: the literal value of 0.3-0.1"
+  },
+  {
+    "input": "0",
+    "expected": "$0.00",
+    "note": "string zero"
+  },
+  {
+    "input": "0.05",
+    "expected": "$0.05",
+    "note": "string cents"
+  },
+  {
+    "input": "5",
+    "expected": "$5.00",
+    "note": "string whole"
+  },
+  {
+    "input": "0.5",
+    "expected": "$0.50",
+    "note": "string one decimal"
+  },
+  {
+    "input": "123.45",
+    "expected": "$123.45",
+    "note": "string amount"
+  },
+  {
+    "input": "1234.56",
+    "expected": "$1,234.56",
+    "note": "string with thousands in output"
+  },
+  {
+    "input": "99999.99",
+    "expected": "$99,999.99",
+    "note": "string large"
+  },
+  {
+    "input": "-42.42",
+    "expected": "-$42.42",
+    "note": "string negative"
+  },
+  {
+    "input": "  12.34  ",
+    "expected": "$12.34",
+    "note": "string with surrounding whitespace (Number() trims; toCents trims)"
+  },
+  {
+    "input": "007",
+    "expected": "$7.00",
+    "note": "string leading zeros"
+  },
+  {
+    "input": 0.005,
+    "expected": "$0.01",
+    "note": "cent edge .005"
+  },
+  {
+    "input": 0.015,
+    "expected": "$0.02",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.025,
+    "expected": "$0.03",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.035,
+    "expected": "$0.04",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.045,
+    "expected": "$0.05",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.055,
+    "expected": "$0.06",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.065,
+    "expected": "$0.07",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.075,
+    "expected": "$0.08",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.085,
+    "expected": "$0.09",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.095,
+    "expected": "$0.10",
+    "note": "cent edge"
+  },
+  {
+    "input": 0.125,
+    "expected": "$0.13",
+    "note": "cent edge, binary-exact half"
+  },
+  {
+    "input": 1.005,
+    "expected": "$1.01",
+    "note": "cent edge (the classic: double is 1.00499…)"
+  },
+  {
+    "input": 1.015,
+    "expected": "$1.02",
+    "note": "cent edge"
+  },
+  {
+    "input": 2.005,
+    "expected": "$2.01",
+    "note": "cent edge"
+  },
+  {
+    "input": 2.675,
+    "expected": "$2.68",
+    "note": "cent edge"
+  },
+  {
+    "input": 8.575,
+    "expected": "$8.58",
+    "note": "cent edge"
+  },
+  {
+    "input": 10.075,
+    "expected": "$10.08",
+    "note": "cent edge"
+  },
+  {
+    "input": 1234.565,
+    "expected": "$1,234.57",
+    "note": "cent edge with separator"
+  },
+  {
+    "input": 12345.675,
+    "expected": "$12,345.68",
+    "note": "cent edge, larger"
+  },
+  {
+    "input": -1.005,
+    "expected": "-$1.01",
+    "note": "negative cent edge (half away from zero)"
+  },
+  {
+    "input": -2.675,
+    "expected": "-$2.68",
+    "note": "negative cent edge"
+  },
+  {
+    "input": "1.0050000000000000001",
+    "expected": "$1.01",
+    "note": "over-precise string above the cent midpoint"
+  }
+]

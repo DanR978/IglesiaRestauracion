@@ -37,6 +37,7 @@
   <link rel="stylesheet" href="css/pages/admin/rich-text.css" />
   <link rel="stylesheet" href="css/pages/admin/role-presets.css" />
   <link rel="stylesheet" href="css/pages/admin/shell.css" />
+  <link rel="stylesheet" href="css/pages/admin/site-analytics.css" />
   <link rel="stylesheet" href="css/pages/admin/special-events.css" />
   <link rel="stylesheet" href="css/pages/admin/table.css" />
   <link rel="stylesheet" href="css/pages/admin/treasury.css" />
@@ -212,6 +213,7 @@
   <nav class="adm-nav" id="admNav" aria-label="Navegación del panel">
     <div class="adm-nav__group">Principal</div>
     <button class="tab-btn active" data-tab="inicio"><i class="fas fa-house"></i> <span>Inicio</span></button>
+    <button class="tab-btn" data-tab="analytics" data-admin-only><i class="fas fa-chart-line"></i> <span>Analíticas</span></button>
 
     <div class="adm-nav__group">Eventos</div>
     <button class="tab-btn" data-tab="eventos"><i class="fas fa-calendar-week"></i> <span>Eventos</span></button>
@@ -701,6 +703,11 @@
       <h2>Actividad</h2>
     </div>
     <div id="activityList" class="act-list"></div>
+  </div>
+
+  <!-- ── ANALÍTICAS (website traffic) ───────────────────────────────────────── -->
+  <div class="tab-panel anl" id="tab-analytics">
+    <div id="analyticsRoot"></div>
   </div>
 
   <!-- ── CONFIGURACIÓN ──────────────────────────────────────────────────────── -->

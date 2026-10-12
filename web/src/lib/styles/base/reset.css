@@ -1,0 +1,125 @@
+/* ============================================================================
+ * base/reset.css — element resets and global element styles (S12)
+ * ----------------------------------------------------------------------------
+ * Port of css/base/base.css. ELEMENT SELECTORS ONLY — no classes live in
+ * base/ (CLAUDE.md §2). The classes the legacy file carried moved out:
+ *   .skip-link → utilities/a11y.css · .section (read an undefined
+ *   --spacing-5xl, i.e. dead) and .email-link → not ported (page concerns).
+ * Also not ported, on purpose (see the S12 NOTES):
+ *   • `#header { … }` — the homepage hero backdrop, an S26 component concern.
+ *   • `html.ready { scroll-behavior: smooth }` — a legacy include.js hook;
+ *     SvelteKit owns scrolling and a smooth root fights its scroll restoration.
+ *   • `a[href^="tel"], a[href^="mailto"] { color: white }` — the "near-white
+ *     link on a white panel" bug docs/admin-ux.md §3 warns about; every
+ *     surface styles its own contact links.
+ *   • `!important` on strong's weight — a Bootstrap-era override with nothing
+ *     left to beat; it only stopped components from choosing a weight.
+ * ========================================================================== */
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  border: 0 solid var(--gray-40);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  /* Default ink + ground. Both tokens reverse with the palette, so this one
+     rule is correct under prefers-color-scheme AND a forced [data-theme].
+     Deliberately low specificity (0,0,1) so a surface can override it. */
+  color: var(--color-text);
+  background-color: var(--color-bg-light);
+  /* Native system-font stack — what the legacy body actually rendered. */
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  /* Kill any stray horizontal scrollbar caused by descendants overflowing.
+     `clip` behaves like `hidden` but doesn't create a scroll container, so
+     sticky/fixed positioning still works correctly. */
+  overflow-x: clip;
+}
+
+/* Fallback for older browsers that don't yet support overflow:clip */
+@supports not (overflow-x: clip) {
+  body {
+    overflow-x: hidden;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 17px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-dark);
+  border-radius: var(--radius-xl);
+  border: 5px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-info);
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+  user-select: none;
+}
+
+button {
+  display: inline-block;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+a {
+  /* --color-40 instead of --color-50: clears 4.5:1 on white (the old #5797a8
+     was 3.28:1). The ramp auto-reverses in dark mode, so this stays readable
+     against dark backgrounds too. */
+  color: var(--color-40);
+}
+
+strong {
+  color: var(--color-secondary);
+  font-weight: var(--fw-bold);
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  margin-block: 0;
+}
+
+/* Only suppress the focus ring for pointer interactions; keyboard users
+   (:focus-visible) keep a visible focus indicator (WCAG 2.4.7). */
+button:focus:not(:focus-visible),
+button:active {
+  border: none;
+  outline: none;
+}
+
+/* The one global focus ring (DESIGN-SYSTEM §1: never `outline: none` alone).
+   --color-focus is the reversing ink, and the offset draws the ring OUTSIDE a
+   --color-dark fill so it reads on both a dark control and the page. */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+main:focus {
+  outline: none;
+}

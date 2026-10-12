@@ -5,43 +5,60 @@ The entire access-control model for this site is **Postgres Row-Level Security
 client-side. That makes the RLS policies the real security boundary — so they
 must be reviewable and reproducible in git.
 
-## ⚠️ Known gap: the foundational RLS is not version-controlled
+## ✅ The schema is now in git (closed by migration session S01, 2026-07-14)
 
-`migrations/` only contains changes from **2026-05-26 onward** (admin platform,
-treasury, fund accounting). The *base* schema and policies that everything else
-depends on were created directly in the dashboard and are **not** in git:
+The base schema and policies used to be dashboard-only. They are now committed
+as **two** baseline files, and the whole schema rebuilds from git:
 
-- tables: `profiles`, `events`, `gallery_albums`, `gallery_photos`,
-  `discipleship_groups` / `_members` / `_messages` / `_interests`, `ministries`,
-  `calendar_events`
-- helper functions: `is_admin()`, `my_ministry_id()` (the later migrations call
-  these but never define them)
+| File | What it holds |
+| --- | --- |
+| `migrations/00000000000000_baseline.sql` | `public`: 32 tables, 78 policies, 24 functions (incl. `is_admin()`, `my_ministry_id()`, `has_tab()`, `is_finance()`) |
+| `migrations/00000000000001_baseline_storage.sql` | the 15 `storage.objects` policies (gallery, event-images, avatars, design-assets) |
 
-Until these are committed, the policies that protect public-insert tables —
-most importantly **`discipleship_interests`, which stores visitor PII** — can't
-be reviewed or rebuilt from scratch.
+```bash
+supabase start && supabase db reset   # baseline + baseline_storage + every migration, from scratch
+```
 
-## How to close the gap (run once, with your project credentials)
+**Two things to know before you touch this directory:**
 
-1. **Inventory the live state** — run [`rls-audit.sql`](./rls-audit.sql) in the
-   SQL Editor. It's read-only and lists every table's RLS flag, every policy,
-   any RLS-on-but-no-policy tables, and the helper functions.
+- **`db dump --schema public` does not capture the storage policies.** That's why
+  the baseline is two files. Regenerating it from a single `--schema public` dump
+  silently drops half the security boundary.
+- **Migration filenames need 14 digits** (`YYYYMMDDHHMMSS_name.sql`). The CLI keys
+  `schema_migrations` on the leading digits, so two same-day `YYYYMMDD_` files
+  collide on one version and `db reset` / `db push` fail. Prod is still updated by
+  hand in the SQL Editor.
 
-2. **Verify the critical invariants** from the audit output:
-   - `discipleship_interests`: `anon` has **INSERT only**, **no SELECT** (PII).
-   - `events`, `gallery_albums`, `gallery_photos`: public `SELECT` is scoped to
-     published rows (e.g. `is_published = true`), not `using (true)`.
-   - No `public` table has `rls_enabled = false`.
-   - `fin_funds` / `fin_income_categories` / `fin_expense_categories` read
-     policies (`20260529_fund_accounting.sql`) are `using (true)` for *all*
-     authenticated users — confirm that's intended or tighten to `can_finance()`.
+## Audit results (S01) — what's still open
 
-3. **Export the live schema + policies** as the baseline migration:
-   ```bash
-   supabase db dump --schema public > migrations/00000000000000_baseline.sql
-   ```
-   Commit it. From then on, every policy change goes through a migration so the
-   security model is reviewable in PRs.
+Run [`rls-audit.sql`](./rls-audit.sql) any time; it's read-only. As of 2026-07-14:
+
+**Good:** every `public` table has RLS on (32/32). The PII invariant **holds** —
+`discipleship_interests` and `event_registrations` are **anon-INSERT-only, no anon
+SELECT**. `gallery_albums`/`gallery_photos` public reads *are* scoped to
+`is_published = true`.
+
+**Open (recorded in `MIGRATION.md`; hardening belongs to migration session S39):**
+
+1. **`is_aal2()` is a stub — its body is `select true`** (G-016). Every policy that
+   reads as MFA-gated (`dinterests_staff_all` on the PII table, the three `Gallery
+   staff` storage writes) is really just `is_admin()`. **DB-side MFA is not
+   enforced today.** Don't cite one of these policies as proof that it is.
+2. **`Modo mantenimiento` is dead in production** (G-015). The
+   `public_feature_flags` migration was never applied to prod, so `app_settings`
+   has no anon SELECT policy, so `js/lib/maintenance.js` (which reads it as anon)
+   gets zero rows and fails open. Applying that one migration fixes it.
+3. The `event-images` bucket's write policies are named "Admins can upload/delete"
+   but never call `is_admin()` — **any authenticated user** can write to it.
+4. `fin_funds` / `fin_income_categories` / `fin_expense_categories` are
+   `using (true)` for *all* authenticated users, not just finance — names and
+   categories only, no amounts. Confirm that's intended or tighten to `can_finance()`.
+5. `newsletter_subscribers` anon INSERT is `with check (true)` — no email
+   validation, no rate limit.
+
+Note `events` / `calendar_events` public reads are `using (true)`, which is
+**correct**: neither table has a published/draft column, so there is nothing to
+scope to. (An earlier version of this README implied otherwise.)
 
 ## Edge functions
 
@@ -52,6 +69,11 @@ be reviewed or rebuilt from scratch.
 - `functions/youtube-live/` — proxies the YouTube Data API. **Rotate the API key
   that was previously committed in this file's deploy comment** and restrict it to
   the YouTube Data API v3 in Google Cloud.
+- `functions/track/` — public, cookieless website analytics collector (beacons
+  from `js/lib/analytics.js`). Drops bots and non-irdlex.org origins, hashes the
+  visitor with a salt that rotates daily, never stores IP or user-agent. Feeds the
+  admin **Analíticas** tab. Setup: apply `migrations/20261012_site_analytics.sql`,
+  then `supabase functions deploy track --no-verify-jwt`.
 
 ## Newsletter — welcome, monthly digest, day-before reminders
 
@@ -120,3 +142,115 @@ curl -X POST "$FN/newsletter-reminders" -H "x-cron-secret: $CRON_SECRET" \
 `{"force":true}` on `newsletter-broadcast` re-sends the real blast even if this
 month is already logged. Until Resend is configured, sign-ups still record the
 subscriber; the email is skipped (logged).
+
+## Recibos de tesorería — private receipt images + annual retention
+
+Receipt photos for the church books, for each ministry a leader is assigned to,
+and for personal projects. Three pieces:
+
+| Piece | What it is |
+| --- | --- |
+| `public.fin_receipts` | one row per receipt — scope (`church`/`ministry`/`project`), year, **month**, the two object paths, size, note |
+| the `receipts` storage bucket | **private** (`public = false`), `image/webp` only, 10 MB per object |
+| `functions/receipts-cleanup/` | the annual retention worker, fired by pg_cron |
+
+**The retention rule in one sentence:** a year's receipts are kept until the end
+of January of the second following year — the run of **February 1st of year N**
+deletes everything filed in **N−2 or earlier**, so the books always hold the full
+previous year plus the current one (Feb 1 2028 deletes 2026 and older, keeps 2027
+and 2028). Each receipt therefore lives ~13–25 months.
+
+**The bucket is never public-read.** Unlike `gallery` / `event-images` /
+`avatars`, a receipt is a financial document: the app reads it with an
+authenticated `.download()`, so no public URL and no long-lived signed URL ever
+exists. If a change ever sets `public = true` on this bucket, that is a security
+regression (MIGRATION.md D-018).
+
+**Who sees what** (D-019 — enforced by RLS, never by the client):
+
+| scope | who |
+| --- | --- |
+| `church` | finance only (`is_finance()` = role `admin` or `treasurer`) |
+| `ministry` | finance **and every leader of that ministry** — shared, not owner-private |
+| `project` | the project's owner **only** — invisible even to finance |
+
+Object paths are `church/<year>/<uuid>.webp`,
+`ministry/<ministry_id>/<year>/<uuid>.webp`, `project/<project_id>/<year>/<uuid>.webp`
+(plus a `-thumb.webp` sibling). The **year folder is what the cleanup job sweeps;
+the month lives in the row**, so re-filing a receipt never moves an object. The
+`receipts_insert` policy enforces that exact shape (folder depth + 4-digit year),
+which is the only reason the `::uuid` casts in the read/delete policies can never
+meet a malformed name — **never loosen those shape checks**. There is deliberately
+**no UPDATE policy on storage.objects and no UPDATE grant on the table**: receipts are immutable end to end, so replacing one is delete + re-upload. (A granted UPDATE would let a leader re-point a co-leader receipt into a private project, or rewrite the year that retention keys on — permissive policies OR their USING and WITH CHECK independently.)
+
+### One-time setup
+
+1. **Migrations** — apply in this order in the SQL editor:
+   ```
+   20260824120000_fin_receipts.sql          -- table + RLS + private bucket + storage policies
+   20260824120100_fin_ministry_shared.sql   -- D-019 additive widening of fin_projects/income/expenses
+   20260824120200_receipts_cleanup_cron.sql -- run AFTER deploying the function (step 2)
+   ```
+   All three are idempotent. After the first one, confirm the bucket really is
+   private:
+   ```sql
+   select id, public, file_size_limit, allowed_mime_types from storage.buckets where id = 'receipts';
+   -- expected: receipts | f | 10485760 | {image/webp}
+   ```
+2. **Deploy the function** (server-to-server; no user session, so no JWT check):
+   ```bash
+   supabase functions deploy receipts-cleanup --no-verify-jwt
+   ```
+3. **Secrets — nothing new.** It reuses the `CRON_SECRET` function secret and the
+   Vault `project_url` / `cron_secret` from the newsletter setup above. Only if
+   that was never done, do it now (see the newsletter section), then apply
+   `20260824120200_receipts_cleanup_cron.sql`; without the Vault values that
+   migration raises a `notice` and schedules nothing.
+4. **Confirm the job:**
+   ```sql
+   select jobname, schedule, active from cron.job where jobname = 'receipts-cleanup-annual';
+   -- expected: receipts-cleanup-annual | 0 5 1 2 * | t
+   ```
+
+### Testing before go-live
+
+```bash
+# SAFE NO-OP — no receipt is from 1990, so this deletes nothing and proves the
+# secret, the routing and the service-role client all work:
+curl -X POST "$FN/receipts-cleanup" -H "x-cron-secret: $CRON_SECRET" \
+     -H 'Content-Type: application/json' -d '{"cutoffYear":1990}'
+# → {"ok":true,"cutoff":1990,"deletedRows":0,"deletedObjects":0,"failures":[]}
+```
+
+Omit `cutoffYear` (or send `{}`) and it uses the real cutoff — **that deletes
+production data**, so only do it on a staging project with seeded old rows. A
+wrong or missing `x-cron-secret` returns `401 {"error":"No autorizado."}`; a GET
+returns `405`. Re-running is always a no-op (`deletedRows: 0`) because the sweep
+is `year <= cutoff`, which is also what makes a missed annual run self-heal at
+the next firing.
+
+#### Comprobación después de cada ejecución (1 de febrero)
+
+This job runs **once a year**, and `net.http_post` records success no matter what the
+function answered — a rotated `CRON_SECRET` would produce a silent 401 and retention
+simply would not happen for another 12 months. Check it the same week:
+
+```sql
+select start_time, status from cron.job_run_details
+  where jobname = 'receipts-cleanup-annual' order by start_time desc limit 3;
+
+select created, (response).status_code, (response).body
+  from net._http_response order by created desc limit 5;   -- expect 200 and "failures":[]
+
+select year, count(*) from public.fin_receipts group by year order by year;
+-- no row should remain for a year <= (current year - 2)
+```
+
+If it did not run, re-trigger it **with an explicit `cutoffYear`** rather than an empty
+body, so the year being deleted is a deliberate choice:
+
+```bash
+curl -X POST "$PROJECT_URL/functions/v1/receipts-cleanup" \
+  -H "x-cron-secret: $CRON_SECRET" -H "Content-Type: application/json" \
+  -d '{"cutoffYear": 2026}'
+```

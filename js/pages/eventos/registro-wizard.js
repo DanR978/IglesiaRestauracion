@@ -22,6 +22,7 @@ import { createSignaturePad } from '/js/components/signature-pad.js';
 import { WAIVER_VERSION, renderWaiverPrintDoc } from '/js/lib/waiver.js';
 import { celebrateModal } from '/js/lib/celebrate.js';
 import { el } from '/js/utils/dom.js';
+import { trackEvent } from '/js/lib/track.js';
 
 const TOTAL_STEPS = 5;
 const DEFAULT_LOC = '2601 Clays Mill Rd, Lexington, KY 40503';
@@ -486,6 +487,7 @@ async function submit() {
   }
 
   renderSuccess(state.participants[0]?.first_name || '', state.participants.length);
+  trackEvent('event_registration', eventCtx?.title || eventCtx?.slug || '');
   if (typeof onSuccess === 'function') { try { onSuccess({ first_name: payload[0].first_name }); } catch {} }
 }
 

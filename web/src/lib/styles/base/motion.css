@@ -1,0 +1,27 @@
+/* ============================================================================
+ * base/motion.css — the global reduced-motion guard (S12)
+ * ----------------------------------------------------------------------------
+ * WCAG 2.3.3. Honoured ONCE, globally, at the base level — never as a bespoke
+ * `body.adm-reduce-motion * { … }` class hook (that legacy plumbing was dead:
+ * PORT-DEBT S12). Every component still carries its own
+ * `@media (prefers-reduced-motion: reduce)` guard for anything this block
+ * cannot neutralise (a resting-state `opacity: 0` that waits for a class, a
+ * scroll-driven `animation-timeline`, a JS-driven duration — see
+ * $lib/reduced-motion for those).
+ *
+ * Durations are 0.01ms, not `none`: `animationend` / `transitionend` still
+ * fire, so code that awaits them to unmount an overlay keeps working.
+ * ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,68 @@
+/* ============================================================================
+ * tokens/typography.css — the fluid type scale, fonts and weights (S11)
+ * ----------------------------------------------------------------------------
+ * Port of css/tokens/typography.css with the --fs-* scale RE-TUNED MONOTONIC
+ * (MIGRATION.md D-015). The legacy clamps were not: --fs-2xl's max (2rem) was
+ * smaller than --fs-xl's (2.1875rem), --fs-lg and --fs-2xl shared a 2rem max,
+ * --fs-sm bottomed out at 8.8px, and --fs-lg spanned 14–32px. Nothing sat
+ * between a ~0.7rem label and a ~1.85rem KPI number.
+ *
+ * The re-tune keeps every token NAME and the px targets the legacy comments
+ * already promised, and makes the whole scale one formula:
+ *
+ *   size(vw) = min at a 360px viewport → max at 1280px, linear between
+ *   fluid term = (min − 0.3913·Δ) rem + (1.7391·Δ) vw, Δ = max − min
+ *
+ * Because every step uses the same 360→1280 ramp, size_i(vw) < size_{i+1}(vw)
+ * at EVERY viewport width, not just at the clamp ends
+ * (tests/unit/tokens.test.ts asserts min/max strictly increase).
+ *
+ *   token   px @360  px @1280   role
+ *   xxs       10       12       micro captions
+ *   xs        12       14       uppercase micro-labels, badges
+ *   sm        14       16       secondary text, table cells
+ *   base      16       18       body
+ *   md        18       20       lead paragraph, card titles
+ *   lg        20       24       ← the mid-range step (section titles, KPI sub-values)
+ *   xl        24       32       page titles, KPI numbers (legacy ~1.85rem/800)
+ *   2xl       32       40       hero subheads
+ *   3xl       40       48       hero headings
+ *   4xl       48       64       display
+ *   btn       15       17       control text (.ird-btn reconciles here from --size-base)
+ *
+ * Never set font-size in px or raw rem — always var(--fs-*).
+ * ========================================================================== */
+
+:root {
+  --fs-xxs: clamp(0.625rem, 0.576rem + 0.217vw, 0.75rem);
+  --fs-xs: clamp(0.75rem, 0.701rem + 0.217vw, 0.875rem);
+  --fs-sm: clamp(0.875rem, 0.826rem + 0.217vw, 1rem);
+  --fs-base: clamp(1rem, 0.951rem + 0.217vw, 1.125rem);
+  --fs-md: clamp(1.125rem, 1.076rem + 0.217vw, 1.25rem);
+  --fs-lg: clamp(1.25rem, 1.152rem + 0.435vw, 1.5rem);
+  --fs-xl: clamp(1.5rem, 1.304rem + 0.87vw, 2rem);
+  --fs-2xl: clamp(2rem, 1.804rem + 0.87vw, 2.5rem);
+  --fs-3xl: clamp(2.5rem, 2.304rem + 0.87vw, 3rem);
+  --fs-4xl: clamp(3rem, 2.609rem + 1.739vw, 4rem);
+  --fs-btn: clamp(0.9375rem, 0.889rem + 0.217vw, 1.0625rem);
+
+  --font-Lexend: 'Lexend Deca', sans-serif;
+  --font-Helvetica-Neue: 'Helvetica Neue', sans-serif;
+  --font-DM-Sans: 'DM Sans', sans-serif;
+  --font-Carattere: 'Carattere', cursive;
+  --font-Geist: 'Geist', sans-serif;
+  --font-Signika: 'Signika', sans-serif;
+  --font-base:
+    'Geist', 'Lexend Deca', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+
+  --fw-thin: 100;
+  --fw-extralight: 200;
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-extrabold: 800;
+  --fw-black: 900;
+}

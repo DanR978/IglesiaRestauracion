@@ -1,0 +1,347 @@
+{
+  "isValidEmail": [
+    {
+      "input": "test@example.com",
+      "expected": true,
+      "note": "plain valid"
+    },
+    {
+      "input": "a@b.co",
+      "expected": true,
+      "note": "short but valid"
+    },
+    {
+      "input": "a@b.c",
+      "expected": false,
+      "note": "1-char TLD → invalid"
+    },
+    {
+      "input": "con.acentos@dominio.mx",
+      "expected": true,
+      "note": "dotted local part"
+    },
+    {
+      "input": "ñoño@ejemplo.es",
+      "expected": true,
+      "note": "accented local part accepted"
+    },
+    {
+      "input": "UPPER@EX.COM",
+      "expected": true,
+      "note": "uppercase accepted"
+    },
+    {
+      "input": "  spaced@ex.com  ",
+      "expected": true,
+      "note": "outer whitespace trimmed"
+    },
+    {
+      "input": "no-at.com",
+      "expected": false,
+      "note": "missing @"
+    },
+    {
+      "input": "user@",
+      "expected": false,
+      "note": "missing domain"
+    },
+    {
+      "input": "@example.com",
+      "expected": false,
+      "note": "missing local part"
+    },
+    {
+      "input": "two@@ex.com",
+      "expected": false,
+      "note": "double @"
+    },
+    {
+      "input": "user@ex.com extra",
+      "expected": false,
+      "note": "inner space"
+    },
+    {
+      "input": "user@exam ple.com",
+      "expected": false,
+      "note": "space in domain"
+    },
+    {
+      "input": "a@b..com",
+      "expected": true,
+      "note": "double dot before TLD (legacy quirk: valid)"
+    },
+    {
+      "input": "a@b.c2",
+      "expected": true,
+      "note": "two-char TLD with digit"
+    },
+    {
+      "input": "",
+      "expected": false,
+      "note": "empty"
+    },
+    {
+      "input": "   ",
+      "expected": false,
+      "note": "whitespace only"
+    },
+    {
+      "input": null,
+      "expected": false,
+      "note": "null"
+    }
+  ],
+  "normalizeUSPhone": [
+    {
+      "input": "(915) 555-0123",
+      "expected": "+19155550123",
+      "note": "national format"
+    },
+    {
+      "input": "915-555-0123",
+      "expected": "+19155550123",
+      "note": "dashed"
+    },
+    {
+      "input": "915.555.0123",
+      "expected": "+19155550123",
+      "note": "dotted"
+    },
+    {
+      "input": "915 555 0123",
+      "expected": "+19155550123",
+      "note": "spaced"
+    },
+    {
+      "input": "9155550123",
+      "expected": "+19155550123",
+      "note": "bare 10 digits"
+    },
+    {
+      "input": "19155550123",
+      "expected": "+19155550123",
+      "note": "11 digits with leading 1"
+    },
+    {
+      "input": "+1 (915) 555-0123",
+      "expected": "+19155550123",
+      "note": "E.164-ish input"
+    },
+    {
+      "input": "1-915-555-0123",
+      "expected": "+19155550123",
+      "note": "dashed with country code"
+    },
+    {
+      "input": "x9y1z5t5u5v5w0x1y2z3",
+      "expected": "+19155550123",
+      "note": "letters stripped"
+    },
+    {
+      "input": "0155550123",
+      "expected": null,
+      "note": "area code starts with 0 → null"
+    },
+    {
+      "input": "1155550123",
+      "expected": null,
+      "note": "area code starts with 1 → null"
+    },
+    {
+      "input": "9151550123",
+      "expected": null,
+      "note": "exchange starts with 1 → null"
+    },
+    {
+      "input": "9150550123",
+      "expected": null,
+      "note": "exchange starts with 0 → null"
+    },
+    {
+      "input": "915555012",
+      "expected": null,
+      "note": "9 digits → null"
+    },
+    {
+      "input": "91555501234",
+      "expected": null,
+      "note": "11 digits not starting with 1 → null"
+    },
+    {
+      "input": "29155550123",
+      "expected": null,
+      "note": "11 digits starting with 2 → null"
+    },
+    {
+      "input": "",
+      "expected": null,
+      "note": "empty → null"
+    },
+    {
+      "input": null,
+      "expected": null,
+      "note": "null → null"
+    },
+    {
+      "input": "abc",
+      "expected": null,
+      "note": "no digits → null"
+    },
+    {
+      "input": 9155550123,
+      "expected": "+19155550123",
+      "note": "number input accepted"
+    }
+  ],
+  "isValidUSPhone": [
+    {
+      "input": "(915) 555-0123",
+      "expected": true,
+      "note": "valid"
+    },
+    {
+      "input": "915-123-4567",
+      "expected": false,
+      "note": "exchange starts with 1 → false"
+    },
+    {
+      "input": "555",
+      "expected": false,
+      "note": "too short"
+    },
+    {
+      "input": null,
+      "expected": false,
+      "note": "null"
+    },
+    {
+      "input": 9155550123,
+      "expected": true,
+      "note": "number input"
+    }
+  ],
+  "isValidName": [
+    {
+      "input": "Juan",
+      "expected": true,
+      "note": "simple"
+    },
+    {
+      "input": "Ana María",
+      "expected": true,
+      "note": "space"
+    },
+    {
+      "input": "O'Brien",
+      "expected": true,
+      "note": "straight apostrophe"
+    },
+    {
+      "input": "Núñez’",
+      "expected": true,
+      "note": "curly apostrophe"
+    },
+    {
+      "input": "José-Luis",
+      "expected": true,
+      "note": "hyphen"
+    },
+    {
+      "input": "Ñoño",
+      "expected": true,
+      "note": "Ñ upper accent range"
+    },
+    {
+      "input": "ñandú",
+      "expected": true,
+      "note": "lower accent range"
+    },
+    {
+      "input": "María José de la Cruz",
+      "expected": true,
+      "note": "long compound"
+    },
+    {
+      "input": "ab",
+      "expected": false,
+      "note": "too short"
+    },
+    {
+      "input": "  a  ",
+      "expected": false,
+      "note": "trims to 1 char"
+    },
+    {
+      "input": "Juan2",
+      "expected": false,
+      "note": "digit rejected"
+    },
+    {
+      "input": "Wm.",
+      "expected": false,
+      "note": "period rejected"
+    },
+    {
+      "input": "---",
+      "expected": true,
+      "note": "hyphens only (legacy quirk: valid)"
+    },
+    {
+      "input": "   ",
+      "expected": false,
+      "note": "whitespace only trims to empty"
+    },
+    {
+      "input": "",
+      "expected": false,
+      "note": "empty"
+    },
+    {
+      "input": null,
+      "expected": false,
+      "note": "null"
+    }
+  ],
+  "formatUSPhoneNational": [
+    {
+      "input": "9155550123",
+      "expected": "(915) 555-0123",
+      "note": "bare digits → national"
+    },
+    {
+      "input": "+19155550123",
+      "expected": "(915) 555-0123",
+      "note": "E.164 → national"
+    },
+    {
+      "input": "19155550123",
+      "expected": "(915) 555-0123",
+      "note": "11-digit → national"
+    },
+    {
+      "input": "(915) 555-0123",
+      "expected": "(915) 555-0123",
+      "note": "already national → normalized round trip"
+    },
+    {
+      "input": "123",
+      "expected": "123",
+      "note": "invalid echoes input unchanged"
+    },
+    {
+      "input": "abc",
+      "expected": "abc",
+      "note": "non-numeric echoes input"
+    },
+    {
+      "input": "",
+      "expected": "",
+      "note": "empty echoes empty"
+    },
+    {
+      "input": null,
+      "expected": "",
+      "note": "null → empty string"
+    }
+  ]
+}

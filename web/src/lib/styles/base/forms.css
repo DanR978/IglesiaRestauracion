@@ -1,0 +1,34 @@
+/* ============================================================================
+ * base/forms.css — global form-control baseline (S12)
+ * ----------------------------------------------------------------------------
+ * Port of css/base/forms.css (docs/admin-ux.md §5).
+ *
+ * iOS Safari auto-zooms the page when you focus a text field whose computed
+ * font-size is under 16px. Components size their inputs with --fs-* (~15px by
+ * design), which trips this on phones. Best practice — keeps pinch-zoom
+ * enabled for accessibility, unlike the maximum-scale=1 hack — is to floor
+ * form controls at 16px on small screens so focus never triggers a zoom.
+ *
+ * `max(1rem, 16px)`: 1rem so the control still scales with a user's larger
+ * root font; 16px is the hard iOS threshold and the one legitimate px in the
+ * type system (D-015 forbids px font-sizes everywhere else).
+ *
+ * SPECIFICITY IS THE POINT. The legacy rule listed `select, textarea,
+ * [contenteditable]` bare, at (0,0,1)/(0,1,0), so any component class beat
+ * them and only <input> was actually floored (found by the S12 browser
+ * smoke: select/textarea/contenteditable computed 14px at 360px). `:is()`
+ * takes the specificity of its MOST specific argument — the four-:not()
+ * input selector, (0,4,1) — and applies it to every control in the list, so
+ * a scoped component class can never undo the floor. Desktop is untouched.
+ * ========================================================================== */
+
+@media (max-width: 768px) {
+  :is(
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']),
+    select,
+    textarea,
+    [contenteditable='true']
+  ) {
+    font-size: max(1rem, 16px);
+  }
+}
