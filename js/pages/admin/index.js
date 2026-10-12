@@ -25,6 +25,7 @@ import { loadGallery } from './gallery-tab.js';
 import { loadActivity } from './activity-tab.js';
 import { loadSettings } from './settings-tab.js';
 import { loadTreasury } from './treasury-tab.js';
+import { loadSiteAnalytics } from './site-analytics-tab.js';
 import { enhanceTextarea } from '/js/lib/rich-text.js';
 import { confirmResolve } from './state.js';
 import { applyPrefs } from './prefs.js';
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onActivity:     loadActivity,
     onSettings:     loadSettings,
     onTreasury:     loadTreasury,
+    onAnalytics:    loadSiteAnalytics,
   });
 
   // ── Eventos pill views (Calendario · Próximos · Registraciones) ────────────

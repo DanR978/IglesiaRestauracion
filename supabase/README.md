@@ -52,6 +52,11 @@ be reviewed or rebuilt from scratch.
 - `functions/youtube-live/` — proxies the YouTube Data API. **Rotate the API key
   that was previously committed in this file's deploy comment** and restrict it to
   the YouTube Data API v3 in Google Cloud.
+- `functions/track/` — public, cookieless website analytics collector (beacons
+  from `js/lib/analytics.js`). Drops bots and non-irdlex.org origins, hashes the
+  visitor with a salt that rotates daily, never stores IP or user-agent. Feeds the
+  admin **Analíticas** tab. Setup: apply `migrations/20261012_site_analytics.sql`,
+  then `supabase functions deploy track --no-verify-jwt`.
 
 ## Newsletter — welcome, monthly digest, day-before reminders
 

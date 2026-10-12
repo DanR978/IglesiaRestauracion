@@ -1,3 +1,5 @@
+import { trackEvent } from "/js/lib/track.js";
+
 // External loaders (optional)
 export function loadExternalScripts() {
   const jqueryScript = document.createElement("script");
@@ -404,6 +406,7 @@ export function setupDirectionsButton({
   const button = document.getElementById(buttonId);
   if (!button) return;
   button.addEventListener("click", () => {
+    trackEvent("directions", "Cómo llegar");
     if (!navigator.geolocation) { window.open(fallbackUrl, "_blank"); return; }
     navigator.geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {

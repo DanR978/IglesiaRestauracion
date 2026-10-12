@@ -1,0 +1,410 @@
+/* admin/site-analytics.css — "Analíticas" tab (js/pages/admin/site-analytics-tab.js)
+   Namespace: anl-  (the dead .an-* block in platform.css belongs to the old,
+   unwired analytics-tab.js — don't reuse it).
+
+   Like the other admin cards these sit on a permanently light fill, so ink is
+   --color-dark (CLAUDE.md §4: light surface → --color-dark). Every data mark
+   is that same ink at reduced strength via color-mix: one hue, nothing to
+   validate for colour-blindness, and no theme logic outside tokens. */
+
+.anl {
+  --anl-ink:  var(--color-dark, #394548);
+  --anl-dim:  color-mix(in srgb, var(--anl-ink) 72%, transparent);
+  --anl-card: var(--color-white, #fff);
+  --anl-rule: rgba(127, 127, 127, 0.18);
+}
+
+/* ── Controls ────────────────────────────────────────── */
+.anl-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.anl-select {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--anl-ink);
+  background: var(--anl-card);
+  border: 1px solid var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+}
+.anl-select:focus-visible { outline: 2px solid var(--color-secondary, #9a6a2c); outline-offset: 2px; }
+
+.anl-iconbtn { padding: 0.65rem 0.8rem; }
+
+.anl .btn.is-active { border-color: var(--anl-ink); color: var(--anl-ink); }
+
+.anl-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--anl-dim);
+  margin-right: 0.25rem;
+}
+.anl-live:empty { display: none; }
+
+.anl-live__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--anl-dim);
+  opacity: 0.4;
+}
+.anl-live__dot.is-on {
+  background: var(--color-success, #16a34a);
+  opacity: 1;
+  animation: anl-pulse 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes anl-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.45); }
+  100% { box-shadow: 0 0 0 0.5rem rgba(22, 163, 74, 0); }
+}
+
+/* ── Options (collapsed by default — docs/admin-ux.md §1) ── */
+.anl-options {
+  background: var(--anl-card);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.25rem;
+  color: var(--anl-ink);
+  display: grid;
+  gap: 1rem;
+}
+.anl-options[hidden] { display: none; }
+.anl-options__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.anl-options p {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--anl-dim);
+  max-width: 62ch;
+}
+.anl-options strong { color: var(--anl-ink); }
+.anl-options__note { border-top: 1px solid var(--anl-rule); padding-top: 0.9rem; }
+
+/* ── Body ────────────────────────────────────────────── */
+#anlBody { transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1); }
+#anlBody.is-busy { opacity: 0.55; pointer-events: none; }
+
+.anl-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.anl-kpi {
+  background: var(--anl-card);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem);
+  padding: 0.95rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.anl-kpi__label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--anl-dim);
+}
+.anl-kpi__num {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--anl-ink);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.anl-kpi__delta {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--anl-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Cards ───────────────────────────────────────────── */
+.anl-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.anl-card {
+  position: relative;
+  background: var(--anl-card);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem);
+  padding: 1rem 1.1rem 1.1rem;
+  color: var(--anl-ink);
+  min-width: 0;
+}
+.anl-card--wide { grid-column: 1 / -1; }
+#anlBody > .anl-card--wide { margin-bottom: 1rem; }
+
+.anl-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.85rem;
+}
+.anl-card__head h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.anl-subhead {
+  margin: 1.1rem 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--anl-dim);
+}
+
+.anl-none {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--anl-dim);
+}
+
+/* Segmented sub-view switch (Visitantes/Vistas, Entrada/Salida, …) */
+.anl-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border-radius: var(--radius-full, 999px);
+  background: rgba(127, 127, 127, 0.12);
+}
+.anl-seg button {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--anl-dim);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full, 999px);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.anl-seg button:hover { color: var(--anl-ink); }
+.anl-seg button.active { background: var(--anl-ink); color: var(--color-white, #fff); }
+.anl-seg button:focus-visible { outline: 2px solid var(--color-secondary, #9a6a2c); outline-offset: 1px; }
+
+.anl-linkbtn {
+  border: 0;
+  background: none;
+  padding: 0.25rem 0;
+  margin-top: 0.5rem;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--anl-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+/* ── Ranked list with in-row bar ─────────────────────── */
+.anl-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.anl-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: var(--radius-sm, 6px);
+  isolation: isolate;
+}
+.anl-row::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--w, 0%);
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--anl-ink) 9%, transparent);
+  z-index: -1;
+}
+
+.anl-row__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.anl-row__label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.anl-row__meta {
+  font-size: 0.76rem;
+  color: var(--anl-dim);
+  overflow-wrap: anywhere;
+}
+.anl-row a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--anl-rule);
+  text-underline-offset: 0.18em;
+}
+.anl-row a:hover { text-decoration-color: currentColor; }
+.anl-row__value {
+  flex: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.anl-conv { color: var(--color-secondary, #9a6a2c); font-size: 0.8em; }
+
+/* ── Time-series chart ───────────────────────────────── */
+.anl-chart {
+  position: relative;
+  width: 100%;
+  min-height: 200px;
+}
+.anl-svg { display: block; overflow: visible; touch-action: pan-y; }
+.anl-svg:focus-visible { outline: 2px solid var(--color-secondary, #9a6a2c); outline-offset: 4px; border-radius: 4px; }
+
+.anl-grid-line { stroke: var(--anl-rule); stroke-width: 1; }
+.anl-axis {
+  fill: var(--anl-dim);
+  font-size: 0.7rem;
+  font-variant-numeric: tabular-nums;
+}
+.anl-line {
+  fill: none;
+  stroke: var(--anl-ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.anl-area { fill: color-mix(in srgb, var(--anl-ink) 8%, transparent); }
+.anl-cross { stroke: var(--anl-dim); stroke-width: 1; stroke-dasharray: 3 3; }
+.anl-dot { fill: var(--anl-ink); stroke: var(--anl-card); stroke-width: 2; }
+
+.anl-tip {
+  position: absolute;
+  z-index: var(--z-menu, 10);
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius-md);
+  background: var(--anl-ink);
+  color: var(--color-white, #fff);
+  font-size: 0.78rem;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(20, 30, 35, 0.18);
+}
+.anl-tip[hidden] { display: none; }
+.anl-tip strong { color: inherit; }
+
+.anl-table {
+  width: 100%;
+  margin-top: 0.75rem;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.anl-table th,
+.anl-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--anl-rule);
+  overflow-wrap: anywhere;
+}
+.anl-table th { font-size: 0.78rem; color: var(--anl-dim); }
+
+/* ── Heatmap ─────────────────────────────────────────── */
+.anl-heat__peak { margin: 0 0 0.75rem; font-size: 0.88rem; color: var(--anl-dim); }
+.anl-heat__peak strong { color: var(--anl-ink); }
+
+.anl-heat { display: grid; gap: 3px; }
+.anl-heat__row {
+  display: grid;
+  grid-template-columns: 2.25rem repeat(24, minmax(0, 1fr));
+  gap: 3px;
+  align-items: center;
+}
+.anl-heat__day,
+.anl-heat__hour {
+  font-size: 0.7rem;
+  color: var(--anl-dim);
+  font-variant-numeric: tabular-nums;
+}
+.anl-heat__hour { text-align: center; }
+
+.anl-heat__cell {
+  display: block;
+  aspect-ratio: 1;
+  min-height: 0.6rem;
+  border-radius: var(--radius-xs, 4px);
+  background: color-mix(in srgb, var(--anl-ink) var(--a, 0%), rgba(127, 127, 127, 0.08));
+}
+
+.anl-heat__legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-top: 0.6rem;
+  font-size: 0.7rem;
+  color: var(--anl-dim);
+}
+.anl-heat__legend .anl-heat__cell { width: 0.8rem; }
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+  .anl-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 480px) {
+  .anl-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .anl-kpi { padding: 0.75rem 0.8rem; }
+  .anl-kpi__num { font-size: 1.25rem; }
+  .anl-card { padding: 0.9rem 0.8rem; }
+  .anl-heat__row { grid-template-columns: 1.9rem repeat(24, minmax(0, 1fr)); gap: 2px; }
+  .anl-heat { gap: 2px; }
+  .anl-heat__cell { min-height: 0.45rem; }
+
+  /* Series table → labeled cards (docs/admin-ux.md §2) */
+  .anl-table thead { display: none; }
+  .anl-table tr { display: block; padding: 0.4rem 0; border-bottom: 1px solid var(--anl-rule); }
+  .anl-table td { display: flex; justify-content: space-between; gap: 1rem; border: 0; padding: 0.15rem 0; }
+  .anl-table td::before { content: attr(data-label); color: var(--anl-dim); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anl-live__dot.is-on { animation: none; }
+  #anlBody, .anl-seg button { transition: none; }
+}

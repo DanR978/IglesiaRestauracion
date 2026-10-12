@@ -48,7 +48,7 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 | # | Session | Prereqs | Cutover | Done when |
 |---|---|---|---|---|
 | S23 | **Root layout + chrome** (Header/Footer/FloatingUI/Toast, `(chrome)`/`(bare)` groups) | S14–S17 | 🟢 | header/footer on every `(chrome)` route; burger/submenus/sticky/focus-trap; mobile bar + WhatsApp FAB; deletes `include.js` |
-| S24 | **SEO system + analytics + PWA + maintenance** (`Seo`/`JsonLd`/`pages.ts`, sitemap endpoint) | S23 | 🟢 | view-source shows correct title/canonical/OG/JSON-LD (diff vs legacy `build-heads.mjs`); `/sitemap.xml` matches; GA4 fires; maintenance gate works |
+| S24 | **SEO system + analytics + PWA + maintenance** (`Seo`/`JsonLd`/`pages.ts`, sitemap endpoint) | S23 | 🟢 | view-source shows correct title/canonical/OG/JSON-LD (diff vs legacy `build-heads.mjs`); `/sitemap.xml` matches; GA4 fires; first-party `track` beacon + conversion events fire with the legacy payload (D-026); maintenance gate works |
 | S25 | **Static content pages (11) + ContactForm + Newsletter** | S23, S24 | 🟢 | each page byte-close to prod; contact form → formsubmit + captcha; newsletter → edge fn; `/pastor/` & `/calendario/` redirects |
 | S26 | **Homepage** (hero/verse/live/map/rail/islands/FAQ) | S25, S22 | 🟢 | visual parity; **prerendered HTML contains** event/gallery/sermon snapshots (SEO gain); hero lazy-loads with all guards |
 | S27 | **Events hub + mini-calendar** (`CalendarGrid` public mode) | S26, S22 | 🟢 | 3 views via `?view=`; category filter; month grid + day-sheet; baked event list crawlable |

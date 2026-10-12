@@ -6,6 +6,7 @@
 import { sb } from '/js/lib/supabase.js';
 import { isValidEmail } from '/js/lib/validators.js';
 import { showToast } from '/js/lib/toast.js';
+import { trackEvent } from '/js/lib/track.js';
 
 async function handleSubmit(form) {
   const emailInput = form.querySelector('input[type="email"]');
@@ -37,6 +38,7 @@ async function handleSubmit(form) {
       showToast('Ya estás suscrito. ¡Gracias!');
     } else {
       showToast('¡Listo! Revisa tu correo — te enviamos la bienvenida.');
+      trackEvent('newsletter_signup');
     }
     form.reset();
   } catch (err) {

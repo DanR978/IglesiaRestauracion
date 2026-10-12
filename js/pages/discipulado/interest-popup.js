@@ -12,6 +12,7 @@ import { escapeHtml } from '/js/utils/escape.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { submitInterest } from '/js/lib/discipleship.js';
+import { trackEvent } from '/js/lib/track.js';
 import { el } from '/js/utils/dom.js';
 
 let rootEl = null;
@@ -142,6 +143,7 @@ async function submit() {
   }
 
   renderSuccess(state.first_name);
+  trackEvent('discipleship_interest');
   if (typeof onSubmittedCb === 'function') {
     try { onSubmittedCb({ full_name: fullName }); } catch {}
   }

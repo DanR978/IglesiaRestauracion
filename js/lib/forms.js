@@ -1,4 +1,5 @@
 import { showToast } from './toast.js';
+import { trackEvent } from './track.js';
 import { runCodeCaptchaModal } from './captcha.js';   // <-- updated name
 import { isValidEmail, isValidUSPhone, isValidName, normalizeUSPhone } from './validators.js';
 
@@ -124,6 +125,7 @@ export function attachAjaxToForm(form) {
       const data = await res.json().catch(() => ({}));
       if (res.ok && (data.success || data.message)) {
         showToast("¡Mensaje enviado! Gracias por contactarnos.", { ok: true });
+        trackEvent("contact_form");
         form.reset();
       } else {
         showToast("No se pudo enviar. Inténtalo de nuevo.", { ok: false });
