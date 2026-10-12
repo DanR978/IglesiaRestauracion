@@ -8,7 +8,8 @@
 -- Privacy model (why there is no consent banner and no PII):
 --   • No cookies, no localStorage id. A visitor is identified only by
 --     sha256(daily salt + IP + user-agent + host), computed in the function.
---   • The salt is random per UTC day and deleted after ~2 days, so a hash can't
+--   • The salt is random per day (America/New_York midnight, not UTC — UTC
+--     midnight lands during evening services) and deleted after ~2 days, so a hash can't
 --     be linked across days or reversed back to an IP once its salt is gone.
 --     Consequence: "visitors" over a multi-day range is the SUM of daily unique
 --     visitors — the same trade-off Plausible makes. The dashboard says so.

@@ -5,7 +5,7 @@
 // Flow: js/lib/analytics.js on every public page sends small beacons here
 // (navigator.sendBeacon, text/plain — no CORS preflight). This function drops
 // bots and foreign origins, derives an anonymous daily visitor hash from
-// IP + user-agent + a salt that rotates every UTC day, and writes to
+// IP + user-agent + a salt that rotates every day (church time), and writes to
 // public.analytics_events with the service role. The IP and user-agent are
 // never stored. Schema + privacy model: 20261012_site_analytics.sql.
 //
@@ -127,13 +127,19 @@ async function sha256(text: string): Promise<string> {
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// One random salt per UTC day. Edge isolates are reused across requests, so
+// The salt day follows the church's clock, not UTC: UTC midnight is 7–8 pm in
+// Lexington — right around evening services — and rotating then would split
+// one person into two visitors and two sessions.
+const SALT_TZ = "America/New_York";
+const dayKey = (d: Date) => d.toLocaleDateString("en-CA", { timeZone: SALT_TZ }); // YYYY-MM-DD
+
+// One random salt per local day. Edge isolates are reused across requests, so
 // it's cached in memory; the DB row makes every isolate agree on it. Creating
 // a new day's salt is also when yesterday-but-one's salt and expired rows go.
 let saltCache: { day: string; salt: string } | null = null;
 // deno-lint-ignore no-explicit-any
 async function todaysSalt(sb: any): Promise<string | null> {
-  const day = new Date().toISOString().slice(0, 10);
+  const day = dayKey(new Date());
   if (saltCache?.day === day) return saltCache.salt;
 
   const { data } = await sb.from("analytics_salts").select("salt").eq("day", day).maybeSingle();
@@ -151,7 +157,7 @@ async function todaysSalt(sb: any): Promise<string | null> {
   saltCache = { day, salt: row.salt };
 
   if (!error) {
-    const yesterday = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
+    const yesterday = dayKey(new Date(Date.now() - 86_400_000));
     await sb.from("analytics_salts").delete().lt("day", yesterday);
     await sb.from("analytics_events").delete().lt("created_at", cutoff());
   }
