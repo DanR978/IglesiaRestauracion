@@ -121,6 +121,6 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 
 - **Critical path:** S01 → S06 → S22 → S26 → S36 (public live), then S37 → S39 → S41… → S64 (admin live). Everything else hangs off these.
 - **Parallelizable now:** the entire design-system set (S11–S21) is independent of the lib set (S06–S10) — different sittings can take either. Within Phase 4, tabs with disjoint prereqs (S41/S42/S43/S45) can be done in any order.
-- **Backend migrations** (S01 baseline, S39 `aal2`, plus the S56b receipts/D-019 set) are the only DB changes and all are additive. Everything else is client-side.
+- **Backend migrations** (S01 baseline, S39 `aal2`, plus the S56b receipts/D-019 set) are the only DB changes and all are additive — except D-027's guard inside the D-019 file, which is deliberately RESTRICTIVE (it narrows leader access to ministry rows). Everything else is client-side.
 - **S56b/S56c** extend Phase 5 behind S56 (filed 2026-08-23; specs in `sessions/`). They can run in parallel with the registrations (S57–S58) and designer (S59–S63) chains, but not with each other (both touch the treasury routes).
 - **Foundations to freeze early** (their contracts ripple everywhere): `money.ts` (S08), the `SignaturePad`/`Modal`/`ActionSheet`/`FormWizard` prop shapes (S16–S21), and the repo method signatures (S22/S40/S52).

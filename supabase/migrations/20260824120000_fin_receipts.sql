@@ -155,7 +155,7 @@ create policy receipts_read on storage.objects for select to authenticated
     or ((storage.foldername(name))[1] = 'ministry' and (public.is_finance()
           or (storage.foldername(name))[2]::uuid = any(public.my_ministry_ids())))
     or ((storage.foldername(name))[1] = 'project'  and exists (select 1 from public.fin_projects fp
-          where fp.id = (storage.foldername(name))[2]::uuid and fp.owner_id = auth.uid()))));
+          where fp.id = (storage.foldername(objects.name))[2]::uuid and fp.owner_id = auth.uid()))));
 
 -- INSERT — the same scope test AND the path must be well-formed (folder depth +
 -- a 4-digit year). THIS IS LOAD-BEARING: it is the only reason the `::uuid`
@@ -186,7 +186,7 @@ create policy receipts_insert on storage.objects for insert to authenticated
           and (storage.foldername(name))[3] between (extract(year from now())::int - 3)::text
                                                 and (extract(year from now())::int + 1)::text
           and exists (select 1 from public.fin_projects fp
-                where fp.id = (storage.foldername(name))[2]::uuid and fp.owner_id = auth.uid()))));
+                where fp.id = (storage.foldername(objects.name))[2]::uuid and fp.owner_id = auth.uid()))));
 
 -- DELETE — the same predicates as SELECT: project stays owner-only, and the
 -- church/ministry write scope is identical to INSERT's.
@@ -197,7 +197,7 @@ create policy receipts_delete on storage.objects for delete to authenticated
     or ((storage.foldername(name))[1] = 'ministry' and (public.is_finance()
           or (storage.foldername(name))[2]::uuid = any(public.my_ministry_ids())))
     or ((storage.foldername(name))[1] = 'project'  and exists (select 1 from public.fin_projects fp
-          where fp.id = (storage.foldername(name))[2]::uuid and fp.owner_id = auth.uid()))));
+          where fp.id = (storage.foldername(objects.name))[2]::uuid and fp.owner_id = auth.uid()))));
 
 -- NO UPDATE POLICY, deliberately: receipts are immutable (the client uploads
 -- with upsert:false). Replacing one is delete + re-upload, which keeps the

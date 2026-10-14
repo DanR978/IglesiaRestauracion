@@ -5,15 +5,17 @@ import { money as fmt } from '/js/utils/number.js';
 // Per-user "project" treasury for ministry accounts. Each user creates their
 // own projects (Youth, Kids, Event…) and tracks income + expenses per project,
 // each with a running balance. Entries are ordinary fin_income / fin_expenses
-// rows tagged with project_id, so the church treasurer's full books include
-// them automatically. RLS (20260701_fin_projects.sql) scopes a user to their
-// own projects; treasurer/admin see everything.
+// rows tagged with project_id. Personal projects are private to their owner.
 //
 // Each ministry the account is assigned to also gets its OWN tab once the
 // treasurer gives it a budget: a fin_projects row with ministry_id set
 // (auto-created here). Its income is seeded read-only from the church's
-// allocations to that ministry; its gastos are the leader's own entries. See
-// 20260704_ministry_budget_projects.sql.
+// allocations to that ministry. See 20260704_ministry_budget_projects.sql.
+//
+// Ministry tabs are SHARED by every current leader of the ministry who has the
+// treasury page (20260824120100_fin_ministry_shared.sql): a tab holds the
+// entries of every fin_projects row tagged with that ministry, whoever owns it.
+// Each leader has a row of their own per ministry, so a ministry has several.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { sb, currentUser, currentProfile, ministries, MONTHS } from './state.js';
@@ -36,6 +38,10 @@ function entrySub(e) {
   return n ? `<span class="trez-sub">${esc(n)}</span>` : '';
 }
 const PALETTE = ['#345a65', '#2a4a9e', '#5c3d9c', '#a05a10', '#1e6b61', '#b02030', '#475569'];
+// Ministry-mates' rows render in this session too, so only a hex colour or a
+// Font Awesome class ever reaches a style/class attribute.
+const safeColor = (c, fallback = '#475569') => (/^#[0-9a-f]{3,8}$/i.test(c || '') ? c : fallback);
+const safeIcon = i => (/^fa-[a-z0-9-]+$/.test(i || '') ? i : 'fa-folder');
 
 let projects = [];
 let activeId = 'resumen';   // 'resumen' or a project id
@@ -55,10 +61,35 @@ export async function mountProjectTreasury() {
   render();
 }
 
+// One tab per ministry (all its rows' ids in `ids`) plus the user's own
+// projects. Until the shared-ministry migration is applied, RLS returns only
+// the user's own rows — i.e. the old per-owner view.
 async function loadProjects() {
-  const { data } = await sb.from('fin_projects').select('*')
-    .eq('owner_id', currentUser?.id).eq('archived', false).order('created_at');
-  projects = data || [];
+  const uid = currentUser?.id;
+  const mids = myMinistryIds();
+  const base = () => sb.from('fin_projects').select('*').eq('archived', false).order('created_at');
+  let { data, error } = mids.length
+    ? await base().or(`owner_id.eq.${uid},ministry_id.in.(${mids.join(',')})`)
+    : await base().eq('owner_id', uid);
+  // fin_projects.ministry_id (20260704) missing → own rows only.
+  if (error) ({ data } = await base().eq('owner_id', uid));
+
+  const byMinistry = new Map();
+  projects = [];
+  for (const row of data || []) {
+    const group = row.ministry_id && byMinistry.get(row.ministry_id);
+    if (!group) {
+      const p = { ...row, ids: [row.id] };
+      if (row.ministry_id) byMinistry.set(row.ministry_id, p);
+      projects.push(p);
+      continue;
+    }
+    group.ids.push(row.id);
+    // New entries are written to the tab's row; prefer the user's own so they
+    // don't vanish into the church books if a ministry-mate's account is deleted
+    // (owner cascade → project_id set null).
+    if (row.owner_id === uid && group.owner_id !== uid) Object.assign(group, row, { ids: group.ids });
+  }
 }
 
 // The ministries this user leads (a leader can hold several, e.g. Youth + Kids).
@@ -71,36 +102,39 @@ function myMinistryIds() {
 
 // A ministry the account leads becomes its own budget tab the first time the
 // treasurer allocates it a budget (a recurring payment or a one-off expense).
-// We reuse an identically-named project the user may have created (adopt it)
-// rather than showing two tabs with the same name.
+// Every leader then gets a row of their OWN for each ministry tab they see, so
+// their entries never sit in a row that vanishes with a ministry-mate's
+// account. A same-named personal project is never converted (RLS forbids it):
+// that would share its private history with every mate.
 async function ensureMinistryProjects() {
   const mids = myMinistryIds();
   if (!mids.length) return;
+  const uid = currentUser?.id;
   // Best-effort: if migration 20260704 (fin_projects.ministry_id) isn't applied
   // yet, skip silently so the treasury still renders the user's own projects.
   try {
-    const haveMinistry = new Set(projects.filter(p => p.ministry_id).map(p => p.ministry_id));
+    // After loadProjects' swap a tab's owner_id is the user's iff one of its rows is.
+    const own = new Set(projects.filter(p => p.ministry_id && p.owner_id === uid).map(p => p.ministry_id));
+    const shared = projects.filter(p => p.ministry_id && mids.includes(p.ministry_id)).map(p => p.ministry_id);
 
     const [recRes, expRes] = await Promise.all([
       sb.from('fin_recurring').select('ministry_id').in('ministry_id', mids).eq('active', true),
       sb.from('fin_expenses').select('ministry_id').is('project_id', null).in('ministry_id', mids),
     ]);
-    const budgeted = new Set([...(recRes.data || []), ...(expRes.data || [])]
-      .map(r => r.ministry_id).filter(Boolean));
+    const wanted = new Set([...(recRes.data || []), ...(expRes.data || [])]
+      .map(r => r.ministry_id).filter(Boolean).concat(shared));
 
     let changed = false;
-    for (const mid of budgeted) {
-      if (haveMinistry.has(mid)) continue;
+    for (const mid of wanted) {
+      if (own.has(mid)) continue;
       const name = ministries.find(m => m.id === mid)?.name || 'Ministerio';
-      const dup = projects.find(p => !p.ministry_id && (p.name || '').trim().toLowerCase() === name.trim().toLowerCase());
-      const res = dup
-        ? await sb.from('fin_projects').update({ ministry_id: mid }).eq('id', dup.id)
-        : await sb.from('fin_projects').insert({
-            owner_id: currentUser?.id, name, ministry_id: mid,
-            color: PALETTE[projects.length % PALETTE.length], icon: 'fa-hand-holding-dollar',
-          });
-      if (res?.error) throw res.error;
-      changed = true;
+      const { error } = await sb.from('fin_projects').insert({
+        owner_id: uid, name, ministry_id: mid,
+        color: PALETTE[projects.length % PALETTE.length], icon: 'fa-hand-holding-dollar',
+      });
+      // One refused row (e.g. a ministry removed mid-session) must not cost
+      // the others their row, nor the reload below.
+      if (!error) changed = true;
     }
     if (changed) await loadProjects();
   } catch { /* column/migration not present yet — degrade to projects-only */ }
@@ -112,7 +146,7 @@ function renderNav() {
   // Ministry budgets first, then the user's own projects.
   const ordered = [...projects.filter(p => p.ministry_id), ...projects.filter(p => !p.ministry_id)];
   const tabs = [{ id: 'resumen', name: 'Resumen', icon: 'fa-chart-pie' },
-    ...ordered.map(p => ({ id: p.id, name: p.name, icon: p.icon || 'fa-folder' }))];
+    ...ordered.map(p => ({ id: p.id, name: p.name, icon: safeIcon(p.icon) }))];
   nav.innerHTML = tabs.map(t =>
     `<button class="trez-subnav__btn${t.id === activeId ? ' active' : ''}" data-proj="${t.id}">
        <i class="fas ${esc(t.icon)}"></i> ${esc(t.name)}</button>`).join('')
@@ -128,16 +162,17 @@ function render() {
 }
 
 async function projectTotals() {
-  const ids = projects.map(p => p.id);
   const t = {};
-  projects.forEach(p => t[p.id] = { income: 0, expense: 0 });
+  const tabOf = {};   // fin_projects row id → tab id
+  projects.forEach(p => { t[p.id] = { income: 0, expense: 0 }; p.ids.forEach(rid => { tabOf[rid] = p.id; }); });
+  const ids = Object.keys(tabOf);
   if (ids.length) {
     const [inc, exp] = await Promise.all([
       sb.from('fin_income').select('project_id,amount').in('project_id', ids),
       sb.from('fin_expenses').select('project_id,amount').in('project_id', ids),
     ]);
-    (inc.data || []).forEach(r => { if (t[r.project_id]) t[r.project_id].income += Number(r.amount || 0); });
-    (exp.data || []).forEach(r => { if (t[r.project_id]) t[r.project_id].expense += Number(r.amount || 0); });
+    (inc.data || []).forEach(r => { const k = tabOf[r.project_id]; if (k) t[k].income += Number(r.amount || 0); });
+    (exp.data || []).forEach(r => { const k = tabOf[r.project_id]; if (k) t[k].expense += Number(r.amount || 0); });
   }
   // Church budget seeds income for ministry projects (read-only).
   const minIds = projects.filter(p => p.ministry_id).map(p => p.ministry_id);
@@ -176,8 +211,8 @@ async function ministryBudgets(minIds) {
 function projCard(p, totals, opts = {}) {
   const t = totals[p.id] || { income: 0, expense: 0 };
   const bal = t.income - t.expense;
-  return `<button class="trez-projcard" data-open="${p.id}" style="--preset-color:${esc(p.color || '#475569')}">
-    <span class="trez-projcard__head"><span class="trez-projcard__icon"><i class="fas ${esc(p.icon || 'fa-folder')}"></i></span>${esc(opts.name || p.name)}</span>
+  return `<button class="trez-projcard" data-open="${p.id}" style="--preset-color:${esc(safeColor(p.color))}">
+    <span class="trez-projcard__head"><span class="trez-projcard__icon"><i class="fas ${esc(safeIcon(p.icon))}"></i></span>${esc(opts.name || p.name)}</span>
     <span class="trez-projcard__bal ${bal < 0 ? 'neg' : 'pos'}">${fmt(bal)}</span>
     <span class="trez-projcard__row"><span>${opts.inLabel || 'Entró'}</span><span class="pos">${fmt(t.income)}</span></span>
     <span class="trez-projcard__row"><span>Gastado</span><span class="neg">${fmt(t.expense)}</span></span>
@@ -233,8 +268,8 @@ async function renderProject(id) {
   const isMinistry = !!p.ministry_id;
   root.innerHTML = loadingHtml();
   const [inc, exp, bud] = await Promise.all([
-    sb.from('fin_income').select('*').eq('project_id', id),
-    sb.from('fin_expenses').select('*').eq('project_id', id),
+    sb.from('fin_income').select('*').in('project_id', p.ids),
+    sb.from('fin_expenses').select('*').in('project_id', p.ids),
     isMinistry
       ? sb.from('fin_expenses').select('*').is('project_id', null).eq('ministry_id', p.ministry_id)
       : Promise.resolve({ data: [] }),
@@ -249,7 +284,7 @@ async function renderProject(id) {
 
   root.innerHTML = `
     <div class="trez-projhead">
-      <h2 class="trez-projhead__title"><i class="fas ${esc(p.icon || 'fa-folder')}" style="color:${esc(p.color || '#475569')}"></i> ${esc(p.name)}${isMinistry ? ' <span class="trez-projhead__tag">Presupuesto de ministerio</span>' : ''}</h2>
+      <h2 class="trez-projhead__title"><i class="fas ${esc(safeIcon(p.icon))}" style="color:${esc(safeColor(p.color))}"></i> ${esc(p.name)}${isMinistry ? ' <span class="trez-projhead__tag">Presupuesto de ministerio</span>' : ''}</h2>
       <div style="display:flex;gap:.4rem;align-items:center">
         <button class="adm-icon-btn" id="projReport" title="Descargar reporte PDF" aria-label="Descargar reporte PDF"><i class="fas fa-file-pdf"></i></button>
         ${isMinistry ? '' : '<button class="adm-icon-btn" id="projMenu" title="Acciones" aria-label="Acciones"><i class="fas fa-ellipsis-vertical"></i></button>'}
@@ -398,8 +433,8 @@ async function generateProjectReport(p, range) {
   const isMinistry = !!p.ministry_id;
   const inRange = (d) => !range || (d && d >= range.start && d <= range.end);
   const [inc, exp, bud] = await Promise.all([
-    sb.from('fin_income').select('*').eq('project_id', p.id),
-    sb.from('fin_expenses').select('*').eq('project_id', p.id),
+    sb.from('fin_income').select('*').in('project_id', p.ids),
+    sb.from('fin_expenses').select('*').in('project_id', p.ids),
     isMinistry
       ? sb.from('fin_expenses').select('*').is('project_id', null).eq('ministry_id', p.ministry_id)
       : Promise.resolve({ data: [] }),
@@ -417,7 +452,7 @@ async function generateProjectReport(p, range) {
     ...expenseRows.map((r) => ({ occurred_on: r.occurred_on, who: r.payee || 'Gasto', kind: 'expense', amount: r.amount })),
   ].sort((a, b) => String(a.occurred_on).localeCompare(String(b.occurred_on)));
 
-  const accent = p.color || '#345a65';
+  const accent = safeColor(p.color, '#345a65');
   const bodyRows = entries.length
     ? entries.map((e) => [
       { text: fmtDateShort(e.occurred_on), fontSize: 9 },
