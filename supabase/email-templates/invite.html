@@ -2,6 +2,9 @@
   Supabase Auth → Email Templates → "Invite user"
   Paste this whole file into the template body.
   Suggested subject:  Te han invitado al panel — Iglesia Restauración Divina
+  The link carries token_hash instead of ConfirmationURL on purpose: the one-time
+  token is spent only when /admin/ calls verifyOtp, so a mail scanner that
+  prefetches links (Microsoft Safe Links, Gmail) cannot burn the invitation.
 -->
 <!DOCTYPE html>
 <html lang="es">
@@ -11,6 +14,7 @@
   <title>Invitación</title>
 </head>
 <body style="margin:0;padding:0;background-color:#f4f5f7;">
+  <div style="display:none;max-height:0;max-width:0;overflow:hidden;opacity:0;mso-hide:all;font-size:1px;line-height:1px;color:#f4f5f7;">Activa tu cuenta del panel de administración de Iglesia Restauración Divina.</div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f5f7;">
     <tr>
       <td align="center" style="padding:32px 16px;">
@@ -44,7 +48,7 @@
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 26px;">
                 <tr>
                   <td style="border-radius:9px;background-color:#345a65;">
-                    <a href="{{ .ConfirmationURL }}" target="_blank"
+                    <a href="https://www.irdlex.org/admin/?action=accept-invite&token_hash={{ .TokenHash }}&type=invite" target="_blank"
                        style="display:inline-block;padding:14px 34px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:15px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:9px;">
                       Activar mi cuenta
                     </a>
@@ -56,12 +60,13 @@
                 Si el botón no funciona, copia y pega este enlace en tu navegador:
               </p>
               <p style="margin:0 0 24px;font-size:13px;line-height:1.5;">
-                <a href="{{ .ConfirmationURL }}" target="_blank" style="color:#345a65;word-break:break-all;">{{ .ConfirmationURL }}</a>
+                <a href="https://www.irdlex.org/admin/?action=accept-invite&token_hash={{ .TokenHash }}&type=invite" target="_blank" style="color:#345a65;word-break:break-all;">https://www.irdlex.org/admin/?action=accept-invite&token_hash={{ .TokenHash }}&type=invite</a>
               </p>
 
               <p style="margin:0;padding-top:20px;border-top:1px solid #eceef0;font-size:13px;line-height:1.6;color:#9aa1a9;">
-                Esta invitación es personal. Si no esperabas este correo, puedes ignorarlo
-                con tranquilidad — no se creará ninguna cuenta.
+                Este enlace vence en 24 horas y solo funciona una vez; si vence, pide al
+                administrador que te reenvíe la invitación. Si no esperabas este correo,
+                ignóralo: la cuenta no se activará hasta que se cree una contraseña con este enlace.
               </p>
             </td>
           </tr>
