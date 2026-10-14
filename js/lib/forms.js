@@ -1,6 +1,6 @@
 import { showToast } from './toast.js';
 import { trackEvent } from './track.js';
-import { runCodeCaptchaModal } from './captcha.js';   // <-- updated name
+import { runCodeCaptchaModal, preloadCodeCaptcha } from './captcha.js';
 import { isValidEmail, isValidUSPhone, isValidName, normalizeUSPhone } from './validators.js';
 
 // ── Accessible field errors ──────────────────────────────────────────────────
@@ -76,6 +76,9 @@ export function attachAjaxToForm(form) {
   const { minChars: MIN_MSG_CHARS = 20 } = setupMessageCounter(form) || {};
   let busy = false;
 
+  // Fetch the verification dialog's library while the visitor is still typing.
+  form.addEventListener("focusin", () => preloadCodeCaptcha().catch(() => {}), { once: true });
+
   // Clear a field's error as soon as the user starts correcting it.
   form.addEventListener("input", (e) => {
     if (e.target.getAttribute?.("aria-invalid") === "true") clearFieldError(e.target);
@@ -113,7 +116,6 @@ export function attachAjaxToForm(form) {
     if (!normalizedPhone) { setFieldError(phoneEl, "El teléfono no es válido."); phoneEl?.focus(); showToast("El teléfono no es válido.", { ok:false }); busy=false; return; }
     if (phoneEl) phoneEl.value = normalizedPhone;
 
-    // --- updated: use new captcha modal ---
     const human = await runCodeCaptchaModal();
     if (!human) { showToast("Verificación cancelada.", { ok:false }); busy=false; return; }
 
