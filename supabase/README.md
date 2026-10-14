@@ -75,6 +75,97 @@ scope to. (An earlier version of this README implied otherwise.)
   admin **Analíticas** tab. Setup: apply `migrations/20261012_site_analytics.sql`,
   then `supabase functions deploy track --no-verify-jwt`.
 
+## Email — one sender for Auth and the newsletter
+
+Everything the site emails goes out through **Resend** as `noreply@irdlex.org`:
+Supabase Auth's account emails (custom SMTP) and the newsletter functions below
+(Resend's HTTP API, `RESEND_API_KEY`). Nothing is delivered until the domain is
+verified. Both share Resend's quota — 100 emails a day on the free plan — so a
+large newsletter blast can crowd out invitations and password resets that day.
+
+### 1. Verify irdlex.org in Resend (DNS is at GoDaddy)
+
+`irdlex.org` publishes **`DMARC p=reject`**: a message that isn't DKIM-signed for
+irdlex.org is bounced, not junked — and Resend refuses to send from an unverified
+domain at all. Resend → **Domains → irdlex.org → Records** lists what it expects;
+add those in GoDaddy → **DNS**, typing the **Name** without the domain (`send`, not
+`send.irdlex.org` — GoDaddy appends it). For a domain added before Aug 2026:
+
+| Type | Name | Value |
+| --- | --- | --- |
+| TXT | `resend._domainkey` | the `p=…` key Resend shows (unique to the account) |
+| MX | `send` | `feedback-smtp.us-east-1.amazonses.com`, priority `10` |
+| TXT | `send` | `v=spf1 include:amazonses.com ~all` — keep exactly one |
+
+If Resend shows **CNAME** records on `send` instead, delete the `send` TXT first — a
+CNAME can't share a name with another record. Nothing here touches the Microsoft
+365 records (root MX and SPF, `selector1/2._domainkey`). Then press **Verify**.
+
+### 2. Supabase Auth → custom SMTP
+
+Supabase's built-in mailer only delivers to members of the org's team, 2 per hour —
+without this, invitations to new leaders never arrive. Quickest: Resend →
+**Settings → Integrations → Supabase** (pick IRDLEX and irdlex.org; it creates its
+own API key and fills in the form). By hand, Auth → **Emails → SMTP Settings**:
+
+| Field | Value |
+| --- | --- |
+| Sender email / name | `noreply@irdlex.org` / `Iglesia Restauración Divina` |
+| Host / port | `smtp.resend.com` / `465` (or 587 — never 2465) |
+| Username / password | `resend` / a Resend API key with sending access to irdlex.org |
+
+### 3. Auth email templates and settings — `apply-auth-email.mjs`
+
+[`email-templates/`](./email-templates/) is the source of truth for every Auth
+email; each file's header comment names its dashboard slot and subject. Don't edit
+them in the dashboard — edit the file, then push:
+
+```bash
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-auth-email.mjs          # dry run: prints the diff
+SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-auth-email.mjs --apply
+```
+
+It reads the live config and sends only what differs (it never touches SMTP). The
+rules the templates follow:
+
+- **Links carry `token_hash`, never `{{ .ConfirmationURL }}`** (the script refuses
+  it). ConfirmationURL spends the one-time token on the first GET, so any mail
+  scanner that prefetches links burns the invitation before anyone clicks. With
+  `https://www.irdlex.org/admin/?action=…&token_hash={{ .TokenHash }}&type=…` it is
+  spent only when `/admin/` calls `verifyOtp` (`js/pages/admin/auth.js`), which also
+  needs `action` to show the set-password card. The origin is hard-coded: GoTrue
+  falls back to the bare Site URL whenever a redirect isn't allowed, which would
+  break a `{{ .RedirectTo }}`-based link.
+- **Confirm sign up** routes into the invite flow: sign-ups are off, but anyone can
+  re-send it to a pending invitee, and it replaces their invite link.
+- **Magic link** and **Change email** deliberately carry no link — the panel signs
+  in with password + 2FA and emails are changed by an administrator, yet anyone can
+  request either email through the public API.
+- Links live **24 h** (`mailer_otp_exp`), and the copy says so. That — not
+  `invitations.expires_at` — is what expires an invitation.
+- **Password changed** notifications are on, so an owner learns of a takeover.
+
+### 4. Settings the script enforces
+
+- Site URL `https://www.irdlex.org`; Redirect URLs gain
+  `https://www.irdlex.org/admin/**` and `http://localhost:3000/admin/**` (dev).
+- **Sign-ups off** (`disable_signup`). Accounts are invite-only, and GoTrue's admin
+  invite (`inviteUserByEmail` in `admin-invite`) ignores the switch. Left on, anyone
+  holding the public anon key gets an `authenticated` session — and with
+  **Confirm email** off, signing up as a *pending invitee's* address confirms that
+  account and hands over its preset role. So Confirm email stays on
+  (`mailer_autoconfirm: false`) and anonymous sign-ins stay off.
+- Keep **Secure password change**, **Require current password** and **CAPTCHA**
+  off: the legacy admin sends no nonce, current password or captcha token, so each
+  would break login, reset or Mi cuenta.
+
+### 5. Check it
+
+[`email-audit.sql`](./email-audit.sql) (read-only, SQL editor) shows the cron jobs,
+their recent runs, what the functions answered, whether Vault's `cron_secret`
+matches the `CRON_SECRET` function secret, and whether each job still carries it.
+Resend → **Emails** logs every message with its delivery status.
+
 ## Newsletter — welcome, monthly digest, day-before reminders
 
 Four edge functions share one branded email layout in
@@ -98,8 +189,8 @@ so a re-trigger never double-sends.
 
 1. **Resend** — create an account and **verify the `irdlex.org` domain** (add the
    DNS records it gives you).
-2. **Migrations** — apply `20260705_newsletter_broadcast.sql` (columns + log) and,
-   after step 4, `20260706_newsletter_cron.sql` (scheduling). The base
+2. **Migrations** — apply `20260705000001_newsletter_broadcast.sql` (columns + log) and,
+   after step 4, `20260706000001_newsletter_cron.sql` (scheduling). The base
    `newsletter_subscribers` table comes from the earlier `newsletter` migration.
 3. **Function secrets:**
    ```bash
@@ -117,14 +208,14 @@ so a re-trigger never double-sends.
    `x-cron-secret` header, so only the cron job (which holds `CRON_SECRET`) can
    fire them.
 5. **Scheduling (pg_cron)** — in the SQL editor, once, with real values (kept out
-   of git, so `20260706_newsletter_cron.sql` reads them from Vault):
+   of git, so `20260706000001_newsletter_cron.sql` reads them from Vault):
    ```sql
    create extension if not exists pg_cron;
    create extension if not exists pg_net;
    select vault.create_secret('https://YOUR_REF.supabase.co', 'project_url');
    select vault.create_secret('<the same CRON_SECRET as above>', 'cron_secret');
    ```
-   Then apply `20260706_newsletter_cron.sql`. It schedules `newsletter-monthly`
+   Then apply `20260706000001_newsletter_cron.sql`. It schedules `newsletter-monthly`
    (`0 13 1 * *`) and `newsletter-reminders` (`0 13 * * *`) — 13:00 UTC = 9am ET
    in summer, 8am ET in winter (a fixed cron can't follow DST; event dates are
    always computed in ET regardless).

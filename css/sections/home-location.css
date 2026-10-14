@@ -108,14 +108,14 @@
   height: 100%;
   min-height: 360px;
   background: var(--color-90, #ddeaee); /* calm fill while tiles load */
-  z-index: 0; /* keep Leaflet panes/controls under the page chrome */
+  z-index: 0; /* keep MapLibre's controls under the page chrome */
 }
 
 @media (max-width: 859px) {
   .home-location__map { min-height: 300px; }
 }
 
-/* Branded Leaflet marker — a clean gold dot with a white ring. */
+/* Branded map marker — a clean gold dot with a white ring. */
 .ird-pin__dot {
   display: block;
   width: 16px;
@@ -126,12 +126,35 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-/* Leaflet popup — match the site's rounded, soft-shadow surfaces. */
-.home-location__map .leaflet-popup-content-wrapper {
+/* Map popup — match the site's rounded, soft-shadow surfaces. MapLibre paints
+   the bubble #fff in both themes and sets no ink, so it would inherit the
+   dark-mode light text; pin it to the dark ink a light fill needs. */
+.home-location__map .maplibregl-popup-content {
   border-radius: 12px;
-}
-.home-location__map .leaflet-popup-content {
+  padding: 12px 34px 12px 14px;
+  color: var(--color-dark, #394548);
   font-family: var(--font-Signika);
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+/* The global button reset zeroes MapLibre's sizing, leaving an 8px-wide target. */
+.home-location__map .maplibregl-popup-close-button {
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full, 9999px);
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.home-location__map .maplibregl-popup-close-button:hover {
+  background: rgba(127, 127, 127, .12);
+}
+
+.home-location__map .maplibregl-popup-close-button:focus-visible {
+  outline: 2px solid var(--color-secondary, #9a6a2c);
+  outline-offset: 0;
 }

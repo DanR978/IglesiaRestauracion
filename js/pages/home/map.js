@@ -1,21 +1,33 @@
 // js/pages/home/map.js
 // Clean, branded location map for the home "Visítanos" section.
-// Uses Leaflet + CartoDB "Positron" (light) tiles — a minimal grayscale
-// basemap with a single branded marker, no address card / no Google chrome.
-// Leaflet's CSS + JS are fetched only when the map scrolls into view, so
-// pages that never reach it pay nothing.
+// MapLibre GL + OpenFreeMap's "Positron" style — a minimal grayscale basemap
+// with a single branded marker. OpenFreeMap is free with no API key or account;
+// CARTO's Positron tiles (the previous source) started requiring a key and
+// rendered "API KEY REQUIRED" across the whole map.
+// MapLibre is fetched only when the map scrolls into view, so pages that never
+// reach it pay nothing. Without WebGL, or if the basemap can't load, the
+// section falls back to the same Google embed no-JS visitors get.
 
 const EL = document.getElementById('homeMap');
 
 if (EL) {
-  const COORD = [38.014455, -84.538253];
+  const COORD = [-84.538253, 38.014455]; // MapLibre takes [lng, lat]
   const LABEL = 'Iglesia Restauración Divina';
   const ADDR = '2601 Clays Mill Rd, Lexington, KY 40503';
 
-  const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-  const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-  const CSS_SRI = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
-  const JS_SRI = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+  const MAPLIBRE_JS = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.mjs';
+  const MAPLIBRE_CSS = 'https://cdn.jsdelivr.net/npm/maplibre-gl@6.11.2/dist/maplibre-gl.css';
+  const CSS_SRI = 'sha384-ntw3zEt6rcVML7jDK0ULmHa5hxLB23afsPqzqfY+gLgMfAkbFCnCgPpkZvV5mmZX';
+  const STYLE_URL = 'https://tiles.openfreemap.org/styles/positron';
+  const GOOGLE_EMBED = 'https://www.google.com/maps?q=2601+Clays+Mill+Rd,+Lexington,+KY+40503&output=embed';
+
+  const UI_STRINGS = {
+    'Map.Title': 'Mapa',
+    'NavigationControl.ZoomIn': 'Acercar',
+    'NavigationControl.ZoomOut': 'Alejar',
+    'Popup.Close': 'Cerrar',
+    'AttributionControl.ToggleAttribution': 'Mostrar u ocultar créditos',
+  };
 
   const loadCSS = (href, integrity) =>
     new Promise((resolve) => {
@@ -26,65 +38,73 @@ if (EL) {
       l.integrity = integrity;
       l.crossOrigin = '';
       l.onload = () => resolve();
-      l.onerror = () => resolve(); // tiles still render; styling degrades only
+      l.onerror = () => resolve(); // map still renders; controls lose styling only
       document.head.appendChild(l);
     });
 
-  const loadJS = (src, integrity) =>
-    new Promise((resolve, reject) => {
-      if (window.L) return resolve();
-      const s = document.createElement('script');
-      s.src = src;
-      s.integrity = integrity;
-      s.crossOrigin = '';
-      s.onload = () => resolve();
-      s.onerror = reject;
-      document.head.appendChild(s);
-    });
+  const showGoogleEmbed = (map) => {
+    try { map?.remove(); } catch {}
+    const frame = document.createElement('iframe');
+    frame.className = 'home-location__map';
+    frame.title = `Mapa de ${LABEL} en ${ADDR}`;
+    frame.loading = 'lazy';
+    frame.referrerPolicy = 'no-referrer-when-downgrade';
+    frame.src = GOOGLE_EMBED;
+    EL.replaceChildren(frame);
+  };
 
   let booted = false;
   const boot = async () => {
     if (booted) return;
     booted = true;
-    try {
-      await loadCSS(LEAFLET_CSS, CSS_SRI);
-      await loadJS(LEAFLET_JS, JS_SRI);
 
-      const map = L.map(EL, {
+    let ml;
+    try {
+      [ml] = await Promise.all([import(MAPLIBRE_JS), loadCSS(MAPLIBRE_CSS, CSS_SRI)]);
+    } catch (e) {
+      console.warn('[map] MapLibre failed to load, using the Google embed', e);
+      showGoogleEmbed();
+      return;
+    }
+
+    let map;
+    try {
+      map = new ml.Map({
+        container: EL,
+        style: STYLE_URL,
         center: COORD,
         zoom: 15,
-        scrollWheelZoom: false, // never hijack page scroll
-        zoomControl: true,
-        attributionControl: true,
+        scrollZoom: false, // never hijack page scroll
+        locale: UI_STRINGS,
       });
-
-      L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        {
-          maxZoom: 19,
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-        }
-      ).addTo(map);
-
-      const icon = L.divIcon({
-        className: 'ird-pin',
-        html: '<span class="ird-pin__dot"></span>',
-        iconSize: [22, 22],
-        iconAnchor: [11, 11],
-        popupAnchor: [0, -12],
-      });
-
-      L.marker(COORD, { icon, title: LABEL, keyboard: false })
-        .addTo(map)
-        .bindPopup(`<strong>${LABEL}</strong><br>${ADDR}`);
-
-      // Container may have been sized after init (grid/lazy reveal); re-measure.
-      setTimeout(() => map.invalidateSize(), 200);
     } catch (e) {
-      console.warn('[map] Leaflet failed to load', e);
-      booted = false;
+      console.warn('[map] WebGL unavailable, using the Google embed', e);
+      showGoogleEmbed();
+      return;
     }
+
+    // An error before the style lands means no basemap at all (OpenFreeMap
+    // unreachable); afterwards it's a single tile and the map is still usable.
+    let settled = false;
+    map.once('style.load', () => { settled = true; });
+    map.on('error', (e) => {
+      if (settled) return;
+      settled = true;
+      console.warn('[map] basemap failed to load, using the Google embed', e?.error);
+      showGoogleEmbed(map);
+    });
+
+    map.addControl(new ml.NavigationControl({ showCompass: false }), 'top-left');
+
+    const pin = document.createElement('div');
+    pin.className = 'ird-pin';
+    pin.setAttribute('aria-label', LABEL);
+    pin.innerHTML = '<span class="ird-pin__dot"></span>';
+
+    new ml.Marker({ element: pin, anchor: 'center' })
+      .setLngLat(COORD)
+      .setPopup(new ml.Popup({ offset: 14 }).setHTML(`<strong>${LABEL}</strong><br>${ADDR}`))
+      .addTo(map);
   };
 
   if ('IntersectionObserver' in window) {
