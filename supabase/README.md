@@ -188,10 +188,12 @@ meet a malformed name — **never loosen those shape checks**. There is delibera
 1. **Migrations** — apply in this order in the SQL editor:
    ```
    20260824120000_fin_receipts.sql          -- table + RLS + private bucket + storage policies
-   20260824120100_fin_ministry_shared.sql   -- D-019 additive widening of fin_projects/income/expenses
+   20260824120100_fin_ministry_shared.sql   -- D-019 sharing + its D-027 guard (no-op if already applied)
    20260824120200_receipts_cleanup_cron.sql -- run AFTER deploying the function (step 2)
    ```
-   All three are idempotent. After the first one, confirm the bucket really is
+   All three are idempotent. `20260824120100` doesn't depend on the receipts
+   files — D-027 ships it on its own for the legacy shared ministry books, so
+   it may already be in. After the first one, confirm the bucket really is
    private:
    ```sql
    select id, public, file_size_limit, allowed_mime_types from storage.buckets where id = 'receipts';

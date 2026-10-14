@@ -22,7 +22,8 @@ consume — so the Recibos UI session has nothing left to design.
   (select / insert / delete; **no update**).
 - `supabase/migrations/20260824120100_fin_ministry_shared.sql` — the D-019
   additive widening (`pp_fin_projects_ministry_read`, `pp_fin_income_ministry`,
-  `pp_fin_expenses_ministry`).
+  `pp_fin_expenses_ministry`). Amended 2026-10-13, before its first apply, with
+  the D-027 guard (§1 of the file).
 - `supabase/migrations/20260824120200_receipts_cleanup_cron.sql` — the annual
   `'0 5 1 2 *'` pg_cron job (Vault do-block cloned from the newsletter cron).
 - `supabase/functions/receipts-cleanup/index.ts` — the retention worker.
@@ -85,6 +86,8 @@ consume — so the Recibos UI session has nothing left to design.
 - [x] Storage: SELECT / INSERT / DELETE only. INSERT additionally pins folder
       depth (2 for church, 3 for ministry/project) and a `^\d{4}$` year, so the
       `::uuid` casts elsewhere can never meet a malformed name. **No UPDATE policy.**
+      (2026-10-13: the project branches now read `objects.name` — an unqualified
+      `name` there bound to `fp.name`, G-032.)
 - [x] D-019 widening is additive — `pp_fin_income_owner` / `pp_fin_expenses_owner`
       / `pp_fin_projects` are untouched, and the three new names collide with nothing.
 - [x] The worker: POST-only, `x-cron-secret` gate, service-role client, Spanish

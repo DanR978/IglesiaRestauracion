@@ -939,9 +939,11 @@ The roadmap flags **S55, S58, S62** for over-verification; see [Highest-risk por
   while every other label says "proyecto". Pick one word.
 - Movements table is **all-time, unpaginated, unfiltered** — a multi-year ministry renders every row. Add
   paging/filter.
-- `ensureMinistryProjects` auto-INSERTs `fin_projects` rows as a side effect of loading, inside a
-  try/catch that **swallows ALL errors silently** (`project-treasury.js:78-108`) — make budget-tab
-  creation explicit/idempotent and do not swallow genuine failures.
+- `ensureMinistryProjects` auto-INSERTs `fin_projects` rows as a side effect of loading — since D-027
+  one per leader per ministry tab, never adopting a personal project — and **swallows failures
+  silently** (a refused insert is skipped; the budget queries sit in a bare try/catch;
+  `project-treasury.js:109-141`) — make budget-tab creation explicit/idempotent and surface genuine
+  failures.
 - **Lopsided header** when the month picker is force-hidden (`project-treasury.js:49-50` hides it via
   inline `style`) — design a proper header for this role.
 - Consider **Resumen roll-up KPIs** (no total across the leader's budgets today).

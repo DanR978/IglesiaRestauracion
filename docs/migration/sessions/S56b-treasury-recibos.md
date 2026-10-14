@@ -34,7 +34,7 @@ Give treasury users receipt-image storage bucketed by month — a 4×3 twelve-mo
 3. Regenerate `web/src/lib/db/database.types.ts` (`supabase gen types --local`) so `fin_receipts` is typed.
 4. `npm i fflate` in `web/` (npm deps are bundled — the no-bare-imports rule is legacy-only).
 5. Build `repos/receipts.ts`, then the UI (spec below): finance mount, leader mount, month grid, uploader, viewer, ZIPs.
-6. Apply the D-019 query switch in the S56 ministry view (aggregate entries by `ministry_id` across all `fin_projects` rows with that ministry, not by `owner_id`).
+6. ~~Apply the D-019 query switch in the S56 ministry view~~ — **done in legacy (D-027, 2026-10-13)**: S56 ports the ministry view already aggregating entries by `ministry_id` across every `fin_projects` row of that ministry, one row per leader, under the guard in `20260824120100_fin_ministry_shared.sql` §1.
 7. RLS negative checks on staging (see acceptance criteria); Vitest for pure helpers; Playwright smoke for the grid happy path.
 
 ## Feature spec (authoritative for this session)
@@ -111,7 +111,7 @@ create policy receipts_read on storage.objects for select to authenticated
     or ((storage.foldername(name))[1] = 'ministry' and (public.is_finance()
           or (storage.foldername(name))[2]::uuid = any(public.my_ministry_ids())))
     or ((storage.foldername(name))[1] = 'project'  and exists (select 1 from public.fin_projects fp
-          where fp.id = (storage.foldername(name))[2]::uuid and fp.owner_id = auth.uid()))));
+          where fp.id = (storage.foldername(objects.name))[2]::uuid and fp.owner_id = auth.uid()))));
 
 -- INSERT: same shape per scope AND the path must be well-formed (folder depth +
 -- 4-digit year), so the ::uuid casts in read/delete can never hit a malformed name.
@@ -133,14 +133,14 @@ create policy receipts_insert on storage.objects for insert to authenticated
           and array_length(storage.foldername(name),1) = 3
           and (storage.foldername(name))[3] ~ '^\d{4}$'
           and exists (select 1 from public.fin_projects fp
-                where fp.id = (storage.foldername(name))[2]::uuid and fp.owner_id = auth.uid()))));
+                where fp.id = (storage.foldername(objects.name))[2]::uuid and fp.owner_id = auth.uid()))));
 
 -- DELETE: identical predicates to SELECT except project stays owner-only and
 -- church/ministry deletion requires the same write scope as INSERT.
 -- NO UPDATE policy: receipts are immutable (upsert:false); replace = delete + re-upload.
 ```
 
-### D-019 RLS widening (additive; legacy behavior unchanged — legacy filters by owner client-side)
+### D-019 RLS widening (as filed 2026-08-23 — superseded in part by D-027: the shipped file also carries a restrictive guard, and legacy now aggregates by ministry)
 ```sql
 -- Ministry-mates see the ministry's project container rows:
 drop policy if exists pp_fin_projects_ministry_read on public.fin_projects;
@@ -163,6 +163,10 @@ aggregates ministry entries by `fin_projects.ministry_id` (all duplicate per-own
 included); the duplicate-row consolidation is deferred to the S64 cutover PR (D-019).
 Default filed: ministry-mates get SELECT on the container row and full CRUD on entries;
 container rename/manage stays owner/finance (revisit at S56b review).
+**Revisited by D-027 (2026-10-13):** ministry rows are finance-managed (restrictive
+`pp_fin_projects_ministry_update`/`_delete`), reach requires current leadership **and**
+`has_tab('treasury')` (`pp_fin_projects_scope`), and only finance moves an entry between
+projects (`fin_entry_project_guard`). See the file's §1.
 
 ### Retention cron + edge fn (D-018)
 `supabase/functions/receipts-cleanup/index.ts` — conventions of `newsletter-broadcast`:

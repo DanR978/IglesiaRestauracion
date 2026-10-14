@@ -13,7 +13,7 @@
     "build:sitemap": "node scripts/build-sitemap.mjs",
     "inline": "node scripts/inline-includes.mjs",
     "build:site": "bash scripts/build.sh && node scripts/build-heads.mjs && node scripts/build-sitemap.mjs && node scripts/inline-includes.mjs",
-    "test": "node tests/special-events-lifecycle.test.mjs"
+    "test": "node tests/special-events-lifecycle.test.mjs && node tests/project-treasury-sharing.test.mjs"
   },
   "devDependencies": {
     "sharp": "^0.34.5",
