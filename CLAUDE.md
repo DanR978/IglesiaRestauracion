@@ -107,6 +107,36 @@ only file that mentions `data-theme`. Everything else consumes `var(--color-*)` 
 breaks the admin's forced-theme override (`<html data-theme="dark">`). ~27 such blocks already exist
 and are bugs, not precedent.
 
+### Surface vs. ink — pick the text token to match the surface token
+
+Half the palette reverses with the theme and half is fixed. **Text is only readable when both sides
+of the pair behave the same way.** Getting this backwards is what made every event title on
+`/eventos/` dark-on-dark, so:
+
+| The surface the text sits on | Body ink | Dimmed ink |
+|---|---|---|
+| The page background, or `--color-surface` (reverses) | `--color-text` | `--color-muted` |
+| `--color-white` / a literal `#fff` pill (always light) | `--color-dark` | — |
+| A `--color-dark` / category fill (always dark) | `--color-white` | — |
+
+- **`--color-surface`** is the reversing panel token (white → `#1a262a`): cards, modals, toasts,
+  form fields — anything raised off the page. Pair with `--color-text`.
+- **`--color-dark` is a SURFACE, not ink.** It is `#313537` in dark mode, so `color: var(--color-dark)`
+  on the page background is invisible. Only use it as text on a permanently-light fill.
+- **`--color-white` is INK, not a surface.** It stays light (`#dfdedc`) in dark mode on purpose —
+  it is the white text used on teal/dark fills. A panel built on it strands `--color-text` as
+  light-on-light. Use `--color-surface`.
+- **The `--gray-*` scale is a light-mode surface ramp**; its dark values get *darker* (`--gray-120`
+  → `#505050`). Never use it for text — dimmed text is `--color-muted`. Its light end barely reverses
+  (`--gray-10` is `#f8f8f8` in both), so it also makes glaring white fills/borders on dark panels;
+  the theme-neutral `rgba(127, 127, 127, .12)` idiom used across the repo is the safe choice.
+- **Hover states follow the same rule.** `:hover { color: var(--color-dark) }` means "go darker",
+  which on a dark page makes text vanish *on hover*. Hover to `--color-text`.
+- Body ink lives in **one** place — `body { color: var(--color-text) }` in
+  [`css/base/base.css`](css/base/base.css). Don't restate it in a palette block: the token already
+  reverses, and its low specificity is load-bearing — it is what lets the admin (light panels, dark
+  ink) override it with its own `body` rule in `shell.css`.
+
 ### Naming & responsive
 
 - **BEM:** `.block__element`, `.block--modifier` (865 / 117 uses — unambiguous).
@@ -274,6 +304,27 @@ All printable/downloadable documents use **pdfmake via [`js/lib/pdf.js`](js/lib/
 ---
 
 ## 8. Adding a page / shipping
+
+### Branching — the work process
+
+**Never commit to `develop` or `main` directly.** Every task gets its own branch, and every
+promotion is a review gate the human owns:
+
+```
+feat/<slug>  →  develop  →  main
+  build here     once we like it    once it all works out
+```
+
+- Start with `git checkout -b feat/<slug>` off `develop`. Commit there, Conventional Commits.
+- When the work is done, **stop and report the branch name.** Do not merge, and do not push to
+  `develop` or `main` unless explicitly told to — wait for the go-ahead at each hop.
+- `main` is what GitHub Pages serves at www.irdlex.org. Given there is no test suite, no lint, and
+  no CI gate ("What must pass before done" below), that review gate is the only thing standing
+  between a change and production.
+- Commit only the files the task touched. If the working tree already had unrelated modifications
+  when you started, leave them alone rather than sweeping them into the branch.
+
+### Page wiring
 
 - **New public page ⇒ update four places:** `vite.config.js` `pageDirs`, `build-heads.mjs` `PAGES` +
   `CRUMB`, `build-sitemap.mjs` `PAGES`. (Six existing pages already violate this — see open questions.)

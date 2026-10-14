@@ -239,12 +239,14 @@
     content: url("https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/thorns-dark.svg");
   }
 
+  /* Body ink is NOT set here. It used to say `color: var(--color-dark)`, which
+     painted default text #313537 on a #121c1f page (1.2:1 — invisible) for
+     everything that didn't set its own colour. It lives in base.css now as
+     `color: var(--color-text)`: the token already reverses, so no palette
+     block needs to restate it, and the low specificity there lets the admin
+     (light panels, dark ink) override it cleanly. */
   :root:not([data-theme="light"]):not([data-theme="dark"]) body {
     background-color: var(--color-bg-light) !important;
-    /* --color-dark here set the default text to #313537 on a #121c1f page
-       (1.2:1 — invisible). Every element that does not set its own colour
-       inherits this, so it must be the reversing foreground token. */
-    color: var(--color-text);
   }
 }
 
@@ -346,7 +348,7 @@
   content: url("https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/thorns-dark.svg");
 }
 
+/* Ink deliberately omitted — see the note on the media-query block above. */
 :root[data-theme="dark"] body {
   background-color: var(--color-bg-light) !important;
-  color: var(--color-text);
 }

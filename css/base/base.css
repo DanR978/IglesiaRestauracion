@@ -20,6 +20,12 @@ html.ready {
 
 body {
   margin: 0;
+  /* Default ink. --color-text reverses with the palette, so this one rule is
+     correct under prefers-color-scheme AND a forced [data-theme]. Deliberately
+     low specificity (0,0,1) so the admin — whose panels are --color-white and
+     therefore light in both themes — can keep its dark ink by simply declaring
+     `body { color: var(--color-dark) }` later in the cascade (shell.css). */
+  color: var(--color-text);
   /* Native system-font stack — matches the body font that Bootstrap's reboot
      supplied before it was removed (the previous "General Sans" was never
      loaded, so Bootstrap's stack was what actually rendered). */
