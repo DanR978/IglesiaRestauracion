@@ -1262,19 +1262,21 @@ main:focus {
   outline-offset: 3px;
 }
 /* -- components captcha -- */
-/* Backdrop & modal (you already have these; keep them) */
+/* Verification-code dialog shown before the contact form sends (js/lib/captcha.js).
+   The rem floors under the fluid --fs-* tokens matter at phone width, where
+   --fs-sm alone computes to ~9px. */
+
 .cap-backdrop {
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, .55);
-    z-index: var(--z-max, 9999);
+    z-index: var(--z-max, 999);
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, .55);
     opacity: 0;
-    transition: opacity .2s ease;
+    transition: opacity .2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .cap-backdrop.show {
@@ -1282,156 +1284,172 @@ main:focus {
 }
 
 .cap-modal {
-    width: min(88vw, 520px);
-    min-width: var(--min-div-size, 280px);
-    background: var(--color-dark, #0b1220);
-    color: var(--color-white, #e5e7eb);
-    border-radius: 16px;
+    position: relative;
+    width: min(100%, 420px);
+    padding: 2.5rem 1.5rem 1.75rem;
+    background: var(--color-surface, #fff);
+    color: var(--color-text, #394548);
+    border-radius: var(--radius-xl, 24px);
     box-shadow: 0 24px 80px rgba(0, 0, 0, .45);
-    padding: var(--pd-md, 20px);
+    text-align: center;
     transform: translateY(6px);
-    transition: transform .2s ease;
+    transition: transform .2s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .cap-backdrop.show .cap-modal {
     transform: translateY(0);
 }
 
-@media (prefers-color-scheme: light) {
-    .cap-modal {
-        background: #fff;
-        color: #111827;
-    }
+.cap-close {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0;
+    border-radius: var(--radius-full, 9999px);
+    background: transparent;
+    color: var(--color-muted, #736960);
+    font-size: max(1.125rem, var(--fs-md));
+    cursor: pointer;
 }
 
-.cap-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--size-lg, 18px);
-    font-size: var(--fs-lg, 1rem);
+.cap-close:hover {
+    color: var(--color-text, #394548);
+    background: rgba(127, 127, 127, .12);
 }
 
 .cap-title {
-    font-weight: 600;
-    font-size: 1.2rem;
-}
-
-.cap-close {
-    background: transparent;
-    border: 0;
-    font-size: 1.2rem;
-    cursor: pointer;
+    margin: 0;
+    font-size: max(1.375rem, var(--fs-xl));
+    font-weight: var(--fw-bold, 700);
+    line-height: 1.15;
     color: inherit;
 }
 
-/* ——— Captcha card, styled like your sample ——— */
-.cap-container {
-    position: relative;
-    max-width: 320px;
-    width: 100%;
-    margin-inline: auto;
-    border-radius: 12px;
-    color: #111827;
-}
-
-@media (prefers-color-scheme: dark) {
-    .cap-container {
-        --cap-bg: #0f172a;
-        color: #e5e7eb;
-    }
-}
-
-.cap-hdr {
-    color: inherit;
-    margin-bottom: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-}
-
-.cap-field {
-    position: relative;
-    height: 45px;
-    margin-top: 12px;
-    width: 100%;
-}
-
-.cap-display input,
-.cap-input input {
-    height: 100%;
-    width: 100%;
-    outline: none;
-    border: 1px solid rgba(0, 0, 0, .12);
-    border-radius: 8px;
-    padding: 0 15px;
-    background: transparent;
-    color: inherit;
-}
-
-@media (prefers-color-scheme: dark) {
-    .cap-display input, .cap-input input {
-        border-color: rgba(255, 255, 255, .16);
-    }
+.cap-desc {
+    margin: .6rem 0 0;
+    font-size: var(--fs-base);
+    line-height: 1.45;
+    color: var(--color-muted, #736960);
 }
 
 .cap-code {
-  display: flex;
-  justify-content: space-between;
-  font-family: monospace;
-  font-size: clamp(13px, 4vw, 18px);
-  letter-spacing: 0;
-  text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    margin-top: .75rem;
+    padding: .25rem .25rem .25rem 1rem;
+    border-radius: var(--radius-full, 9999px);
+    background: rgba(127, 127, 127, .12);
 }
 
+.cap-code__digits {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: max(1.25rem, var(--fs-lg));
+    font-weight: var(--fw-bold, 700);
+    letter-spacing: .08em;
+}
 
 .cap-refresh {
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    background: #826afb;
-    height: 30px;
-    width: 30px;
-    border: none;
-    border-radius: 6px;
-    color: #fff;
+    width: 2.25rem;
+    height: 2.25rem;
+    border: 0;
+    border-radius: var(--radius-full, 9999px);
+    background: transparent;
+    color: inherit;
     cursor: pointer;
-    font-weight: 700;
-    margin-left: 1rem;
 }
 
-.cap-refresh:active {
-    transform: translateY(-50%) scale(0.98);
+.cap-refresh:hover {
+    background: rgba(127, 127, 127, .18);
 }
 
-.cap-input input:focus {
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .08);
+.cap-refresh[disabled] {
+    opacity: .4;
+    cursor: default;
 }
 
+.cap-pin-slot {
+    margin-top: 1.75rem;
+    min-height: 3.75rem;
+}
+
+.cap-pin__control {
+    display: flex;
+    justify-content: center;
+    gap: clamp(.35rem, 2vw, .6rem);
+}
+
+/* opacity: contact-form.css dims every bare `input` to 0.6. Below 768px
+   base/forms.css pins inputs to 16px so iOS won't zoom on focus. */
+.cap-pin__box {
+    opacity: 1;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 3.25rem;
+    aspect-ratio: 5 / 6;
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: var(--radius-md, 10px);
+    background: rgba(127, 127, 127, .16);
+    color: var(--color-text, #394548);
+    font: inherit;
+    font-size: var(--fs-xl);
+    font-weight: var(--fw-bold, 700);
+    text-align: center;
+    caret-color: var(--color-secondary, #9a6a2c);
+    transition: border-color .15s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color .15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cap-pin__box:focus {
+    outline: none;
+    border-color: var(--color-secondary, #9a6a2c);
+    background: var(--color-surface, #fff);
+}
+
+.cap-pin[data-complete]:not([data-invalid]) .cap-pin__box {
+    border-color: var(--color-success, #16a34a);
+}
+
+.cap-pin[data-invalid] .cap-pin__box {
+    border-color: var(--color-danger, #dc2626);
+}
+
+/* Always rendered (never display:none) so the live region announces reliably
+   and the layout doesn't jump when a message appears. */
 .cap-msg {
-    font-size: 14px;
-    margin: 12px 0 0;
-    display: none;
-}
-
-.cap-msg.active {
-    display: block;
+    min-height: 1.45em;
+    margin: .75rem 0 0;
+    font-size: max(0.875rem, var(--fs-sm));
+    line-height: 1.45;
 }
 
 .cap-msg.ok {
-    color: #16a34a;
+    color: var(--color-success, #16a34a);
 }
 
 .cap-msg.err {
-    color: #ef4444;
+    color: var(--color-danger, #dc2626);
 }
 
-.cap-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 16px;
+.cap-modal .cap-submit {
+    width: 100%;
+    margin-top: .75rem;
+    border-radius: var(--radius-full, 9999px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cap-backdrop,
+    .cap-modal,
+    .cap-pin__box {
+        transition: none;
+    }
+
+    .cap-modal {
+        transform: none;
+    }
 }
 
 .ird-btn[disabled] {
@@ -1439,9 +1457,6 @@ main:focus {
     pointer-events: none;
 }
 
-.ird-btn.enabled {
-    opacity: 1;
-}
 /* -- components celebrate -- */
 /* =========================================================
    CELEBRATION ANIMATIONS
@@ -5588,14 +5603,14 @@ body.no-scroll {
   height: 100%;
   min-height: 360px;
   background: var(--color-90, #ddeaee); /* calm fill while tiles load */
-  z-index: 0; /* keep Leaflet panes/controls under the page chrome */
+  z-index: 0; /* keep MapLibre's controls under the page chrome */
 }
 
 @media (max-width: 859px) {
   .home-location__map { min-height: 300px; }
 }
 
-/* Branded Leaflet marker — a clean gold dot with a white ring. */
+/* Branded map marker — a clean gold dot with a white ring. */
 .ird-pin__dot {
   display: block;
   width: 16px;
@@ -5606,14 +5621,37 @@ body.no-scroll {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
 }
 
-/* Leaflet popup — match the site's rounded, soft-shadow surfaces. */
-.home-location__map .leaflet-popup-content-wrapper {
+/* Map popup — match the site's rounded, soft-shadow surfaces. MapLibre paints
+   the bubble #fff in both themes and sets no ink, so it would inherit the
+   dark-mode light text; pin it to the dark ink a light fill needs. */
+.home-location__map .maplibregl-popup-content {
   border-radius: 12px;
-}
-.home-location__map .leaflet-popup-content {
+  padding: 12px 34px 12px 14px;
+  color: var(--color-dark, #394548);
   font-family: var(--font-Signika);
   font-size: 0.9rem;
   line-height: 1.45;
+}
+
+/* The global button reset zeroes MapLibre's sizing, leaving an 8px-wide target. */
+.home-location__map .maplibregl-popup-close-button {
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full, 9999px);
+  color: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.home-location__map .maplibregl-popup-close-button:hover {
+  background: rgba(127, 127, 127, .12);
+}
+
+.home-location__map .maplibregl-popup-close-button:focus-visible {
+  outline: 2px solid var(--color-secondary, #9a6a2c);
+  outline-offset: 0;
 }
 
 /* -- sections home-pastor -- */
