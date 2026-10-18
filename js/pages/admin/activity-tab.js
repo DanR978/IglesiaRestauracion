@@ -23,6 +23,8 @@ const ENTITY = {
   discipleship_members:   'un miembro de discipulado',
   discipleship_messages:  'un mensaje de discipulado',
   gallery_albums:         'un álbum de galería',
+  leader_sections:        'una sección de Líderes',
+  leader_members:         'una persona de Líderes',
   app_settings:           'la configuración',
   invitations:            'una invitación',
   fin_income:             'un ingreso',

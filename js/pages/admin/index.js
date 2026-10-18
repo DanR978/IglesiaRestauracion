@@ -22,6 +22,7 @@ import { initDscpWizard } from './discipleship-wizard.js';
 import { initGalleryWizard } from './gallery-wizard.js';
 import { loadDiscipulado } from './discipleship-tab.js';
 import { loadGallery } from './gallery-tab.js';
+import { loadLeaders } from './leaders-tab.js';
 import { loadActivity } from './activity-tab.js';
 import { loadSettings } from './settings-tab.js';
 import { loadTreasury } from './treasury-tab.js';
@@ -54,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onUsers:        () => { loadUsers(); loadRolePresets(); },
     onDiscipulado:  loadDiscipulado,
     onGaleria:      loadGallery,
+    onLeaders:      loadLeaders,
     onActivity:     loadActivity,
     onSettings:     loadSettings,
     onTreasury:     loadTreasury,

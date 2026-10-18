@@ -1,0 +1,240 @@
+/* admin/leaders.css — "Líderes" tab (js/pages/admin/leaders-tab.js)
+   Namespace: ldr-
+   Like the other admin cards these sit on a permanently light fill, so ink is
+   --color-dark (CLAUDE.md §4: light surface → --color-dark), and dimmed text
+   is that ink thinned with color-mix — --color-muted reverses to a light tone
+   in dark mode and drops to ~2:1 on this fill. Linked from admin/index.html
+   after gallery.css, before modal.css. */
+
+.ldr-section,
+.ldr-modal {
+  --ldr-ink: var(--color-dark, #394548);
+  --ldr-dim: color-mix(in srgb, var(--ldr-ink) 78%, transparent);
+}
+
+.ldr-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ── Sections ────────────────────────────────────────── */
+.ldr-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.ldr-section {
+  min-width: 0;
+  padding: 1rem 1.1rem 1.1rem;
+  background: var(--color-white, #fff);
+  border: 1px solid var(--gray-40);
+  border-radius: var(--radius-lg, 1rem);
+  color: var(--ldr-ink);
+}
+
+.ldr-section__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.18);
+}
+
+.ldr-section__icon {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.ldr-section__text { flex: 1; min-width: 0; }
+
+.ldr-section__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.ldr-section__verse {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--ldr-dim);
+  overflow-wrap: anywhere;
+}
+.ldr-section__verse cite { font-style: normal; font-weight: 600; }
+
+.ldr-section__empty {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--ldr-dim);
+}
+
+.ldr-add { margin-top: 0.6rem; }
+
+/* ── People ──────────────────────────────────────────── */
+.ldr-people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.ldr-person {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ldr-person__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.ldr-person__main:hover { background: rgba(127, 127, 127, 0.1); }
+.ldr-person__main:focus-visible { outline: 2px solid var(--color-secondary, #9a6a2c); outline-offset: 1px; }
+
+.ldr-person__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ldr-person__name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.ldr-person__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--ldr-dim);
+}
+
+.ldr-tag {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid rgba(127, 127, 127, 0.4);
+  border-radius: var(--radius-full, 999px);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ldr-ink);
+}
+
+.ldr-person__contact {
+  flex: none;
+  display: inline-flex;
+  gap: 0.45rem;
+  font-size: 0.8rem;
+}
+
+/* ── Avatar — photo over a fallback icon ─────────────── */
+.ldr-avatar {
+  position: relative;
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(127, 127, 127, 0.12);
+  color: var(--ldr-dim);
+  font-size: 1rem;
+}
+
+.ldr-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+
+.ldr-avatar--lg { width: 5rem; height: 5rem; font-size: 1.8rem; }
+
+/* ── Modals ──────────────────────────────────────────── */
+/* .modal (modal.css) loads later at equal specificity — hence the compound. */
+.modal.ldr-modal { max-width: 520px; }
+
+/* .btn / .form-row set their own display, which beats the UA [hidden] rule. */
+.ldr-modal [hidden] { display: none; }
+
+.ldr-photo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.ldr-photo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ldr-hint {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--ldr-dim);
+}
+
+.ldr-hint--warn {
+  margin: 0.25rem 0 0.75rem;
+  font-weight: 600;
+  color: var(--cat-especial-t, #b02030);
+}
+
+.ldr-flag { padding-left: 0; padding-right: 0; }
+
+.ldr-modal .form-group label,
+.ldr-modal .settings-flag__desc { color: var(--ldr-dim); }
+
+/* forms.css inks fields with --color-15, which turns light in dark mode while
+   this fill stays light — the typed text would vanish. */
+.ldr-modal .form-group input,
+.ldr-modal .form-group select,
+.ldr-modal .form-group textarea { color: var(--ldr-ink); }
+
+#ldrContactFields { margin-top: 0.75rem; }
+
+@media (max-width: 480px) {
+  .ldr-section { padding: 0.9rem; }
+  .ldr-photo { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ldr-person__main { transition: none; }
+}

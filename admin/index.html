@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="css/pages/admin/filters.css" />
   <link rel="stylesheet" href="css/pages/admin/forms.css" />
   <link rel="stylesheet" href="css/pages/admin/gallery.css" />
+  <link rel="stylesheet" href="css/pages/admin/leaders.css" />
   <link rel="stylesheet" href="css/pages/admin/modal.css" />
   <link rel="stylesheet" href="css/pages/admin/palette.css" />
   <link rel="stylesheet" href="css/pages/admin/platform.css" />
@@ -224,6 +225,7 @@
     <div class="adm-nav__group" data-admin-only>Comunidad</div>
     <button class="tab-btn" data-tab="discipulado" data-admin-only><i class="fas fa-hand-holding-heart"></i> <span>Discipulado</span></button>
     <button class="tab-btn" data-tab="galeria" data-admin-only><i class="fas fa-images"></i> <span>Galería</span></button>
+    <button class="tab-btn" data-tab="leaders" data-admin-only><i class="fas fa-people-group"></i> <span>Líderes</span></button>
     <button class="tab-btn" data-tab="ministries" data-admin-only><i class="fas fa-church"></i> <span>Ministerios</span></button>
 
     <div class="adm-nav__group" data-admin-only>Administración</div>
@@ -670,6 +672,27 @@
   </div><!-- /tab-calendario -->
 
   </div><!-- /tab-eventos -->
+
+  <!-- ── LÍDERES (public /lideres/ page) ────────────────────────────────────── -->
+  <div class="tab-panel" id="tab-leaders">
+    <div class="action-bar">
+      <div>
+        <h2>Líderes</h2>
+        <p class="action-bar__hint">Lo que guardes aquí se publica al instante en «Nuestros Líderes».</p>
+      </div>
+      <div class="ldr-actions">
+        <a class="btn btn--ghost" href="/lideres/" target="_blank" rel="noopener">
+          <i class="fas fa-arrow-up-right-from-square"></i> Ver página
+        </a>
+        <button class="btn btn--primary" id="ldrAddSection">
+          <i class="fas fa-plus"></i> Agregar sección
+        </button>
+      </div>
+    </div>
+    <div id="leadersList">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+    </div>
+  </div>
 
   <!-- ── MINISTERIOS ────────────────────────────────────────────────────────── -->
   <div class="tab-panel" id="tab-ministries">
@@ -1357,6 +1380,111 @@
       </button>
       <button class="btn btn--ghost"   id="ministryModalCancel">Cancelar</button>
       <button class="btn btn--primary" id="ministryModalSave"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Líderes — section modal (name, icon, verse) -->
+<div class="modal-backdrop" id="ldrSectionModal">
+  <div class="modal ldr-modal" role="dialog" aria-modal="true" aria-labelledby="ldrSectionTitle">
+    <div class="modal__header">
+      <div class="modal__title" id="ldrSectionTitle">Nueva sección</div>
+      <button class="modal__close" id="ldrSectionClose" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group">
+      <label for="ldrSectionName">Nombre</label>
+      <input type="text" id="ldrSectionName" maxlength="80" placeholder="Ej: Ministerio de Jóvenes" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label id="ldrSectionIconLabel">Ícono</label>
+      <div class="icon-picker" id="ldrSectionIcons" role="group" aria-labelledby="ldrSectionIconLabel"></div>
+    </div>
+    <div class="form-group">
+      <label for="ldrSectionVerse">Versículo</label>
+      <textarea id="ldrSectionVerse" rows="3" maxlength="500" placeholder="Ej: Pero yo y mi casa serviremos a Jehová."></textarea>
+    </div>
+    <div class="form-group">
+      <label for="ldrSectionRef">Cita</label>
+      <input type="text" id="ldrSectionRef" maxlength="60" placeholder="Ej: Josué 24:15" autocomplete="off">
+    </div>
+    <div class="auth-error" id="ldrSectionError" role="alert"></div>
+    <div class="modal__footer">
+      <button class="btn btn--danger" id="ldrSectionDelete" hidden><i class="fas fa-trash"></i> Eliminar</button>
+      <button class="btn btn--ghost" id="ldrSectionCancel">Cancelar</button>
+      <button class="btn btn--primary" id="ldrSectionSave"><i class="fas fa-save"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Líderes — person modal (photo, name, role, section, opt-in contact) -->
+<div class="modal-backdrop" id="ldrMemberModal">
+  <div class="modal ldr-modal" role="dialog" aria-modal="true" aria-labelledby="ldrMemberTitle">
+    <div class="modal__header">
+      <div class="modal__title" id="ldrMemberTitle">Nueva persona</div>
+      <button class="modal__close" id="ldrMemberClose" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="ldr-photo">
+      <span class="ldr-avatar ldr-avatar--lg" id="ldrPhotoPreview" aria-hidden="true"></span>
+      <div class="ldr-photo__actions">
+        <button type="button" class="btn btn--ghost btn--sm" id="ldrPhotoPick"><i class="fas fa-camera"></i> Subir foto</button>
+        <button type="button" class="btn btn--ghost btn--sm" id="ldrPhotoRemove" hidden><i class="fas fa-trash"></i> Quitar</button>
+        <input type="file" id="ldrPhotoInput" accept="image/*" hidden>
+        <p class="ldr-hint">Se muestra en un círculo; centra la cara en la foto.</p>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="ldrMemberName">Nombre</label>
+      <input type="text" id="ldrMemberName" maxlength="80" autocomplete="off">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="ldrMemberRole">Cargo</label>
+        <input type="text" id="ldrMemberRole" maxlength="60" list="ldrRoleList" placeholder="Ej: Líder" autocomplete="off">
+        <datalist id="ldrRoleList"></datalist>
+      </div>
+      <div class="form-group">
+        <label for="ldrMemberSection">Sección</label>
+        <select id="ldrMemberSection"></select>
+      </div>
+    </div>
+    <label class="settings-flag ldr-flag">
+      <span class="settings-flag__text">
+        <span class="settings-flag__label">Es líder</span>
+        <span class="settings-flag__desc">Solo los líderes pueden mostrar su contacto en la página.</span>
+      </span>
+      <span class="settings-switch">
+        <input type="checkbox" id="ldrMemberLeader">
+        <span class="settings-switch__track"></span>
+      </span>
+    </label>
+    <div id="ldrContactBlock" hidden>
+      <label class="settings-flag ldr-flag">
+        <span class="settings-flag__text">
+          <span class="settings-flag__label">Mostrar contacto</span>
+          <span class="settings-flag__desc">Opcional, con permiso del líder. En la página solo aparece el ícono: al tocarlo se abre el correo o la llamada, sin mostrar el dato.</span>
+        </span>
+        <span class="settings-switch">
+          <input type="checkbox" id="ldrMemberOptIn">
+          <span class="settings-switch__track"></span>
+        </span>
+      </label>
+      <div class="form-row" id="ldrContactFields" hidden>
+        <div class="form-group">
+          <label for="ldrMemberEmail">Correo</label>
+          <input type="email" id="ldrMemberEmail" maxlength="254" inputmode="email" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label for="ldrMemberPhone">Teléfono</label>
+          <input type="tel" id="ldrMemberPhone" maxlength="20" inputmode="tel" placeholder="(859) 555-0123" autocomplete="off">
+        </div>
+      </div>
+    </div>
+    <p class="ldr-hint ldr-hint--warn" id="ldrContactNote" hidden>Al guardar se borrarán el correo y el teléfono guardados.</p>
+    <div class="auth-error" id="ldrMemberError" role="alert"></div>
+    <div class="modal__footer">
+      <button class="btn btn--danger" id="ldrMemberDelete" hidden><i class="fas fa-trash"></i> Eliminar</button>
+      <button class="btn btn--ghost" id="ldrMemberCancel">Cancelar</button>
+      <button class="btn btn--primary" id="ldrMemberSave"><i class="fas fa-save"></i> Guardar</button>
     </div>
   </div>
 </div>
