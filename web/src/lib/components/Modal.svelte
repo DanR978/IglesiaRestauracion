@@ -12,9 +12,9 @@
   What it adds over legacy, all of which legacy lacks:
     · Escape closes — and only the TOPMOST overlay does (focus-trap stack).
     · a reference-counted scroll lock that RESTORES the previous body overflow,
-      so closing a confirm over a modal does not unlock the page ($lib/scroll-lock).
+      so closing a confirm over a modal does not unlock the page (#lib/scroll-lock).
     · focus moves into the dialog on open, is trapped while open, and returns
-      to the trigger on close ($lib/focus-trap).
+      to the trigger on close (#lib/focus-trap).
     · role="dialog" + aria-modal + an accessible name.
 
   Content comes in as three snippets — `header` (optional, replaces the title),

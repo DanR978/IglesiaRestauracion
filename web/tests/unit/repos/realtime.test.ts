@@ -3,7 +3,7 @@
 // $app/environment is re-mocked here so `browser` is true.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('#lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client.js', () => import('./mock-client'));
 vi.mock('$app/environment', () => ({
   browser: true,
   dev: false,

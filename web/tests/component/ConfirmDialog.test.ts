@@ -183,7 +183,7 @@ describe('confirm() — queueing (the legacy overwrote its single resolver)', ()
 describe('confirm() — stacking above an open Modal', () => {
   // Vitest has no layout engine and does not inject a component's scoped
   // <style>, so the elevation itself is asserted on the CSS SOURCE (the same
-  // approach $lib/test/css.ts takes for the token sheets); the browser-side
+  // approach #lib/test/css.ts takes for the token sheets); the browser-side
   // computed z-index is checked in tests/e2e/kit-modal.spec.ts.
   it('declares the legacy #confirmModal elevation', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/lib/components/Modal.svelte'), 'utf8');

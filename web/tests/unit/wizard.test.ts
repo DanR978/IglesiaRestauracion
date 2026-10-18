@@ -114,7 +114,7 @@ describe('validateField', () => {
     expect(validateField(f, { amount: 25.5 })).toBeNull();
   });
 
-  it('rejects unparseable and negative money (D-003 via $lib/money)', () => {
+  it('rejects unparseable and negative money (D-003 via #lib/money)', () => {
     const f = field({ id: 'amount', type: 'money', label: 'Monto', required: true });
     expect(validateField(f, { amount: 'abc' })).toBe('Escribe un monto válido en: Monto.');
     expect(validateField(f, { amount: '-5' })).toBe('El monto no puede ser negativo en: Monto.');

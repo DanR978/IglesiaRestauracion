@@ -2,7 +2,7 @@
   Lightbox — the full-screen photo viewer (S20, DESIGN-SYSTEM §4.2).
   Mount it ONCE on a route that opens photos; it renders nothing until
   openLightbox(photos, i) is called, and it holds no photo state of its own —
-  everything lives in $lib/stores/lightbox.svelte.
+  everything lives in #lib/stores/lightbox.svelte.
 
   Retires the id-coupled overlay in galeria/album/index.html (#lightbox,
   #lbImg, #lbPrev, #lbCounter, …) and its document-wide click bindings.

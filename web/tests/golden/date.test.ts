@@ -1,4 +1,4 @@
-// S07 golden parity for $lib/date (port of js/utils/date.js).
+// S07 golden parity for #lib/date (port of js/utils/date.js).
 // G-002: isoDate vectors are LOCAL calendar parts ([y, mIndex, d, hh, mm])
 // constructed and read back in the same local TZ, so they hold under any
 // machine timezone (the generator verified NY vs Tokyo byte-identical).

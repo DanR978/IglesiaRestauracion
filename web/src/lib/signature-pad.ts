@@ -30,7 +30,7 @@
 /**
  * The ink a signature is drawn in. Deliberately NOT a theme token: this colour
  * is baked into the exported PNG, which is reproduced on the permanently white
- * page of the waiver PDF (`WV_DARK` in $lib/waiver is the same value). It must
+ * page of the waiver PDF (`WV_DARK` in #lib/waiver is the same value). It must
  * not reverse with the theme — which is why SignaturePad.svelte keeps the
  * drawing surface permanently light too (CLAUDE.md §4 surface/ink pairing).
  */

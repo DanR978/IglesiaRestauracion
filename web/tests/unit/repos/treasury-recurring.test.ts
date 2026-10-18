@@ -5,7 +5,7 @@
 // read must NOT fall through to a duplicate insert.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('#lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {

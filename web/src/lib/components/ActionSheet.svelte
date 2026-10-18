@@ -11,7 +11,7 @@
   focusable (aria-disabled) so they remain discoverable, but do nothing.
 
   Most callers use showActionSheet() + <ActionSheetHost/> instead of mounting
-  this directly; see $lib/components/action-sheet.svelte.
+  this directly; see #lib/components/action-sheet.svelte.
 -->
 <script lang="ts">
   import { onDestroy, tick } from 'svelte';

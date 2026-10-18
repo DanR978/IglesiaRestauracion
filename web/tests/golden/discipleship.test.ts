@@ -1,4 +1,4 @@
-// S22 golden parity for $lib/discipleship (pure half of js/lib/discipleship.js).
+// S22 golden parity for #lib/discipleship (pure half of js/lib/discipleship.js).
 // Fixture captured by running the LEGACY module under TZ=America/New_York and
 // Asia/Tokyo — byte-identical in both, so it holds under any machine TZ.
 // displayStatus vectors use years 2000/2999 so "today" never crosses them.

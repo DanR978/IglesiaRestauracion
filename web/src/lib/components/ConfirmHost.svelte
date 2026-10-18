@@ -6,7 +6,7 @@
   <ToastHost>.
 
   It is pure presentation: the queue, the promises and their resolution live in
-  $lib/stores/confirm.svelte, so a repo module can ask the question without a
+  #lib/stores/confirm.svelte, so a repo module can ask the question without a
   component in the loop (S38).
 
   It is a Modal with variant="confirm", which is what makes the dialog stack

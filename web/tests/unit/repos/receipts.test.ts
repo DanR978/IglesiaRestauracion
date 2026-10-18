@@ -3,7 +3,7 @@
 // this session); RLS itself is proven on staging, never here.
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
-vi.mock('#lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock, supabase as mockClient } from './mock-client';
 import {

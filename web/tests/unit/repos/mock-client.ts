@@ -9,7 +9,7 @@
  * call and is thenable, resolving to the canned result queued for that table.
  *
  * Usage (top of a test file, before importing the repo):
- *   vi.mock('#lib/db/client', () => import('./mock-client'));
+ *   vi.mock('#lib/db/client.js', () => import('./mock-client'));
  *   import { mock } from './mock-client';
  *   mock.reset(); mock.results.events = [{ data: [...], error: null }];
  * ========================================================================== */

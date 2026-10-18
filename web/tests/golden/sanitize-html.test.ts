@@ -1,4 +1,4 @@
-// S07 golden parity for $lib/sanitize-html (port of js/lib/sanitize-html.js).
+// S07 golden parity for #lib/sanitize-html (port of js/lib/sanitize-html.js).
 // The sanitizer allowlist is a security contract (D-005); this XSS corpus is
 // the regression net. DOMParser ⇒ jsdom environment required (G-001).
 //

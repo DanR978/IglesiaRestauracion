@@ -13,7 +13,7 @@
  * Deliberate differences from legacy (PORT-DEBT S21 "MUST FIX ON PORT"):
  *   • the money control's value is bound, never interpolated — legacy
  *     `form-wizard.js:89` wrote `value="${v ?? ''}"` with no esc();
- *   • money is validated through $lib/money (D-003) instead of `Number(v)>=0`,
+ *   • money is validated through #lib/money (D-003) instead of `Number(v)>=0`,
  *     and formatted for review with formatUSD;
  *   • ONE review renderer (formatFieldValue) — legacy had three;
  *   • validation returns the offending FIELD so the component can move focus
