@@ -12,12 +12,29 @@
 
 import { html } from '/js/utils/escape.js';
 import { render } from '/js/utils/render.js';
-import { initials } from '/js/utils/string.js';
 import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { fetchDirectory, photoUrl } from '/js/lib/leaders.js';
 import { trackEvent } from '/js/lib/track.js';
 
 const _contacts = new Map();   // member id → { email, phone }
+
+// Titles that open a name here: "Pastor Raúl García Guerra" → "RG". Only leading
+// ones are skipped — "Pastor" is also a surname ("Ana Pastor" → "AP").
+const HONORIFICS = new Set(['pastor', 'pastora', 'pr', 'pra', 'hno', 'hna', 'hermano', 'hermana', 'ev', 'dr', 'dra']);
+const LETTER = /\p{L}/u;
+
+// Kept in this module, not js/utils/string.js: a new export on a shared URL that
+// visitors already hold in the service-worker cache would fail to link against
+// the stale copy on the first load after a deploy, leaving the roster blank.
+function initials(name) {
+  const words = String(name ?? '').normalize('NFC').trim().split(/\s+/).filter(w => LETTER.test(w));
+  let i = 0;
+  while (i < words.length - 1 && HONORIFICS.has(words[i].toLocaleLowerCase('es').replace(/\.$/, ''))) i++;
+  const use = words.slice(i);
+  const first = use.length ? use[0].match(LETTER)[0] : '';
+  const last = use.length > 1 ? use[use.length - 1].match(LETTER)[0] : '';
+  return (first + last).toLocaleUpperCase('es');
+}
 
 function contactButtons(p) {
   if (!p.email && !p.phone) return '';
@@ -80,7 +97,7 @@ async function initLeaders() {
   const root = document.getElementById('leadersDirectory');
   if (!root) return;
   root.addEventListener('click', onContactClick);
-  // A photo that fails to load falls back to the icon underneath it.
+  // A photo that fails to load is removed, revealing the initials (or icon) under it.
   root.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
   render(root, loadingHtml());
 
