@@ -1,5 +1,7 @@
 // js/lib/supabase.js
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// Pinned (CLAUDE.md: CDN imports carry an exact version). Same session format as the
+// port's npm copy, so /admin and /app keep sharing one session.
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/+esm';
 import { CONFIG } from '/js/lib/config.js';
 
 // ── Supabase client ─────────────────────────────────────────────────────────

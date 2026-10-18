@@ -11,7 +11,7 @@
 //
 // Bumping CACHE_VERSION invalidates everything on the next install.
 
-const CACHE_VERSION = 'ird-v11';
+const CACHE_VERSION = 'ird-v12';
 const CACHE_NAME    = `ird-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -26,8 +26,15 @@ const APP_SHELL = [
   '/src/footer.html',
 ];
 
-// Same-origin paths we should never touch (admin uses live Supabase + auth).
-const SKIP_PATHS = [/^\/admin(\/|$)/, /^\/sw\.js$/, /^\/manifest\.json$/];
+// Same-origin paths we should never touch: both admins use live Supabase + auth,
+// and the legacy admin's modules must never run a stale copy of the auth gate.
+const SKIP_PATHS = [
+  /^\/admin(\/|$)/,
+  /^\/app\/admin(\/|$)/,
+  /^\/js\/pages\/admin\//,
+  /^\/sw\.js$/,
+  /^\/manifest\.json$/,
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

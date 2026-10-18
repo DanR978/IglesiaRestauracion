@@ -16,7 +16,7 @@ import { sb, currentUser, currentProfile, ministries } from './state.js';
 import { toast, confirm } from './ui.js';
 import { esc } from '/js/utils/escape.js';
 import { $ } from '/js/utils/dom.js';
-import { reEnrollMfa } from './auth.js';
+import { reEnrollMfa, spanishError } from './auth.js';
 import { mfaStatus } from './mfa.js';
 
 const ROLE_LABEL = {
@@ -403,6 +403,11 @@ function renderAccountSection() {
 // ═══════════════════════════════════════════════════════════════════════════
 //  Section: Seguridad
 // ═══════════════════════════════════════════════════════════════════════════
+// An account that signed up through Google/Microsoft may have no password yet;
+// only accounts with one are asked to confirm it.
+const hasPassword = () => (currentUser?.identities ?? [{ provider: 'email' }])
+  .some(i => i.provider === 'email');
+
 function renderSecuritySection() {
   return `
     <div class="acct-card">
@@ -413,6 +418,11 @@ function renderSecuritySection() {
 
       <div class="section-divider"><i class="fas fa-key"></i> Cambiar contraseña</div>
       <div class="acct-grid">
+        ${hasPassword() ? `
+        <div class="form-group">
+          <label for="acctPw0">Contraseña actual</label>
+          <input type="password" id="acctPw0" autocomplete="current-password">
+        </div>` : ''}
         <div class="form-group">
           <label for="acctPw1">Contraseña nueva</label>
           <input type="password" id="acctPw1" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
@@ -442,6 +452,7 @@ function wireSecuritySection() {
 }
 
 async function changePassword() {
+  const cur = $('acctPw0')?.value || '';
   const p1  = $('acctPw1')?.value || '';
   const p2  = $('acctPw2')?.value || '';
   const box = $('acctPwError');
@@ -449,18 +460,20 @@ async function changePassword() {
   const setPwErr = (m) => { if (box) { box.textContent = m || ''; box.style.display = m ? 'block' : 'none'; } };
 
   setPwErr('');
+  if ($('acctPw0') && !cur) { setPwErr('Escribe tu contraseña actual.'); return; }
   if (p1.length < 8) { setPwErr('La contraseña debe tener al menos 8 caracteres.'); return; }
   if (p1 !== p2)     { setPwErr('Las contraseñas no coinciden.'); return; }
 
   if (btn) btn.disabled = true;
   try {
-    const { error } = await sb.auth.updateUser({ password: p1 });
+    // GoTrue checks current_password when the project requires it (ASVS 6.2.3).
+    const attrs = cur ? { password: p1, current_password: cur } : { password: p1 };
+    const { error } = await sb.auth.updateUser(attrs);
     if (error) throw error;
-    if ($('acctPw1')) $('acctPw1').value = '';
-    if ($('acctPw2')) $('acctPw2').value = '';
+    ['acctPw0', 'acctPw1', 'acctPw2'].forEach(id => { if ($(id)) $(id).value = ''; });
     toast('Contraseña actualizada', 'success');
   } catch (e) {
-    setPwErr(e.message || 'No se pudo cambiar la contraseña.');
+    setPwErr(spanishError(e));
   } finally {
     if (btn) btn.disabled = false;
   }
@@ -485,7 +498,7 @@ async function refresh2faRow() {
     const ok = await confirm(
       enrolled ? 'Reconfigurar verificación' : 'Configurar verificación',
       'Se te mostrará un código QR para escanear con tu app de autenticación. ' +
-      (enrolled ? 'Tu configuración anterior se reemplazará.' : ''));
+      (enrolled ? 'Tu dispositivo anterior seguirá funcionando hasta que confirmes el código del nuevo.' : ''));
     if (!ok) return;
     reEnrollMfa();
   });
