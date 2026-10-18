@@ -12,7 +12,7 @@
  *   import { fetchAlbums, fetchAlbumBy, fetchPhotos } from '$lib/repos/gallery';
  * ========================================================================== */
 
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { supabase } from '$lib/db/client';
 import type { Tables, TablesInsert, TablesUpdate } from '$lib/db/database.types';
 import { BUCKET } from '$lib/gallery';

@@ -17,7 +17,7 @@
  *   const { data, error } = await supabase.from('events').select('*');
  * ========================================================================== */
 import { createClient } from '@supabase/supabase-js';
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '$lib/config';
 import type { Database } from './database.types';
 

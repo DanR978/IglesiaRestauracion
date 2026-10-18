@@ -13,7 +13,7 @@
  *   import { fetchUpcomingEvents, fetchEventById } from '$lib/repos/events';
  * ========================================================================== */
 
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { supabase } from '$lib/db/client';
 import type { Tables } from '$lib/db/database.types';
 import type { ChangeHandler, Unsubscribe } from './types';

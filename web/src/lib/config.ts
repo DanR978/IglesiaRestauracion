@@ -13,7 +13,7 @@
  * Usage:
  *   import { SUPABASE_URL, SUPABASE_ANON_KEY } from '$lib/config';
  * ========================================================================== */
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$app/env/public';
 
 // A var that is declared but empty (e.g. an unset GitHub secret interpolating
 // to '') would pass the compile-time check that an UNdeclared var already

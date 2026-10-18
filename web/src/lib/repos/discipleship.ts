@@ -15,7 +15,7 @@
  *   import { fetchPublicGroups, submitInterest } from '$lib/repos/discipleship';
  * ========================================================================== */
 
-import { browser } from '$app/environment';
+import { browser } from '$app/env';
 import { supabase } from '$lib/db/client';
 import type { Tables, TablesInsert } from '$lib/db/database.types';
 import { slugify } from '$lib/slug';
