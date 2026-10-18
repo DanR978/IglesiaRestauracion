@@ -3,7 +3,7 @@
 
   // Proves the scaffold builds under a subpath: this resolves to `/app/` when the app is
   // built with BASE_PATH=/app, and to `/` once a surface is cut over to the domain root.
-  const mountedAt: string = resolve('');
+  const mountedAt: string = resolve('/');
 </script>
 
 <svelte:head>

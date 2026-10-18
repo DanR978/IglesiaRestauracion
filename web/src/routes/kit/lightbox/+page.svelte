@@ -6,25 +6,28 @@
   // scroll lock (the page below is deliberately tall). Prerendered, noindex,
   // no data fetching.
   import { asset } from '$app/paths';
+  import type { AssetPath } from '$app/types';
   import Lightbox from '#lib/components/Lightbox.svelte';
   import ToastHost from '#lib/components/ToastHost.svelte';
   import { prefersReducedMotion } from '#lib/reduced-motion.js';
   import { lightbox, openLightbox, type LightboxPhoto } from '#lib/stores/lightbox.svelte.js';
 
-  const photo = (file: string, width: number, height: number, caption: string | null) => ({
-    public_url: asset(`kit/lightbox/${file}`),
-    thumbnail_url: asset(`kit/lightbox/${file}`),
+  // AssetPath is generated from static/, so a renamed or missing placeholder fails
+  // `npm run check` instead of 404ing inside the viewer.
+  const photo = (file: AssetPath, width: number, height: number, caption: string | null) => ({
+    public_url: asset(file),
+    thumbnail_url: asset(file),
     caption,
     width,
     height,
   });
 
   const ALBUM: LightboxPhoto[] = [
-    photo('foto-1.svg', 1200, 800, 'Retiro de jóvenes · apertura del sábado'),
-    photo('foto-2.svg', 800, 1200, 'Bautismos de verano'),
-    photo('foto-3.svg', 1000, 1000, null),
+    photo('kit/lightbox/foto-1.svg', 1200, 800, 'Retiro de jóvenes · apertura del sábado'),
+    photo('kit/lightbox/foto-2.svg', 800, 1200, 'Bautismos de verano'),
+    photo('kit/lightbox/foto-3.svg', 1000, 1000, null),
     photo(
-      'foto-4.svg',
+      'kit/lightbox/foto-4.svg',
       1400,
       700,
       'Salida misionera a la comunidad: entrega de despensas, oración por las familias y ' +
