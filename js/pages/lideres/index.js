@@ -12,6 +12,7 @@
 
 import { html } from '/js/utils/escape.js';
 import { render } from '/js/utils/render.js';
+import { initials } from '/js/utils/string.js';
 import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { fetchDirectory, photoUrl } from '/js/lib/leaders.js';
 import { trackEvent } from '/js/lib/track.js';
@@ -29,13 +30,17 @@ function contactButtons(p) {
     </div>`;
 }
 
+// The square tile always carries the initials (or the icon, for a name with no
+// letters) underneath; the photo covers them, and a photo that fails to load is
+// removed by initLeaders, so the tile is never left blank.
 function personCard(p) {
   const src = photoUrl(p.photo_path);
+  const mono = initials(p.name);
   return html`
     <li class="person-card">
       <span class="person-card__avatar" aria-hidden="true">
-        <i class="fas fa-user"></i>
-        ${src ? html`<img src="${src}" alt="" width="84" height="84" loading="lazy" decoding="async">` : ''}
+        ${mono ? html`<span class="person-card__initials">${mono}</span>` : html`<i class="fas fa-user"></i>`}
+        ${src ? html`<img src="${src}" alt="" width="400" height="400" loading="lazy" decoding="async">` : ''}
       </span>
       <p class="person-card__name">${p.name}</p>
       ${p.role ? html`<p class="person-card__role">${p.role}</p>` : ''}

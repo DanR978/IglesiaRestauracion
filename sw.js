@@ -11,7 +11,7 @@
 //
 // Bumping CACHE_VERSION invalidates everything on the next install.
 
-const CACHE_VERSION = 'ird-v10';
+const CACHE_VERSION = 'ird-v11';
 const CACHE_NAME    = `ird-${CACHE_VERSION}`;
 
 const APP_SHELL = [

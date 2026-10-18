@@ -26,9 +26,10 @@ import { normalizeUSPhone } from '/js/lib/validators.js';
 const BUCKET     = 'leaders';
 const T_SECTIONS = 'leader_sections';
 const T_MEMBERS  = 'leader_members';
-// Cards draw the photo at 84px (168px on retina); 480px leaves room to crop.
+// Cards draw the photo edge to edge, up to ~260px wide (×2–3 on dense screens);
+// 800px covers that and stays far under the bucket's 2 MB cap.
 // JPEG has no alpha, so a cut-out headshot is flattened onto white, not black.
-const PHOTO_OPTS = { maxWidth: 480, quality: 0.86, thumbWidth: 96, background: '#ffffff' };
+const PHOTO_OPTS = { maxWidth: 800, quality: 0.86, thumbWidth: 96, background: '#ffffff' };
 const ICON_RE    = /^fa-[a-z0-9-]{1,40}$/;
 // Stricter than validators.js on purpose: mirrors leader_members_contact_email_check
 // (20261018000001) — no ? & = % , # that would add header fields to the mailto:.
