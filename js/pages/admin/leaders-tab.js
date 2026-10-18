@@ -29,6 +29,8 @@ const LEADER_ROLE = /^l[ií]der$/i;      // role already reads "Líder" → the 
 
 let _sections = [];
 let _wired    = false;
+let _loadSeq  = 0;          // drops a response that a newer loadLeaders() superseded
+let _moving   = false;      // one Subir/Bajar at a time; a click during one is ignored
 
 let _section = null;        // section open in the modal (null = new)
 let _icon    = SECTION_ICONS[0];
@@ -47,6 +49,15 @@ function setErr(id, msg) {
   box.style.display = msg ? 'block' : 'none';
 }
 
+// While a save is in flight the modal can't be closed or acted on again, so
+// its completion can never land on a modal the admin has since reopened.
+function setBusy(ids, saveId, busy) {
+  ids.forEach(id => { const b = $(id); if (b) b.disabled = busy; });
+  $(saveId).innerHTML = busy ? BUSY_HTML : SAVE_HTML;
+}
+const SECTION_BTNS = ['ldrSectionSave', 'ldrSectionCancel', 'ldrSectionClose', 'ldrSectionDelete'];
+const MEMBER_BTNS  = ['ldrMemberSave', 'ldrMemberCancel', 'ldrMemberClose', 'ldrMemberDelete', 'ldrPhotoPick', 'ldrPhotoRemove'];
+
 // ── Entry point ─────────────────────────────────────────────────────────────
 export async function loadLeaders() {
   const list = $('leadersList');
@@ -54,7 +65,9 @@ export async function loadLeaders() {
   if (!_wired) wire();
   if (!_sections.length) render(list, loadingHtml());
 
+  const seq = ++_loadSeq;
   const { data, error } = await fetchAdminDirectory();
+  if (seq !== _loadSeq) return;
   if (error) {
     render(list, errorHtml(error, { prefix: 'No se pudieron cargar los líderes' }));
     return;
@@ -157,8 +170,8 @@ function sectionMenu(trigger, s) {
     actions: [
       { label: 'Editar sección', icon: 'fa-pen', onClick: () => openSectionModal(s) },
       { label: 'Agregar persona', icon: 'fa-user-plus', onClick: () => openMemberModal(null, s.id) },
-      i > 0 && { label: 'Subir', icon: 'fa-arrow-up', onClick: () => moveSection(i, -1) },
-      i < _sections.length - 1 && { label: 'Bajar', icon: 'fa-arrow-down', onClick: () => moveSection(i, 1) },
+      i > 0 && { label: 'Subir', icon: 'fa-arrow-up', onClick: () => moveSection(s.id, -1) },
+      i < _sections.length - 1 && { label: 'Bajar', icon: 'fa-arrow-down', onClick: () => moveSection(s.id, 1) },
       { label: 'Eliminar sección', icon: 'fa-trash', variant: 'danger', onClick: () => removeSection(s) },
     ].filter(Boolean),
   });
@@ -172,29 +185,44 @@ function memberMenu(trigger, s, m) {
     subtitle: s.name,
     actions: [
       { label: 'Editar', icon: 'fa-pen', onClick: () => openMemberModal(m) },
-      i > 0 && { label: 'Subir', icon: 'fa-arrow-up', onClick: () => moveMember(s, i, -1) },
-      i < s.members.length - 1 && { label: 'Bajar', icon: 'fa-arrow-down', onClick: () => moveMember(s, i, 1) },
+      i > 0 && { label: 'Subir', icon: 'fa-arrow-up', onClick: () => moveMember(m.id, -1) },
+      i < s.members.length - 1 && { label: 'Bajar', icon: 'fa-arrow-down', onClick: () => moveMember(m.id, 1) },
       { label: 'Eliminar', icon: 'fa-trash', variant: 'danger', onClick: () => removeMember(m) },
     ].filter(Boolean),
   });
 }
 
-function swapped(list, i, dir) {
+// The menu may have been opened before the last reload, so the item is found
+// by id in the current list at click time — never by a captured index.
+function swapped(list, id, dir) {
+  const i = list.findIndex(x => x.id === id);
+  if (i < 0 || !list[i + dir]) return null;
   const next = [...list];
   [next[i], next[i + dir]] = [next[i + dir], next[i]];
   return next;
 }
 
-async function moveSection(i, dir) {
-  const res = await reorderSections(swapped(_sections, i, dir));
-  if (res.error) toast(res.error, 'error');
-  await loadLeaders();
+async function move(reorder, list, id, dir) {
+  if (_moving) return;
+  const next = swapped(list, id, dir);
+  if (!next) return;
+  _moving = true;
+  try {
+    const res = await reorder(next);
+    if (res.error) toast(res.error, 'error');
+    await loadLeaders();
+  } finally {
+    _moving = false;
+  }
 }
 
-async function moveMember(s, i, dir) {
-  const res = await reorderMembers(swapped(s.members, i, dir));
-  if (res.error) toast(res.error, 'error');
-  await loadLeaders();
+function moveSection(id, dir) {
+  return move(reorderSections, _sections, id, dir);
+}
+
+function moveMember(id, dir) {
+  const hit = findMember(id);
+  return hit && move(reorderMembers, hit.s.members, id, dir);
 }
 
 // ── Section modal ───────────────────────────────────────────────────────────
@@ -229,22 +257,20 @@ function openSectionModal(s) {
 }
 
 async function onSaveSection() {
-  const btn = $('ldrSectionSave');
+  const editing = _section;
   setErr('ldrSectionError', '');
-  btn.disabled = true;
-  btn.innerHTML = BUSY_HTML;
+  setBusy(SECTION_BTNS, 'ldrSectionSave', true);
   const res = await saveSection({
-    id:         _section?.id,
+    id:         editing?.id,
     name:       $('ldrSectionName').value,
     icon:       _icon,
     verse_text: $('ldrSectionVerse').value,
     verse_ref:  $('ldrSectionRef').value,
-    sort_order: _section ? undefined : nextOrder(_sections),
+    sort_order: editing ? undefined : nextOrder(_sections),
   });
-  btn.disabled = false;
-  btn.innerHTML = SAVE_HTML;
+  setBusy(SECTION_BTNS, 'ldrSectionSave', false);
   if (res.error) { setErr('ldrSectionError', res.error); return; }
-  toast(_section ? 'Sección actualizada' : 'Sección creada', 'success');
+  toast(editing ? 'Sección actualizada' : 'Sección creada', 'success');
   closeModal('ldrSectionModal');
   await loadLeaders();
 }
@@ -334,15 +360,13 @@ function onPhotoChosen(e) {
 }
 
 async function onSaveMember() {
+  const editing = _member;
   const sectionId = $('ldrMemberSection').value;
   const target = _sections.find(s => s.id === sectionId);
-  const moved = !_member || _member.section_id !== sectionId;
-  const btn = $('ldrMemberSave');
+  const moved = !editing || editing.section_id !== sectionId;
   setErr('ldrMemberError', '');
-  btn.disabled = true;
-  btn.innerHTML = BUSY_HTML;
+  setBusy(MEMBER_BTNS, 'ldrMemberSave', true);
   const res = await saveMember({
-    id:             _member?.id,
     section_id:     sectionId,
     name:           $('ldrMemberName').value,
     role:           $('ldrMemberRole').value,
@@ -350,13 +374,15 @@ async function onSaveMember() {
     contact_opt_in: $('ldrMemberOptIn').checked,
     contact_email:  $('ldrMemberEmail').value,
     contact_phone:  $('ldrMemberPhone').value,
-    photo_path:     _member?.photo_path || null,
     sort_order:     moved ? nextOrder(target?.members || []) : undefined,
-  }, { file: _photoFile, clearPhoto: _photoClear });
-  btn.disabled = false;
-  btn.innerHTML = SAVE_HTML;
-  if (res.error) { setErr('ldrMemberError', res.error); return; }
-  toast(_member ? 'Persona actualizada' : 'Persona agregada', 'success');
+  }, { original: editing, file: _photoFile, clearPhoto: _photoClear });
+  setBusy(MEMBER_BTNS, 'ldrMemberSave', false);
+  if (res.error) {
+    setErr('ldrMemberError', res.error);
+    if (res.conflict) loadLeaders();    // so reopening shows what is stored now
+    return;
+  }
+  toast(editing ? 'Persona actualizada' : 'Persona agregada', 'success');
   closeMemberModal();
   await loadLeaders();
 }

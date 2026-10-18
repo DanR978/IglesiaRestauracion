@@ -11917,6 +11917,17 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   color: var(--color-muted);
 }
 
+/* ── Directory (filled by js/pages/lideres/index.js) ───────────────────── */
+/* Room for the roster while it loads, so the CTA below doesn't start in view
+   and jump down when the sections arrive. */
+.lideres__directory[aria-busy="true"] { min-height: 60vh; }
+
+.lideres__noscript {
+  margin: 0;
+  text-align: center;
+  color: var(--color-muted);
+}
+
 /* ── Ministry block ─────────────────────────────────────────────────────── */
 .ministry {
   margin-top: clamp(2.5rem, 5vw, 3.75rem);
@@ -11945,6 +11956,9 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   background: rgba(57, 69, 72, 0.07);
 }
 
+/* Names, verses and citations are typed in the admin — never let one widen the page. */
+.ministry__heading { min-width: 0; }
+
 .ministry__name {
   margin: 0;
   font-family: var(--font-Signika);
@@ -11952,6 +11966,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-size: clamp(1.3rem, 0.9rem + 1.4vw, 1.75rem);
   letter-spacing: -0.015em;
   color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 .ministry__verse {
@@ -11964,10 +11979,13 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   color: var(--color-muted);
 }
 
+/* inline-block: the citation drops to its own line as a unit, and breaks inside
+   only when it is longer than a whole line. */
 .ministry__verse cite {
+  display: inline-block;
   font-style: normal;
   font-weight: 600;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
   color: var(--color-text);
 }
 
@@ -11977,14 +11995,15 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(0.9rem, 2vw, 1.4rem);
 }
 
-@media (max-width: 880px) { .ministry__people { grid-template-columns: repeat(3, 1fr); } }
-@media (max-width: 620px) { .ministry__people { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 880px) { .ministry__people { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .ministry__people { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 .person-card {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12037,6 +12056,7 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   font-size: 1rem;
   line-height: 1.25;
   color: var(--color-text);
+  overflow-wrap: anywhere;
 }
 
 .person-card__role {
@@ -12047,6 +12067,8 @@ body.lightbox-open { overflow: hidden; position: fixed; left: 0; right: 0; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-muted);
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 /* Opt-in contact — icon buttons only; the address/number is never printed */

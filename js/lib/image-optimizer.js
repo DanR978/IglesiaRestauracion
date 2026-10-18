@@ -14,6 +14,8 @@
 // Usage:
 //   import { optimizeImage } from '/js/lib/image-optimizer.js';
 //   const { main, webp, thumb, width, height, ratio } = await optimizeImage(file);
+//   optimizeImage(file, { background: '#fff' })  // fill under the image: JPEG has
+//                                                // no alpha, so transparency exports black
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DEFAULTS = {
@@ -42,7 +44,7 @@ async function decode(file) {
 }
 
 /** Render the decoded bitmap at the target max-width to an OffscreenCanvas / canvas. */
-function renderToCanvas(bitmap, maxWidth) {
+function renderToCanvas(bitmap, maxWidth, background) {
   const srcW = bitmap.width  || bitmap.naturalWidth;
   const srcH = bitmap.height || bitmap.naturalHeight;
   const scale = srcW > maxWidth ? maxWidth / srcW : 1;     // never upscale
@@ -56,13 +58,18 @@ function renderToCanvas(bitmap, maxWidth) {
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
+  if (background) {
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, w, h);
+  }
   ctx.drawImage(bitmap, 0, 0, w, h);
   return { canvas, width: w, height: h };
 }
 
 /** Export a canvas to a Blob with the given mimetype + quality. */
 function canvasToBlob(canvas, mimeType, quality) {
-  if (canvas instanceof OffscreenCanvas) {
+  // `instanceof` on an undeclared global throws (Safari < 16.4 has no OffscreenCanvas).
+  if (typeof OffscreenCanvas !== 'undefined' && canvas instanceof OffscreenCanvas) {
     return canvas.convertToBlob({ type: mimeType, quality });
   }
   return new Promise((resolve, reject) => {
@@ -86,7 +93,7 @@ function fmt(bytes) {
  */
 export async function optimizeImage(file, opts = {}) {
   const {
-    maxWidth, quality, webpQuality, thumbWidth, thumbQuality,
+    maxWidth, quality, webpQuality, thumbWidth, thumbQuality, background,
   } = { ...DEFAULTS, ...opts };
 
   if (!file || !(file instanceof Blob)) {
@@ -96,8 +103,8 @@ export async function optimizeImage(file, opts = {}) {
   const bitmap = await decode(file);
 
   // Main + WebP share the same big canvas
-  const big   = renderToCanvas(bitmap, maxWidth);
-  const thumb = renderToCanvas(bitmap, thumbWidth);
+  const big   = renderToCanvas(bitmap, maxWidth, background);
+  const thumb = renderToCanvas(bitmap, thumbWidth, background);
 
   const [main, webp, thumbBlob] = await Promise.all([
     canvasToBlob(big.canvas,   'image/jpeg', quality),

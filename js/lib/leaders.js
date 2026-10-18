@@ -16,20 +16,30 @@
 // Usage:
 //   import { fetchDirectory, photoUrl } from '/js/lib/leaders.js';
 //   const { data, error } = await fetchDirectory();        // data: section[]
-//   const res = await saveMember(member, { file });         // { ok, id } | { error }
+//   const res = await saveMember(member, { original, file }); // { ok, id } | { error, conflict? }
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { sb } from '/js/lib/supabase.js';
 import { optimizeImage } from '/js/lib/image-optimizer.js';
-import { isValidEmail, normalizeUSPhone } from '/js/lib/validators.js';
+import { normalizeUSPhone } from '/js/lib/validators.js';
 
 const BUCKET     = 'leaders';
 const T_SECTIONS = 'leader_sections';
 const T_MEMBERS  = 'leader_members';
 // Cards draw the photo at 84px (168px on retina); 480px leaves room to crop.
-const PHOTO_OPTS = { maxWidth: 480, quality: 0.86, thumbWidth: 96 };
+// JPEG has no alpha, so a cut-out headshot is flattened onto white, not black.
+const PHOTO_OPTS = { maxWidth: 480, quality: 0.86, thumbWidth: 96, background: '#ffffff' };
 const ICON_RE    = /^fa-[a-z0-9-]{1,40}$/;
+// Stricter than validators.js on purpose: mirrors leader_members_contact_email_check
+// (20261018000001) — no ? & = % , # that would add header fields to the mailto:.
+const EMAIL_RE   = /^[A-Za-z0-9._+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
 const NO_DB      = 'Supabase no está configurado.';
+const CONFLICT   = 'Esta persona cambió en otra sesión mientras la editabas. Cierra y vuelve a abrirla para ver los datos actuales.';
+
+// The fields the person modal shows. An update lands only if the row still
+// holds what the modal opened with — otherwise a stale tab could re-publish
+// contact a leader withdrew, or point the row at a photo that was replaced.
+const GUARDED = ['section_id', 'name', 'role', 'photo_path', 'is_leader', 'contact_opt_in', 'contact_email', 'contact_phone'];
 
 const SECTION_COLS = 'id,name,icon,verse_text,verse_ref,sort_order';
 const MEMBER_COLS  = 'id,section_id,name,role,photo_path,is_leader,contact_opt_in,contact_email,contact_phone,sort_order';
@@ -69,8 +79,8 @@ export async function fetchDirectory() {
 export async function fetchAdminDirectory() {
   if (!sb) return { error: NO_DB };
   const [s, m] = await Promise.all([
-    sb.from(T_SECTIONS).select(SECTION_COLS).order('sort_order').order('created_at'),
-    sb.from(T_MEMBERS).select(MEMBER_COLS).order('sort_order').order('created_at'),
+    sb.from(T_SECTIONS).select(SECTION_COLS).order('sort_order').order('created_at').order('id'),
+    sb.from(T_MEMBERS).select(MEMBER_COLS).order('sort_order').order('created_at').order('id'),
   ]);
   const error = s.error || m.error;
   if (error) {
@@ -146,7 +156,7 @@ function _memberRow(m) {
     const email = String(m.contact_email ?? '').trim();
     const phone = String(m.contact_phone ?? '').trim();
     if (!email && !phone) return { error: 'Agrega un correo o un teléfono, o desactiva «Mostrar contacto».' };
-    if (email && !isValidEmail(email)) return { error: 'El correo no es válido.' };
+    if (email && (email.length > 254 || !EMAIL_RE.test(email))) return { error: 'El correo no es válido.' };
     if (phone && !normalizeUSPhone(phone)) return { error: 'El teléfono no es válido. Usa un número de 10 dígitos.' };
     contact_email = email || null;
     contact_phone = phone ? normalizeUSPhone(phone) : null;
@@ -166,33 +176,41 @@ function _memberRow(m) {
 }
 
 /**
- * Insert or update a member. `file` replaces the photo, `clearPhoto` removes
- * it; either way the old object is deleted only after the row saved.
+ * Insert a member, or update one when `original` (the row as loaded) is given;
+ * the update only lands if the row still matches `original` on GUARDED.
+ * `file` replaces the photo, `clearPhoto` removes it; the replaced object is
+ * deleted only after the row saved. photo_path is written only when it changes.
+ * @returns {Promise<{ok: true, id: string} | {error: string, conflict?: true}>}
  */
-export async function saveMember(member, { file = null, clearPhoto = false } = {}) {
+export async function saveMember(member, { original = null, file = null, clearPhoto = false } = {}) {
   if (!sb) return { error: NO_DB };
   const { row, error: invalid } = _memberRow(member);
   if (invalid) return { error: invalid };
 
-  const previous = member.photo_path || null;
-  row.photo_path = clearPhoto ? null : previous;
+  const previous = original?.photo_path || null;
   let uploaded = null;
   if (file) {
     const up = await _uploadPhoto(file);
     if (up.error) return { error: up.error };
     row.photo_path = uploaded = up.path;
+  } else if (clearPhoto) {
+    row.photo_path = null;
   }
 
-  const q = member.id
-    ? sb.from(T_MEMBERS).update(row).eq('id', member.id)
-    : sb.from(T_MEMBERS).insert(row);
+  let q;
+  if (original) {
+    q = sb.from(T_MEMBERS).update(row).eq('id', original.id);
+    for (const col of GUARDED) q = original[col] == null ? q.is(col, null) : q.eq(col, original[col]);
+  } else {
+    q = sb.from(T_MEMBERS).insert(row);
+  }
   const { data, error } = await q.select('id').single();
   if (error) {
     console.warn('[leaders] saveMember:', error.message);
     if (uploaded) await _removePhotos([uploaded]);
-    return { error: _msg(error) };
+    return original && error.code === 'PGRST116' ? { error: CONFLICT, conflict: true } : { error: _msg(error) };
   }
-  if (previous && previous !== row.photo_path) await _removePhotos([previous]);
+  if (previous && 'photo_path' in row && previous !== row.photo_path) await _removePhotos([previous]);
   return { ok: true, id: data.id };
 }
 
@@ -233,14 +251,21 @@ export async function reorderMembers(items) {
 
 /* ── Photos ───────────────────────────────────────────────────────────────── */
 
+// crypto.randomUUID arrived in Safari 15.4; the name only has to be unguessable.
+function _objectName() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function _uploadPhoto(file) {
   let opt;
   try {
     opt = await optimizeImage(file, PHOTO_OPTS);
   } catch (e) {
-    return { error: e?.message || 'No se pudo leer la imagen.' };
+    console.warn('[leaders] uploadPhoto:', e?.message);
+    return { error: 'No se pudo procesar la imagen. Prueba con una foto JPG o PNG.' };
   }
-  const path = `${crypto.randomUUID()}.jpg`;
+  const path = `${_objectName()}.jpg`;
   const { error } = await sb.storage.from(BUCKET).upload(path, opt.main, {
     contentType: 'image/jpeg', cacheControl: '31536000', upsert: false,
   });
