@@ -354,3 +354,27 @@ curl -X POST "$PROJECT_URL/functions/v1/receipts-cleanup" \
   -H "x-cron-secret: $CRON_SECRET" -H "Content-Type: application/json" \
   -d '{"cutoffYear": 2026}'
 ```
+
+## Líderes — admin-editable "Nuestros Líderes" page
+
+`/lideres/` reads the roster from `leaders_directory()`; admins edit it in the **Líderes**
+tab. Photos go to the public `leaders` bucket. Contact (email/phone) can only be stored
+for a member marked *Es líder* who opted in, and the page shows only an icon for it
+(MIGRATION.md D-028).
+
+### One-time setup
+
+Paste `migrations/20261017000001_leaders_directory.sql` into the SQL Editor and run it
+once. It is idempotent and seeds the roster only while `leader_sections` is empty. Until
+it runs, `/lideres/` keeps showing the static fallback roster in `lideres/index.html`.
+
+### Check it
+
+```sql
+select jsonb_array_length(public.leaders_directory());        -- expect 6 sections
+select s.name, count(m.id) from public.leader_sections s
+  left join public.leader_members m on m.section_id = s.id
+  group by s.name, s.sort_order order by s.sort_order;        -- 2·1·1·6·2·1 people
+select id, public, file_size_limit, allowed_mime_types
+  from storage.buckets where id = 'leaders';                  -- true · 2097152 · {image/jpeg}
+```

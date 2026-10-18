@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="index, follow">
     <title>Nuestros Líderes · Iglesia Restauración Divina</title>
-    <meta name="description" content="Conoce a los líderes y ministerios de Iglesia Restauración Divina en Lexington, KY: mujeres, hombres, niños, jóvenes, comunicaciones y la familia pastoral.">
+    <meta name="description" content="Conoce a los líderes y ministerios de Iglesia Restauración Divina en Lexington, KY: la familia pastoral y los ministerios de mujeres, hombres, niños, jóvenes y evangelismo.">
     <meta name="author" content="Iglesia Restauración Divina">
     <link rel="canonical" href="https://www.irdlex.org/lideres/">
 
@@ -32,14 +32,14 @@
     <!-- Social sharing -->
     <meta property="og:site_name" content="IRDLex · Iglesia Restauración Divina">
     <meta property="og:title" content="Nuestros Líderes · Iglesia Restauración Divina">
-    <meta property="og:description" content="Conoce a los líderes y ministerios de Iglesia Restauración Divina en Lexington, KY: mujeres, hombres, niños, jóvenes, comunicaciones y la familia pastoral.">
+    <meta property="og:description" content="Conoce a los líderes y ministerios de Iglesia Restauración Divina en Lexington, KY: la familia pastoral y los ministerios de mujeres, hombres, niños, jóvenes y evangelismo.">
     <meta property="og:url" content="https://www.irdlex.org/lideres/">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="es_US">
     <meta property="og:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Nuestros Líderes · Iglesia Restauración Divina">
-    <meta name="twitter:description" content="Conoce a los líderes y ministerios de Iglesia Restauración Divina en Lexington, KY: mujeres, hombres, niños, jóvenes, comunicaciones y la familia pastoral.">
+    <meta name="twitter:description" content="Conoce a los líderes y ministerios de Iglesia Restauración Divina en Lexington, KY: la familia pastoral y los ministerios de mujeres, hombres, niños, jóvenes y evangelismo.">
     <meta name="twitter:image" content="https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/web-images/canonical_website_visit.png">
 
     <base href="/">
@@ -182,179 +182,154 @@
         </header>
 
         <!--
-          HOW TO EDIT:
-          • Each <section class="ministry"> is one ministry (icon + name + verse).
-          • Inside .ministry__people, each <li class="person-card"> is one person.
-            Duplicate a card to add more people; replace "Por anunciar" with the
-            real name and adjust the role.
-          • To add a photo, drop an <img> inside .person-card__avatar, e.g.:
-              <span class="person-card__avatar">
-                <img src="https://…/foto.jpg" alt="Nombre">
-                <i class="fas fa-user" aria-hidden="true"></i>
-              </span>
-            The photo covers the fallback icon automatically.
+          Fallback only — shown without JS or when the directory can't load.
+          The live roster is edited in the admin panel (Líderes tab) and
+          rendered over this block by js/pages/lideres/index.js.
         -->
+        <div class="lideres__directory" id="leadersDirectory">
+          <!-- ── Familia Pastoral ─────────────────────────────────────── -->
+          <section class="ministry scroll-fade-up">
+            <header class="ministry__head">
+              <span class="ministry__icon" aria-hidden="true"><i class="fas fa-hands-praying"></i></span>
+              <div class="ministry__heading">
+                <h3 class="ministry__name">Familia Pastoral</h3>
+                <p class="ministry__verse">"Pero yo y mi casa serviremos a Jehová." <cite>Josué 24:15</cite></p>
+              </div>
+            </header>
+            <ul class="ministry__people">
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Pastor Raúl García Guerra</p>
+                <p class="person-card__role">Pastor principal</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Juana García</p>
+                <p class="person-card__role">Pastora</p>
+              </li>
+            </ul>
+          </section>
 
-        <!-- ── Familia Pastoral ─────────────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-hands-praying"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Familia Pastoral</h3>
-              <p class="ministry__verse">"Pero yo y mi casa serviremos a Jehová." <cite>Josué 24:15</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Pastor Raúl García Guerra</p>
-              <p class="person-card__role">Pastor principal</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Primera dama</p>
-            </li>
-          </ul>
-        </section>
+          <!-- ── Ministerio de Mujeres ────────────────────────────────── -->
+          <section class="ministry scroll-fade-up">
+            <header class="ministry__head">
+              <span class="ministry__icon" aria-hidden="true"><i class="fas fa-dove"></i></span>
+              <div class="ministry__heading">
+                <h3 class="ministry__name">Ministerio de Mujeres</h3>
+                <p class="ministry__verse">"Fuerza y honor son su vestidura, y se ríe de lo por venir." <cite>Proverbios 31:25</cite></p>
+              </div>
+            </header>
+            <ul class="ministry__people">
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Juana García</p>
+                <p class="person-card__role">Líder</p>
+              </li>
+            </ul>
+          </section>
 
-        <!-- ── Ministerio de Mujeres ────────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-dove"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Ministerio de Mujeres</h3>
-              <p class="ministry__verse">"Fuerza y honor son su vestidura, y se ríe de lo por venir." <cite>Proverbios 31:25</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Líder</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Co-líder</p>
-            </li>
-          </ul>
-        </section>
+          <!-- ── Ministerio de Hombres ────────────────────────────────── -->
+          <section class="ministry scroll-fade-up">
+            <header class="ministry__head">
+              <span class="ministry__icon" aria-hidden="true"><i class="fas fa-shield-halved"></i></span>
+              <div class="ministry__heading">
+                <h3 class="ministry__name">Ministerio de Hombres</h3>
+                <p class="ministry__verse">"Esfuérzate y sé valiente; no temas, porque Jehová tu Dios estará contigo." <cite>Josué 1:9</cite></p>
+              </div>
+            </header>
+            <ul class="ministry__people">
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Ernesto García</p>
+                <p class="person-card__role">Líder</p>
+              </li>
+            </ul>
+          </section>
 
-        <!-- ── Ministerio de Hombres ────────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-shield-halved"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Ministerio de Hombres</h3>
-              <p class="ministry__verse">"Esfuérzate y sé valiente; no temas, porque Jehová tu Dios estará contigo." <cite>Josué 1:9</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Líder</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Co-líder</p>
-            </li>
-          </ul>
-        </section>
+          <!-- ── Ministerio de Niños ──────────────────────────────────── -->
+          <section class="ministry scroll-fade-up">
+            <header class="ministry__head">
+              <span class="ministry__icon" aria-hidden="true"><i class="fas fa-child-reaching"></i></span>
+              <div class="ministry__heading">
+                <h3 class="ministry__name">Ministerio de Niños</h3>
+                <p class="ministry__verse">"Dejad a los niños venir a mí, porque de los tales es el reino de los cielos." <cite>Mateo 19:14</cite></p>
+              </div>
+            </header>
+            <ul class="ministry__people">
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Luz María Navarro</p>
+                <p class="person-card__role">Líder</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Juan Reyes</p>
+                <p class="person-card__role">Maestro</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Betania Girón</p>
+                <p class="person-card__role">Maestra</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Flor Alfaro</p>
+                <p class="person-card__role">Maestra</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Zulma Reyes</p>
+                <p class="person-card__role">Maestra</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Karina Hernández</p>
+                <p class="person-card__role">Maestra</p>
+              </li>
+            </ul>
+          </section>
 
-        <!-- ── Ministerio de Niños ──────────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-child-reaching"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Ministerio de Niños</h3>
-              <p class="ministry__verse">"Dejad a los niños venir a mí, porque de los tales es el reino de los cielos." <cite>Mateo 19:14</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Líder</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Maestra</p>
-            </li>
-          </ul>
-        </section>
+          <!-- ── Ministerio de Jóvenes ────────────────────────────────── -->
+          <section class="ministry scroll-fade-up">
+            <header class="ministry__head">
+              <span class="ministry__icon" aria-hidden="true"><i class="fas fa-fire"></i></span>
+              <div class="ministry__heading">
+                <h3 class="ministry__name">Ministerio de Jóvenes</h3>
+                <p class="ministry__verse">"Ninguno tenga en poco tu juventud; sé ejemplo de los creyentes." <cite>1 Timoteo 4:12</cite></p>
+              </div>
+            </header>
+            <ul class="ministry__people">
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Ashley Navarro-Ortiz</p>
+                <p class="person-card__role">Maestra</p>
+              </li>
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Stephanie Adame</p>
+                <p class="person-card__role">Maestra</p>
+              </li>
+            </ul>
+          </section>
 
-        <!-- ── Ministerio de Jóvenes ────────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-fire"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Ministerio de Jóvenes</h3>
-              <p class="ministry__verse">"Ninguno tenga en poco tu juventud; sé ejemplo de los creyentes." <cite>1 Timoteo 4:12</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Líder</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Co-líder</p>
-            </li>
-          </ul>
-        </section>
-
-        <!-- ── Ministerio de Evangelismo ────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Ministerio de Evangelismo</h3>
-              <p class="ministry__verse">"Id, y haced discípulos a todas las naciones." <cite>Mateo 28:19</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Líder</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Co-líder</p>
-            </li>
-          </ul>
-        </section>
-
-        <!-- ── Redes Sociales ───────────────────────────────────────────── -->
-        <section class="ministry scroll-fade-up">
-          <header class="ministry__head">
-            <span class="ministry__icon" aria-hidden="true"><i class="fas fa-share-nodes"></i></span>
-            <div class="ministry__heading">
-              <h3 class="ministry__name">Redes Sociales</h3>
-              <p class="ministry__verse">"Id por todo el mundo y predicad el evangelio a toda criatura." <cite>Marcos 16:15</cite></p>
-            </div>
-          </header>
-          <ul class="ministry__people">
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Encargado</p>
-            </li>
-            <li class="person-card">
-              <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
-              <p class="person-card__name">Por anunciar</p>
-              <p class="person-card__role">Contenido y diseño</p>
-            </li>
-          </ul>
-        </section>
+          <!-- ── Ministerio de Evangelismo ────────────────────────────── -->
+          <section class="ministry scroll-fade-up">
+            <header class="ministry__head">
+              <span class="ministry__icon" aria-hidden="true"><i class="fas fa-bullhorn"></i></span>
+              <div class="ministry__heading">
+                <h3 class="ministry__name">Ministerio de Evangelismo</h3>
+                <p class="ministry__verse">"Id, y haced discípulos a todas las naciones." <cite>Mateo 28:19</cite></p>
+              </div>
+            </header>
+            <ul class="ministry__people">
+              <li class="person-card">
+                <span class="person-card__avatar" aria-hidden="true"><i class="fas fa-user"></i></span>
+                <p class="person-card__name">Javier Farfán</p>
+                <p class="person-card__role">Líder</p>
+              </li>
+            </ul>
+          </section>
+        </div>
 
         <div class="lideres__cta-row animate-fade-in" data-threshold="1">
           <p class="lideres__cta-text">¿Sientes el llamado a servir con nosotros?</p>
@@ -497,6 +472,7 @@
   <script type="module" src="/js/app/scroll-reveal.js"></script>
   <script type="module" src="/js/utils/load-icons.js"></script>
   <script type="module" src="/js/components/page-transition.js"></script>
+  <script type="module" src="/js/pages/lideres/index.js"></script>
 </body>
 
 </html>
