@@ -327,7 +327,7 @@
 
   async function onContactForm(host) {
     await initUIOnce();
-    const form = host.querySelector('form[action*="formsubmit.co"]');
+    const form = host.querySelector('form[data-contact-form]');
     if (form && once(form, "ajaxWired")) {
       try {
         const forms = await import("/js/lib/forms.js");
@@ -409,7 +409,7 @@
 
       // Contact + Footer
       await include("contact-form", "/src/contact-form.html",
-        (host) => !!host.querySelector('form[action*="formsubmit.co"]') || host.childElementCount > 0,
+        (host) => !!host.querySelector('form[data-contact-form]') || host.childElementCount > 0,
         onContactForm
       );
 

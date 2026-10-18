@@ -51,6 +51,7 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 |---|---|---|---|---|---|---|
 | DF-001 | Unescaped visitor free-text → admin `.innerHTML` in Interesados | security / PII | major | ✅ yes | S51 `dual-fix` | ☑ |
 | DF-002 | `safeHref` scheme check defeated by embedded newline (`java\nscript:`) | security | major | ✅ yes | landed with the fix (port patched in the same PR) | ☑ |
+| DF-005 | Contact form messages never reach the advertised inbox (FormSubmit → `serve@`) | production-down | major | ✅ yes | S25 — port `ContactForm` calls `contact-submit` | ☐ |
 | — | project-treasury renders `$0.00` on failed fetch | missing-error-state | — | ❌ no → PORT-DEBT (S56) | — | — |
 | — | calendar `filters.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S48/S49) | — | — |
 | — | `filters.js` + `ministries.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S44/S48/S49) | — | — |
@@ -59,6 +60,25 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 ---
 
 ## CONFIRMED — land in legacy, mirror into the port
+
+### DF-005 — Contact form messages never reach the advertised inbox
+
+- **id:** `contact-form-formsubmit-wrong-inbox`
+- **Category:** production-down — the public site's only general contact channel silently drops
+  every message. Reported 2026-10-17 ("not getting emails from the form").
+- **Severity:** major.
+- **Cause:** the form posts to FormSubmit key `c0f27151…`, created 2025-07-16 for
+  `serve@irdlex.org`; the site advertises `contactanos@irdlex.org` everywhere. FormSubmit answers
+  `{"success":"true"}` (verified 2026-10-17), so nothing looks broken. Microsoft 365 (the irdlex.org
+  MX) can also quarantine FormSubmit mail. Latent: `forms.js` read FormSubmit's string
+  `"success":"false"` (e.g. "form needs activation") as success.
+- **Fix:** new Edge Function `contact-submit` emails the message through Resend (DKIM-aligned
+  `noreply@irdlex.org`, passes DMARC `p=reject`) to `contactanos@irdlex.org`, Reply-To the visitor.
+  The form posts there via `sb.functions.invoke`; server-side validation, honeypot, origin check
+  and a per-isolate IP limit. FormSubmit is removed, so it no longer receives visitors' PII.
+- **Mirror:** S25's `ContactForm` posts to `contact-submit` (ROADMAP updated). The port has no
+  contact form yet, so there is nothing to patch today.
+- **Landed:** ☐ — needs `supabase functions deploy contact-submit --no-verify-jwt`, then the release.
 
 ### DF-002 — Sanitizer `safeHref` scheme check defeated by an embedded newline
 
