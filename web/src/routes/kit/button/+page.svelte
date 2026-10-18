@@ -4,7 +4,7 @@
   // element choice, the icon slot, both palettes and the reduced-motion fact.
   // Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import Button from '$lib/components/Button.svelte';
   import { BUTTON_VARIANTS, BUTTON_SIZES } from '$lib/components/button';
   import { prefersReducedMotion } from '$lib/reduced-motion';
@@ -154,9 +154,9 @@
   <section class="kit__section" aria-labelledby="h-element">
     <h2 id="h-element">Elemento y destino</h2>
     <div class="row">
-      <Button href="{base}/kit/card/">Ir a /kit/card/ (&lt;a&gt;)</Button>
+      <Button href={resolve('kit/card/')}>Ir a /kit/card/ (&lt;a&gt;)</Button>
       <Button href="https://www.irdlex.org/" target="_blank">Sitio público (pestaña nueva)</Button>
-      <Button href="{base}/kit/card/" disabled>Enlace deshabilitado</Button>
+      <Button href={resolve('kit/card/')} disabled>Enlace deshabilitado</Button>
       <Button type="submit">type="submit"</Button>
     </div>
     <p class="kit__note">

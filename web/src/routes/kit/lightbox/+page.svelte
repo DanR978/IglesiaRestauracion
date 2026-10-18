@@ -5,15 +5,15 @@
   // one-photo edge case, a missing caption, a very long caption, and the
   // scroll lock (the page below is deliberately tall). Prerendered, noindex,
   // no data fetching.
-  import { base } from '$app/paths';
+  import { asset } from '$app/paths';
   import Lightbox from '$lib/components/Lightbox.svelte';
   import ToastHost from '$lib/components/ToastHost.svelte';
   import { prefersReducedMotion } from '$lib/reduced-motion';
   import { lightbox, openLightbox, type LightboxPhoto } from '$lib/stores/lightbox.svelte';
 
   const photo = (file: string, width: number, height: number, caption: string | null) => ({
-    public_url: `${base}/kit/lightbox/${file}`,
-    thumbnail_url: `${base}/kit/lightbox/${file}`,
+    public_url: asset(`kit/lightbox/${file}`),
+    thumbnail_url: asset(`kit/lightbox/${file}`),
     caption,
     width,
     height,

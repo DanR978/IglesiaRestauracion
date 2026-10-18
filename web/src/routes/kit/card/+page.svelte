@@ -4,7 +4,7 @@
   // the pure-CSS card grid that replaces autoBalance() (G-010), and both
   // palettes. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import { base } from '$app/paths';
+  import { resolve } from '$app/paths';
   import Button from '$lib/components/Button.svelte';
   import Card from '$lib/components/Card.svelte';
   import type { KpiTile } from '$lib/components/card';
@@ -91,7 +91,7 @@
       </Card>
       <Card
         variant="interactive"
-        href="{base}/kit/button/"
+        href={resolve('kit/button/')}
         heading="Ir a los botones"
         headingIcon="arrow-right"
       >
