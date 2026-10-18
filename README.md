@@ -42,7 +42,7 @@ A bilingual church website built to serve the Hispanic Christian community in Le
 | Donación | Giving page |
 | Doctrina | Core beliefs — 7 doctrines in zigzag layout |
 | Visión y Valores | Mission, vision, and values with interactive cards |
-| Contact | Contact form (via FormSubmit) |
+| Contact | Contact form (emailed to the church inbox via the `contact-submit` Edge Function) |
 
 ---
 
@@ -56,7 +56,7 @@ A bilingual church website built to serve the Hispanic Christian community in Le
 | Hosting | GitHub Pages with custom domain (`irdlex.org`) |
 | CI/CD | GitHub Actions — builds CSS + heads + sitemap, inlines partials, deploys |
 | Media | YouTube Data API v3 proxied through Supabase Edge Function |
-| Forms | [FormSubmit](https://formsubmit.co) for contact form processing |
+| Forms | `contact-submit` Edge Function → [Resend](https://resend.com) (same sender as the newsletter) |
 | Fonts | Lexend Deca, Geist, Signika, Carattere (Google Fonts) |
 | Icons | Font Awesome 6, custom SVG sprite system |
 

@@ -1,7 +1,10 @@
+import { sb } from './supabase.js';
 import { showToast } from './toast.js';
 import { trackEvent } from './track.js';
 import { runCodeCaptchaModal, preloadCodeCaptcha } from './captcha.js';
-import { isValidEmail, isValidUSPhone, isValidName, normalizeUSPhone } from './validators.js';
+import { isValidEmail, isValidUSPhone, isValidName, normalizeUSPhone, formatUSPhoneNational } from './validators.js';
+
+const FORM_SELECTOR = 'form[data-contact-form]';
 
 // ── Accessible field errors ──────────────────────────────────────────────────
 // Validation used to surface only a toast (and the toast live region was broken,
@@ -58,15 +61,6 @@ export function attachAjaxToForm(form) {
   form.__wiredAjax = true;
   form.setAttribute("novalidate", "");
 
-  let cap = form.querySelector('input[name="_captcha"]');
-  if (!cap) { 
-    cap = document.createElement("input"); 
-    cap.type = "hidden"; 
-    cap.name = "_captcha"; 
-    form.appendChild(cap); 
-  }
-  cap.value = "false";
-
   if (!form.querySelector('input[name="_honey"]')) {
     const honey = document.createElement("input");
     honey.type = "text"; honey.name = "_honey"; honey.style.display = "none"; honey.tabIndex = -1;
@@ -119,19 +113,32 @@ export function attachAjaxToForm(form) {
     const human = await runCodeCaptchaModal();
     if (!human) { showToast("Verificación cancelada.", { ok:false }); busy=false; return; }
 
-    const ajaxUrl = form.action.replace("https://formsubmit.co/", "https://formsubmit.co/ajax/");
-    const body    = new FormData(form);
+    if (!sb) { showToast("No se pudo enviar. Inténtalo más tarde.", { ok: false }); busy = false; return; }
 
+    // The contact-submit Edge Function emails the church inbox via Resend.
     try {
-      const res  = await fetch(ajaxUrl, { method: "POST", headers: { Accept: "application/json" }, body });
-      const data = await res.json().catch(() => ({}));
-      if (res.ok && (data.success || data.message)) {
-        showToast("¡Mensaje enviado! Gracias por contactarnos.", { ok: true });
-        trackEvent("contact_form");
-        form.reset();
-      } else {
-        showToast("No se pudo enviar. Inténtalo de nuevo.", { ok: false });
+      const { error } = await sb.functions.invoke("contact-submit", {
+        body: {
+          name, email, message: msg,
+          phone: formatUSPhoneNational(phone),
+          _honey: form.querySelector('input[name="_honey"]')?.value || "",
+        },
+      });
+      if (error) {
+        let text = error.name === "FunctionsFetchError"
+          ? "Error de red. Revisa tu conexión."
+          : "No se pudo enviar. Inténtalo de nuevo.";
+        try {
+          const data = await error.context.json();
+          if (data?.error) text = data.error;
+        } catch { /* no JSON body — keep the generic text */ }
+        console.warn("[forms] contact-submit:", error.message);
+        showToast(text, { ok: false });
+        return;
       }
+      showToast("¡Mensaje enviado! Gracias por contactarnos.", { ok: true });
+      trackEvent("contact_form");
+      form.reset();
     } catch {
       showToast("Error de red. Revisa tu conexión.", { ok: false });
     } finally {
@@ -141,14 +148,14 @@ export function attachAjaxToForm(form) {
 }
 
 export function observeContainer(root) {
-  const immediate = root.querySelector('form[action*="formsubmit.co"]');
+  const immediate = root.querySelector(FORM_SELECTOR);
   if (immediate) attachAjaxToForm(immediate);
   const mo = new MutationObserver((muts) => {
     for (const m of muts) {
       m.addedNodes.forEach((n) => {
         if (n.nodeType !== 1) return;
-        if (n.matches?.('form[action*="formsubmit.co"]')) attachAjaxToForm(n);
-        n.querySelectorAll?.('form[action*="formsubmit.co"]').forEach(attachAjaxToForm);
+        if (n.matches?.(FORM_SELECTOR)) attachAjaxToForm(n);
+        n.querySelectorAll?.(FORM_SELECTOR).forEach(attachAjaxToForm);
       });
     }
   });
