@@ -1,10 +1,9 @@
 // js/pages/lideres/index.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Public "Nuestros Líderes" page. Renders the roster edited in the admin
-// Líderes tab (js/lib/leaders.js) over the static markup in #leadersDirectory.
-//
-// That static markup is the fallback for no-JS visitors and for a failed load,
-// so an error leaves it in place instead of swapping in an error box.
+// Líderes tab (js/lib/leaders.js) into #leadersDirectory: loading, then the
+// roster, the empty state or an error box. The HTML holds no names on purpose —
+// a person removed in the admin must be gone from the page, view-source included.
 //
 // Contact: a leader who opted in gets an envelope / phone icon button. The
 // address and number never reach the DOM — they stay in _contacts and are only
@@ -13,7 +12,7 @@
 
 import { html } from '/js/utils/escape.js';
 import { render } from '/js/utils/render.js';
-import { emptyHtml } from '/js/components/states.js';
+import { loadingHtml, emptyHtml, errorHtml } from '/js/components/states.js';
 import { fetchDirectory, photoUrl } from '/js/lib/leaders.js';
 import { trackEvent } from '/js/lib/track.js';
 
@@ -66,7 +65,10 @@ function onContactClick(e) {
   const value = isEmail ? c?.email : c?.phone;
   if (!value) return;
   trackEvent(isEmail ? 'email' : 'call', 'lideres');
-  window.location.href = `${isEmail ? 'mailto' : 'tel'}:${value}`;
+  // Encoded so nothing in a stored address can act as a mailto: header (?bcc=…).
+  window.location.href = isEmail
+    ? `mailto:${encodeURIComponent(value).replace(/%40/g, '@')}`
+    : `tel:${value}`;
 }
 
 async function initLeaders() {
@@ -75,22 +77,21 @@ async function initLeaders() {
   root.addEventListener('click', onContactClick);
   // A photo that fails to load falls back to the icon underneath it.
   root.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
+  render(root, loadingHtml());
 
   const { data, error } = await fetchDirectory();
-  if (error) return;
-
-  _contacts.clear();
-  data.forEach(s => s.members.forEach(m => {
-    if (m.email || m.phone) _contacts.set(m.id, { email: m.email, phone: m.phone });
-  }));
-
-  // Carry over scroll-reveal state, so a block that already faded in doesn't
-  // blink out and fade in again when its markup is replaced.
-  const shown = [...root.querySelectorAll('.ministry')].map(el => el.classList.contains('is-visible'));
-  render(root, data.length
-    ? html`${data.map(sectionBlock)}`
-    : emptyHtml('fa-people-group', 'Muy pronto presentaremos a las personas que sirven en cada ministerio.'));
-  root.querySelectorAll('.ministry').forEach((el, i) => { if (shown[i]) el.classList.add('is-visible'); });
+  if (error) {
+    render(root, errorHtml('No se pudo cargar la lista de líderes. Inténtalo de nuevo más tarde.'));
+  } else {
+    _contacts.clear();
+    data.forEach(s => s.members.forEach(m => {
+      if (m.email || m.phone) _contacts.set(m.id, { email: m.email, phone: m.phone });
+    }));
+    render(root, data.length
+      ? html`${data.map(sectionBlock)}`
+      : emptyHtml('fa-people-group', 'Muy pronto presentaremos a las personas que sirven en cada ministerio.'));
+  }
+  root.setAttribute('aria-busy', 'false');
 }
 
 initLeaders();

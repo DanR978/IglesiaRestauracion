@@ -364,9 +364,15 @@ for a member marked *Es líder* who opted in, and the page shows only an icon fo
 
 ### One-time setup
 
-Paste `migrations/20261017000001_leaders_directory.sql` into the SQL Editor and run it
-once. It is idempotent and seeds the roster only while `leader_sections` is empty. Until
-it runs, `/lideres/` keeps showing the static fallback roster in `lideres/index.html`.
+Paste these into the SQL Editor, in order, and run each once (both idempotent):
+
+1. `migrations/20261017000001_leaders_directory.sql` — tables, RPC, bucket, and the roster
+   seed (only while `leader_sections` is empty). **Applied in prod 2026-10-18.**
+2. `migrations/20261018000001_leaders_review_fixes.sql` — strict `contact_email` shape and
+   an `id` tie-breaker in the RPC. It refuses to apply if a stored address breaks the new
+   shape; fix that row in the Líderes tab first.
+
+Until (1) runs, `/lideres/` shows an error box — the page holds no names of its own.
 
 ### Check it
 
@@ -377,4 +383,6 @@ select s.name, count(m.id) from public.leader_sections s
   group by s.name, s.sort_order order by s.sort_order;        -- 2·1·1·6·2·1 people
 select id, public, file_size_limit, allowed_mime_types
   from storage.buckets where id = 'leaders';                  -- true · 2097152 · {image/jpeg}
+select pg_get_constraintdef(oid) from pg_constraint
+  where conname = 'leader_members_contact_email_check';      -- (2): …[A-Za-z0-9._+-]+@…
 ```
