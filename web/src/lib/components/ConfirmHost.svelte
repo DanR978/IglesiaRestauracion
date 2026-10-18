@@ -20,7 +20,7 @@
 <script lang="ts">
   import Button from './Button.svelte';
   import Modal from './Modal.svelte';
-  import { confirmState } from '$lib/stores/confirm.svelte';
+  import { confirmState } from '#lib/stores/confirm.svelte.js';
 
   const request = $derived(confirmState.current);
 </script>

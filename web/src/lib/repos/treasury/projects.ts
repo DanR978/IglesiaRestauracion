@@ -18,10 +18,10 @@
  * per-project rollups are in `./summary`.
  *
  * Usage:
- *   import { fetchProjects, createProject } from '$lib/repos/treasury';
+ *   import { fetchProjects, createProject } from '#lib/repos/treasury/index.js';
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
+import { supabase } from '#lib/db/client.js';
 import type { WriteResult } from '../types';
 import {
   warnRead,

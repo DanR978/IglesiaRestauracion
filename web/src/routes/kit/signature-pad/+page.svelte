@@ -5,8 +5,12 @@
   // from outside the component, the hi-DPI backing store, and the trimmed
   // export with its size cap. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import SignaturePad from '$lib/components/SignaturePad.svelte';
-  import { dataUrlByteLength, SIGNATURE_MAX_BYTES, SIGNATURE_PAD_HEIGHT } from '$lib/signature-pad';
+  import SignaturePad from '#lib/components/SignaturePad.svelte';
+  import {
+    dataUrlByteLength,
+    SIGNATURE_MAX_BYTES,
+    SIGNATURE_PAD_HEIGHT,
+  } from '#lib/signature-pad.js';
 
   let framed = $state('');
   let bare = $state('');

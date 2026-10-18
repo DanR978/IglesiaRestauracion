@@ -15,7 +15,7 @@ import {
   isFaIconName,
   isSpriteIcon,
   isValidIcon,
-} from '$lib/components/icon';
+} from '#lib/components/icon.js';
 
 // cwd is web/ under vitest (import.meta.url is not a file: URL for test files).
 const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), 'utf8');

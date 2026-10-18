@@ -26,7 +26,7 @@
  *      $lib/scroll-lock (via Modal) fixes that for every overlay at once.
  *
  * Usage:
- *   import { confirm } from '$lib/stores/confirm.svelte';
+ *   import { confirm } from '#lib/stores/confirm.svelte.js';
  *   const ok = await confirm('¿Cerrar sesión?');                       // danger
  *   const ok = await confirm('¿Descartar cambios?', '', { danger: false });
  * ========================================================================== */

@@ -4,8 +4,8 @@
 // machine timezone (the generator verified NY vs Tokyo byte-identical).
 // todayISO is clock-dependent → covered in tests/unit/date.test.ts, not here.
 import { describe } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
-import { isoDate, pad2, ymd } from '$lib/date';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
+import { isoDate, pad2, ymd } from '#lib/date.js';
 import fixtureJson from '../fixtures/date.json';
 
 type Fixture = {

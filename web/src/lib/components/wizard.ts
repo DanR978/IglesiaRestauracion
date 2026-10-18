@@ -24,9 +24,9 @@
  *   { title, editTitle, icon, submitLabel, steps, toData(row), toPayload(data) }
  *
  * Usage:
- *   import { applyDefaults, validateStep, formatFieldValue } from '$lib/components/wizard';
+ *   import { applyDefaults, validateStep, formatFieldValue } from '#lib/components/wizard.js';
  * ========================================================================== */
-import { formatUSD, toCents } from '$lib/money';
+import { formatUSD, toCents } from '#lib/money.js';
 
 /** Everything a wizard field can hold. Values stay DOLLARS-as-entered for
  *  money (a spec's `toPayload` does `Number(d.amount)`); cents conversion is

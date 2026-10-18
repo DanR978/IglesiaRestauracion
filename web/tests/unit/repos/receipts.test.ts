@@ -3,7 +3,7 @@
 // this session); RLS itself is proven on staging, never here.
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock, supabase as mockClient } from './mock-client';
 import {
@@ -20,7 +20,7 @@ import {
   totalBytes,
   uploadReceipt,
   type FinReceipt,
-} from '$lib/repos/receipts';
+} from '#lib/repos/receipts.js';
 
 const ERR = { message: 'boom' };
 const blob = (size: number): Blob => new Blob([new Uint8Array(size)]);

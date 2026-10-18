@@ -1,7 +1,7 @@
 /* ============================================================================
  * web/src/lib/repos/treasury/index.ts — the treasury data layer (S52)
  * ----------------------------------------------------------------------------
- * ONE import path — `$lib/repos/treasury` — for every `fin_*` query in the new
+ * ONE import path — `#lib/repos/treasury` — for every `fin_*` query in the new
  * app. This is a FROZEN FOUNDATION: S53 (books), S54 (recurrentes / por pagar
  * / notas / config), S55 (reportes), S56 (ministry & project), S56b (recibos)
  * and S56c (registro rápido) all sit on these signatures, so changing one is a
@@ -40,7 +40,7 @@
  * adding one would be an abstraction with no caller.
  *
  * Usage:
- *   import { fetchBooksSummary, fetchExpenses, monthRange } from '$lib/repos/treasury';
+ *   import { fetchBooksSummary, fetchExpenses, monthRange } from '#lib/repos/treasury/index.js';
  *   const range = monthRange('2026-08');
  *   const [kpis, rows] = await Promise.all([fetchBooksSummary(range), fetchExpenses(range)]);
  * ========================================================================== */

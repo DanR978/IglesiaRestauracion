@@ -21,11 +21,11 @@
  * (PORT-DEBT S56).
  *
  * Usage:
- *   import { fetchBooksSummary, monthRange } from '$lib/repos/treasury';
+ *   import { fetchBooksSummary, monthRange } from '#lib/repos/treasury/index.js';
  *   const kpis = await fetchBooksSummary(monthRange('2026-08'));
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
+import { supabase } from '#lib/db/client.js';
 import {
   PASTOR_LABEL,
   amountToCents,

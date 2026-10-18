@@ -11,20 +11,20 @@
  * "violates row-level security policy". The wizard only needs "it succeeded".
  *
  * Lifecycle rules (phase, visibility, ordering) are pure and live in
- * `$lib/special-events`; this module only runs the queries and applies them.
+ * `#lib/special-events.js`; this module only runs the queries and applies them.
  *
  * Usage:
- *   import { fetchLiveEvents, fetchSpecialEventBy } from '$lib/repos/registrations';
+ *   import { fetchLiveEvents, fetchSpecialEventBy } from '#lib/repos/registrations.js';
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import type { Tables, TablesInsert } from '$lib/db/database.types';
+import { supabase } from '#lib/db/client.js';
+import type { Tables, TablesInsert } from '#lib/db/database.types.js';
 import {
   LINGER_DAYS,
   compareByPhaseThenDate,
   isPubliclyVisible,
   type EventAlbumRef,
-} from '$lib/special-events';
+} from '#lib/special-events.js';
 import type { WriteResult } from './types';
 
 const TAG = '[registrations]';

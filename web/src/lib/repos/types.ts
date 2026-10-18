@@ -11,7 +11,7 @@
  *            ready for `toast(error, 'error')`.
  *
  * Usage:
- *   import type { WriteResult, Unsubscribe } from '$lib/repos/types';
+ *   import type { WriteResult, Unsubscribe } from '#lib/repos/types.js';
  *   const res = await deleteAlbum(id);
  *   if (!res.ok) toast(res.error, 'error');
  * ========================================================================== */

@@ -24,7 +24,7 @@
     SIGNATURE_PAD_HEIGHT,
     type SignatureChangeReason,
     type SignaturePad as SignaturePadController,
-  } from '$lib/signature-pad';
+  } from '#lib/signature-pad.js';
 
   interface Props {
     /** The captured signature as a trimmed PNG data URL. '' when unsigned. */

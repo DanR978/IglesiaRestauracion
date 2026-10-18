@@ -22,12 +22,12 @@
  *      books). `cleanNote()` is what keeps them off the screen.
  *
  * Usage:
- *   import { monthRange, allocDecode, cleanNote } from '$lib/repos/treasury';
+ *   import { monthRange, allocDecode, cleanNote } from '#lib/repos/treasury/index.js';
  *   const rows = await fetchExpenses(monthRange('2026-08'));
  * ========================================================================== */
 
-import { sumC, toCents } from '$lib/money';
-import type { Tables, TablesInsert, TablesUpdate } from '$lib/db/database.types';
+import { sumC, toCents } from '#lib/money.js';
+import type { Tables, TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 
 /* ── Repo plumbing ─────────────────────────────────────────────────────── */
 

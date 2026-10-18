@@ -9,14 +9,14 @@
  * optimised blobs (the S46 port of image-optimizer.js produces them).
  *
  * Usage:
- *   import { fetchAlbums, fetchAlbumBy, fetchPhotos } from '$lib/repos/gallery';
+ *   import { fetchAlbums, fetchAlbumBy, fetchPhotos } from '#lib/repos/gallery.js';
  * ========================================================================== */
 
 import { browser } from '$app/env';
-import { supabase } from '$lib/db/client';
-import type { Tables, TablesInsert, TablesUpdate } from '$lib/db/database.types';
-import { BUCKET } from '$lib/gallery';
-import { slugify } from '$lib/slug';
+import { supabase } from '#lib/db/client.js';
+import type { Tables, TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
+import { BUCKET } from '#lib/gallery.js';
+import { slugify } from '#lib/slug.js';
 import type { ChangeHandler, Unsubscribe, WriteResult } from './types';
 
 const TAG = '[gallery]';

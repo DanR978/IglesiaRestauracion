@@ -3,7 +3,7 @@
 // js/pages/eventos/hub.js:56-57 · js/components/calendar.js:47-58.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -12,7 +12,7 @@ import {
   fetchEventsForCalendar,
   fetchUpcomingEvents,
   subscribeEvents,
-} from '$lib/repos/events';
+} from '#lib/repos/events.js';
 
 const ERR = { message: 'boom' };
 

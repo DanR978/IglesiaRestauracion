@@ -14,13 +14,13 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import RichTextEditor from '$lib/components/RichTextEditor.svelte';
+import RichTextEditor from '#lib/components/RichTextEditor.svelte';
 import {
   RICH_TEXT_SWATCHES,
   RICH_TEXT_TOOLS,
   normalizeLinkUrl,
   safeHexColor,
-} from '$lib/components/rich-text';
+} from '#lib/components/rich-text.js';
 
 interface CommandDocument {
   execCommand: ReturnType<typeof vi.fn>;

@@ -13,12 +13,12 @@
  * (D-002). Never import a service-role key into web/.
  *
  * Usage:
- *   import { supabase } from '$lib/db/client';
+ *   import { supabase } from '#lib/db/client.js';
  *   const { data, error } = await supabase.from('events').select('*');
  * ========================================================================== */
 import { createClient } from '@supabase/supabase-js';
 import { browser } from '$app/env';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '$lib/config';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '#lib/config.js';
 import type { Database } from './database.types';
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {

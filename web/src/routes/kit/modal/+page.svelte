@@ -4,13 +4,13 @@
   // top of an open modal, and both palettes. Prerendered, no data fetching,
   // noindex.
   import { onMount } from 'svelte';
-  import Button from '$lib/components/Button.svelte';
-  import ConfirmHost from '$lib/components/ConfirmHost.svelte';
-  import Modal from '$lib/components/Modal.svelte';
-  import { MODAL_VARIANTS, type ModalVariant } from '$lib/components/modal';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
-  import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '$lib/scroll-lock';
-  import { confirm } from '$lib/stores/confirm.svelte';
+  import Button from '#lib/components/Button.svelte';
+  import ConfirmHost from '#lib/components/ConfirmHost.svelte';
+  import Modal from '#lib/components/Modal.svelte';
+  import { MODAL_VARIANTS, type ModalVariant } from '#lib/components/modal.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
+  import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '#lib/scroll-lock.js';
+  import { confirm } from '#lib/stores/confirm.svelte.js';
 
   const VARIANT_ROLE: Record<ModalVariant, string> = {
     standard: 'formularios y paneles de detalle (~500px)',

@@ -12,15 +12,15 @@ import { resolve } from 'node:path';
 import { fireEvent, render, within } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ConfirmHost from '$lib/components/ConfirmHost.svelte';
+import ConfirmHost from '#lib/components/ConfirmHost.svelte';
 import {
   CONFIRM_DEFAULT_NO,
   CONFIRM_DEFAULT_TITLE,
   CONFIRM_DEFAULT_YES,
   confirm,
   confirmState,
-} from '$lib/stores/confirm.svelte';
-import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '$lib/scroll-lock';
+} from '#lib/stores/confirm.svelte.js';
+import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '#lib/scroll-lock.js';
 import ModalHarness from './fixtures/ModalHarness.svelte';
 
 /** Ask, then let Svelte paint the dialog. */

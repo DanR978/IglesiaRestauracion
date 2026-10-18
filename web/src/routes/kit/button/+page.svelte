@@ -5,9 +5,9 @@
   // Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
   import { resolve } from '$app/paths';
-  import Button from '$lib/components/Button.svelte';
-  import { BUTTON_VARIANTS, BUTTON_SIZES } from '$lib/components/button';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import Button from '#lib/components/Button.svelte';
+  import { BUTTON_VARIANTS, BUTTON_SIZES } from '#lib/components/button.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
 
   const VARIANT_ROLE: Record<string, string> = {
     primary: 'la acción principal de la pantalla',

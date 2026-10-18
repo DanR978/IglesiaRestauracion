@@ -17,7 +17,7 @@
  * SSR / prerender safe: with no `document` it is a no-op returning a no-op.
  *
  * Usage:
- *   import { lockBodyScroll } from '$lib/scroll-lock';
+ *   import { lockBodyScroll } from '#lib/scroll-lock.js';
  *   $effect(() => { if (!open) return; return lockBodyScroll(); });
  * ========================================================================== */
 

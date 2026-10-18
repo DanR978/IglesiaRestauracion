@@ -2,7 +2,7 @@
 // + js/pages/eventos/hub.js:58 + registro-wizard.js:478, and G-006.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -12,7 +12,7 @@ import {
   fetchSpecialEventsForCalendar,
   submitRegistrations,
   type EventRegistrationInsert,
-} from '$lib/repos/registrations';
+} from '#lib/repos/registrations.js';
 import fixtureJson from '../../fixtures/special-events.json';
 
 const ERR = { message: 'boom' };

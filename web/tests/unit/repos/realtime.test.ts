@@ -3,7 +3,7 @@
 // $app/environment is re-mocked here so `browser` is true.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 vi.mock('$app/environment', () => ({
   browser: true,
   dev: false,
@@ -12,9 +12,9 @@ vi.mock('$app/environment', () => ({
 }));
 
 import { mock } from './mock-client';
-import { subscribeEvents } from '$lib/repos/events';
-import { subscribeAlbums, subscribePhotos } from '$lib/repos/gallery';
-import { subscribeGroups, subscribeInterests } from '$lib/repos/discipleship';
+import { subscribeEvents } from '#lib/repos/events.js';
+import { subscribeAlbums, subscribePhotos } from '#lib/repos/gallery.js';
+import { subscribeGroups, subscribeInterests } from '#lib/repos/discipleship.js';
 
 const changes = (table: string, filter?: string) => ({
   event: '*',

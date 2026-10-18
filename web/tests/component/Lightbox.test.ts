@@ -11,14 +11,14 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { flushSync, tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Lightbox from '$lib/components/Lightbox.svelte';
+import Lightbox from '#lib/components/Lightbox.svelte';
 import {
   closeLightbox,
   lightbox,
   openLightbox,
   type LightboxPhoto,
-} from '$lib/stores/lightbox.svelte';
-import { toast } from '$lib/stores/toast.svelte';
+} from '#lib/stores/lightbox.svelte.js';
+import { toast } from '#lib/stores/toast.svelte.js';
 
 const CDN = 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/gallery';
 

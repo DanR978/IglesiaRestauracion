@@ -18,7 +18,7 @@
 // single signature from the signing adult / guardian.
 //
 // Usage:
-//   import { renderWaiverPrintDoc, buildWaiverDocDef, WAIVER_CSS } from '$lib/waiver';
+//   import { renderWaiverPrintDoc, buildWaiverDocDef, WAIVER_CSS } from '#lib/waiver.js';
 //   printFrame.srcdoc = `<style>${WAIVER_CSS}</style>` + renderWaiverPrintDoc(opts);
 //   await savePdf(buildWaiverDocDef(opts), 'exoneracion.pdf');   // $lib/pdf (S09)
 // ─────────────────────────────────────────────────────────────────────────────

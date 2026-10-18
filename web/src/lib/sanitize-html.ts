@@ -20,7 +20,7 @@
  * Uses DOMParser — browser/jsdom only, never plain Node (G-001).
  *
  * Usage:
- *   import { sanitizeHtml, renderRichText, richToPlain, htmlIsEmpty } from '$lib/sanitize-html';
+ *   import { sanitizeHtml, renderRichText, richToPlain, htmlIsEmpty } from '#lib/sanitize-html.js';
  * ========================================================================== */
 
 import { esc } from './escape';

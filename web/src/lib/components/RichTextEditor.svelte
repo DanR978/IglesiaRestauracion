@@ -26,7 +26,7 @@
 -->
 <script lang="ts">
   import Icon from './Icon.svelte';
-  import { htmlIsEmpty, sanitizeHtml } from '$lib/sanitize-html';
+  import { htmlIsEmpty, sanitizeHtml } from '#lib/sanitize-html.js';
   import {
     RICH_TEXT_DEFAULT_COLOR,
     RICH_TEXT_STATEFUL_COMMANDS,

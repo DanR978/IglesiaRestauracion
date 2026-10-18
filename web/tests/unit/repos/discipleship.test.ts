@@ -3,7 +3,7 @@
 // anon interest insert).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -25,7 +25,7 @@ import {
   subscribeInterests,
   updateInterestStatus,
   upsertGroup,
-} from '$lib/repos/discipleship';
+} from '#lib/repos/discipleship.js';
 
 const ERR = { message: 'boom' };
 

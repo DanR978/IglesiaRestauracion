@@ -3,7 +3,7 @@
 // trailing slash included (MIGRATION.md D-001).
 // The config import keeps $lib/config in every build graph, so a missing
 // PUBLIC_* variable fails the build instead of shipping a nullable client (D-007).
-import '$lib/config';
+import '#lib/config.js';
 
 export const prerender = true;
 export const trailingSlash = 'always';

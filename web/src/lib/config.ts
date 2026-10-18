@@ -11,7 +11,7 @@
  * silently-nullable client (the legacy `sb`-is-null trap this replaces).
  *
  * Usage:
- *   import { SUPABASE_URL, SUPABASE_ANON_KEY } from '$lib/config';
+ *   import { SUPABASE_URL, SUPABASE_ANON_KEY } from '#lib/config.js';
  * ========================================================================== */
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$app/env/public';
 

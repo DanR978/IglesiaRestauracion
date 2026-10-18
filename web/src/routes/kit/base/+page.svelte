@@ -3,7 +3,7 @@
   // mobile-input floor, container/zigzag scaffolds, animation utilities and
   // the reduced-motion signal. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import { prefersReducedMotion, motionMs } from '$lib/reduced-motion';
+  import { prefersReducedMotion, motionMs } from '#lib/reduced-motion.js';
 
   let inputEl: HTMLInputElement | undefined = $state();
   let inputPx = $state('');

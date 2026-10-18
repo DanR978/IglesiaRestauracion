@@ -7,8 +7,8 @@
 //   CAPTURE=1 npx vitest run tests/unit/capture-sanitize-html.test.ts
 // Until that fixture is committed, this suite reports one skipped test.
 import { describe, it } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
-import { htmlIsEmpty, renderRichText, richToPlain, sanitizeHtml } from '$lib/sanitize-html';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
+import { htmlIsEmpty, renderRichText, richToPlain, sanitizeHtml } from '#lib/sanitize-html.js';
 
 type Fixture = {
   sanitizeHtml: GoldenVector<string | number | null, string>[];

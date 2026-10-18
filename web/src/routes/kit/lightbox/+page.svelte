@@ -6,10 +6,10 @@
   // scroll lock (the page below is deliberately tall). Prerendered, noindex,
   // no data fetching.
   import { asset } from '$app/paths';
-  import Lightbox from '$lib/components/Lightbox.svelte';
-  import ToastHost from '$lib/components/ToastHost.svelte';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
-  import { lightbox, openLightbox, type LightboxPhoto } from '$lib/stores/lightbox.svelte';
+  import Lightbox from '#lib/components/Lightbox.svelte';
+  import ToastHost from '#lib/components/ToastHost.svelte';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
+  import { lightbox, openLightbox, type LightboxPhoto } from '#lib/stores/lightbox.svelte.js';
 
   const photo = (file: string, width: number, height: number, caption: string | null) => ({
     public_url: asset(`kit/lightbox/${file}`),
@@ -148,8 +148,8 @@
   <section class="kit__section" aria-labelledby="h-api">
     <h2 id="h-api">Desde código que no es un componente</h2>
     <pre class="snippet"><code
-        >{`import { openLightbox } from '$lib/stores/lightbox.svelte';
-import Lightbox from '$lib/components/Lightbox.svelte';
+        >{`import { openLightbox } from '#lib/stores/lightbox.svelte.js';
+import Lightbox from '#lib/components/Lightbox.svelte';
 
 // una sola vez en la ruta:
 <Lightbox />

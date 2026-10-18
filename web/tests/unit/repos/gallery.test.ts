@@ -1,7 +1,7 @@
 // S22 — repos/gallery: query shape per legacy js/lib/gallery.js + contracts.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -19,7 +19,7 @@ import {
   updatePhoto,
   uploadPhoto,
   upsertAlbum,
-} from '$lib/repos/gallery';
+} from '#lib/repos/gallery.js';
 
 const ERR = { message: 'boom' };
 const blob = (size: number): Blob => new Blob([new Uint8Array(size)]);

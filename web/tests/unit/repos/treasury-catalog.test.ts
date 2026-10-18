@@ -1,7 +1,7 @@
 // S52 — repos/treasury/catalog: the three Configurar lookup tables.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -18,7 +18,7 @@ import {
   updateExpenseCategory,
   updateFund,
   updateIncomeCategory,
-} from '$lib/repos/treasury';
+} from '#lib/repos/treasury/index.js';
 
 const ERR = { message: 'boom' };
 const fundRow = (over: Record<string, unknown> = {}) => ({

@@ -3,14 +3,14 @@
 // (D-012). isValidEmail/isValidName take no non-string vectors: legacy throws
 // on truthy non-strings, and the port's types forbid them.
 import { describe } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
 import {
   formatUSPhoneNational,
   isValidEmail,
   isValidName,
   isValidUSPhone,
   normalizeUSPhone,
-} from '$lib/validators';
+} from '#lib/validators.js';
 import fixtureJson from '../fixtures/validators.json';
 
 type Fixture = {

@@ -20,8 +20,8 @@
  *   ird-card--alert
  *
  * Usage:
- *   import Card from '$lib/components/Card.svelte';
- *   import type { KpiTile } from '$lib/components/card';
+ *   import Card from '#lib/components/Card.svelte';
+ *   import type { KpiTile } from '#lib/components/card.js';
  * ========================================================================== */
 
 /** Static container, or a real control that performs the card's primary action. */

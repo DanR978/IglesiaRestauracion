@@ -9,7 +9,7 @@ import {
   nextSort,
   sortRows,
   type DataTableColumn,
-} from '$lib/components/data-table';
+} from '#lib/components/data-table.js';
 
 interface Row {
   id: string;

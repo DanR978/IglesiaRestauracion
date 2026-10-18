@@ -26,8 +26,8 @@
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
   import { MODAL_BLOCK, MODAL_CLOSE_LABEL, type ModalVariant } from './modal';
-  import { lockBodyScroll } from '$lib/scroll-lock';
-  import { isTopmostTrap, trapFocus } from '$lib/focus-trap';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
+  import { isTopmostTrap, trapFocus } from '#lib/focus-trap.js';
 
   interface Props {
     /** Two-way: `bind:open`. The component sets it to false on every close path. */

@@ -3,10 +3,10 @@
  * ----------------------------------------------------------------------------
  * The pure half of legacy `js/lib/gallery.js`: event-type vocabulary, the
  * storage bucket name, and URL/date formatting. Queries live in
- * `$lib/repos/gallery` so UI can import this without pulling in the client.
+ * `#lib/repos/gallery.js` so UI can import this without pulling in the client.
  *
  * Usage:
- *   import { EVENT_TYPES, EVENT_TYPE_LABEL, albumPublicUrl } from '$lib/gallery';
+ *   import { EVENT_TYPES, EVENT_TYPE_LABEL, albumPublicUrl } from '#lib/gallery.js';
  * ========================================================================== */
 
 export type GalleryEventType = {

@@ -17,14 +17,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import Icon from './Icon.svelte';
-  import { lockBodyScroll } from '$lib/scroll-lock';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
   import {
     lightbox,
     photoAlt,
     photoSrc,
     SWIPE_CLOSE_PX,
     SWIPE_NEXT_PX,
-  } from '$lib/stores/lightbox.svelte';
+  } from '#lib/stores/lightbox.svelte.js';
 
   // Every clause carries both exclusions: the backdrop is a <button> that is
   // deliberately out of the tab order, so a plain `button:not([disabled])`

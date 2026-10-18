@@ -19,7 +19,7 @@ import {
   type WizardField,
   type WizardSpec,
   type WizardStep,
-} from '$lib/components/wizard';
+} from '#lib/components/wizard.js';
 
 const field = (f: Partial<WizardField> & Pick<WizardField, 'id' | 'type'>): WizardField => f;
 

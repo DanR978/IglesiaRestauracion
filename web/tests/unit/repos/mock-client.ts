@@ -1,5 +1,5 @@
 /* ============================================================================
- * web/tests/unit/repos/mock-client.ts — recording stand-in for `$lib/db/client`
+ * web/tests/unit/repos/mock-client.ts — recording stand-in for `#lib/db/client.js`
  * ----------------------------------------------------------------------------
  * Repo tests assert QUERY SHAPE (table, select columns, filters, order) and the
  * never-throw / WriteResult contracts — never real Supabase behaviour
@@ -9,7 +9,7 @@
  * call and is thenable, resolving to the canned result queued for that table.
  *
  * Usage (top of a test file, before importing the repo):
- *   vi.mock('$lib/db/client', () => import('./mock-client'));
+ *   vi.mock('#lib/db/client', () => import('./mock-client'));
  *   import { mock } from './mock-client';
  *   mock.reset(); mock.results.events = [{ data: [...], error: null }];
  * ========================================================================== */

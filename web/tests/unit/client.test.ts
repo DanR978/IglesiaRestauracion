@@ -1,14 +1,14 @@
 // S06 "Done when": typed supabase.from('events') compiles strict, and
 // importing the client under Node/prerender opens no socket.
 import { describe, expect, expectTypeOf, it, vi } from 'vitest';
-import type { Database } from '$lib/db/database.types';
+import type { Database } from '#lib/db/database.types.js';
 
 describe('typed supabase client', () => {
   it('imports without touching the network (prerender-safe)', async () => {
     const fetchSpy = vi.fn();
     vi.stubGlobal('fetch', fetchSpy);
     try {
-      const { supabase } = await import('$lib/db/client');
+      const { supabase } = await import('#lib/db/client.js');
       expect(supabase).toBeTruthy();
       expect(typeof supabase.from).toBe('function');
       expect(fetchSpy).not.toHaveBeenCalled();

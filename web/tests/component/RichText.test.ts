@@ -10,8 +10,8 @@ import { render } from '@testing-library/svelte';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import RichText from '$lib/components/RichText.svelte';
-import { RICH_TEXT_CONTENT_BLOCK } from '$lib/components/rich-text';
+import RichText from '#lib/components/RichText.svelte';
+import { RICH_TEXT_CONTENT_BLOCK } from '#lib/components/rich-text.js';
 
 interface Vector {
   input: string;

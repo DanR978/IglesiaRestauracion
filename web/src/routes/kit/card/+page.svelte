@@ -5,10 +5,10 @@
   // palettes. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
   import { resolve } from '$app/paths';
-  import Button from '$lib/components/Button.svelte';
-  import Card from '$lib/components/Card.svelte';
-  import type { KpiTile } from '$lib/components/card';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import Button from '#lib/components/Button.svelte';
+  import Card from '#lib/components/Card.svelte';
+  import type { KpiTile } from '#lib/components/card.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
 
   const KPIS: KpiTile[] = [
     { icon: 'users', value: 128, label: 'Inscritos', scope: 'Este mes' },

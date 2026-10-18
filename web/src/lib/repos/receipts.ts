@@ -17,20 +17,20 @@
  * shapes the query.
  *
  * TYPES — TEMPORARY: `fin_receipts` is not in the generated
- * `$lib/db/database.types` yet. S56b's UI session runs `supabase gen types
+ * `#lib/db/database.types` yet. S56b's UI session runs `supabase gen types
  * --local` and then this module drops `FinReceipt` / `ReceiptsDatabase` for
  * `Tables<'fin_receipts'>` and the plain `supabase` client. Until then the row
  * type below mirrors `supabase/migrations/20260824120000_fin_receipts.sql`
  * column for column.
  *
  * Usage:
- *   import { listReceipts, monthSummaries, uploadReceipt } from '$lib/repos/receipts';
+ *   import { listReceipts, monthSummaries, uploadReceipt } from '#lib/repos/receipts.js';
  *   const rows = await listReceipts({ scope: 'church' }, 2026);
  *   const months = monthSummaries(rows);   // always 12 entries, Ene…Dic
  * ========================================================================== */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabase } from '$lib/db/client';
+import { supabase } from '#lib/db/client.js';
 import type { WriteResult } from './types';
 
 const TAG = '[receipts]';

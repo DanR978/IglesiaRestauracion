@@ -7,15 +7,15 @@
  * throw: they warn with a `[events]` tag and return a safe empty.
  *
  * Registration events (`special_events`) are a different table with their own
- * lifecycle — see `$lib/repos/registrations`.
+ * lifecycle — see `#lib/repos/registrations.js`.
  *
  * Usage:
- *   import { fetchUpcomingEvents, fetchEventById } from '$lib/repos/events';
+ *   import { fetchUpcomingEvents, fetchEventById } from '#lib/repos/events.js';
  * ========================================================================== */
 
 import { browser } from '$app/env';
-import { supabase } from '$lib/db/client';
-import type { Tables } from '$lib/db/database.types';
+import { supabase } from '#lib/db/client.js';
+import type { Tables } from '#lib/db/database.types.js';
 import type { ChangeHandler, Unsubscribe } from './types';
 
 const TAG = '[events]';

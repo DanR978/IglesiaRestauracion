@@ -12,13 +12,13 @@
  * row-level security policy". The public form only needs "it succeeded".
  *
  * Usage:
- *   import { fetchPublicGroups, submitInterest } from '$lib/repos/discipleship';
+ *   import { fetchPublicGroups, submitInterest } from '#lib/repos/discipleship.js';
  * ========================================================================== */
 
 import { browser } from '$app/env';
-import { supabase } from '$lib/db/client';
-import type { Tables, TablesInsert } from '$lib/db/database.types';
-import { slugify } from '$lib/slug';
+import { supabase } from '#lib/db/client.js';
+import type { Tables, TablesInsert } from '#lib/db/database.types.js';
+import { slugify } from '#lib/slug.js';
 import type { ChangeHandler, Unsubscribe, WriteResult } from './types';
 
 const TAG = '[discipulado]';

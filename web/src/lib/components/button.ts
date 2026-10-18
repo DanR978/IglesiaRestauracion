@@ -16,8 +16,8 @@
  *   .ird-btn--teal → variant="primary" · .ird-btn--orange → variant="secondary"
  *
  * Usage:
- *   import Button from '$lib/components/Button.svelte';
- *   import { BUTTON_VARIANTS, type ButtonVariant } from '$lib/components/button';
+ *   import Button from '#lib/components/Button.svelte';
+ *   import { BUTTON_VARIANTS, type ButtonVariant } from '#lib/components/button.js';
  * ========================================================================== */
 
 /**

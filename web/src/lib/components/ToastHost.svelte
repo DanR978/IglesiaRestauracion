@@ -14,7 +14,7 @@
 -->
 <script lang="ts">
   import Icon from './Icon.svelte';
-  import { toast, type ToastVariant } from '$lib/stores/toast.svelte';
+  import { toast, type ToastVariant } from '#lib/stores/toast.svelte.js';
 
   /** Colour already carries the meaning; the glyph repeats it (never colour alone). */
   const ICONS: Record<ToastVariant, string> = {

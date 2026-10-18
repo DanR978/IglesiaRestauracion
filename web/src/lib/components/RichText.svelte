@@ -19,7 +19,7 @@
   legacy call sites hand-rolled with `!htmlIsEmpty(x) ? … : ''`.
 -->
 <script lang="ts">
-  import { htmlIsEmpty, renderRichText } from '$lib/sanitize-html';
+  import { htmlIsEmpty, renderRichText } from '#lib/sanitize-html.js';
   import { RICH_TEXT_CONTENT_BLOCK } from './rich-text';
 
   interface Props {

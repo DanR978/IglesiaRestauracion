@@ -5,7 +5,7 @@
 import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import SignaturePad from '$lib/components/SignaturePad.svelte';
+import SignaturePad from '#lib/components/SignaturePad.svelte';
 import {
   flush,
   installCanvasMock,

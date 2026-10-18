@@ -3,12 +3,12 @@
 // safe empties, and writes resolve to WriteResult. These assertions are
 // checked by `npm run check` (svelte-check covers tests/**).
 import { describe, expectTypeOf, it } from 'vitest';
-import type { Database } from '$lib/db/database.types';
-import type { WriteResult } from '$lib/repos/types';
-import * as events from '$lib/repos/events';
-import * as gallery from '$lib/repos/gallery';
-import * as discipleship from '$lib/repos/discipleship';
-import * as registrations from '$lib/repos/registrations';
+import type { Database } from '#lib/db/database.types.js';
+import type { WriteResult } from '#lib/repos/types.js';
+import * as events from '#lib/repos/events.js';
+import * as gallery from '#lib/repos/gallery.js';
+import * as discipleship from '#lib/repos/discipleship.js';
+import * as registrations from '#lib/repos/registrations.js';
 
 type Row<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 type Insert<T extends keyof Database['public']['Tables']> =

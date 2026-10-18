@@ -98,37 +98,37 @@ describe('accepted expressions', () => {
   const cases: ReadonlyArray<[string, string, string]> = [
     [
       'a direct sanitizeHtml() call',
-      "import { sanitizeHtml } from '$lib/sanitize-html';\nlet v = '';",
+      "import { sanitizeHtml } from '#lib/sanitize-html';\nlet v = '';",
       '{@html sanitizeHtml(v)}',
     ],
     [
       'a direct renderRichText() call',
-      "import { renderRichText } from '$lib/sanitize-html';\nlet v = '';",
+      "import { renderRichText } from '#lib/sanitize-html';\nlet v = '';",
       '{@html renderRichText(v)}',
     ],
     [
       'a namespaced call (import * as s)',
-      "import * as s from '$lib/sanitize-html';\nlet v = '';",
+      "import * as s from '#lib/sanitize-html';\nlet v = '';",
       '{@html s.sanitizeHtml(v)}',
     ],
     [
       'a $derived holding sanitizer output',
-      "import { renderRichText } from '$lib/sanitize-html';\nlet v = '';\nconst safe = $derived(renderRichText(v));",
+      "import { renderRichText } from '#lib/sanitize-html';\nlet v = '';\nconst safe = $derived(renderRichText(v));",
       '{@html safe}',
     ],
     [
       'a $derived.by holding sanitizer output',
-      "import { sanitizeHtml } from '$lib/sanitize-html';\nlet v = '';\nconst safe = $derived.by(() => sanitizeHtml(v));",
+      "import { sanitizeHtml } from '#lib/sanitize-html';\nlet v = '';\nconst safe = $derived.by(() => sanitizeHtml(v));",
       '{@html safe}',
     ],
     [
       'a ternary whose branches are sanitizer output and an empty string',
-      "import { renderRichText } from '$lib/sanitize-html';\nlet v = '';",
+      "import { renderRichText } from '#lib/sanitize-html';\nlet v = '';",
       "{@html v ? renderRichText(v) : ''}",
     ],
     [
       'the auto-escaping html`` tag from $lib/escape',
-      "import { html } from '$lib/escape';\nlet title = '';",
+      "import { html } from '#lib/escape';\nlet title = '';",
       '{@html String(html`<h3>${title}</h3>`)}',
     ],
     ['static author-written markup', '', "{@html '<hr>'}"],
@@ -160,17 +160,17 @@ describe('rejected expressions', () => {
     ],
     [
       'a ternary with one unsanitized branch',
-      `import { sanitizeHtml } from '$lib/sanitize-html';\nlet { v, fallback }: { v: string; fallback: string } = $props();`,
+      `import { sanitizeHtml } from '#lib/sanitize-html';\nlet { v, fallback }: { v: string; fallback: string } = $props();`,
       '{@html v ? sanitizeHtml(v) : fallback}',
     ],
     [
       'a variable that is reassigned to something unsafe',
-      `import { sanitizeHtml } from '$lib/sanitize-html';\n${props}\nlet out = sanitizeHtml(v);\nfunction taint() { out = v; }`,
+      `import { sanitizeHtml } from '#lib/sanitize-html';\n${props}\nlet out = sanitizeHtml(v);\nfunction taint() { out = v; }`,
       '{@html out}<button type="button" onclick={taint}>x</button>',
     ],
     [
       'a non-asset import (the ?raw carve-out is only for the sprite)',
-      "import body from '$lib/notes.md?raw';",
+      "import body from '#lib/notes.md?raw';",
       '{@html body}',
     ],
   ];
@@ -205,7 +205,7 @@ describe('the innerHTML-style sinks (or {@html} is one line away from bypassable
 
   it('accepts sanitizer output', async () => {
     const code = [
-      "import { sanitizeHtml } from '$lib/sanitize-html';",
+      "import { sanitizeHtml } from '#lib/sanitize-html';",
       'declare const el: HTMLElement;',
       'declare const dirty: string;',
       'el.innerHTML = sanitizeHtml(dirty);',
@@ -215,7 +215,7 @@ describe('the innerHTML-style sinks (or {@html} is one line away from bypassable
 
   it('accepts the bundled sprite (the D-005 carve-out)', async () => {
     const code = [
-      "import sprite from '$lib/assets/icons.svg?raw';",
+      "import sprite from '#lib/assets/icons.svg?raw';",
       'declare const el: HTMLElement;',
       'el.innerHTML = sprite;',
     ].join('\n');

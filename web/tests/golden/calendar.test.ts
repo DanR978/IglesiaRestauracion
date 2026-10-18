@@ -5,8 +5,8 @@
 // byte-identical. All event timestamps carry explicit UTC offsets (G-002) —
 // the generator verified NY vs Tokyo runs produce identical fixtures.
 import { afterAll, beforeAll, describe, vi } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
-import { buildGoogleCalUrl, buildICS, type CalendarEvent } from '$lib/calendar';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
+import { buildGoogleCalUrl, buildICS, type CalendarEvent } from '#lib/calendar.js';
 import fixtureJson from '../fixtures/calendar.json';
 
 type Fixture = {

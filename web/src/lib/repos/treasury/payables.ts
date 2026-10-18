@@ -11,12 +11,12 @@
  * deleting the payable takes the mirror with it.
  *
  * Usage:
- *   import { fetchPayables, markPayablePaid } from '$lib/repos/treasury';
+ *   import { fetchPayables, markPayablePaid } from '#lib/repos/treasury/index.js';
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import { toNumeric } from '$lib/money';
-import type { TablesInsert, TablesUpdate } from '$lib/db/database.types';
+import { supabase } from '#lib/db/client.js';
+import { toNumeric } from '#lib/money.js';
+import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import type { WriteResult } from '../types';
 import { deleteExpensesByNote } from './entries';
 import {

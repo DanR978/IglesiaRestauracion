@@ -14,7 +14,7 @@
  * unless `X` is sanitizer output) and the ported string-building libs.
  *
  * Usage:
- *   import { html, esc, raw } from '$lib/escape';
+ *   import { html, esc, raw } from '#lib/escape.js';
  *   el.innerHTML = String(html`<h3>${title}</h3>`);   // title auto-escaped
  *   html`<ul>${items.map((i) => html`<li>${i}</li>`)}</ul>`;
  *   html`<div>${raw(trustedSvgMarkup)}</div>`;        // opt out

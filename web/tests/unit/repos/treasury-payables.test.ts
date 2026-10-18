@@ -4,7 +4,7 @@
 // order are asserted precisely.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -13,7 +13,7 @@ import {
   fetchPayables,
   markPayablePaid,
   updatePayable,
-} from '$lib/repos/treasury';
+} from '#lib/repos/treasury/index.js';
 
 const ERR = { message: 'boom' };
 const MIN_A = '11111111-1111-1111-1111-111111111111';

@@ -3,8 +3,8 @@
   tests/unit/no-raw-html.test.ts lints it and asserts ZERO reports.
 -->
 <script lang="ts">
-  import { renderRichText, sanitizeHtml } from '$lib/sanitize-html';
-  import spriteMarkup from '$lib/assets/icons.svg?raw';
+  import { renderRichText, sanitizeHtml } from '#lib/sanitize-html.js';
+  import spriteMarkup from '#lib/assets/icons.svg?raw';
 
   interface Props {
     stored: string;

@@ -4,7 +4,7 @@
 // (VERIFICATION.md).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import {
@@ -22,7 +22,7 @@ import {
   insertIncomeBatch,
   updateExpense,
   updateIncome,
-} from '$lib/repos/treasury';
+} from '#lib/repos/treasury/index.js';
 
 const ERR = { message: 'boom' };
 const AUG = { start: '2026-08-01', end: '2026-08-31' };

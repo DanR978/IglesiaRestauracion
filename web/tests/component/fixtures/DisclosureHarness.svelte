@@ -4,7 +4,7 @@
   wrapper supplies both plus the bind:open read-back the tests assert on.
 -->
 <script lang="ts">
-  import Disclosure from '$lib/components/Disclosure.svelte';
+  import Disclosure from '#lib/components/Disclosure.svelte';
 
   interface Props {
     label: string;

@@ -34,7 +34,7 @@
 -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
-  import { lockBodyScroll } from '$lib/scroll-lock';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
   import Icon from './Icon.svelte';
   import {
     applyDefaults,

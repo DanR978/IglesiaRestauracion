@@ -7,8 +7,8 @@ import { createRawSnippet } from 'svelte';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import Card from '$lib/components/Card.svelte';
-import { CARD_BLOCK, CARD_VARIANTS } from '$lib/components/card';
+import Card from '#lib/components/Card.svelte';
+import { CARD_BLOCK, CARD_VARIANTS } from '#lib/components/card.js';
 
 const body = (text: string) => createRawSnippet(() => ({ render: () => `<p>${text}</p>` }));
 

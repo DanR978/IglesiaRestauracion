@@ -20,13 +20,13 @@
  * `project-treasury.js:399-409`).
  *
  * Usage:
- *   import { fetchExpenses, createExpense, monthRange } from '$lib/repos/treasury';
+ *   import { fetchExpenses, createExpense, monthRange } from '#lib/repos/treasury/index.js';
  *   const rows = await fetchExpenses(monthRange('2026-08'));
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import { toNumeric } from '$lib/money';
-import type { TablesInsert, TablesUpdate } from '$lib/db/database.types';
+import { supabase } from '#lib/db/client.js';
+import { toNumeric } from '#lib/money.js';
+import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import type { WriteResult } from '../types';
 import {
   centsError,

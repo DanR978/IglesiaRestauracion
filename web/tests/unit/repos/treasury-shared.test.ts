@@ -3,7 +3,7 @@
 // treasury-tab.js:38-44, the `auto:` note tags, and TZ-free date ranges
 // (G-002). No Supabase client is involved — this module must not need one.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { toNumeric } from '$lib/money';
+import { toNumeric } from '#lib/money.js';
 import {
   AUTO_NOTE_PREFIX,
   PASTOR_LABEL,
@@ -27,7 +27,7 @@ import {
   writeFail,
   writeOk,
   yearRange,
-} from '$lib/repos/treasury/shared';
+} from '#lib/repos/treasury/shared.js';
 
 describe('repos/treasury/shared — money at the boundary (D-003)', () => {
   let warn: ReturnType<typeof vi.spyOn>;

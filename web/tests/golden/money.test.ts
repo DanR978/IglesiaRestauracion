@@ -6,8 +6,8 @@
 // therefore runs the full cents path on the same dollars input:
 //   legacy money(x)  ==  formatUSD(toCents(x))
 import { describe } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
-import { formatUSD, toCents } from '$lib/money';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
+import { formatUSD, toCents } from '#lib/money.js';
 import usd from '../fixtures/money-usd.json';
 import guards from '../fixtures/money-guards.json';
 

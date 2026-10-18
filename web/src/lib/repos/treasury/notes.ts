@@ -10,10 +10,10 @@
  * `body` renders as text, never as HTML (D-005).
  *
  * Usage:
- *   import { fetchNotes, createNote } from '$lib/repos/treasury';
+ *   import { fetchNotes, createNote } from '#lib/repos/treasury/index.js';
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
+import { supabase } from '#lib/db/client.js';
 import type { WriteResult } from '../types';
 import {
   warnRead,

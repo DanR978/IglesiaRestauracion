@@ -42,5 +42,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3"
+  },
+  "imports": {
+    "#lib": "./src/lib/index.js",
+    "#lib/*": "./src/lib/*"
   }
 }

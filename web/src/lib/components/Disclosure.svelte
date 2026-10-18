@@ -29,7 +29,7 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
   import Icon from './Icon.svelte';
 
   interface Props {

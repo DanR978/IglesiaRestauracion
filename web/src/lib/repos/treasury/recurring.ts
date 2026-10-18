@@ -21,13 +21,13 @@
  * yearly rows generate nothing; and the wizard never edits `active`.
  *
  * Usage:
- *   import { fetchRecurring, materializeRecurring } from '$lib/repos/treasury';
+ *   import { fetchRecurring, materializeRecurring } from '#lib/repos/treasury/index.js';
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import { toNumeric } from '$lib/money';
-import { todayISO } from '$lib/date';
-import type { TablesInsert, TablesUpdate } from '$lib/db/database.types';
+import { supabase } from '#lib/db/client.js';
+import { toNumeric } from '#lib/money.js';
+import { todayISO } from '#lib/date.js';
+import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import type { WriteResult } from '../types';
 import {
   AUTO_NOTE_PREFIX,

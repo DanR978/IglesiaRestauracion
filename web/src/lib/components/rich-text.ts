@@ -19,8 +19,8 @@
  * token values they are named after. The editor's own chrome uses tokens only.
  *
  * Usage:
- *   import RichTextEditor from '$lib/components/RichTextEditor.svelte';
- *   import { RICH_TEXT_TOOL_GROUPS, type RichTextEditorApi } from '$lib/components/rich-text';
+ *   import RichTextEditor from '#lib/components/RichTextEditor.svelte';
+ *   import { RICH_TEXT_TOOL_GROUPS, type RichTextEditorApi } from '#lib/components/rich-text.js';
  * ========================================================================== */
 
 /** Every `document.execCommand` id the toolbar can issue. */

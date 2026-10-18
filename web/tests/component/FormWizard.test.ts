@@ -7,8 +7,8 @@
 import { cleanup, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { bodyScrollLockDepth } from '$lib/scroll-lock';
-import type { WizardData, WizardStep } from '$lib/components/wizard';
+import { bodyScrollLockDepth } from '#lib/scroll-lock.js';
+import type { WizardData, WizardStep } from '#lib/components/wizard.js';
 import FormWizardHarness from './fixtures/FormWizardHarness.svelte';
 
 /** The treasury "Nuevo ingreso" spec, trimmed to the shapes under test. */
