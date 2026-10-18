@@ -84,7 +84,10 @@ animation carries a `@media (prefers-reduced-motion: reduce)` guard.
 
 Ports to `web/src/lib/styles/tokens/*` → `app.css` (roadmap S11). Same custom-property names as
 today so consumers read `var(--…)` unchanged. `var()` is illegal in a media query and there are **no
-breakpoint tokens and no motion tokens** — do not invent them.
+breakpoint tokens** ~~**and no motion tokens** — do not invent them~~ — do not invent them.
+*Amended 2026-10-18 (D-031, `web/` only):* motion **is** tokenized — `--ease-standard` (= the house
+curve) and `--dur-fast/base/slow`, collapsing under reduced motion; see
+[`docs/architecture/design-system.md`](../architecture/design-system.md) §3. Breakpoints stay constants.
 
 ### 2.1 Families that carry over as-is
 
@@ -738,7 +741,7 @@ applicable box is green. This composes with — does not replace — [`VERIFICAT
 [ ] Token-only: no hardcoded hex, no px/raw-rem font-size, no literal radius/shadow
 [ ] Dark mode via data-theme token override ONLY — zero @media(prefers-color-scheme:dark) in the component
 [ ] Slate accent — no gold/amber/orange/teal reintroduced (semantic success/danger/warn/money only)
-[ ] House easing cubic-bezier(0.22,1,0.36,1); every animation has a prefers-reduced-motion:reduce guard
+[ ] House easing cubic-bezier(0.22,1,0.36,1) — via var(--ease-standard) + --dur-* since D-031; every animation has a prefers-reduced-motion:reduce guard
 [ ] Full state matrix implemented: default / hover / focus-visible / active / disabled (+ loading where async)
 [ ] Visible focus-visible ring on every interactive element (never outline:none alone)
 [ ] Every icon-only control has an accessible name (aria-label); no hover-only affordance
