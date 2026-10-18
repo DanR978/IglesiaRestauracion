@@ -12,7 +12,7 @@
 // resolves both to the same core URL.
 //
 // This is a speed bump for drive-by bots, not a security boundary — the
-// formsubmit endpoint is public and can be posted to directly.
+// contact-submit Edge Function is public and can be posted to directly.
 //
 // Usage:
 //   import { runCodeCaptchaModal, preloadCodeCaptcha } from '/js/lib/captcha.js';

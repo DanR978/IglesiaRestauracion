@@ -186,6 +186,7 @@ export interface OutgoingEmail {
   subject: string;
   html: string;
   unsubscribeUrl?: string; // enables one-click List-Unsubscribe for this message
+  replyTo?: string;        // "Reply" in the mail client goes here instead of noreply@
 }
 
 function resendPayload(m: OutgoingEmail) {
@@ -198,7 +199,11 @@ function resendPayload(m: OutgoingEmail) {
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       }
     : undefined;
-  return { from: FROM, to: [m.to], subject: m.subject, html: m.html, ...(headers ? { headers } : {}) };
+  return {
+    from: FROM, to: [m.to], subject: m.subject, html: m.html,
+    ...(m.replyTo ? { reply_to: m.replyTo } : {}),
+    ...(headers ? { headers } : {}),
+  };
 }
 
 // Send a single email. Returns true on success (never throws — logs instead).

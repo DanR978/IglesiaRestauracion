@@ -74,6 +74,13 @@ scope to. (An earlier version of this README implied otherwise.)
   visitor with a salt that rotates daily, never stores IP or user-agent. Feeds the
   admin **Analíticas** tab. Setup: apply `migrations/20261012_site_analytics.sql`,
   then `supabase functions deploy track --no-verify-jwt`.
+- `functions/contact-submit/` — the public **Contáctanos** form (`js/lib/forms.js`).
+  Validates, drops honeypot hits and non-irdlex.org origins, and emails the message
+  through Resend to `contactanos@irdlex.org` (override with the `CONTACT_TO` secret)
+  with Reply-To set to the visitor. Stores nothing; shares `RESEND_API_KEY` and the
+  daily quota with the newsletter. Deploy:
+  `supabase functions deploy contact-submit --no-verify-jwt`. Replaced FormSubmit,
+  whose hashed key delivered to `serve@irdlex.org`.
 
 ## Email — one sender for Auth and the newsletter
 
