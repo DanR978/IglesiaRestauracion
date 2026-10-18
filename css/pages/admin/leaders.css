@@ -180,7 +180,9 @@
   object-position: 50% 30%;
 }
 
-.ldr-avatar--lg { width: 5rem; height: 5rem; font-size: 1.8rem; }
+/* The modal preview uses the public card's frame — a rounded square with the
+   same object-position — so the admin sees the crop visitors will see. */
+.ldr-avatar--lg { width: 6rem; height: 6rem; font-size: 1.8rem; border-radius: var(--radius-md, 10px); }
 
 /* ── Modals ──────────────────────────────────────────── */
 /* .modal (modal.css) loads later at equal specificity — hence the compound. */
