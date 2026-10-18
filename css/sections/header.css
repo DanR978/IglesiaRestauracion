@@ -462,15 +462,21 @@ body.no-scroll {
     transition: color 0.22s ease;
   }
 
-  /* EVENTOS is a direct link <a class="accordion-toggle">. The global .menu-item>a
-     rule forces white + padding, making it invisible on the white drawer — match
-     it to the button toggles here. */
+  /* EVENTOS is a direct link <a class="accordion-toggle">. The global `.menu a` /
+     `.menu-item>a` rules outrank .accordion-toggle and force white, padding, the
+     small desktop font-size and an orange hover — invisible and undersized on the
+     white drawer. Match it to the button toggles here. */
   .menu-item > a.accordion-toggle {
     display: flex; justify-content: center; width: 100%;
     padding: 0.85rem 0;
     color: var(--color-dark, #394548);
+    font-size: 1.7rem;
+    font-weight: var(--fw-bold);
   }
   .menu-item > a.accordion-toggle::after { content: none; }
+  .menu-item > a.accordion-toggle:hover,
+  .menu-item > a.accordion-toggle:focus,
+  .menu-item > a.accordion-toggle:active { color: var(--color-secondary, #c89858); }
 
   /* Keyboard-only focus ring (taps don't show this) */
   .accordion-toggle:focus-visible {
