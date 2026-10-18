@@ -42,11 +42,10 @@ import { richToPlain } from '/js/lib/sanitize-html.js';
     return new Date(y, (m || 1) - 1, 1).toLocaleDateString('es', { month: 'long' }).toUpperCase();
   };
 
+  // MM/DD/YYYY
   const fmtDate = (dateStr) => {
-    try {
-      const [y, m, d] = (dateStr || '').split('-').map(Number);
-      return new Date(y, m - 1, d).toLocaleDateString('es', { month: 'long', day: 'numeric', year: 'numeric' });
-    } catch { return dateStr || ''; }
+    const [y, m, d] = (dateStr || '').split('-').map(Number);
+    return (y && m && d) ? `${pad(m)}/${pad(d)}/${y}` : (dateStr || '');
   };
 
   /* ========== time parsing & calendar link (Google) ========== */
