@@ -123,4 +123,37 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 - **Parallelizable now:** the entire design-system set (S11–S21) is independent of the lib set (S06–S10) — different sittings can take either. Within Phase 4, tabs with disjoint prereqs (S41/S42/S43/S45) can be done in any order.
 - **Backend migrations** (S01 baseline, S39 `aal2`, plus the S56b receipts/D-019 set) are the only DB changes and all are additive — except D-027's guard inside the D-019 file, which is deliberately RESTRICTIVE (it narrows leader access to ministry rows). Everything else is client-side.
 - **S56b/S56c** extend Phase 5 behind S56 (filed 2026-08-23; specs in `sessions/`). They can run in parallel with the registrations (S57–S58) and designer (S59–S63) chains, but not with each other (both touch the treasury routes).
-- **Foundations to freeze early** (their contracts ripple everywhere): `money.ts` (S08), the `SignaturePad`/`Modal`/`ActionSheet`/`FormWizard` prop shapes (S16–S21), and the repo method signatures (S22/S40/S52).
+- **Foundations to freeze early** (their contracts ripple everywhere): `money.ts` (S08), the `SignaturePad`/`Modal`/`ActionSheet`/`FormWizard` prop shapes (S16–S21), and the repo method signatures (S22/S40/S52). *Amended 2026-10-18: the repo **result types** change once, in S22b (D-032); method names and parameters stay frozen.*
+
+---
+
+## Amendments 2026-10-18 — Church Center research (D-029–D-032)
+
+Source: [`docs/architecture/`](../architecture/README.md). Existing rows above are unchanged; this section adds a parallel track, five sessions, and per-session requirements.
+
+### Track CC — Church Center (parallel to the phases; configuration + measurement)
+
+| # | Session | Prereqs | Cutover | Done when |
+|---|---|---|---|---|
+| CC1 | **Church Center feasibility pilot** ([spec](sessions/CC1-church-center-pilot.md)) | owner: Planning Center access + an approved temporary link | 🟢 | device matrix logged (E2/E3/E5); link-open mechanism known per platform; each public surface link-ready or blocked; zero legacy changes; zero real submissions |
+| CC2 | **Church Center go-live** (configuration only) | CC1 | 🟢 | link-ready surfaces in Church Center navigation with UTM URLs; configuration register filled; visits visible in Analíticas |
+
+### New sessions
+
+| # | Session | Slots | Prereqs | Done when |
+|---|---|---|---|---|
+| S02b | **SvelteKit 3 upgrade** (D-030) | before S37 | — | kit ^3.1, adapter-static ^4, Svelte ≥ 5.57.1, TypeScript pinned ^6 (G-018), Node ≥ 22.17; `npx sv migrate sveltekit-3` + `#lib`, config in `vite.config.ts`, `$app/env`; VERIFICATION 1–13 green |
+| S05b | **Cross-engine, a11y and budget gates** | after S02b | S02b | e2e in CI on `chromium`/`webkit`/`Mobile Safari`/`Mobile Chrome`; axe; per-route JS budget; import-boundary lint; VERIFICATION boxes 14–19 added |
+| S22b | **Repo result contract** (D-032) | after S02b, before S37 | S02b | every repo returns `ReadResult`/`WriteResult` with `RepoError`; no failure renders as empty; tests updated |
+| S12b | **Mobile viewport & overlay hardening** | after CC1 | CC1, S05b | `viewport-fit=cover` + safe areas on fixed UI; `dvh` for full-height layers; `visualViewport` keyboard handling; all overlays in one focus-trap stack; full-screen overlays close on back; legacy `sw.js` skips `/app/` (G-034, cache bump); no component prop changes |
+| S11b | **Token layers + motion tokens** (D-031) | after the S23 branch merges | S02b | `--ease-standard` + `--dur-*` adopted; `color-scheme` declared; raw-palette ratchet, `.svelte` hex scan, breakpoint and contrast tests |
+
+### Requirements added to existing sessions
+
+- **S24** — the beacon stores an entry marker (`utm_source=churchcenter` → sessionStorage) for the session; payload otherwise unchanged (D-026).
+- **S28** — the legacy `evento.html?id=` / `evento-especial.html?e=` redirect stubs forward `location.search` and the hash (Church Center and QR links).
+- **S35** — the site works with no service worker (embedded WebViews may not run one); replaces the legacy worker's `/app/*` handling (G-034).
+- **S36** — every cutover PR runs VERIFICATION box 20 (Church Center check on E2/E5) for its URLs.
+- **S37** — admin tabs are routes with history entries; full-screen overlays use shallow routing; a frame-guard on admin routes (`frame-ancestors` can't be delivered by `<meta>`).
+- **S38/S39** — `onAuthStateChange` with a Spanish session-expired screen; keep `token_hash` email links; add `/app/` paths to the Auth redirect allow-list; CodeInput allows paste with `autocomplete="one-time-code"`; ASVS 5.0 V6/V7/V8 Level 2 checklist.
+- **S65** — CSP via SvelteKit `csp` (hash mode), exact pins + SRI, frame-guard confirmed; internal docs out of the artifact if the owner chooses (G-035).
