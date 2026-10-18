@@ -1,10 +1,10 @@
 // S22 — the subscribe* helpers in the browser: channel name, postgres_changes
 // filter, and teardown via removeChannel (no leaked channel — G-003-adjacent).
-// $app/environment is re-mocked here so `browser` is true.
+// $app/env is re-mocked here so `browser` is true.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
-vi.mock('$app/environment', () => ({
+vi.mock('$app/env', () => ({
   browser: true,
   dev: false,
   building: false,

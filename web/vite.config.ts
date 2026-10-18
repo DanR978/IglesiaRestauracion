@@ -1,8 +1,8 @@
 import adapter from '@sveltejs/adapter-static';
-import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
-import { readFileSync } from 'node:fs';
 import { sveltekit } from '@sveltejs/kit/vite';
+import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
+import { compilerOptions, preprocess } from './svelte-options';
 
 /**
  * The SVG sprite's symbol ids (S13). Icon.svelte renders `<use href="#id">`, and the
@@ -18,25 +18,49 @@ const SPRITE_IDS = new Set(
   ].map((m) => m[1]),
 );
 
+const isRootRelative = (path: string): path is `/${string}` => path.startsWith('/');
+
+/**
+ * BASE_PATH narrowed to the shape Kit's config type declares ('' or root-relative). Kit
+ * validates the details itself; failing here too names the usual cause on Windows (G-019).
+ */
+const BASE_PATH = process.env.BASE_PATH ?? '';
+if (BASE_PATH !== '' && !isRootRelative(BASE_PATH)) {
+  throw new Error(
+    `BASE_PATH must be '' or start with '/', got ${JSON.stringify(BASE_PATH)} ` +
+      '(G-019: Git Bash rewrites /app — run with MSYS_NO_PATHCONV=1).',
+  );
+}
+
+/**
+ * The SvelteKit config. Kit 3 reads it from `sveltekit({...})` here — there is no
+ * svelte.config.js any more (S02b); the Svelte options are shared with Vitest through
+ * svelte-options.ts.
+ *
+ * The new app is served from a SUBPATH (`/app`) until a surface is cut over, then from the
+ * domain root (MIGRATION.md D-008 / G-008). `base` therefore comes from BASE_PATH and defaults
+ * to '' — the custom domain means the final base is '', never the repo name.
+ *
+ * No SPA `fallback`: every route is prerendered (an `ssr = false` route still gets its shell,
+ * D-036), and GitHub Pages only ever serves the ROOT 404.html, so an `app/404.html` was dead
+ * weight (G-021). `strict` keeps a route that cannot be prerendered a build error.
+ */
 export default defineConfig({
   plugins: [
     sveltekit({
-      preprocess: vitePreprocess(),
-      compilerOptions: { runes: true },
+      preprocess,
+      compilerOptions,
       adapter: adapter({
         pages: 'build',
         assets: 'build',
-        fallback: '404.html',
         precompress: false,
         strict: true,
       }),
-
       paths: {
-        base: process.env.BASE_PATH ?? '',
-        // Absolute asset URLs (`/app/_app/…`), not relative (`./_app/…`). The fallback page is
-        // served at ARBITRARY depth (/app/admin/gallery), where a relative href would resolve to
-        // /app/admin/_app/… and 404. Absolute keeps every page and the fallback consistent, and
-        // makes `base` resolve to '/app' at runtime instead of '.'.
+        base: BASE_PATH,
+        // Absolute URLs (`/app/_app/…`, and `resolve()` → `/app/…` while prerendering), not
+        // relative ones (`./_app/…`): what a page links to never depends on the depth of the
+        // URL it is served at (G-020).
         relative: false,
       },
       prerender: {
