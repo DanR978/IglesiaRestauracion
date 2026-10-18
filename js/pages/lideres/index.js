@@ -18,6 +18,24 @@ import { trackEvent } from '/js/lib/track.js';
 
 const _contacts = new Map();   // member id → { email, phone }
 
+// Titles that open a name here: "Pastor Raúl García Guerra" → "RG". Only leading
+// ones are skipped — "Pastor" is also a surname ("Ana Pastor" → "AP").
+const HONORIFICS = new Set(['pastor', 'pastora', 'pr', 'pra', 'hno', 'hna', 'hermano', 'hermana', 'ev', 'dr', 'dra']);
+const LETTER = /\p{L}/u;
+
+// Kept in this module, not js/utils/string.js: a new export on a shared URL that
+// visitors already hold in the service-worker cache would fail to link against
+// the stale copy on the first load after a deploy, leaving the roster blank.
+function initials(name) {
+  const words = String(name ?? '').normalize('NFC').trim().split(/\s+/).filter(w => LETTER.test(w));
+  let i = 0;
+  while (i < words.length - 1 && HONORIFICS.has(words[i].toLocaleLowerCase('es').replace(/\.$/, ''))) i++;
+  const use = words.slice(i);
+  const first = use.length ? use[0].match(LETTER)[0] : '';
+  const last = use.length > 1 ? use[use.length - 1].match(LETTER)[0] : '';
+  return (first + last).toLocaleUpperCase('es');
+}
+
 function contactButtons(p) {
   if (!p.email && !p.phone) return '';
   return html`
@@ -29,13 +47,17 @@ function contactButtons(p) {
     </div>`;
 }
 
+// The square tile always carries the initials (or the icon, for a name with no
+// letters) underneath; the photo covers them, and a photo that fails to load is
+// removed by initLeaders, so the tile is never left blank.
 function personCard(p) {
   const src = photoUrl(p.photo_path);
+  const mono = initials(p.name);
   return html`
     <li class="person-card">
       <span class="person-card__avatar" aria-hidden="true">
-        <i class="fas fa-user"></i>
-        ${src ? html`<img src="${src}" alt="" width="84" height="84" loading="lazy" decoding="async">` : ''}
+        ${mono ? html`<span class="person-card__initials">${mono}</span>` : html`<i class="fas fa-user"></i>`}
+        ${src ? html`<img src="${src}" alt="" width="400" height="400" loading="lazy" decoding="async">` : ''}
       </span>
       <p class="person-card__name">${p.name}</p>
       ${p.role ? html`<p class="person-card__role">${p.role}</p>` : ''}
@@ -75,7 +97,7 @@ async function initLeaders() {
   const root = document.getElementById('leadersDirectory');
   if (!root) return;
   root.addEventListener('click', onContactClick);
-  // A photo that fails to load falls back to the icon underneath it.
+  // A photo that fails to load is removed, revealing the initials (or icon) under it.
   root.addEventListener('error', (e) => { if (e.target.tagName === 'IMG') e.target.remove(); }, true);
   render(root, loadingHtml());
 
