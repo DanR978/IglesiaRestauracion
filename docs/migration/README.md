@@ -15,6 +15,7 @@ This folder is the **operating system for a multi-session rewrite** carried out 
 | [`PORT-DEBT.md`](PORT-DEBT.md) | The legacy bugs each port must NOT re-implement, filed per session. **Read your surface's row before porting it.** |
 | [`SESSION-TEMPLATE.md`](SESSION-TEMPLATE.md) | Copy this to `sessions/NN-slug.md` to spec a session. |
 | `sessions/NN-slug.md` | One written task file per session (created from the template when the session is picked up). |
+| [`../architecture/README.md`](../architecture/README.md) | Architecture snapshot (2026-10-18): Church Center compatibility evidence, target architecture, ADR-0001…0004 (D-029–D-032), phase charters and proposed quality gates. Read before CC1/CC2, S02b, S05b, S11b, S12b or S22b. |
 
 ## Why this exists
 
