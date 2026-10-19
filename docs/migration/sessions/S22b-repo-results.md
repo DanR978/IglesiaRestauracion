@@ -138,10 +138,108 @@ Every read suite now has a case asserting that a failing read returns `ok: false
 [x] 13. Ledger updated    → MIGRATION.md, PR-C1 ledger step (2026-10-19)
 ```
 
+## Review follow-ups (2026-10-19)
+
+Two reviewers checked `c226698` + `10f5a2b` with a scratch harness (the real repo code and supabase-js
+2.112.3, only `fetch` and the auth storage injected). Each finding is fixed in `8e0cc07` with a test that
+fails without the fix: every session guard and every other fix was mutation-checked (77 + 11 mutants, all
+killed; the `InterestStatus` one by `npm run check`).
+
+1. **A dead session read as "no data" or "$0.00".** With no session — signed out, or once a refresh is
+   refused — supabase-js sends the anon key, and RLS answers a staff table with an empty 200: the harness got
+   `fetchBooksSummary` → ok zeros after a revoked refresh token. Every staff-only function now calls
+   `requireSession(TAG, fn)` first and returns `auth` before any query. Staff-only is read off the RLS
+   policies — a call is staff-only when a signed-out visitor cannot legitimately get what it needs:
+
+   | Module | Staff-only: session checked first | Public: never asks |
+   |---|---|---|
+   | `treasury/*` | all 50 (every `fin_*` policy is `to authenticated`) | — |
+   | `receipts` | `listReceipts`, `downloadReceipt`, `uploadReceipt`, `deleteReceipt` (no anon policy on `fin_receipts` or the bucket) | — (the 6 pure helpers) |
+   | `discipleship` | `fetchAllGroups`, `fetchGroupById`, `upsertGroup`, `deleteGroup`, `markGroupCompleted`, `fetchInterests`, `updateInterestStatus`, `fetchMembers`, `addMember`, `removeMember`, `moveMember`, `fetchMessages`, `sendMessage` | `fetchPublicGroups`, `fetchPublicGroupBy` (`dgroups_public_read`), `submitInterest` (anon insert) |
+   | `gallery` | every write, `fetchAlbumByIdAdmin`, and `fetchAlbums` / `fetchAvailableYears` with `includeUnpublished` | `fetchAlbums`, `fetchAvailableYears`, `fetchAlbumBy`, `fetchPhotos` (`galbums_public_read`, `gphotos_public_read`) |
+   | `events` | — | all four reads (`events_public_read`, `calevents_public_read`: every row) |
+   | `registrations` | — | the four reads (`special_events_public_read`: every row, so the admin picker gets the same rows signed out) and `submitRegistrations` (anon insert) |
+
+   `fetchCatalog`, `deletePayable` and `markGroupCompleted` delegate to guarded calls but check first
+   themselves, so the one log line names the call the view made. The `subscribe*` helpers are synchronous
+   channel openers, not reads: unchanged. `fetchPhotos` stays public; the admin editor reads an unpublished
+   album's photos through it, but calls `fetchAlbumByIdAdmin` (staff-only) first.
+
+   **What no session check can see:** a LIVE session that RLS filters down to nothing (no finance or
+   `discipulado` tab) still reads as an empty success, indistinguishable from an empty table. That is RLS being
+   the boundary (D-002); the view decides who reaches a screen. The two tests that claimed otherwise now assert
+   this: `discipleship.test.ts` ("a staff read refused by RLS is forbidden" → signed out is `auth`; signed in,
+   RLS-filtered is an empty success) and `treasury-summary.test.ts` ("zero is only ever a real zero" → the same
+   pair).
+
+   `tests/unit/repos/session-gate.ts` registers, per module: every exported function classified as
+   staff-only, public or not a repo call (a new function cannot skip the decision); signed out, each staff-only
+   call is `auth`, sends no query or storage call, asks for the session once and logs once under its own
+   name; signed out, each public call still goes out and never asks.
+2. **`downloadReceipt` could throw.** storage-js reads the body (`.blob()`) outside its error wrapping, so a
+   connection lost mid-transfer rejected. It now catches and returns `fail()`. `errors.ts` adds to the
+   no-answer set Chrome's body-read `network error` (anchored, so the phrase inside a server message that
+   carries a code is still decided by the code), WebKit's `The network connection was lost.`, and a
+   `StorageUnknownError` whose `originalError` is a `TypeError`, whatever its wording. Tests: a rejecting
+   `download` mock for three engine wordings, a wrapped TypeError, the negative cases. Re-run with the real
+   client and a live session: the dropped body resolves to `network`.
+3. **G-033: aggregates truncated silently at max-rows.** `fetchBooksSummary`, `fetchProjectTotals`,
+   `fetchMinistryAllocationTotals` and `fetchReportEntries` read `.range()` pages of 1000 (`max_rows` in
+   Supabase and `supabase/config.toml`) under an `id`-terminated order (`order=id.asc`; the report keeps
+   `occurred_on` first) until a short page. All or nothing: a failed page fails the read. A 50th page that
+   comes back full is refused — `unknown`, "Hay demasiados movimientos para calcular este total. Acota el
+   rango de fechas." — never truncated. Tests: two-page mocks for all four, a failed later page, the 50-page
+   boundary and the cap. The local PostgREST accepts the shape (ordering by an unselected `id`, `offset` /
+   `limit`). **Not changed:** the row lists in `entries.ts` (`fetchIncome`, `fetchExpenses`, the project and
+   ministry-allocation lists) stay one request each, capped at 1000 rows — S53 paginates the UI, and no total
+   is computed from them (noted in the module header).
+4. **Invalid dates threw `RangeError`.** `fetchUpcomingEvents(new Date('…'))` and `fetchLiveEvents({ now })`
+   with NaN, ±Infinity or an out-of-range epoch return `invalid('Fecha inválida.')` before any query.
+5. **`InterestStatus` was `… | string`**, which collapses to `string`. It is exactly `'pending' | 'approved'
+   | 'placed' | 'declined'` — `discipleship_interests_status_check` (baseline.sql:674) and legacy
+   `discipleship-tab.js` — and `fetchInterests({ status })` takes it too. The tests used `new` and
+   `archived`, values the CHECK rejects. A type test pins the union.
+
+Noted, not changed: the harness's probe D — postgrest-js turns an **empty-bodied** 404 on a list read into
+`{ data: [], error: null, status: 200 }` (its workaround for postgrest-js#295), so that one shape still reads
+as an empty success. PostgREST itself answers 404 with a JSON body and a code (e.g. `PGRST205`); only a proxy
+or CDN sending an empty 404 could produce it.
+
+| Suite | S22b | After the follow-ups |
+|---|---|---|
+| `discipleship` | 32 | 50 |
+| `errors` | 85 | 92 |
+| `events` | 14 | 20 |
+| `gallery` | 41 | 56 |
+| `receipts` | 31 | 42 |
+| `registrations` | 17 | 26 |
+| `session` (`10f5a2b`) | — | 5 |
+| `treasury-catalog` | 15 | 29 |
+| `treasury-entries` | 31 | 46 |
+| `treasury-notes` | 5 | 10 |
+| `treasury-payables` | 18 | 24 |
+| `treasury-projects` | 13 | 19 |
+| `treasury-recurring` | 15 | 21 |
+| `treasury-summary` | 14 | 29 |
+| `types` | 5 | 6 |
+| unchanged: `realtime` 6, `treasury-shared` 19, `treasury-types` 9 | | |
+| **`tests/unit/repos`** | **17 files · 370** | **18 files · 509** |
+
+```
+[x]  2. Typecheck         npm run check   → 653 FILES 0 ERRORS 0 WARNINGS
+[x]  3. Lint / format     npm run lint    → prettier: all files pass · eslint: 0 problems
+[x]  4. Unit tests        npm run test    → 67 passed | 1 skipped files · 1979 passed | 2 skipped
+                                            (+134 in tests/unit/repos, +93 in S05b's layer-boundaries)
+[x]  6. Build             MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build → 15 prerendered pages;
+                          npm run budget → 15 pages within budget (±0.0%: no route imports a repo yet)
+[x] 14. Cross-engine e2e  E2E_PORT=4185 npx playwright test → 504 tests, 0 failed (see S05b)
+```
+
 ## How to resume if interrupted
-- Branch: `migrate/S02b-S05b-S22b-foundations` (worktree `IR-port-foundations`). Last known-good: the S02b commits; S22b is in the working tree, uncommitted.
-- Done: everything in "In scope", gates 2–4 green.
-- Next concrete action: commit `web/src/lib/repos/**`, `web/tests/unit/repos/**` and this file as `feat(web): S22b — repo results distinguish an error from an empty result (D-032)`; then the ledger step.
+- Branch: `migrate/S02b-S05b-S22b-foundations` (worktree `IR-port-foundations`). S22b is committed:
+  `c226698` (the contract), `10f5a2b` (`requireSession`), `8e0cc07` (the review follow-ups).
+- Done: everything above.
+- Next concrete action: open PR-C1 and paste the gate results.
 
 ## Landmines
 1. **The local S23 branch** (`migrate/S23-S36-public-site`) must adapt on rebase: its `repos/newsletter.ts` returns through `./errors` (`fail` / `invalid` / `ok`) and resolves to a `WriteResult` carrying a `RepoError`, so any consumer that rendered the old string `error` renders `error.message` (the safe copy) instead; its homepage loaders branch on `res.ok`, and a failed prerender read renders the **loading** state with a client refetch, never an empty section (ADR-0004 item 3).
@@ -150,6 +248,7 @@ Every read suite now has a case asserting that a failing read returns `ok: false
 4. **Repo tests:** the mock client returns `status` (200, or 500 when the canned result has an `error`) and `count`; a counted write needs `count: 1` in its canned result or it comes back `not_found`. Build expected failures with `tests/unit/repos/results.ts` instead of restating the copy.
 5. **S53's port of `form-wizard.js`**: S52's landmine said `res.error.message` did not exist on a `WriteResult`; it does now, and it is the copy to show.
 6. **Log tag:** failures log under each module's own tag (`[gallery] fetchAlbums:`), the CLAUDE.md §5 house style the S22/S52 suites already pinned, not one shared `[repos]` tag.
+7. **A new repo function must be classified.** The mock client answers a signed-in session unless a test sets `mock.session`, and each suite's `describeSessionGate` fails until a new export is listed as staff-only (and calls `requireSession` first), public, or not a repo call. Decide from the RLS policies, not from who calls it.
 
 ## On completion (ledger step of PR-C1)
 - [ ] `MIGRATION.md`: S22b on the board/Current state; D-032 executed; candidate gotchas — "classify Supabase errors by code, never by HTTP status when a SQLSTATE/PGRST code exists (PostgREST answers a missing table with 404)", "Storage puts the real status in the body `statusCode`", "a 0-row delete/update is only detectable with `{ count: 'exact' }` — RLS filters silently".
