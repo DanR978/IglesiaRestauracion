@@ -17,6 +17,14 @@
  * The build inside webServer needs the PUBLIC_* values: web/.env locally (see
  * .env.example), loopback placeholders in CI. No spec reaches production.
  *
+ * S39: the e2e build's Supabase is the preview itself, under /__supabase
+ * (PUBLIC_SUPABASE_URL below, overriding web/.env and CI for this build
+ * only). The sign-in pages call Supabase as soon as they open, so a spec
+ * answers that path in-process (helpers/supabase.ts → page.route), and
+ * anything left unanswered gets the preview's own 404 — no spec can reach a
+ * real backend, the local stack included, and the network guard still
+ * allows only the preview origin and the pinned CDN.
+ *
  * Usage:
  *   npx playwright install chromium webkit   # once
  *   npm run test:e2e                         # all four projects
@@ -29,6 +37,9 @@ import { defineConfig, devices } from '@playwright/test';
 const PERF_SPEC = /perf\.spec\.ts$/;
 // Two worktrees can run the suite at once on different ports.
 const PORT = Number(process.env.E2E_PORT) || 4173;
+const ORIGIN = `http://localhost:${PORT}`;
+/** helpers/supabase.ts SUPABASE_PATH — keep the two in step. */
+const SUPABASE_PATH = '/__supabase';
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -45,8 +56,10 @@ export default defineConfig({
     // fails the run instead.
     reuseExistingServer: false,
     timeout: 180_000,
+    // Merged over process.env: the anon key still comes from web/.env or CI.
+    env: { PUBLIC_SUPABASE_URL: `${ORIGIN}${SUPABASE_PATH}` },
   },
-  use: { baseURL: `http://localhost:${PORT}`, trace: 'retain-on-failure' },
+  use: { baseURL: ORIGIN, trace: 'retain-on-failure' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: PERF_SPEC },

@@ -160,6 +160,16 @@ export async function verifyOtp(tokenHash: string, type: string): Promise<AuthRe
 /* ── Account ───────────────────────────────────────────────────────────── */
 
 /**
+ * Where a recovery email says it returns to: the legacy panel's address,
+ * byte for byte what js/pages/admin/auth.js sends, inside the `/admin/**`
+ * entry supabase/apply-auth-email.mjs keeps on the redirect allow-list. The
+ * email template builds the real link —
+ * `/admin/?action=reset-password&token_hash=…` — so this only matters to
+ * GoTrue's allow-list check; ROUTES.reset takes over at the cutover (D-001, S64).
+ */
+export const RESET_REDIRECT_PATH = '/admin/?action=reset-password';
+
+/**
  * Send a password-recovery email. The answer never says whether the address
  * has an account — the screen keeps "Si la cuenta existe…" (PORT-DEBT S39).
  */
@@ -168,7 +178,7 @@ export async function requestPasswordReset(email: string): Promise<AuthResult> {
   if (!address) return authInvalid('Escribe tu correo electrónico.');
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(address, {
-      redirectTo: new URL(ROUTES.reset, location.origin).href,
+      redirectTo: new URL(RESET_REDIRECT_PATH, location.origin).href,
     });
     if (error) return authFail('requestPasswordReset', error);
     return ok(undefined);
