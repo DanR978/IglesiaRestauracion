@@ -21,12 +21,24 @@
  *   focusin — pulls focus back if it lands outside (a click on the page
  *             behind, or a browser control handing focus back to the document).
  *
- * Prerender-safe: with no `document` it returns an inert release function.
+ * Where focus RETURNS (G-038, S05b finding X-1): Safari does not focus a
+ * clicked <button>, so an overlay that records `document.activeElement` as it
+ * opens records <body> — or the nearest focusable ancestor, such as the kit
+ * pages' `<main tabindex="-1">` — and hands focus back there instead of to the
+ * control that opened it. returnFocusTarget() answers "who opened me" the same
+ * way in every engine: the caller's explicit trigger when it has one, else the
+ * focused control, else the control the last pointerdown / keydown landed on.
+ * Those two presses are watched by capture-phase listeners installed when this
+ * module loads — before the click that opens the first overlay.
+ *
+ * Prerender-safe: with no `document` it returns an inert release function and
+ * installs nothing.
  *
  * Usage:
- *   import { trapFocus, isTopmostTrap } from '#lib/focus-trap.js';
- *   const release = trapFocus(dialogEl);   // in an $effect
- *   return release;                        // …and its cleanup
+ *   import { trapFocus, isTopmostTrap, returnFocusTarget } from '#lib/focus-trap.js';
+ *   const back = returnFocusTarget(trigger); // as the overlay opens; trigger optional
+ *   const release = trapFocus(dialogEl);     // in an $effect
+ *   return () => { release(); if (back?.isConnected) back.focus(); };
  * ========================================================================== */
 
 /**
@@ -51,22 +63,68 @@ export const FOCUSABLE_SELECTOR = [
 
 const stack: HTMLElement[] = [];
 let listening = false;
+/** The tab-ring control the last pointerdown / keydown landed on (G-038). */
+let lastPressed: HTMLElement | null = null;
 
 /**
- * Tab-reachable descendants, in document order.
+ * Whether a FOCUSABLE_SELECTOR match is really in the tab ring.
  *
- * Filtering is attribute-based only — deliberately no geometry check: jsdom
- * reports every element as having no layout, so an `offsetParent`/
- * `getClientRects()` test would drop EVERY candidate and silently disable the
- * trap in the component tests.
+ * Attribute-based only — deliberately no geometry check: jsdom reports every
+ * element as having no layout, so an `offsetParent`/`getClientRects()` test
+ * would drop EVERY candidate and silently disable the trap in the component
+ * tests.
  */
-function focusable(container: HTMLElement): HTMLElement[] {
-  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (el) =>
-      !el.hasAttribute('disabled') &&
-      el.getAttribute('aria-hidden') !== 'true' &&
-      el.closest('[hidden]') === null,
+function inTabRing(el: HTMLElement): boolean {
+  return (
+    !el.hasAttribute('disabled') &&
+    el.getAttribute('aria-hidden') !== 'true' &&
+    el.closest('[hidden]') === null
   );
+}
+
+/** Tab-reachable descendants, in document order. */
+function focusable(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(inTabRing);
+}
+
+/** The control a press landed in — the <button> around a clicked icon or label. */
+function controlAt(target: EventTarget | null): HTMLElement | null {
+  if (!(target instanceof Element)) return null;
+  const control = target.closest<HTMLElement>(FOCUSABLE_SELECTOR);
+  return control && inTabRing(control) ? control : null;
+}
+
+function rememberPress(event: Event): void {
+  lastPressed = controlAt(event.target);
+}
+
+if (typeof document !== 'undefined') {
+  // For the page's lifetime, in the capture phase: a handler that stops
+  // propagation cannot hide a press, and a keydown on <body> (a shortcut, a
+  // Tab away) forgets the last click, so a stale opener is never returned to.
+  document.addEventListener('pointerdown', rememberPress, true);
+  document.addEventListener('keydown', rememberPress, true);
+}
+
+/**
+ * Where focus should go back to when an overlay opening NOW closes. Call it as
+ * the overlay opens, before moving focus in.
+ *   1. `trigger`, when the caller knows it (ActionSheet's `trigger` prop).
+ *   2. The control the last pointerdown / keydown landed on, when focus sits on
+ *      <body> or on a container that holds it — a click or a tap in WebKit
+ *      (G-038). Elsewhere a press focuses its control, so 2 and 3 agree.
+ *   3. document.activeElement — a keyboard user who moved focus since their
+ *      last press, or an overlay opened by script.
+ */
+export function returnFocusTarget(trigger?: HTMLElement | null): HTMLElement | null {
+  if (trigger) return trigger;
+  if (typeof document === 'undefined') return null;
+  const active = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const pressed = lastPressed?.isConnected ? lastPressed : null;
+  if (pressed && (active === null || active === document.body || active.contains(pressed))) {
+    return pressed;
+  }
+  return active;
 }
 
 function top(): HTMLElement | null {

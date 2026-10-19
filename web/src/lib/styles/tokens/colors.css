@@ -18,11 +18,13 @@
  *                              (tests/unit/tokens.test.ts asserts the two blocks
  *                              declare the same set with identical values).
  *
- * New in the port (DESIGN-SYSTEM.md §2.4/§2.5/§2.7, D-016):
+ * New in the port (DESIGN-SYSTEM.md §2.4/§2.5/§2.7, D-016, D-038):
  *   --money-*   semantic money ink + tint (the two legacy greens collapse to one)
  *   --status-*  honest status vocabulary for Badge/DataTable
  *   --color-done the slate "step done" dot (re-themed from --color-add #72BB72)
  *   --shadow-rgb the ink the shadow scale is built from (tokens/shadows.css)
+ *   --color-accent-ink the accent TEXT role; --color-secondary stays the fill
+ *   --slate-ink  the admin's accent ink, mapped onto that role by tokens/admin.css
  *
  * Dropped from the legacy file (documented in the S11 NOTES):
  *   • --btn-shadow / --container-shadow / --image-shadow → tokens/shadows.css
@@ -43,6 +45,13 @@
   --gold-bright: #c89858;
   --color-accent: #be660e;
   --color-info: #2d4e57;
+  /* Accent TEXT (D-038): <strong>, rich-text links, accent icons. The accent
+     FILLS (--color-secondary, --color-accent) have no dark value, so text drawn
+     in them sank to 3.3:1 on the dark surface (A11Y-1). Light keeps the gold,
+     4.70:1 on #fff; the dark blocks lift it. --slate-ink is the admin's pair
+     (7.58:1 on #fff), which tokens/admin.css maps onto --color-accent-ink. */
+  --color-accent-ink: var(--color-secondary);
+  --slate-ink: #475569;
   --color-muted: #736960;
   --color-dark: #394548;
   /* --color-text is the AUTO-REVERSING foreground text colour.
@@ -177,14 +186,18 @@
   /* Money semantics (D-016) — AA-contrast-tuned ink + faint tint, reversed in
      the dark blocks. The ONE place non-slate colour is intentional in the
      treasury: +/- is meaning, not decoration. Legacy #1e6b61 and #1c7a52
-     collapse to one green; #b02030 and #a05a10 keep their hue.
-     Ink on white: pos 6.2:1 · neg 6.8:1 · warn 5.3:1. */
+     collapse to one green; #b02030 and #a05a10 keep their hue — the amber one
+     step darker (#94530f), because a Badge sets the ink on its own tint and
+     #a05a10 managed only 4.38:1 there (A11Y-2).
+     Ink on white: pos 6.3:1 · neg 6.8:1 · warn 6.0:1.
+     Ink on its own tint: pos 5.3:1 · neg 5.8:1 · warn 4.9:1.
+     tests/unit/tokens.test.ts recomputes every pair. */
   --money-pos: #1e6b61;
   --money-pos-bg: rgba(30, 107, 97, 0.12);
   --money-neg: #b02030;
   --money-neg-bg: rgba(176, 32, 48, 0.1);
-  --money-warn: #a05a10;
-  --money-warn-bg: rgba(160, 90, 16, 0.14);
+  --money-warn: #94530f;
+  --money-warn-bg: rgba(148, 83, 15, 0.14);
 
   /* Honest status vocabulary (DESIGN-SYSTEM §2.5) — one ink + tint pair per
      real state, so Badge/DataTable never carry meaning by variant reuse.
@@ -236,6 +249,11 @@
     --gold-bright: #c89858;
     --color-accent: #be660e;
     --color-info: #2d4e57;
+    /* Accent ink lifted for the dark page and surface: gold 8.23 / 7.36:1,
+       the admin's slate 11.67 / 10.44:1 (#9a6a2c was 3.69 / 3.30, #475569
+       2.29 / 2.05 — A11Y-1). */
+    --color-accent-ink: #d9ab66;
+    --slate-ink: #cbd5e1;
     --color-muted: #aa9b8c; /* warmer light brown that reads on dark */
     --color-dark: #313537;
     /* Foreground text auto-reverses to light here. */
@@ -319,7 +337,8 @@
     --gray-10: #f8f8f8;
     --gray-0: #ffffff;
 
-    /* Money ink lifted for the #1a262a surface: pos 7.1:1 · neg 6.5:1 · warn 8.2:1. */
+    /* Money ink lifted for the #1a262a surface: pos 7.1:1 · neg 6.5:1 · warn 8.3:1;
+       on its own tint over that surface: pos 5.2:1 · neg 5.1:1 · warn 5.9:1. */
     --money-pos: #4fc3a1;
     --money-pos-bg: rgba(79, 195, 161, 0.16);
     --money-neg: #f28b8b;
@@ -352,6 +371,8 @@
   --gold-bright: #c89858;
   --color-accent: #be660e;
   --color-info: #2d4e57;
+  --color-accent-ink: #d9ab66;
+  --slate-ink: #cbd5e1;
   --color-muted: #aa9b8c;
   --color-dark: #313537;
   --color-text: #f0f5f7;

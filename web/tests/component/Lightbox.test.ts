@@ -276,6 +276,24 @@ describe('Lightbox — scroll lock and focus', () => {
     expect(document.activeElement).toBe(trigger);
     trigger.remove();
   });
+
+  it('returns focus to a tile a tap left unfocused, as Safari does (G-038)', async () => {
+    const tile = document.createElement('button');
+    tile.textContent = 'Ver foto';
+    document.body.append(tile);
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    render(Lightbox);
+    await fireEvent.pointerDown(tile);
+    open();
+    await tick();
+    expect(document.activeElement).toBe(dialog());
+
+    closeLightbox();
+    flushSync();
+    expect(document.activeElement).toBe(tile);
+    tile.remove();
+  });
 });
 
 describe('Lightbox — share, download and full screen', () => {

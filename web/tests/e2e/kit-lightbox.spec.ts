@@ -21,15 +21,9 @@ async function openFromTile(page: Page, index = 0): Promise<void> {
 test.describe('kit/lightbox', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test('opens from a tile, walks with the arrows and closes on Escape', async ({
-    page,
-    browserName,
-  }) => {
-    // S05b finding X-1: Safari does not focus a clicked <button>, so the
-    // viewer records <main>/<body> as its opener and focus never returns to
-    // the tile. Expected to fail on WebKit until the overlays track their
-    // opener; this then fails as "passed unexpectedly" — delete the line.
-    test.fail(browserName === 'webkit', 'X-1: focus does not return to a clicked opener');
+  test('opens from a tile, walks with the arrows and closes on Escape', async ({ page }) => {
+    // In WebKit the click leaves the tile unfocused, so focus returns to the
+    // opener the press was tracked to (G-038, S05b finding X-1).
     const errors: string[] = [];
     page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
 
