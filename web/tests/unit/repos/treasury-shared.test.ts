@@ -24,10 +24,9 @@ import {
   toIncomeEntry,
   toPayableEntry,
   toRecurringEntry,
-  writeFail,
-  writeOk,
   yearRange,
 } from '#lib/repos/treasury/shared.js';
+import * as shared from '#lib/repos/treasury/shared.js';
 
 describe('repos/treasury/shared — money at the boundary (D-003)', () => {
   let warn: ReturnType<typeof vi.spyOn>;
@@ -181,10 +180,11 @@ describe('repos/treasury/shared — money at the boundary (D-003)', () => {
     expect(fund.restricted).toBe(true);
   });
 
-  it('writeOk / writeFail produce the WriteResult branches (and writeFail warns)', () => {
-    expect(writeOk({ id: 'x' })).toEqual({ ok: true, data: { id: 'x' } });
-    expect(writeFail('createIncome', 'boom')).toEqual({ ok: false, error: 'boom' });
-    expect(warn).toHaveBeenCalledWith('[treasury] createIncome:', 'boom');
+  it('keeps no result helpers of its own — those are repos/errors (S22b)', () => {
+    expect(shared.TAG).toBe('[treasury]');
+    for (const legacyHelper of ['warnRead', 'writeFail', 'writeOk']) {
+      expect(shared).not.toHaveProperty(legacyHelper);
+    }
   });
 });
 

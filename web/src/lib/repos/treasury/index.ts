@@ -27,9 +27,12 @@
  *   1. MONEY IS INTEGER CENTS above this boundary (D-003). Reads expose
  *      `amountCents`; writes take `amountCents`. The `numeric` dollars column
  *      never escapes.
- *   2. READS NEVER THROW — they `console.warn('[treasury] fn:', msg)` and
- *      return a safe empty. WRITES NEVER THROW — they return
- *      `{ ok: true, data } | { ok: false, error }` (`repos/types.ts`).
+ *   2. NOTHING THROWS, AND A FAILURE IS NEVER AN EMPTY RESULT (ADR-0004).
+ *      Reads return `ReadResult`, writes `WriteResult` (`repos/types.ts`):
+ *      `{ ok: true, data } | { ok: false, error: RepoError }`, logged as
+ *      `[treasury] fn:`. Aggregates are all-or-nothing — a total computed
+ *      without one of its queries is wrong money, so it is an error, not a
+ *      "$0.00". A delete/update that changed no row is `not_found` (D-027).
  *   3. DATE RANGES ARE PUSHED INTO THE QUERY (`.gte/.lte` on `occurred_on`),
  *      never filtered in JS — that is the PERF-07 fix.
  *   4. RLS IS THE BOUNDARY (D-002). Nothing here is a permission check; the
@@ -43,6 +46,7 @@
  *   import { fetchBooksSummary, fetchExpenses, monthRange } from '#lib/repos/treasury/index.js';
  *   const range = monthRange('2026-08');
  *   const [kpis, rows] = await Promise.all([fetchBooksSummary(range), fetchExpenses(range)]);
+ *   if (!kpis.ok) showError(kpis.error.message); // never a "$0.00" tile
  * ========================================================================== */
 
 export * from './shared';

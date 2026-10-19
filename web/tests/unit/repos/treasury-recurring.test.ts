@@ -2,12 +2,14 @@
 // idempotent port of ensureRecurringForMonth (treasury-tab.js:377-399). The
 // `auto:recurring:<id>:<month>` tag is the whole idempotency mechanism, so it
 // is asserted from both sides: tags that exist are skipped, and a failed tag
-// read must NOT fall through to a duplicate insert.
+// read must NOT fall through to a duplicate insert. S22b — the ReadResult /
+// WriteResult contract and the counted delete (D-027).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { NOT_FOUND, failure, invalidInput } from './results';
 import {
   createRecurring,
   deleteRecurring,
@@ -46,7 +48,7 @@ describe('repos/treasury/recurring', () => {
   describe('fetchRecurring (treasury-tab.js:361)', () => {
     it('active first, then payee', async () => {
       mock.results.fin_recurring = [{ data: [rec({ amount: 1200.5 })] }];
-      const rows = await fetchRecurring();
+      const res = await fetchRecurring();
       expect(mock.query().table).toBe('fin_recurring');
       expect(mock.chain()).toEqual(['select', 'order', 'order']);
       expect(mock.query().calls.map((c) => c.args)).toEqual([
@@ -54,12 +56,14 @@ describe('repos/treasury/recurring', () => {
         ['active', { ascending: false }],
         ['payee'],
       ]);
-      expect(rows[0].amountCents).toBe(120050);
+      expect(res.ok && res.data[0].amountCents).toBe(120050);
     });
 
-    it('[] + warn on error', async () => {
+    it('a failed read is an error + warn, never an empty list (D-032)', async () => {
       mock.results.fin_recurring = [{ data: null, error: ERR }];
-      expect(await fetchRecurring()).toEqual([]);
+      const res = await fetchRecurring();
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[treasury] fetchRecurring:', 'boom');
     });
   });
@@ -87,24 +91,33 @@ describe('repos/treasury/recurring', () => {
       });
     });
 
-    it('update omits amount unless given; delete filters by id', async () => {
+    it('update omits amount unless given; delete filters by id, counted', async () => {
       mock.results.fin_recurring = [{ data: rec({ active: false }) }];
       await updateRecurring('r1', { active: false });
       expect(mock.args('update')).toEqual([{ active: false }]);
 
       mock.reset();
+      mock.results.fin_recurring = [{ count: 1 }];
       expect(await deleteRecurring('r1')).toEqual({ ok: true, data: undefined });
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
       expect(mock.args('eq')).toEqual(['id', 'r1']);
 
-      expect(await updateRecurring('', {})).toEqual({
-        ok: false,
-        error: 'Falta el identificador del pago recurrente.',
-      });
-      expect(await createRecurring({ payee: 'x', amountCents: -1 })).toEqual({
-        ok: false,
-        error: 'El monto no puede ser negativo.',
-      });
+      expect(await updateRecurring('', {})).toEqual(
+        invalidInput('Falta el identificador del pago recurrente.'),
+      );
+      expect(await createRecurring({ payee: 'x', amountCents: -1 })).toEqual(
+        invalidInput('El monto no puede ser negativo.'),
+      );
+    });
+
+    it('a delete that matched no payment is not_found (D-027); errors are mapped', async () => {
+      mock.results.fin_recurring = [{ count: 0 }];
+      expect(await deleteRecurring('r1')).toEqual(NOT_FOUND);
+      mock.results.fin_recurring = [{ data: null, error: ERR }];
+      expect(await createRecurring({ payee: 'x', amountCents: 1 })).toEqual(
+        failure('unknown', 'boom'),
+      );
     });
   });
 
@@ -242,35 +255,35 @@ describe('repos/treasury/recurring', () => {
     });
 
     it('rejects a malformed month key without querying', async () => {
-      expect(await materializeRecurring('2026-13')).toEqual({ ok: false, error: 'Mes inválido.' });
+      expect(await materializeRecurring('2026-13')).toEqual(invalidInput('Mes inválido.'));
       expect(mock.queries).toHaveLength(0);
     });
 
     it('ABORTS when the existing-tag read fails — never risks double-posting', async () => {
       mock.results.fin_recurring = [{ data: [rec()] }];
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      expect(await materializeRecurring('2026-08', { today: '2026-08-20' })).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await materializeRecurring('2026-08', { today: '2026-08-20' })).toEqual(
+        failure('unknown', 'boom'),
+      );
       expect(mock.queries).toHaveLength(2); // the insert never happened
+      expect(warn).toHaveBeenCalledWith('[treasury] materializeRecurring tags:', 'boom');
     });
 
     it('aborts when the recurring read fails, and surfaces an insert failure', async () => {
       mock.results.fin_recurring = [{ data: null, error: ERR }];
       mock.results.fin_expenses = [{ data: [] }];
-      expect(await materializeRecurring('2026-08', { today: '2026-08-20' })).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await materializeRecurring('2026-08', { today: '2026-08-20' })).toEqual(
+        failure('unknown', 'boom'),
+      );
+      expect(warn).toHaveBeenCalledWith('[treasury] materializeRecurring recurring:', 'boom');
 
       mock.reset();
       mock.results.fin_recurring = [{ data: [rec()] }];
       mock.results.fin_expenses = [{ data: [] }, { error: ERR }];
-      expect(await materializeRecurring('2026-08', { today: '2026-08-20' })).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await materializeRecurring('2026-08', { today: '2026-08-20' })).toEqual(
+        failure('unknown', 'boom'),
+      );
+      expect(warn).toHaveBeenCalledWith('[treasury] materializeRecurring:', 'boom');
     });
   });
 });

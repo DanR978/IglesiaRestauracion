@@ -1,12 +1,15 @@
 // S52 — repos/treasury/entries: query shape per the legacy `fin_income` /
-// `fin_expenses` calls, the never-throw contract, and cents conversion in both
-// directions. Query SHAPE is what we assert; RLS behaviour is staging's job
+// `fin_expenses` calls and cents conversion in both directions. S22b — the
+// ReadResult / WriteResult contract: a failed ledger read is `{ ok: false }`,
+// never an empty month, and a delete that matched no row is `not_found`
+// (D-027). Query SHAPE is what we assert; RLS behaviour is staging's job
 // (VERIFICATION.md).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { NOT_FOUND, OFFLINE, failure, invalidInput } from './results';
 import {
   createExpense,
   createIncome,
@@ -75,7 +78,7 @@ describe('repos/treasury/entries', () => {
   describe('fetchIncome (treasury-tab.js:326)', () => {
     it('scopes to the church books and pushes the range down', async () => {
       mock.results.fin_income = [{ data: [incomeRow()] }];
-      const rows = await fetchIncome(AUG);
+      const res = await fetchIncome(AUG);
       expect(mock.query().table).toBe('fin_income');
       expect(mock.chain()).toEqual(['select', 'is', 'gte', 'lte', 'order']);
       expect(mock.query().calls.map((c) => c.args)).toEqual([
@@ -85,13 +88,21 @@ describe('repos/treasury/entries', () => {
         ['occurred_on', '2026-08-31'],
         ['occurred_on', { ascending: false }],
       ]);
-      expect(rows[0].amountCents).toBe(123456);
-      expect(rows[0]).not.toHaveProperty('amount');
+      if (!res.ok) throw new Error('expected rows');
+      expect(res.data[0].amountCents).toBe(123456);
+      expect(res.data[0]).not.toHaveProperty('amount');
     });
 
-    it('returns [] and warns on error', async () => {
+    it('a month with no income is an empty SUCCESS', async () => {
+      mock.results.fin_income = [{ data: [] }];
+      expect(await fetchIncome(AUG)).toEqual({ ok: true, data: [] });
+    });
+
+    it('a failed read is an error, never an empty month (D-032)', async () => {
       mock.results.fin_income = [{ data: null, error: ERR }];
-      expect(await fetchIncome(AUG)).toEqual([]);
+      const res = await fetchIncome(AUG);
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[treasury] fetchIncome:', 'boom');
     });
   });
@@ -99,20 +110,25 @@ describe('repos/treasury/entries', () => {
   describe('fetchExpenses (treasury-tab.js:344)', () => {
     it('scopes to the church books and pushes the range down', async () => {
       mock.results.fin_expenses = [{ data: [expenseRow()] }];
-      const rows = await fetchExpenses(AUG);
+      const res = await fetchExpenses(AUG);
       expect(mock.query().table).toBe('fin_expenses');
       expect(mock.chain()).toEqual(['select', 'is', 'gte', 'lte', 'order']);
       expect(mock.args('select')).toEqual(['*']);
       expect(mock.args('is')).toEqual(['project_id', null]);
       expect(mock.args('gte')).toEqual(['occurred_on', '2026-08-01']);
       expect(mock.args('lte')).toEqual(['occurred_on', '2026-08-31']);
-      expect(rows[0].amountCents).toBe(85000);
+      expect(res.ok && res.data[0].amountCents).toBe(85000);
     });
 
-    it('returns [] and warns on error', async () => {
+    it('a failed read is an error, never an empty month (D-032)', async () => {
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      expect(await fetchExpenses(AUG)).toEqual([]);
+      expect(await fetchExpenses(AUG)).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchExpenses:', 'boom');
+    });
+
+    it('a dropped connection is a network error', async () => {
+      mock.results.fin_expenses = [OFFLINE];
+      expect(await fetchExpenses(AUG)).toEqual(failure('network', 'TypeError: Failed to fetch'));
     });
   });
 
@@ -134,18 +150,18 @@ describe('repos/treasury/entries', () => {
       expect(mock.args('lte')).toEqual(['occurred_on', '2026-08-31']);
     });
 
-    it('issues no query for a missing project id', async () => {
-      expect(await fetchProjectIncome('')).toEqual([]);
-      expect(await fetchProjectExpenses('')).toEqual([]);
+    it('issues no query for a missing project id: an empty success', async () => {
+      expect(await fetchProjectIncome('')).toEqual({ ok: true, data: [] });
+      expect(await fetchProjectExpenses('')).toEqual({ ok: true, data: [] });
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('[] + warn on error', async () => {
+    it('a failed read is an error + warn, never []', async () => {
       mock.results.fin_income = [{ data: null, error: ERR }];
-      expect(await fetchProjectIncome('p1')).toEqual([]);
+      expect(await fetchProjectIncome('p1')).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchProjectIncome:', 'boom');
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      expect(await fetchProjectExpenses('p1')).toEqual([]);
+      expect(await fetchProjectExpenses('p1')).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchProjectExpenses:', 'boom');
     });
   });
@@ -153,24 +169,24 @@ describe('repos/treasury/entries', () => {
   describe('fetchMinistryAllocations (project-treasury.js:239)', () => {
     it('reads church-books expenses tagged to the ministries', async () => {
       mock.results.fin_expenses = [{ data: [expenseRow({ ministry_id: MIN_A, amount: 12.5 })] }];
-      const rows = await fetchMinistryAllocations([MIN_A, MIN_B]);
+      const res = await fetchMinistryAllocations([MIN_A, MIN_B]);
       expect(mock.chain()).toEqual(['select', 'is', 'in', 'order']);
       expect(mock.args('is')).toEqual(['project_id', null]);
       expect(mock.args('in')).toEqual(['ministry_id', [MIN_A, MIN_B]]);
-      expect(rows[0].amountCents).toBe(1250);
+      expect(res.ok && res.data[0].amountCents).toBe(1250);
     });
 
     it('adds the range when given, and issues no query for an empty list', async () => {
       await fetchMinistryAllocations([MIN_A], AUG);
       expect(mock.chain()).toEqual(['select', 'is', 'in', 'gte', 'lte', 'order']);
       mock.reset();
-      expect(await fetchMinistryAllocations([])).toEqual([]);
+      expect(await fetchMinistryAllocations([])).toEqual({ ok: true, data: [] });
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('[] + warn on error', async () => {
+    it('a failed read is an error — never a ministry with "no budget" (PORT-DEBT S56)', async () => {
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      expect(await fetchMinistryAllocations([MIN_A])).toEqual([]);
+      expect(await fetchMinistryAllocations([MIN_A])).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchMinistryAllocations:', 'boom');
     });
   });
@@ -203,24 +219,33 @@ describe('repos/treasury/entries', () => {
     });
 
     it('rejects an invalid amount before touching the network', async () => {
-      expect(await createIncome({ source: 'x', amountCents: 10.5 })).toEqual({
-        ok: false,
-        error: 'El monto debe ser una cantidad válida.',
-      });
-      expect(await createIncome({ source: 'x', amountCents: -1 })).toEqual({
-        ok: false,
-        error: 'El monto no puede ser negativo.',
-      });
+      expect(await createIncome({ source: 'x', amountCents: 10.5 })).toEqual(
+        invalidInput('El monto debe ser una cantidad válida.'),
+      );
+      expect(await createIncome({ source: 'x', amountCents: -1 })).toEqual(
+        invalidInput('El monto no puede ser negativo.'),
+      );
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('returns the error branch, never throws', async () => {
+    it('returns the mapped error branch, never throws', async () => {
       mock.results.fin_income = [{ data: null, error: ERR }];
-      expect(await createIncome({ source: 'x', amountCents: 100 })).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await createIncome({ source: 'x', amountCents: 100 })).toEqual(
+        failure('unknown', 'boom'),
+      );
       expect(warn).toHaveBeenCalledWith('[treasury] createIncome:', 'boom');
+    });
+
+    it('an RLS refusal is forbidden', async () => {
+      mock.results.fin_income = [
+        {
+          data: null,
+          error: { message: 'new row violates row-level security policy', code: '42501' },
+          status: 403,
+        },
+      ];
+      const res = await createIncome({ source: 'x', amountCents: 100 });
+      expect(res.ok === false && res.error.kind).toBe('forbidden');
     });
   });
 
@@ -275,16 +300,17 @@ describe('repos/treasury/entries', () => {
     it('names the offending 1-based row and sends nothing', async () => {
       expect(
         await insertExpenseBatch([{ amountCents: 100 }, { amountCents: -5 }, { amountCents: 100 }]),
-      ).toEqual({ ok: false, error: 'Fila 2: El monto no puede ser negativo.' });
+      ).toEqual(invalidInput('Fila 2: El monto no puede ser negativo.'));
       expect(mock.queries).toHaveLength(0);
     });
 
     it('surfaces a server error without throwing', async () => {
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      expect(await insertExpenseBatch([{ amountCents: 100 }])).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await insertExpenseBatch([{ amountCents: 100 }])).toEqual(failure('unknown', 'boom'));
+      mock.results.fin_income = [OFFLINE];
+      expect(await insertIncomeBatch([{ source: 'Diezmos', amountCents: 100 }])).toEqual(
+        failure('network', 'TypeError: Failed to fetch'),
+      );
     });
   });
 
@@ -304,48 +330,83 @@ describe('repos/treasury/entries', () => {
     });
 
     it('validates the new amount and requires an id', async () => {
-      expect(await updateIncome('i1', { amountCents: 1.5 })).toEqual({
-        ok: false,
-        error: 'El monto debe ser una cantidad válida.',
-      });
-      expect(await updateExpense('', { amountCents: 100 })).toEqual({
-        ok: false,
-        error: 'Falta el identificador del gasto.',
-      });
+      expect(await updateIncome('i1', { amountCents: 1.5 })).toEqual(
+        invalidInput('El monto debe ser una cantidad válida.'),
+      );
+      expect(await updateExpense('', { amountCents: 100 })).toEqual(
+        invalidInput('Falta el identificador del gasto.'),
+      );
       expect(mock.queries).toHaveLength(0);
+    });
+
+    it('moving an entry to another project is refused by the D-027 trigger (42501)', async () => {
+      mock.results.fin_expenses = [
+        {
+          data: null,
+          error: {
+            message: 'Solo tesorería puede mover un movimiento a otro proyecto.',
+            code: '42501',
+          },
+          status: 403,
+        },
+      ];
+      expect(await updateExpense('e1', { project_id: 'p2' })).toEqual(
+        failure('forbidden', '42501: Solo tesorería puede mover un movimiento a otro proyecto.'),
+      );
+    });
+
+    it('an update that matched no entry (PGRST116) is not_found', async () => {
+      mock.results.fin_income = [
+        {
+          data: null,
+          error: {
+            message: 'JSON object requested, multiple (or no) rows returned',
+            code: 'PGRST116',
+          },
+          status: 406,
+        },
+      ];
+      const res = await updateIncome('gone', { note: 'x' });
+      expect(res.ok === false && res.error.kind).toBe('not_found');
     });
   });
 
   describe('deletes', () => {
-    it('delete by id', async () => {
+    it('delete by id, counted', async () => {
+      mock.results.fin_income = [{ count: 1 }];
       expect(await deleteIncome('i1')).toEqual({ ok: true, data: undefined });
       expect(mock.query().table).toBe('fin_income');
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
       expect(mock.args('eq')).toEqual(['id', 'i1']);
       mock.reset();
+      mock.results.fin_expenses = [{ count: 1 }];
       expect(await deleteExpense('e1')).toEqual({ ok: true, data: undefined });
       expect(mock.args('eq')).toEqual(['id', 'e1']);
     });
 
-    it('delete by exact `auto:` tag (treasury-tab.js:419)', async () => {
-      await deleteExpensesByNote('auto:payable:p1');
+    it('a delete that matched no row is not_found, never a success (D-027)', async () => {
+      mock.results.fin_income = [{ count: 0 }];
+      expect(await deleteIncome('i1')).toEqual(NOT_FOUND);
+      mock.results.fin_expenses = [{ count: 0 }];
+      expect(await deleteExpense('e1')).toEqual(NOT_FOUND);
+      expect(warn).toHaveBeenCalledWith('[treasury] deleteExpense:', 'no row was affected');
+    });
+
+    it('delete by exact `auto:` tag (treasury-tab.js:419) — zero matches is fine', async () => {
+      expect(await deleteExpensesByNote('auto:payable:p1')).toEqual({ ok: true, data: undefined });
       expect(mock.query().table).toBe('fin_expenses');
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([]);
       expect(mock.args('eq')).toEqual(['note', 'auto:payable:p1']);
     });
 
     it('guards missing arguments and surfaces errors', async () => {
-      expect(await deleteIncome('')).toEqual({
-        ok: false,
-        error: 'Falta el identificador del ingreso.',
-      });
-      expect(await deleteExpensesByNote('')).toEqual({
-        ok: false,
-        error: 'Falta la etiqueta de la nota.',
-      });
+      expect(await deleteIncome('')).toEqual(invalidInput('Falta el identificador del ingreso.'));
+      expect(await deleteExpensesByNote('')).toEqual(invalidInput('Falta la etiqueta de la nota.'));
       expect(mock.queries).toHaveLength(0);
       mock.results.fin_expenses = [{ error: ERR }];
-      expect(await deleteExpense('e1')).toEqual({ ok: false, error: 'boom' });
+      expect(await deleteExpense('e1')).toEqual(failure('unknown', 'boom'));
     });
   });
 });

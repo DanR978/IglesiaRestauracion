@@ -1,9 +1,13 @@
-// S22 — repos/gallery: query shape per legacy js/lib/gallery.js + contracts.
+// S22 — repos/gallery: query shape per legacy js/lib/gallery.js. S22b — the
+// ReadResult / WriteResult contract: a failed read is `{ ok: false }` (legacy
+// rendered it as "Aún no hay álbumes"), and a delete/update that matched no
+// row is `not_found` (D-027).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { NOT_FOUND, OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
 import {
   deleteAlbum,
   deletePhoto,
@@ -34,7 +38,8 @@ describe('repos/gallery', () => {
 
   describe('fetchAlbums (gallery.js:52)', () => {
     it('published only by default, newest event_date then created_at', async () => {
-      await fetchAlbums();
+      mock.results.gallery_albums = [{ data: [{ id: 'a' }] }];
+      expect(await fetchAlbums()).toEqual({ ok: true, data: [{ id: 'a' }] });
       expect(mock.query().table).toBe('gallery_albums');
       expect(mock.chain()).toEqual(['select', 'order', 'order', 'eq']);
       expect(mock.args('select')).toEqual(['*']);
@@ -55,17 +60,29 @@ describe('repos/gallery', () => {
       ]);
     });
 
-    it('returns [] and warns on error', async () => {
+    it('no albums is an empty SUCCESS', async () => {
+      mock.results.gallery_albums = [{ data: [] }];
+      expect(await fetchAlbums()).toEqual({ ok: true, data: [] });
+    });
+
+    it('a failed read is an error — never the "Aún no hay álbumes" empty list (D-032)', async () => {
       mock.results.gallery_albums = [{ data: null, error: ERR }];
-      expect(await fetchAlbums()).toEqual([]);
+      const res = await fetchAlbums();
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[gallery] fetchAlbums:', 'boom');
+    });
+
+    it('a dropped connection is a network error', async () => {
+      mock.results.gallery_albums = [OFFLINE];
+      expect(await fetchAlbums()).toEqual(failure('network', 'TypeError: Failed to fetch'));
     });
   });
 
   describe('fetchAlbumBy (gallery.js:65)', () => {
     it('published + id/slug, maybeSingle', async () => {
       mock.results.gallery_albums = [{ data: { id: 'a' } }];
-      expect(await fetchAlbumBy({ slug: 'x', id: 'a' })).toEqual({ id: 'a' });
+      expect(await fetchAlbumBy({ slug: 'x', id: 'a' })).toEqual({ ok: true, data: { id: 'a' } });
       expect(mock.chain()).toEqual(['select', 'eq', 'eq', 'eq', 'maybeSingle']);
       expect(mock.query().calls.map((c) => c.args)).toEqual([
         ['*'],
@@ -76,15 +93,15 @@ describe('repos/gallery', () => {
       ]);
     });
 
-    it('returns null without a query when neither key is given', async () => {
-      expect(await fetchAlbumBy({})).toBeNull();
-      expect(await fetchAlbumBy()).toBeNull();
+    it('a successful null without a query when neither key is given', async () => {
+      expect(await fetchAlbumBy({})).toEqual({ ok: true, data: null });
+      expect(await fetchAlbumBy()).toEqual({ ok: true, data: null });
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('returns null on error', async () => {
+    it('a failed lookup is an error, never a null album', async () => {
       mock.results.gallery_albums = [{ data: null, error: ERR }];
-      expect(await fetchAlbumBy({ id: 'a' })).toBeNull();
+      expect(await fetchAlbumBy({ id: 'a' })).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[gallery] fetchAlbumBy:', 'boom');
     });
   });
@@ -95,9 +112,11 @@ describe('repos/gallery', () => {
       expect(mock.chain()).toEqual(['select', 'eq', 'maybeSingle']);
       expect(mock.args('eq')).toEqual(['id', 'a']);
     });
-    it('null for empty id, no query', async () => {
-      expect(await fetchAlbumByIdAdmin('')).toBeNull();
+    it('null for an empty id, no query; an error on failure', async () => {
+      expect(await fetchAlbumByIdAdmin('')).toEqual({ ok: true, data: null });
       expect(mock.queries).toHaveLength(0);
+      mock.results.gallery_albums = [{ data: null, error: ERR }];
+      expect(await fetchAlbumByIdAdmin('a')).toEqual(failure('unknown', 'boom'));
     });
   });
 
@@ -110,10 +129,10 @@ describe('repos/gallery', () => {
       expect(mock.query().calls[2].args).toEqual(['sort_order', { ascending: true }]);
       expect(mock.query().calls[3].args).toEqual(['created_at', { ascending: true }]);
     });
-    it('[] for empty id and on error', async () => {
-      expect(await fetchPhotos('')).toEqual([]);
+    it('[] for an empty id; an error — not [] — on failure', async () => {
+      expect(await fetchPhotos('')).toEqual({ ok: true, data: [] });
       mock.results.gallery_photos = [{ data: null, error: ERR }];
-      expect(await fetchPhotos('alb')).toEqual([]);
+      expect(await fetchPhotos('alb')).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[gallery] fetchPhotos:', 'boom');
     });
   });
@@ -123,13 +142,13 @@ describe('repos/gallery', () => {
       mock.results.gallery_albums = [
         { data: [{ year: 2024 }, { year: 2026 }, { year: 2024 }, { year: 2025 }] },
       ];
-      expect(await fetchAvailableYears()).toEqual([2026, 2025, 2024]);
+      expect(await fetchAvailableYears()).toEqual({ ok: true, data: [2026, 2025, 2024] });
       expect(mock.chain()).toEqual(['select', 'eq']);
       expect(mock.args('select')).toEqual(['year']);
     });
-    it('[] on error', async () => {
+    it('a failed read is an error, never an empty year wheel', async () => {
       mock.results.gallery_albums = [{ data: null, error: ERR }];
-      expect(await fetchAvailableYears()).toEqual([]);
+      expect(await fetchAvailableYears()).toEqual(failure('unknown', 'boom'));
     });
   });
 
@@ -148,15 +167,48 @@ describe('repos/gallery', () => {
       expect(mock.args('update')[0]).toMatchObject({ slug: 'keep' });
       expect(mock.args('eq')).toEqual(['id', 'a']);
     });
-    it('returns { ok:false, error } on failure', async () => {
+    it('returns the mapped error on failure, never the raw message', async () => {
       mock.results.gallery_albums = [{ data: null, error: ERR }];
-      expect(await upsertAlbum({ title: 'T', year: 2026 })).toEqual({ ok: false, error: 'boom' });
+      expect(await upsertAlbum({ title: 'T', year: 2026 })).toEqual(failure('unknown', 'boom'));
+      expect(warn).toHaveBeenCalledWith('[gallery] upsertAlbum:', 'boom');
+    });
+    it('a duplicate slug is a conflict with its own copy', async () => {
+      mock.results.gallery_albums = [
+        {
+          data: null,
+          error: { message: 'duplicate key value violates unique constraint', code: '23505' },
+          status: 409,
+        },
+      ];
+      expect(await upsertAlbum({ title: 'T', year: 2026 })).toEqual({
+        ok: false,
+        error: {
+          kind: 'conflict',
+          message: 'Ya existe un registro con esos datos.',
+          detail: '23505: duplicate key value violates unique constraint',
+        },
+      });
+    });
+    it('an update that matched no album (PGRST116) is not_found', async () => {
+      mock.results.gallery_albums = [
+        {
+          data: null,
+          error: {
+            message: 'JSON object requested, multiple (or no) rows returned',
+            code: 'PGRST116',
+          },
+          status: 406,
+        },
+      ];
+      const res = await upsertAlbum({ id: 'gone', title: 'T', year: 2026 });
+      expect(res.ok === false && res.error.kind).toBe('not_found');
     });
   });
 
   describe('deleteAlbum (gallery.js:115)', () => {
-    it('removes every storage variant, then deletes the row', async () => {
+    it('removes every storage variant, then deletes the row (counted)', async () => {
       mock.results.gallery_photos = [{ data: [{ storage_path: 'alb/p1.jpg' }] }];
+      mock.results.gallery_albums = [{ count: 1 }];
       const res = await deleteAlbum('alb');
       expect(res).toEqual({ ok: true, data: undefined });
       expect(mock.storage.calls[0]).toEqual({
@@ -166,10 +218,22 @@ describe('repos/gallery', () => {
       const del = mock.query(1);
       expect(del.table).toBe('gallery_albums');
       expect(del.calls.map((c) => c.method)).toEqual(['delete', 'eq']);
+      expect(mock.args('delete', 1)).toEqual([{ count: 'exact' }]);
     });
     it('reports the row error', async () => {
       mock.results.gallery_albums = [{ data: null, error: ERR }];
-      expect(await deleteAlbum('alb')).toEqual({ ok: false, error: 'boom' });
+      expect(await deleteAlbum('alb')).toEqual(failure('unknown', 'boom'));
+    });
+    it('a delete that matched no album is not_found, never a success (D-027)', async () => {
+      mock.results.gallery_albums = [{ count: 0 }];
+      expect(await deleteAlbum('alb')).toEqual(NOT_FOUND);
+      expect(warn).toHaveBeenCalledWith('[gallery] deleteAlbum:', 'no row was affected');
+    });
+    it('aborts when the photo listing fails — its storage objects would be orphaned', async () => {
+      mock.results.gallery_photos = [{ data: null, error: ERR }];
+      expect(await deleteAlbum('alb')).toEqual(failure('unknown', 'boom'));
+      expect(mock.queries.map((q) => q.table)).toEqual(['gallery_photos']);
+      expect(mock.storage.calls).toHaveLength(0);
     });
   });
 
@@ -222,26 +286,53 @@ describe('repos/gallery', () => {
       expect(mock.queries.map((q) => q.table)).toEqual(['gallery_photos', 'gallery_photos']);
     });
 
+    it('a failed cover step is logged, but the saved photo is still a success', async () => {
+      mock.results.gallery_photos = [
+        { data: { id: 'p', webp_url: 'w' } },
+        { data: null, count: 1 },
+      ];
+      mock.results.gallery_albums = [{ error: { message: 'cover boom' } }];
+      expect(await uploadPhoto('alb', image)).toEqual({
+        ok: true,
+        data: { id: 'p', webp_url: 'w' },
+      });
+      expect(warn).toHaveBeenCalledWith('[gallery] uploadPhoto cover:', 'cover boom');
+    });
+
     it('fails fast on a storage error and inserts nothing', async () => {
       mock.storage.uploadError = { message: 'bucket full' };
-      expect(await uploadPhoto('alb', image)).toEqual({ ok: false, error: 'bucket full' });
+      expect(await uploadPhoto('alb', image)).toEqual(failure('unknown', 'bucket full'));
       expect(mock.queries).toHaveLength(0);
+      expect(warn).toHaveBeenCalledWith('[gallery] uploadPhoto storage:', 'bucket full');
+    });
+
+    it('maps a storage RLS refusal through the body statusCode', async () => {
+      mock.storage.uploadError = {
+        name: 'StorageApiError',
+        message: 'new row violates row-level security policy',
+        status: 400,
+        statusCode: '403',
+      };
+      expect(await uploadPhoto('alb', image)).toEqual(
+        failure('forbidden', '403: new row violates row-level security policy'),
+      );
     });
 
     it('cleans up storage when the row insert fails', async () => {
       mock.results.gallery_photos = [{ data: null, error: ERR }];
-      expect(await uploadPhoto('alb', image)).toEqual({ ok: false, error: 'boom' });
+      expect(await uploadPhoto('alb', image)).toEqual(failure('unknown', 'boom'));
       expect(mock.storage.calls.at(-1)?.method).toBe('remove');
     });
 
     it('rejects missing args without a network call', async () => {
-      expect((await uploadPhoto('', image)).ok).toBe(false);
+      expect(await uploadPhoto('', image)).toEqual(invalidInput('Falta el álbum o la foto.'));
       expect(mock.storage.calls).toHaveLength(0);
     });
   });
 
   describe('deletePhoto / setAlbumCover / updatePhoto / reorderPhotos', () => {
-    it('deletePhoto removes jpg/webp/thumb then the row', async () => {
+    it('deletePhoto removes jpg/webp/thumb then the row (counted)', async () => {
+      mock.results.gallery_photos = [{ count: 1 }];
       expect(await deletePhoto({ id: 'p', storage_path: 'alb/p.jpg' })).toEqual({
         ok: true,
         data: undefined,
@@ -249,14 +340,35 @@ describe('repos/gallery', () => {
       expect(mock.storage.calls[0].args).toEqual([['alb/p.jpg', 'alb/p.webp', 'alb/p-thumb.jpg']]);
       expect(mock.query().table).toBe('gallery_photos');
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
+    });
+    it('deletePhoto: a delete that matched no photo is not_found (D-027)', async () => {
+      mock.results.gallery_photos = [{ count: 0 }];
+      expect(await deletePhoto({ id: 'p' })).toEqual(NOT_FOUND);
     });
     it('deletePhoto rejects a photo without id', async () => {
-      expect((await deletePhoto({ id: '' })).ok).toBe(false);
+      expect(await deletePhoto({ id: '' })).toEqual(
+        invalidInput('Falta la foto que quieres eliminar.'),
+      );
+      expect(mock.queries).toHaveLength(0);
     });
-    it('setAlbumCover updates the two cover columns', async () => {
-      await setAlbumCover('alb', 'p', 'u');
-      expect(mock.args('update')).toEqual([{ cover_photo_id: 'p', cover_url: 'u' }]);
+    it('setAlbumCover updates the two cover columns and must hit the album', async () => {
+      mock.results.gallery_albums = [{ count: 1 }];
+      expect(await setAlbumCover('alb', 'p', 'u')).toEqual({ ok: true, data: undefined });
+      expect(mock.args('update')).toEqual([
+        { cover_photo_id: 'p', cover_url: 'u' },
+        { count: 'exact' },
+      ]);
       expect(mock.args('eq')).toEqual(['id', 'alb']);
+      mock.reset();
+      mock.results.gallery_albums = [{ count: 0 }];
+      expect(await setAlbumCover('gone', 'p', 'u')).toEqual(NOT_FOUND);
+    });
+    it('setAlbumCover maps an RLS refusal to forbidden', async () => {
+      mock.results.gallery_albums = [RLS_DENIED];
+      expect(await setAlbumCover('alb', 'p', 'u')).toEqual(
+        failure('forbidden', '42501: new row violates row-level security policy'),
+      );
     });
     it('updatePhoto returns the updated row', async () => {
       mock.results.gallery_photos = [{ data: { id: 'p', caption: 'c' } }];
@@ -266,22 +378,34 @@ describe('repos/gallery', () => {
       });
       expect(mock.chain()).toEqual(['update', 'eq', 'select', 'single']);
     });
-    it('reorderPhotos issues one scoped update per id; first error wins', async () => {
+    it('reorderPhotos issues one scoped, counted update per id; first error wins', async () => {
       mock.results.gallery_photos = [
-        {},
+        { count: 1 },
         { error: { message: 'e2' } },
         { error: { message: 'e3' } },
       ];
-      expect(await reorderPhotos('alb', ['a', 'b', 'c'])).toEqual({ ok: false, error: 'e2' });
+      expect(await reorderPhotos('alb', ['a', 'b', 'c'])).toEqual(failure('unknown', 'e2'));
       expect(mock.queries).toHaveLength(3);
       expect(mock.query(1).calls.map((c) => c.args)).toEqual([
-        [{ sort_order: 1 }],
+        [{ sort_order: 1 }, { count: 'exact' }],
         ['id', 'b'],
         ['album_id', 'alb'],
       ]);
+      expect(warn).toHaveBeenCalledWith('[gallery] reorderPhotos:', 'e2');
+      expect(warn).toHaveBeenCalledWith('[gallery] reorderPhotos:', 'e3');
+    });
+    it('reorderPhotos: an id that is no longer in the album is a failure', async () => {
+      mock.results.gallery_photos = [{ count: 1 }, { count: 0 }];
+      expect(await reorderPhotos('alb', ['a', 'b'])).toEqual(NOT_FOUND);
+      expect(mock.queries).toHaveLength(2);
     });
     it('reorderPhotos succeeds when every update does', async () => {
+      mock.results.gallery_photos = [{ count: 1 }];
       expect(await reorderPhotos('alb', ['a'])).toEqual({ ok: true, data: undefined });
+    });
+    it('reorderPhotos rejects a missing album without a query', async () => {
+      expect(await reorderPhotos('', ['a'])).toEqual(invalidInput('Falta el álbum.'));
+      expect(mock.queries).toHaveLength(0);
     });
   });
 

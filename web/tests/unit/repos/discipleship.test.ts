@@ -1,11 +1,13 @@
-// S22 — repos/discipleship: query shape per legacy js/lib/discipleship.js,
-// the never-throw / WriteResult contracts, and G-006 (no .select() on the
-// anon interest insert).
+// S22 — repos/discipleship: query shape per legacy js/lib/discipleship.js and
+// G-006 (no .select() on the anon interest insert). S22b — the ReadResult /
+// WriteResult contract: a failed read is `{ ok: false }`, never an empty list,
+// and a delete that matched no row is `not_found` (D-027).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { NOT_FOUND, OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
 import {
   addMember,
   deleteGroup,
@@ -39,29 +41,40 @@ describe('repos/discipleship', () => {
 
   describe('fetchPublicGroups (discipleship.js:98)', () => {
     it('published, status in (open, active), starts_on asc nulls last', async () => {
-      await fetchPublicGroups();
+      mock.results.discipleship_groups = [{ data: [{ id: 'g' }] }];
+      expect(await fetchPublicGroups()).toEqual({ ok: true, data: [{ id: 'g' }] });
       expect(mock.query().table).toBe('discipleship_groups');
       expect(mock.chain()).toEqual(['select', 'eq', 'in', 'order']);
       expect(mock.args('eq')).toEqual(['is_published', true]);
       expect(mock.args('in')).toEqual(['status', ['open', 'active']]);
       expect(mock.args('order')).toEqual(['starts_on', { ascending: true, nullsFirst: false }]);
     });
-    it('[] on error, tagged [discipulado]', async () => {
+    it('a failed read is an error, never an empty list (D-032), tagged [discipulado]', async () => {
       mock.results.discipleship_groups = [{ data: null, error: ERR }];
-      expect(await fetchPublicGroups()).toEqual([]);
+      const res = await fetchPublicGroups();
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[discipulado] fetchPublicGroups:', 'boom');
+    });
+    it('a dropped connection is a network error', async () => {
+      mock.results.discipleship_groups = [OFFLINE];
+      expect(await fetchPublicGroups()).toEqual(failure('network', 'TypeError: Failed to fetch'));
     });
   });
 
   describe('fetchAllGroups (discipleship.js:118)', () => {
     it('newest start first, then created_at desc', async () => {
-      await fetchAllGroups();
+      expect(await fetchAllGroups()).toEqual({ ok: true, data: [] });
       expect(mock.chain()).toEqual(['select', 'order', 'order']);
       expect(mock.query().calls[1].args).toEqual([
         'starts_on',
         { ascending: false, nullsFirst: false },
       ]);
       expect(mock.query().calls[2].args).toEqual(['created_at', { ascending: false }]);
+    });
+    it('a failed read is an error, never []', async () => {
+      mock.results.discipleship_groups = [{ data: null, error: ERR }];
+      expect(await fetchAllGroups()).toEqual(failure('unknown', 'boom'));
     });
   });
 
@@ -81,15 +94,17 @@ describe('repos/discipleship', () => {
         [],
       ]);
     });
-    it('null without a query when no key is given', async () => {
-      expect(await fetchGroupById('')).toBeNull();
-      expect(await fetchPublicGroupBy()).toBeNull();
+    it('a successful null without a query when no key is given', async () => {
+      expect(await fetchGroupById('')).toEqual({ ok: true, data: null });
+      expect(await fetchPublicGroupBy()).toEqual({ ok: true, data: null });
       expect(mock.queries).toHaveLength(0);
     });
-    it('null on error', async () => {
+    it('a failed lookup is an error, never a null group', async () => {
       mock.results.discipleship_groups = [{ data: null, error: ERR }];
-      expect(await fetchPublicGroupBy({ slug: 's' })).toBeNull();
+      expect(await fetchPublicGroupBy({ slug: 's' })).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[discipulado] fetchPublicGroupBy:', 'boom');
+      mock.results.discipleship_groups = [{ data: null, error: ERR }];
+      expect(await fetchGroupById('g')).toEqual(failure('unknown', 'boom'));
     });
   });
 
@@ -112,15 +127,21 @@ describe('repos/discipleship', () => {
       await markGroupCompleted('g');
       expect(mock.args('update')).toEqual([{ id: 'g', status: 'completed' }]);
     });
-    it('returns { ok:false, error } on failure', async () => {
+    it('returns the mapped error on failure', async () => {
       mock.results.discipleship_groups = [{ data: null, error: ERR }];
-      expect(await upsertGroup({ name: 'X' })).toEqual({ ok: false, error: 'boom' });
+      expect(await upsertGroup({ name: 'X' })).toEqual(failure('unknown', 'boom'));
       mock.results.discipleship_groups = [{ data: null, error: ERR }];
-      expect(await deleteGroup('g')).toEqual({ ok: false, error: 'boom' });
+      expect(await deleteGroup('g')).toEqual(failure('unknown', 'boom'));
     });
-    it('deleteGroup deletes by id', async () => {
+    it('deleteGroup deletes by id and must remove a row (D-027)', async () => {
+      mock.results.discipleship_groups = [{ count: 1 }];
       expect(await deleteGroup('g')).toEqual({ ok: true, data: undefined });
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
+      mock.reset();
+      mock.results.discipleship_groups = [{ count: 0 }];
+      expect(await deleteGroup('g')).toEqual(NOT_FOUND);
+      expect(warn).toHaveBeenCalledWith('[discipulado] deleteGroup:', 'no row was affected');
     });
   });
 
@@ -167,24 +188,27 @@ describe('repos/discipleship', () => {
     });
 
     it('validates before touching the network', async () => {
-      expect(await submitInterest({ phone: '1' })).toEqual({
-        ok: false,
-        error: 'Por favor escribe tu nombre.',
-      });
-      expect(await submitInterest({ full_name: 'A' })).toEqual({
-        ok: false,
-        error: 'Necesitamos al menos un correo o teléfono para contactarte.',
-      });
+      expect(await submitInterest({ phone: '1' })).toEqual(
+        invalidInput('Por favor escribe tu nombre.'),
+      );
+      expect(await submitInterest({ full_name: 'A' })).toEqual(
+        invalidInput('Necesitamos al menos un correo o teléfono para contactarte.'),
+      );
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('surfaces the Supabase message on error', async () => {
+    it('maps the Supabase error — the raw message never reaches the visitor', async () => {
       mock.results.discipleship_interests = [{ data: null, error: ERR }];
-      expect(await submitInterest({ full_name: 'A', email: 'a@b.c' })).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await submitInterest({ full_name: 'A', email: 'a@b.c' })).toEqual(
+        failure('unknown', 'boom'),
+      );
       expect(warn).toHaveBeenCalledWith('[discipulado] submitInterest:', 'boom');
+    });
+
+    it('a dropped connection on the public form is a network error', async () => {
+      mock.results.discipleship_interests = [OFFLINE];
+      const res = await submitInterest({ full_name: 'A', email: 'a@b.c' });
+      expect(res.ok === false && res.error.kind).toBe('network');
     });
   });
 
@@ -197,6 +221,14 @@ describe('repos/discipleship', () => {
       mock.reset();
       await fetchInterests();
       expect(mock.chain()).toEqual(['select', 'order']);
+    });
+    it('a staff read refused by RLS is forbidden — never "no interests yet"', async () => {
+      mock.results.discipleship_interests = [
+        { data: null, error: { message: 'permission denied', code: '42501' }, status: 403 },
+      ];
+      const res = await fetchInterests();
+      expect(res).toEqual(failure('forbidden', '42501: permission denied'));
+      expect(res).not.toEqual({ ok: true, data: [] });
     });
     it('placed records the group + contacted_at; other statuses clear the group', async () => {
       vi.useFakeTimers();
@@ -214,6 +246,11 @@ describe('repos/discipleship', () => {
         vi.useRealTimers();
       }
     });
+    it('updateInterestStatus maps its error', async () => {
+      mock.results.discipleship_interests = [{ data: null, error: ERR }];
+      expect(await updateInterestStatus('i', 'archived')).toEqual(failure('unknown', 'boom'));
+      expect(warn).toHaveBeenCalledWith('[discipulado] updateInterestStatus:', 'boom');
+    });
   });
 
   describe('members + messages', () => {
@@ -223,7 +260,11 @@ describe('repos/discipleship', () => {
       expect(mock.chain()).toEqual(['select', 'eq', 'order', 'order']);
       expect(mock.query().calls[2].args).toEqual(['role', { ascending: true }]);
       expect(mock.query().calls[3].args).toEqual(['full_name', { ascending: true }]);
-      expect(await fetchMembers('')).toEqual([]);
+      expect(await fetchMembers('')).toEqual({ ok: true, data: [] });
+    });
+    it('fetchMembers: a failed read is an error, never an empty roster', async () => {
+      mock.results.discipleship_members = [{ data: null, error: ERR }];
+      expect(await fetchMembers('g')).toEqual(failure('unknown', 'boom'));
     });
     it('addMember / removeMember / moveMember', async () => {
       mock.results.discipleship_members = [{ data: { id: 'm' } }];
@@ -233,13 +274,27 @@ describe('repos/discipleship', () => {
       });
       expect(mock.chain()).toEqual(['insert', 'select', 'single']);
       mock.reset();
+      mock.results.discipleship_members = [{ count: 1 }];
       expect(await removeMember('m')).toEqual({ ok: true, data: undefined });
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
       mock.reset();
-      expect(await moveMember('', 'g')).toEqual({ ok: false, error: 'invalid-args' });
+      expect(await moveMember('', 'g')).toEqual(
+        invalidInput('Falta el miembro o el grupo de destino.'),
+      );
+      expect(mock.queries).toHaveLength(0);
       await moveMember('m', 'g2');
       expect(mock.args('update')).toEqual([{ group_id: 'g2' }]);
       expect(mock.args('eq')).toEqual(['id', 'm']);
+    });
+    it('removeMember: a delete that matched no member is not_found (D-027)', async () => {
+      mock.results.discipleship_members = [{ count: 0 }];
+      expect(await removeMember('m')).toEqual(NOT_FOUND);
+    });
+    it('addMember maps an RLS refusal to forbidden', async () => {
+      mock.results.discipleship_members = [RLS_DENIED];
+      const res = await addMember({ group_id: 'g', full_name: 'A' });
+      expect(res.ok === false && res.error.kind).toBe('forbidden');
     });
     it('fetchMessages: newest first with a limit', async () => {
       await fetchMessages('g', 5);
@@ -250,15 +305,22 @@ describe('repos/discipleship', () => {
       mock.reset();
       await fetchMessages('g');
       expect(mock.args('limit')).toEqual([25]);
+      expect(await fetchMessages('')).toEqual({ ok: true, data: [] });
+    });
+    it('fetchMessages: a failed read is an error, never an empty thread', async () => {
+      mock.results.discipleship_messages = [{ data: null, error: ERR }];
+      expect(await fetchMessages('g')).toEqual(failure('unknown', 'boom'));
     });
     it('sendMessage rejects an empty body and trims', async () => {
-      expect(await sendMessage({ groupId: 'g', body: '  ' })).toEqual({
-        ok: false,
-        error: 'El mensaje no puede estar vacío.',
-      });
+      expect(await sendMessage({ groupId: 'g', body: '  ' })).toEqual(
+        invalidInput('El mensaje no puede estar vacío.'),
+      );
       expect(mock.queries).toHaveLength(0);
       mock.results.discipleship_messages = [{ data: { id: 'x' } }];
-      await sendMessage({ groupId: 'g', body: ' hola ' });
+      expect(await sendMessage({ groupId: 'g', body: ' hola ' })).toEqual({
+        ok: true,
+        data: { id: 'x' },
+      });
       expect(mock.args('insert')).toEqual([{ group_id: 'g', subject: null, body: 'hola' }]);
     });
   });

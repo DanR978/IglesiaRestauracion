@@ -1,12 +1,15 @@
 // S52 — repos/treasury/summary: the narrow aggregate projections. Asserts the
-// literal select strings (G-024), the pushed-down range (PERF-07), exact cent
-// totals (D-003) and the `failed` reporting that replaces legacy's silent
-// "$0.00 because the query errored" (PORT-DEBT S53/S56).
+// literal select strings (G-024), the pushed-down range (PERF-07) and exact
+// cent totals (D-003). S22b — aggregates are ALL OR NOTHING: if any of their
+// parallel reads fails the result is `{ ok: false }`, never totals computed
+// from the reads that happened to succeed — legacy's "$0.00 because the query
+// errored" (PORT-DEBT S53/S56) cannot be represented any more.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { OFFLINE, failure } from './results';
 import {
   fetchBooksSummary,
   fetchMinistryAllocationTotals,
@@ -68,7 +71,9 @@ describe('repos/treasury/summary', () => {
       ];
       mock.results.fin_payables = [{ data: [{ amount: 99.99 }] }];
 
-      const s = await fetchBooksSummary(AUG);
+      const res = await fetchBooksSummary(AUG);
+      if (!res.ok) throw new Error('expected a summary');
+      const s = res.data;
       expect(s.incomeCents).toBe(30); // 0.1 + 0.2 exactly, not 0.30000000000000004
       expect(s.expensesCents).toBe(10 + 85000 + 120000 + 120000 + 4050 + 950 + 700);
       expect(s.balanceCents).toBe(s.incomeCents - s.expensesCents);
@@ -78,27 +83,46 @@ describe('repos/treasury/summary', () => {
         pastorCents: 240000,
         byMinistryCents: { [MIN_A]: 5000, [MIN_B]: 700 },
       });
-      expect(s.failed).toEqual([]);
     });
 
-    it('reports WHICH read failed instead of rendering a silent zero', async () => {
+    it('a quiet month is a SUCCESS of zeros — zero is only ever a real zero', async () => {
+      expect(await fetchBooksSummary(AUG)).toEqual({
+        ok: true,
+        data: {
+          incomeCents: 0,
+          expensesCents: 0,
+          balanceCents: 0,
+          openPayablesCents: 0,
+          byAllocation: { generalCents: 0, pastorCents: 0, byMinistryCents: {} },
+        },
+      });
+    });
+
+    it('ONE failed read (payables) fails the summary — never "Por pagar: $0.00"', async () => {
       mock.results.fin_income = [{ data: [{ amount: 10 }] }];
       mock.results.fin_payables = [{ data: null, error: ERR }];
-      const s = await fetchBooksSummary(AUG);
-      expect(s.failed).toEqual(['payables']);
-      expect(s.incomeCents).toBe(1000);
-      expect(s.openPayablesCents).toBe(0);
+      const res = await fetchBooksSummary(AUG);
+      expect(res).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchBooksSummary payables:', 'boom');
     });
 
-    it('never throws when every read fails', async () => {
-      mock.results.fin_income = [{ data: null, error: ERR }];
+    it('a failed expenses read fails it too — a balance without expenses is wrong money', async () => {
+      mock.results.fin_income = [{ data: [{ amount: 10 }] }];
+      mock.results.fin_expenses = [OFFLINE];
+      expect(await fetchBooksSummary(AUG)).toEqual(
+        failure('network', 'TypeError: Failed to fetch'),
+      );
+      expect(warn).toHaveBeenCalledWith(
+        '[treasury] fetchBooksSummary expenses:',
+        'TypeError: Failed to fetch',
+      );
+    });
+
+    it('never throws when every read fails; the first failure is returned', async () => {
+      mock.results.fin_income = [{ data: null, error: { message: 'income boom' } }];
       mock.results.fin_expenses = [{ data: null, error: ERR }];
       mock.results.fin_payables = [{ data: null, error: ERR }];
-      const s = await fetchBooksSummary(AUG);
-      expect(s.failed).toEqual(['income', 'expenses', 'payables']);
-      expect(s).toMatchObject({ incomeCents: 0, expensesCents: 0, balanceCents: 0 });
-      expect(s.byAllocation.byMinistryCents).toEqual({});
+      expect(await fetchBooksSummary(AUG)).toEqual(failure('unknown', 'income boom'));
     });
   });
 
@@ -113,13 +137,16 @@ describe('repos/treasury/summary', () => {
         },
       ];
       mock.results.fin_expenses = [{ data: [{ project_id: 'p2', amount: 3.5 }] }];
-      const { byProject, failed } = await fetchProjectTotals(['p1', 'p2', 'p3']);
-      expect(byProject).toEqual({
-        p1: { incomeCents: 1525, expensesCents: 0 },
-        p2: { incomeCents: 0, expensesCents: 350 },
-        p3: { incomeCents: 0, expensesCents: 0 },
+      expect(await fetchProjectTotals(['p1', 'p2', 'p3'])).toEqual({
+        ok: true,
+        data: {
+          byProject: {
+            p1: { incomeCents: 1525, expensesCents: 0 },
+            p2: { incomeCents: 0, expensesCents: 350 },
+            p3: { incomeCents: 0, expensesCents: 0 },
+          },
+        },
       });
-      expect(failed).toEqual([]);
       expect(mock.args('select', 0)).toEqual(['project_id,amount']);
       expect(mock.args('in', 0)).toEqual(['project_id', ['p1', 'p2', 'p3']]);
       expect(mock.chain(0)).toEqual(['select', 'in']);
@@ -127,8 +154,10 @@ describe('repos/treasury/summary', () => {
 
     it('ignores a project id nobody asked for', async () => {
       mock.results.fin_income = [{ data: [{ project_id: 'other', amount: 10 }] }];
-      const { byProject } = await fetchProjectTotals(['p1']);
-      expect(byProject).toEqual({ p1: { incomeCents: 0, expensesCents: 0 } });
+      expect(await fetchProjectTotals(['p1'])).toEqual({
+        ok: true,
+        data: { byProject: { p1: { incomeCents: 0, expensesCents: 0 } } },
+      });
     });
 
     it('pushes a range down when given; no ids means no query', async () => {
@@ -136,16 +165,15 @@ describe('repos/treasury/summary', () => {
       expect(mock.chain(0)).toEqual(['select', 'in', 'gte', 'lte']);
       expect(mock.chain(1)).toEqual(['select', 'in', 'gte', 'lte']);
       mock.reset();
-      expect(await fetchProjectTotals([])).toEqual({ byProject: {}, failed: [] });
+      expect(await fetchProjectTotals([])).toEqual({ ok: true, data: { byProject: {} } });
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('reports the failed side and keeps the other', async () => {
+    it('a failed side fails the totals — never a card that reads $0.00 (PORT-DEBT S56)', async () => {
       mock.results.fin_income = [{ data: null, error: ERR }];
       mock.results.fin_expenses = [{ data: [{ project_id: 'p1', amount: 1 }] }];
-      const { byProject, failed } = await fetchProjectTotals(['p1']);
-      expect(failed).toEqual(['income']);
-      expect(byProject.p1).toEqual({ incomeCents: 0, expensesCents: 100 });
+      expect(await fetchProjectTotals(['p1'])).toEqual(failure('unknown', 'boom'));
+      expect(warn).toHaveBeenCalledWith('[treasury] fetchProjectTotals income:', 'boom');
     });
   });
 
@@ -160,25 +188,28 @@ describe('repos/treasury/summary', () => {
           ],
         },
       ];
-      const { byMinistry, failed } = await fetchMinistryAllocationTotals([MIN_A, MIN_B]);
-      expect(byMinistry).toEqual({ [MIN_A]: 2000, [MIN_B]: 0 });
-      expect(failed).toEqual([]);
+      expect(await fetchMinistryAllocationTotals([MIN_A, MIN_B])).toEqual({
+        ok: true,
+        data: { byMinistry: { [MIN_A]: 2000, [MIN_B]: 0 } },
+      });
       expect(mock.chain()).toEqual(['select', 'is', 'in']);
       expect(mock.args('select')).toEqual(['ministry_id,amount']);
       expect(mock.args('is')).toEqual(['project_id', null]);
     });
 
-    it('range pushdown, empty list, and error reporting', async () => {
+    it('range pushdown, empty list, and an error that is never a zero budget', async () => {
       await fetchMinistryAllocationTotals([MIN_A], AUG);
       expect(mock.chain()).toEqual(['select', 'is', 'in', 'gte', 'lte']);
       mock.reset();
-      expect(await fetchMinistryAllocationTotals([])).toEqual({ byMinistry: {}, failed: [] });
+      expect(await fetchMinistryAllocationTotals([])).toEqual({
+        ok: true,
+        data: { byMinistry: {} },
+      });
       expect(mock.queries).toHaveLength(0);
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      expect(await fetchMinistryAllocationTotals([MIN_A])).toEqual({
-        byMinistry: { [MIN_A]: 0 },
-        failed: ['expenses'],
-      });
+      const res = await fetchMinistryAllocationTotals([MIN_A]);
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: { byMinistry: { [MIN_A]: 0 } } });
       expect(warn).toHaveBeenCalledWith('[treasury] fetchMinistryAllocationTotals:', 'boom');
     });
   });
@@ -202,32 +233,39 @@ describe('repos/treasury/summary', () => {
           ],
         },
       ];
-      const { income, expenses, failed } = await fetchReportEntries(YEAR);
+      const res = await fetchReportEntries(YEAR);
       expect(mock.args('select', 0)).toEqual(['occurred_on,source,fund,amount']);
       expect(mock.args('select', 1)).toEqual([
         'occurred_on,payee,category,label,ministry_id,amount',
       ]);
       expect(mock.chain(0)).toEqual(['select', 'is', 'gte', 'lte', 'order']);
       expect(mock.query(0).calls[4].args).toEqual(['occurred_on']);
-      expect(income).toEqual([
-        { occurred_on: '2026-03-01', source: 'Diezmos', fund: 'General', amountCents: 105 },
-      ]);
-      expect(expenses[0]).toEqual({
-        occurred_on: '2026-03-02',
-        payee: 'Arrendador',
-        category: 'Renta',
-        label: null,
-        ministry_id: null,
-        amountCents: 85000,
+      expect(res).toEqual({
+        ok: true,
+        data: {
+          income: [
+            { occurred_on: '2026-03-01', source: 'Diezmos', fund: 'General', amountCents: 105 },
+          ],
+          expenses: [
+            {
+              occurred_on: '2026-03-02',
+              payee: 'Arrendador',
+              category: 'Renta',
+              label: null,
+              ministry_id: null,
+              amountCents: 85000,
+            },
+          ],
+        },
       });
-      expect(failed).toEqual([]);
     });
 
-    it('never throws; names the failed side', async () => {
+    it('a half-loaded report is an error — a PDF without its expenses is a wrong report', async () => {
+      mock.results.fin_income = [
+        { data: [{ occurred_on: '2026-03-01', source: 'Diezmos', fund: 'General', amount: 1 }] },
+      ];
       mock.results.fin_expenses = [{ data: null, error: ERR }];
-      const res = await fetchReportEntries(YEAR);
-      expect(res.expenses).toEqual([]);
-      expect(res.failed).toEqual(['expenses']);
+      expect(await fetchReportEntries(YEAR)).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchReportEntries expenses:', 'boom');
     });
   });

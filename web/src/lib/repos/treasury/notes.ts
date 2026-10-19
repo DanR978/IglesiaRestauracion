@@ -11,54 +11,51 @@
  *
  * Usage:
  *   import { fetchNotes, createNote } from '#lib/repos/treasury/index.js';
+ *   const res = await fetchNotes();
+ *   if (res.ok) render(res.data);
  * ========================================================================== */
 
 import { supabase } from '#lib/db/client.js';
-import type { WriteResult } from '../types';
-import {
-  warnRead,
-  writeFail,
-  writeOk,
-  type NoteInsert,
-  type NoteRow,
-  type NoteUpdate,
-} from './shared';
+import { fail, invalid, noRows, ok } from '../errors';
+import type { ReadResult, WriteResult } from '../types';
+import { TAG, type NoteInsert, type NoteRow, type NoteUpdate } from './shared';
 
 /** Notes, pinned first then newest (`treasury-tab.js:543-544`). */
-export async function fetchNotes(): Promise<NoteRow[]> {
-  const { data, error } = await supabase
+export async function fetchNotes(): Promise<ReadResult<NoteRow[]>> {
+  const { data, error, status } = await supabase
     .from('fin_notes')
     .select('*')
     .order('pinned', { ascending: false })
     .order('created_at', { ascending: false });
-  if (error) {
-    warnRead('fetchNotes', error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchNotes', error, status);
+  return ok(data ?? []);
 }
 
 export async function createNote(input: NoteInsert): Promise<WriteResult<NoteRow>> {
-  const { data, error } = await supabase.from('fin_notes').insert(input).select().single();
-  if (error) return writeFail('createNote', error.message);
-  return writeOk(data);
+  const { data, error, status } = await supabase.from('fin_notes').insert(input).select().single();
+  if (error) return fail(TAG, 'createNote', error, status);
+  return ok(data);
 }
 
 export async function updateNote(id: string, patch: NoteUpdate): Promise<WriteResult<NoteRow>> {
-  if (!id) return writeFail('updateNote', 'Falta el identificador de la nota.');
-  const { data, error } = await supabase
+  if (!id) return invalid('Falta el identificador de la nota.');
+  const { data, error, status } = await supabase
     .from('fin_notes')
     .update(patch)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateNote', error.message);
-  return writeOk(data);
+  if (error) return fail(TAG, 'updateNote', error, status);
+  return ok(data);
 }
 
 export async function deleteNote(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteNote', 'Falta el identificador de la nota.');
-  const { error } = await supabase.from('fin_notes').delete().eq('id', id);
-  if (error) return writeFail('deleteNote', error.message);
-  return writeOk(undefined);
+  if (!id) return invalid('Falta el identificador de la nota.');
+  const { error, status, count } = await supabase
+    .from('fin_notes')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteNote', error, status);
+  if (!count) return noRows(TAG, 'deleteNote');
+  return ok(undefined);
 }

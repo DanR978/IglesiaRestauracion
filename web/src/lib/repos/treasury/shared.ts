@@ -1,8 +1,10 @@
 /* ============================================================================
- * web/src/lib/repos/treasury/shared.ts — treasury domain rules + repo plumbing
+ * web/src/lib/repos/treasury/shared.ts — treasury domain rules
  * ----------------------------------------------------------------------------
  * The pure half of the treasury repo (S52). It imports NO Supabase client, so
- * UI, PDF builders and pure test suites can use it standalone.
+ * UI, PDF builders and pure test suites can use it standalone. The result
+ * helpers every module returns through (`fail` / `invalid` / `noRows` / `ok`)
+ * live in `../errors` (S22b), shared with the other repos.
  *
  * Three things live here, and they are the contracts the whole treasury rests
  * on — S53 (books), S54 (recurrentes/por pagar/notas), S55 (reportes),
@@ -33,22 +35,6 @@ import type { Tables, TablesInsert, TablesUpdate } from '#lib/db/database.types.
 
 /** Log tag shared by every treasury repo module. */
 export const TAG = '[treasury]';
-
-/** Read-path failure: warn, then the caller returns a safe empty. */
-export function warnRead(fn: string, message: string): void {
-  console.warn(`${TAG} ${fn}:`, message);
-}
-
-/** Write-path failure: warn and return the `WriteResult` error branch. */
-export function writeFail(fn: string, message: string): { ok: false; error: string } {
-  console.warn(`${TAG} ${fn}:`, message);
-  return { ok: false, error: message };
-}
-
-/** Write-path success branch. */
-export function writeOk<T>(data: T): { ok: true; data: T } {
-  return { ok: true, data };
-}
 
 /* ── Row aliases (generated types are the only source of truth) ────────── */
 
@@ -84,15 +70,15 @@ export function amountToCents(value: number | string | null | undefined, where: 
   try {
     return toCents(value);
   } catch {
-    warnRead(where, `importe no numérico: ${JSON.stringify(value)}`);
+    console.warn(`${TAG} ${where}:`, `importe no numérico: ${JSON.stringify(value)}`);
     return 0;
   }
 }
 
 /**
  * Validate a cents amount before a write. Returns `null` when valid, else a
- * Spanish message ready for `toast(error, 'error')` — cheaper and clearer than
- * letting the `amount >= 0` CHECK come back as a raw Postgres string.
+ * Spanish message for `invalid()` — cheaper and clearer than letting the
+ * `amount >= 0` CHECK come back as a Postgres error.
  */
 export function centsError(
   cents: number,

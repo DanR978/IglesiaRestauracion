@@ -14,30 +14,31 @@
  * (`treasury-tab.js:25`, `report-builder.js:131-134`), which is the approved
  * golden divergence.
  *
- * Reads still never throw. Because an aggregate hides WHICH of its parallel
- * queries came back empty, each one also reports `failed` — that is what lets
- * S53 stop rendering "$0.00" for a payables fetch that actually errored
- * (PORT-DEBT S53) and S56 give the ministry view a real error state
- * (PORT-DEBT S56).
+ * ALL OR NOTHING (ADR-0004). Each aggregate runs its queries in parallel and
+ * returns `{ ok: false, error }` if ANY of them failed — never totals computed
+ * from the reads that happened to succeed. A balance without its expenses, or
+ * a report without its income, is wrong money; legacy rendered exactly that
+ * as "$0.00" (PORT-DEBT S53, S56). Each failed query is logged as
+ * `[treasury] <fn> <part>:`.
  *
  * Usage:
  *   import { fetchBooksSummary, monthRange } from '#lib/repos/treasury/index.js';
- *   const kpis = await fetchBooksSummary(monthRange('2026-08'));
+ *   const res = await fetchBooksSummary(monthRange('2026-08'));
+ *   if (res.ok) renderTiles(res.data);
  * ========================================================================== */
 
 import { supabase } from '#lib/db/client.js';
+import { fail, ok } from '../errors';
+import type { ReadResult } from '../types';
 import {
   PASTOR_LABEL,
+  TAG,
   amountToCents,
   sumCents,
-  warnRead,
   type DateRange,
   type ExpenseRow,
   type IncomeRow,
 } from './shared';
-
-/** Names of the parallel reads an aggregate ran that came back with an error. */
-export type FailedReads = string[];
 
 /* ── Resumen (church books) ────────────────────────────────────────────── */
 
@@ -63,12 +64,10 @@ export type BooksSummary = {
    */
   openPayablesCents: number;
   byAllocation: ExpenseAllocationTotals;
-  /** Any of `'income' | 'expenses' | 'payables'` whose query errored. */
-  failed: FailedReads;
 };
 
 /** The four Resumen KPI tiles plus the "Gastos por línea" breakdown. */
-export async function fetchBooksSummary(range: DateRange): Promise<BooksSummary> {
+export async function fetchBooksSummary(range: DateRange): Promise<ReadResult<BooksSummary>> {
   const [inc, exp, pay] = await Promise.all([
     supabase
       .from('fin_income')
@@ -84,20 +83,9 @@ export async function fetchBooksSummary(range: DateRange): Promise<BooksSummary>
       .lte('occurred_on', range.end),
     supabase.from('fin_payables').select('amount').eq('status', 'open'),
   ]);
-
-  const failed: FailedReads = [];
-  if (inc.error) {
-    warnRead('fetchBooksSummary income', inc.error.message);
-    failed.push('income');
-  }
-  if (exp.error) {
-    warnRead('fetchBooksSummary expenses', exp.error.message);
-    failed.push('expenses');
-  }
-  if (pay.error) {
-    warnRead('fetchBooksSummary payables', pay.error.message);
-    failed.push('payables');
-  }
+  if (inc.error) return fail(TAG, 'fetchBooksSummary income', inc.error, inc.status);
+  if (exp.error) return fail(TAG, 'fetchBooksSummary expenses', exp.error, exp.status);
+  if (pay.error) return fail(TAG, 'fetchBooksSummary payables', pay.error, pay.status);
 
   const incomeCents = sumCents(
     (inc.data ?? []).map((r) => amountToCents(r.amount, 'fetchBooksSummary')),
@@ -122,14 +110,13 @@ export async function fetchBooksSummary(range: DateRange): Promise<BooksSummary>
     (pay.data ?? []).map((r) => amountToCents(r.amount, 'fetchBooksSummary')),
   );
 
-  return {
+  return ok({
     incomeCents,
     expensesCents,
     balanceCents: incomeCents - expensesCents,
     openPayablesCents,
     byAllocation,
-    failed,
-  };
+  });
 }
 
 /* ── Project / ministry rollups ────────────────────────────────────────── */
@@ -139,8 +126,6 @@ export type ProjectTotals = { incomeCents: number; expensesCents: number };
 export type ProjectTotalsResult = {
   /** Project uuid → totals. Every requested id is present, zeroed when empty. */
   byProject: Record<string, ProjectTotals>;
-  /** `'income'` and/or `'expenses'` when that query errored. */
-  failed: FailedReads;
 };
 
 /**
@@ -152,10 +137,10 @@ export type ProjectTotalsResult = {
 export async function fetchProjectTotals(
   projectIds: string[],
   range?: DateRange,
-): Promise<ProjectTotalsResult> {
+): Promise<ReadResult<ProjectTotalsResult>> {
   const byProject: Record<string, ProjectTotals> = {};
   for (const id of projectIds) byProject[id] = { incomeCents: 0, expensesCents: 0 };
-  if (!projectIds.length) return { byProject, failed: [] };
+  if (!projectIds.length) return ok({ byProject });
 
   let incQ = supabase.from('fin_income').select('project_id,amount').in('project_id', projectIds);
   let expQ = supabase.from('fin_expenses').select('project_id,amount').in('project_id', projectIds);
@@ -164,16 +149,9 @@ export async function fetchProjectTotals(
     expQ = expQ.gte('occurred_on', range.start).lte('occurred_on', range.end);
   }
   const [inc, exp] = await Promise.all([incQ, expQ]);
+  if (inc.error) return fail(TAG, 'fetchProjectTotals income', inc.error, inc.status);
+  if (exp.error) return fail(TAG, 'fetchProjectTotals expenses', exp.error, exp.status);
 
-  const failed: FailedReads = [];
-  if (inc.error) {
-    warnRead('fetchProjectTotals income', inc.error.message);
-    failed.push('income');
-  }
-  if (exp.error) {
-    warnRead('fetchProjectTotals expenses', exp.error.message);
-    failed.push('expenses');
-  }
   for (const row of inc.data ?? []) {
     const bucket = row.project_id ? byProject[row.project_id] : undefined;
     if (bucket) bucket.incomeCents += amountToCents(row.amount, 'fetchProjectTotals');
@@ -182,14 +160,12 @@ export async function fetchProjectTotals(
     const bucket = row.project_id ? byProject[row.project_id] : undefined;
     if (bucket) bucket.expensesCents += amountToCents(row.amount, 'fetchProjectTotals');
   }
-  return { byProject, failed };
+  return ok({ byProject });
 }
 
 export type MinistryAllocationTotals = {
   /** Ministry uuid → cents the church allocated to it in the range. */
   byMinistry: Record<string, number>;
-  /** `'expenses'` when the query errored. */
-  failed: FailedReads;
 };
 
 /**
@@ -201,10 +177,10 @@ export type MinistryAllocationTotals = {
 export async function fetchMinistryAllocationTotals(
   ministryIds: string[],
   range?: DateRange,
-): Promise<MinistryAllocationTotals> {
+): Promise<ReadResult<MinistryAllocationTotals>> {
   const byMinistry: Record<string, number> = {};
   for (const id of ministryIds) byMinistry[id] = 0;
-  if (!ministryIds.length) return { byMinistry, failed: [] };
+  if (!ministryIds.length) return ok({ byMinistry });
 
   let q = supabase
     .from('fin_expenses')
@@ -212,18 +188,15 @@ export async function fetchMinistryAllocationTotals(
     .is('project_id', null)
     .in('ministry_id', ministryIds);
   if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
-  const { data, error } = await q;
-  if (error) {
-    warnRead('fetchMinistryAllocationTotals', error.message);
-    return { byMinistry, failed: ['expenses'] };
-  }
+  const { data, error, status } = await q;
+  if (error) return fail(TAG, 'fetchMinistryAllocationTotals', error, status);
   for (const row of data ?? []) {
     if (!row.ministry_id) continue;
     byMinistry[row.ministry_id] =
       (byMinistry[row.ministry_id] ?? 0) +
       amountToCents(row.amount, 'fetchMinistryAllocationTotals');
   }
-  return { byMinistry, failed: [] };
+  return ok({ byMinistry });
 }
 
 /* ── Report builder feed ───────────────────────────────────────────────── */
@@ -239,8 +212,6 @@ export type ReportExpenseRow = Pick<
 export type ReportEntries = {
   income: ReportIncomeRow[];
   expenses: ReportExpenseRow[];
-  /** `'income'` and/or `'expenses'` when that query errored. */
-  failed: FailedReads;
 };
 
 /**
@@ -249,7 +220,7 @@ export type ReportEntries = {
  * The range is pushed into the query — legacy fetched the whole year for a
  * weekly report and filtered in JS (PERF-07).
  */
-export async function fetchReportEntries(range: DateRange): Promise<ReportEntries> {
+export async function fetchReportEntries(range: DateRange): Promise<ReadResult<ReportEntries>> {
   const [inc, exp] = await Promise.all([
     supabase
       .from('fin_income')
@@ -266,17 +237,9 @@ export async function fetchReportEntries(range: DateRange): Promise<ReportEntrie
       .lte('occurred_on', range.end)
       .order('occurred_on'),
   ]);
-
-  const failed: FailedReads = [];
-  if (inc.error) {
-    warnRead('fetchReportEntries income', inc.error.message);
-    failed.push('income');
-  }
-  if (exp.error) {
-    warnRead('fetchReportEntries expenses', exp.error.message);
-    failed.push('expenses');
-  }
-  return {
+  if (inc.error) return fail(TAG, 'fetchReportEntries income', inc.error, inc.status);
+  if (exp.error) return fail(TAG, 'fetchReportEntries expenses', exp.error, exp.status);
+  return ok({
     income: (inc.data ?? []).map(({ amount, ...rest }) => ({
       ...rest,
       amountCents: amountToCents(amount, 'fetchReportEntries'),
@@ -285,6 +248,5 @@ export async function fetchReportEntries(range: DateRange): Promise<ReportEntrie
       ...rest,
       amountCents: amountToCents(amount, 'fetchReportEntries'),
     })),
-    failed,
-  };
+  });
 }

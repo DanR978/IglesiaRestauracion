@@ -1,11 +1,14 @@
 // S56b — repos/receipts: query shape, contracts, path builder, D-018 arithmetic.
 // New functionality, so there is no legacy oracle (VERIFICATION.md #5 is N/A for
-// this session); RLS itself is proven on staging, never here.
+// this session); RLS itself is proven on staging, never here. S22b — the
+// ReadResult / WriteResult contract: a failed list is `{ ok: false }`, never an
+// empty month grid, and a delete that matched no row is `not_found` (D-027).
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock, supabase as mockClient } from './mock-client';
+import { NOT_FOUND, OFFLINE, failure, invalidInput } from './results';
 import {
   deleteReceipt,
   downloadReceipt,
@@ -31,7 +34,10 @@ const UUID = /^[0-9a-f-]{8,}$/i;
  * receipts bucket). `storage.from()` hands back one shared object, so the spy is
  * attached here rather than editing an S22 file.
  */
-type DownloadResult = { data: Blob | null; error: { message: string } | null };
+type DownloadResult = {
+  data: Blob | null;
+  error: { message: string; name?: string; status?: number; statusCode?: string } | null;
+};
 type DownloadFn = (path: string) => Promise<DownloadResult>;
 type Bucket = { download?: DownloadFn };
 let download: Mock<DownloadFn>;
@@ -145,7 +151,7 @@ describe('repos/receipts', () => {
   describe('listReceipts', () => {
     it('filters scope + year and orders month then created_at', async () => {
       mock.results.fin_receipts = [{ data: [row()] }];
-      expect(await listReceipts({ scope: 'church' }, 2026)).toEqual([row()]);
+      expect(await listReceipts({ scope: 'church' }, 2026)).toEqual({ ok: true, data: [row()] });
       expect(mock.query().table).toBe('fin_receipts');
       expect(mock.chain()).toEqual(['select', 'eq', 'eq', 'order', 'order']);
       expect(mock.args('select')).toEqual(['*']);
@@ -166,31 +172,61 @@ describe('repos/receipts', () => {
       expect(mock.query().calls.at(-1)).toEqual({ method: 'eq', args: ['project_id', 'p1'] });
     });
 
-    it('returns [] without a query for a non-integer year', async () => {
-      expect(await listReceipts({ scope: 'church' }, Number.NaN)).toEqual([]);
+    it('rejects a non-integer year as invalid, without a query', async () => {
+      expect(await listReceipts({ scope: 'church' }, Number.NaN)).toEqual(
+        invalidInput('Año inválido.'),
+      );
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('returns [] and warns on error', async () => {
+    it('a year with no receipts is an empty SUCCESS', async () => {
+      mock.results.fin_receipts = [{ data: [] }];
+      expect(await listReceipts({ scope: 'church' }, 2026)).toEqual({ ok: true, data: [] });
+    });
+
+    it('a failed read is an error, never an empty month grid (D-032)', async () => {
       mock.results.fin_receipts = [{ data: null, error: ERR }];
-      expect(await listReceipts({ scope: 'church' }, 2026)).toEqual([]);
+      const res = await listReceipts({ scope: 'church' }, 2026);
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[receipts] listReceipts:', 'boom');
+    });
+
+    it('a dropped connection is a network error', async () => {
+      mock.results.fin_receipts = [OFFLINE];
+      expect(await listReceipts({ scope: 'church' }, 2026)).toEqual(
+        failure('network', 'TypeError: Failed to fetch'),
+      );
     });
   });
 
   describe('downloadReceipt (private bucket — no public URL)', () => {
     it('downloads through the authenticated client', async () => {
       const out = await downloadReceipt('church/2026/a.webp');
-      expect(out).toBeInstanceOf(Blob);
+      expect(out.ok && out.data).toBeInstanceOf(Blob);
       expect(mockClient.storage.from).toHaveBeenCalledWith(RECEIPTS_BUCKET);
       expect(download).toHaveBeenCalledWith('church/2026/a.webp');
     });
 
-    it('null for an empty path and on error', async () => {
-      expect(await downloadReceipt('')).toBeNull();
+    it('an empty path is invalid, without a request', async () => {
+      expect(await downloadReceipt('')).toEqual(invalidInput('Falta el recibo que quieres ver.'));
+      expect(download).not.toHaveBeenCalled();
+    });
+
+    it('a failed download is an error with the mapped kind', async () => {
       download.mockResolvedValueOnce({ data: null, error: ERR });
-      expect(await downloadReceipt('x')).toBeNull();
+      expect(await downloadReceipt('x')).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[receipts] downloadReceipt:', 'boom');
+      download.mockResolvedValueOnce({
+        data: null,
+        error: {
+          name: 'StorageApiError',
+          message: 'Object not found',
+          status: 400,
+          statusCode: '404',
+        },
+      });
+      expect(await downloadReceipt('x')).toEqual(failure('not_found', '404: Object not found'));
     });
   });
 
@@ -276,13 +312,13 @@ describe('repos/receipts', () => {
     });
 
     it('rejects bad arguments without touching storage', async () => {
-      const cases = [
-        { ...input, year: 1999 },
-        { ...input, month: 0 },
-        { ...input, month: 13 },
+      const cases: [typeof input, string][] = [
+        [{ ...input, year: 1999 }, 'Año inválido.'],
+        [{ ...input, month: 0 }, 'Mes inválido.'],
+        [{ ...input, month: 13 }, 'Mes inválido.'],
       ];
-      for (const bad of cases) {
-        expect((await uploadReceipt({ scope: 'church' }, bad)).ok).toBe(false);
+      for (const [bad, message] of cases) {
+        expect(await uploadReceipt({ scope: 'church' }, bad)).toEqual(invalidInput(message));
       }
       expect(mock.storage.calls).toHaveLength(0);
       expect(mock.queries).toHaveLength(0);
@@ -290,28 +326,27 @@ describe('repos/receipts', () => {
 
     it('rolls back the surviving object when one upload fails', async () => {
       mock.storage.uploadError = { message: 'bucket full' };
-      expect(await uploadReceipt({ scope: 'church' }, input)).toEqual({
-        ok: false,
-        error: 'bucket full',
-      });
+      expect(await uploadReceipt({ scope: 'church' }, input)).toEqual(
+        failure('unknown', 'bucket full'),
+      );
       expect(mock.storage.calls.at(-1)?.method).toBe('remove');
       expect(mock.queries).toHaveLength(0);
+      expect(warn).toHaveBeenCalledWith('[receipts] uploadReceipt storage:', 'bucket full');
     });
 
     it('removes BOTH objects when the row insert fails (zero orphans)', async () => {
       mock.results.fin_receipts = [{ data: null, error: ERR }];
-      expect(await uploadReceipt({ scope: 'church' }, input)).toEqual({
-        ok: false,
-        error: 'boom',
-      });
+      expect(await uploadReceipt({ scope: 'church' }, input)).toEqual(failure('unknown', 'boom'));
       const removed = mock.storage.calls.at(-1);
       expect(removed?.method).toBe('remove');
       expect((removed?.args[0] as string[]).length).toBe(2);
+      expect(warn).toHaveBeenCalledWith('[receipts] uploadReceipt row:', 'boom');
     });
   });
 
   describe('deleteReceipt', () => {
-    it('removes both objects, then the row', async () => {
+    it('removes both objects, then the row (counted)', async () => {
+      mock.results.fin_receipts = [{ count: 1 }];
       expect(await deleteReceipt(row())).toEqual({ ok: true, data: undefined });
       expect(mock.storage.calls[0]).toEqual({
         method: 'remove',
@@ -319,19 +354,28 @@ describe('repos/receipts', () => {
       });
       expect(mock.query().table).toBe('fin_receipts');
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
       expect(mock.args('eq')).toEqual(['id', 'r1']);
     });
 
     it('still deletes the row when no path is known', async () => {
+      mock.results.fin_receipts = [{ count: 1 }];
       await deleteReceipt({ id: 'r1', storage_path: null, thumb_path: null });
       expect(mock.storage.calls).toHaveLength(0);
       expect(mock.chain()).toEqual(['delete', 'eq']);
     });
 
+    it('a delete that matched no row (gone, or hidden by RLS) is not_found (D-027)', async () => {
+      mock.results.fin_receipts = [{ count: 0 }];
+      expect(await deleteReceipt(row())).toEqual(NOT_FOUND);
+    });
+
     it('rejects a receipt without an id, and reports a row error', async () => {
-      expect((await deleteReceipt({ id: '' })).ok).toBe(false);
+      expect(await deleteReceipt({ id: '' })).toEqual(
+        invalidInput('Falta el recibo que quieres eliminar.'),
+      );
       mock.results.fin_receipts = [{ data: null, error: ERR }];
-      expect(await deleteReceipt(row())).toEqual({ ok: false, error: 'boom' });
+      expect(await deleteReceipt(row())).toEqual(failure('unknown', 'boom'));
     });
   });
 });

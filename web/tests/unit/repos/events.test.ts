@@ -1,4 +1,5 @@
-// S22 — repos/events: query shape per catalogued legacy query + never-throw.
+// S22 — repos/events: query shape per catalogued legacy query. S22b — the
+// ReadResult contract: a failed read is `{ ok: false }`, never an empty list.
 // Legacy sources: js/main.js:135-139 · js/components/event-detail.js:41 ·
 // js/pages/eventos/hub.js:56-57 · js/components/calendar.js:47-58.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -6,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { OFFLINE, failure } from './results';
 import {
   fetchCalendarActivities,
   fetchEventById,
@@ -28,8 +30,7 @@ describe('repos/events', () => {
     it('selects * from events, starts_at >= start-of-day ISO, ascending', async () => {
       const since = new Date(2026, 7, 24, 0, 0, 0, 0);
       mock.results.events = [{ data: [{ id: '1' }] }];
-      const rows = await fetchUpcomingEvents(since);
-      expect(rows).toEqual([{ id: '1' }]);
+      expect(await fetchUpcomingEvents(since)).toEqual({ ok: true, data: [{ id: '1' }] });
       const q = mock.query();
       expect(q.table).toBe('events');
       expect(mock.chain()).toEqual(['select', 'gte', 'order']);
@@ -49,37 +50,59 @@ describe('repos/events', () => {
       }
     });
 
-    it('never throws: warns with the [events] tag and returns []', async () => {
+    it('no upcoming events is an empty SUCCESS', async () => {
+      mock.results.events = [{ data: [] }];
+      expect(await fetchUpcomingEvents(new Date())).toEqual({ ok: true, data: [] });
+      expect(warn).not.toHaveBeenCalled();
+    });
+
+    it('a failed read is an error, never an empty list (D-032), warned under [events]', async () => {
       mock.results.events = [{ data: null, error: ERR }];
-      await expect(fetchUpcomingEvents(new Date())).resolves.toEqual([]);
+      const res = await fetchUpcomingEvents(new Date());
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[events] fetchUpcomingEvents:', 'boom');
+    });
+
+    it('a dropped connection is a network error the view can offer Retry for', async () => {
+      mock.results.events = [OFFLINE];
+      expect(await fetchUpcomingEvents(new Date())).toEqual(
+        failure('network', 'TypeError: Failed to fetch'),
+      );
     });
   });
 
   describe('fetchEventById (js/components/event-detail.js:41)', () => {
     it('selects * where id = ?, maybeSingle', async () => {
       mock.results.events = [{ data: { id: 'abc' } }];
-      expect(await fetchEventById('abc')).toEqual({ id: 'abc' });
+      expect(await fetchEventById('abc')).toEqual({ ok: true, data: { id: 'abc' } });
       expect(mock.query().table).toBe('events');
       expect(mock.chain()).toEqual(['select', 'eq', 'maybeSingle']);
       expect(mock.args('eq')).toEqual(['id', 'abc']);
     });
 
-    it('returns null without querying for an empty id', async () => {
-      expect(await fetchEventById('')).toBeNull();
+    it('a missing event is a successful null (the not-found page), not an error', async () => {
+      mock.results.events = [{ data: null }];
+      expect(await fetchEventById('abc')).toEqual({ ok: true, data: null });
+    });
+
+    it('an empty id has nothing to look up: null without querying', async () => {
+      expect(await fetchEventById('')).toEqual({ ok: true, data: null });
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('returns null (not throw) on error', async () => {
+    it('a failed lookup is an error, never a null event', async () => {
       mock.results.events = [{ data: null, error: ERR }];
-      expect(await fetchEventById('abc')).toBeNull();
+      const res = await fetchEventById('abc');
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: null });
       expect(warn).toHaveBeenCalledWith('[events] fetchEventById:', 'boom');
     });
   });
 
   describe('fetchEventsForCalendar (hub.js:57 / calendar.js:56)', () => {
     it('selects the hub projection ordered by starts_at', async () => {
-      await fetchEventsForCalendar();
+      expect(await fetchEventsForCalendar()).toEqual({ ok: true, data: [] });
       expect(mock.query().table).toBe('events');
       expect(mock.chain()).toEqual(['select', 'order']);
       expect(mock.args('select')).toEqual([
@@ -88,9 +111,9 @@ describe('repos/events', () => {
       expect(mock.args('order')).toEqual(['starts_at']);
     });
 
-    it('returns [] on error', async () => {
+    it('a failed read is an error, never []', async () => {
       mock.results.events = [{ data: null, error: ERR }];
-      expect(await fetchEventsForCalendar()).toEqual([]);
+      expect(await fetchEventsForCalendar()).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[events] fetchEventsForCalendar:', 'boom');
     });
   });
@@ -106,9 +129,9 @@ describe('repos/events', () => {
       expect(mock.args('order')).toEqual(['date']);
     });
 
-    it('returns [] on error', async () => {
+    it('a failed read is an error, never []', async () => {
       mock.results.calendar_events = [{ data: null, error: ERR }];
-      expect(await fetchCalendarActivities()).toEqual([]);
+      expect(await fetchCalendarActivities()).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[events] fetchCalendarActivities:', 'boom');
     });
   });

@@ -4,19 +4,24 @@
  * The inline `sb.from('events' | 'calendar_events')` queries the PUBLIC site
  * ran from js/main.js, js/components/calendar.js, js/components/event-detail.js
  * and js/pages/eventos/hub.js, extracted into typed functions. Reads never
- * throw: they warn with a `[events]` tag and return a safe empty.
+ * throw: they return a `ReadResult` (ADR-0004) — a failure is logged with the
+ * `[events]` tag and comes back as `{ ok: false, error }`, never as an empty
+ * list.
  *
  * Registration events (`special_events`) are a different table with their own
  * lifecycle — see `#lib/repos/registrations.js`.
  *
  * Usage:
  *   import { fetchUpcomingEvents, fetchEventById } from '#lib/repos/events.js';
+ *   const res = await fetchUpcomingEvents();
+ *   if (res.ok) render(res.data);
  * ========================================================================== */
 
 import { browser } from '$app/env';
 import { supabase } from '#lib/db/client.js';
 import type { Tables } from '#lib/db/database.types.js';
-import type { ChangeHandler, Unsubscribe } from './types';
+import { fail, ok } from './errors';
+import type { ChangeHandler, ReadResult, Unsubscribe } from './types';
 
 const TAG = '[events]';
 
@@ -48,54 +53,48 @@ function startOfToday(): Date {
  * Upcoming special events for the homepage rail: everything starting at or
  * after `since` (default: the viewer's local start of today), soonest first.
  */
-export async function fetchUpcomingEvents(since: Date = startOfToday()): Promise<EventRow[]> {
-  const { data, error } = await supabase
+export async function fetchUpcomingEvents(
+  since: Date = startOfToday(),
+): Promise<ReadResult<EventRow[]>> {
+  const { data, error, status } = await supabase
     .from('events')
     .select('*')
     .gte('starts_at', since.toISOString())
     .order('starts_at', { ascending: true });
-  if (error) {
-    console.warn(`${TAG} fetchUpcomingEvents:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchUpcomingEvents', error, status);
+  return ok(data ?? []);
 }
 
-/** One event for the detail page; null when missing or on error. */
-export async function fetchEventById(id: string): Promise<EventRow | null> {
-  if (!id) return null;
-  const { data, error } = await supabase.from('events').select('*').eq('id', id).maybeSingle();
-  if (error) {
-    console.warn(`${TAG} fetchEventById:`, error.message);
-    return null;
-  }
-  return data;
+/** One event for the detail page; `data: null` when there is no such event. */
+export async function fetchEventById(id: string): Promise<ReadResult<EventRow | null>> {
+  if (!id) return ok(null);
+  const { data, error, status } = await supabase
+    .from('events')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) return fail(TAG, 'fetchEventById', error, status);
+  return ok(data);
 }
 
 /** Every special event, by start time, in the hub's card projection. */
-export async function fetchEventsForCalendar(): Promise<EventCalendarRow[]> {
-  const { data, error } = await supabase
+export async function fetchEventsForCalendar(): Promise<ReadResult<EventCalendarRow[]>> {
+  const { data, error, status } = await supabase
     .from('events')
     .select(EVENT_CALENDAR_COLS)
     .order('starts_at');
-  if (error) {
-    console.warn(`${TAG} fetchEventsForCalendar:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchEventsForCalendar', error, status);
+  return ok(data ?? []);
 }
 
 /** Every recurring activity (`calendar_events`), by date. */
-export async function fetchCalendarActivities(): Promise<CalendarActivityRow[]> {
-  const { data, error } = await supabase
+export async function fetchCalendarActivities(): Promise<ReadResult<CalendarActivityRow[]>> {
+  const { data, error, status } = await supabase
     .from('calendar_events')
     .select(CALENDAR_ACTIVITY_COLS)
     .order('date');
-  if (error) {
-    console.warn(`${TAG} fetchCalendarActivities:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchCalendarActivities', error, status);
+  return ok(data ?? []);
 }
 
 /**

@@ -1,9 +1,12 @@
-// S52 — repos/treasury/catalog: the three Configurar lookup tables.
+// S52 — repos/treasury/catalog: the three Configurar lookup tables. S22b — the
+// ReadResult / WriteResult contract: a failed read is `{ ok: false }` (never
+// an empty dropdown), and the catalog is all-or-nothing.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { NOT_FOUND, failure, invalidInput } from './results';
 import {
   createExpenseCategory,
   createFund,
@@ -52,8 +55,9 @@ describe('repos/treasury/catalog', () => {
         ['sort'],
         ['name'],
       ]);
-      expect(funds[0].openingBalanceCents).toBe(25075);
-      expect(funds[0]).not.toHaveProperty('opening_balance');
+      if (!funds.ok) throw new Error('expected funds');
+      expect(funds.data[0].openingBalanceCents).toBe(25075);
+      expect(funds.data[0]).not.toHaveProperty('opening_balance');
 
       mock.reset();
       await fetchIncomeCategories();
@@ -76,23 +80,36 @@ describe('repos/treasury/catalog', () => {
         'fin_income_categories',
         'fin_expense_categories',
       ]);
-      expect(catalog.funds).toHaveLength(1);
-      expect(catalog.incomeCategories[0].name).toBe('Diezmos');
-      expect(catalog.expenseCategories[0].name).toBe('Renta');
+      if (!catalog.ok) throw new Error('expected a catalog');
+      expect(catalog.data.funds).toHaveLength(1);
+      expect(catalog.data.incomeCategories[0].name).toBe('Diezmos');
+      expect(catalog.data.expenseCategories[0].name).toBe('Renta');
     });
 
-    it('every read degrades to [] with a tagged warning', async () => {
+    it('an empty catalog is a SUCCESS with three empty lists', async () => {
+      expect(await fetchCatalog()).toEqual({
+        ok: true,
+        data: { funds: [], incomeCategories: [], expenseCategories: [] },
+      });
+    });
+
+    it('every read fails as an error with a tagged warning — never []', async () => {
       mock.results.fin_funds = [{ data: null, error: ERR }];
       mock.results.fin_income_categories = [{ data: null, error: ERR }];
       mock.results.fin_expense_categories = [{ data: null, error: ERR }];
-      expect(await fetchCatalog()).toEqual({
-        funds: [],
-        incomeCategories: [],
-        expenseCategories: [],
-      });
+      expect(await fetchCatalog()).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] fetchFunds:', 'boom');
       expect(warn).toHaveBeenCalledWith('[treasury] fetchIncomeCategories:', 'boom');
       expect(warn).toHaveBeenCalledWith('[treasury] fetchExpenseCategories:', 'boom');
+    });
+
+    it('ONE failed list fails the whole catalog — no wizard with an empty dropdown', async () => {
+      mock.results.fin_funds = [{ data: [fundRow()] }];
+      mock.results.fin_income_categories = [{ data: [{ id: 'ic1', name: 'Diezmos' }] }];
+      mock.results.fin_expense_categories = [
+        { data: null, error: { message: 'permission denied', code: '42501' }, status: 403 },
+      ];
+      expect(await fetchCatalog()).toEqual(failure('forbidden', '42501: permission denied'));
     });
   });
 
@@ -125,10 +142,9 @@ describe('repos/treasury/catalog', () => {
     });
 
     it('still rejects a non-integer cents value', async () => {
-      expect(await createFund({ name: 'x', openingBalanceCents: 1.5 })).toEqual({
-        ok: false,
-        error: 'El saldo inicial debe ser una cantidad válida.',
-      });
+      expect(await createFund({ name: 'x', openingBalanceCents: 1.5 })).toEqual(
+        invalidInput('El saldo inicial debe ser una cantidad válida.'),
+      );
       expect(mock.queries).toHaveLength(0);
     });
 
@@ -140,16 +156,36 @@ describe('repos/treasury/catalog', () => {
       expect(mock.args('eq')).toEqual(['id', 'f1']);
 
       mock.reset();
+      mock.results.fin_funds = [{ count: 1 }];
       expect(await deleteFund('f1')).toEqual({ ok: true, data: undefined });
       expect(mock.chain()).toEqual(['delete', 'eq']);
+      expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
 
-      expect(await updateFund('', {})).toEqual({
+      expect(await updateFund('', {})).toEqual(invalidInput('Falta el identificador del fondo.'));
+      expect(await deleteFund('')).toEqual(invalidInput('Falta el identificador del fondo.'));
+    });
+
+    it('a fund delete that matched no row is not_found, never a success (D-027)', async () => {
+      mock.results.fin_funds = [{ count: 0 }];
+      expect(await deleteFund('f1')).toEqual(NOT_FOUND);
+      expect(warn).toHaveBeenCalledWith('[treasury] deleteFund:', 'no row was affected');
+    });
+
+    it('deleting a fund still referenced by entries is a conflict with its own copy', async () => {
+      mock.results.fin_funds = [
+        {
+          data: null,
+          error: { message: 'violates foreign key constraint', code: '23503' },
+          status: 409,
+        },
+      ];
+      expect(await deleteFund('f1')).toEqual({
         ok: false,
-        error: 'Falta el identificador del fondo.',
-      });
-      expect(await deleteFund('')).toEqual({
-        ok: false,
-        error: 'Falta el identificador del fondo.',
+        error: {
+          kind: 'conflict',
+          message: 'No se puede completar porque está vinculado a otros datos.',
+          detail: '23503: violates foreign key constraint',
+        },
       });
     });
   });
@@ -168,9 +204,14 @@ describe('repos/treasury/catalog', () => {
       expect(mock.chain()).toEqual(['update', 'eq', 'select', 'single']);
 
       mock.reset();
-      await deleteIncomeCategory('ic1');
+      mock.results.fin_income_categories = [{ count: 1 }];
+      expect(await deleteIncomeCategory('ic1')).toEqual({ ok: true, data: undefined });
       expect(mock.chain()).toEqual(['delete', 'eq']);
       expect(mock.args('eq')).toEqual(['id', 'ic1']);
+
+      mock.reset();
+      mock.results.fin_income_categories = [{ count: 0 }];
+      expect(await deleteIncomeCategory('ic1')).toEqual(NOT_FOUND);
     });
 
     it('expense categories carry group_name', async () => {
@@ -187,18 +228,21 @@ describe('repos/treasury/catalog', () => {
       expect(mock.args('update')).toEqual([{ group_name: 'Otros' }]);
 
       mock.reset();
-      await deleteExpenseCategory('ec1');
+      mock.results.fin_expense_categories = [{ count: 1 }];
+      expect(await deleteExpenseCategory('ec1')).toEqual({ ok: true, data: undefined });
       expect(mock.chain()).toEqual(['delete', 'eq']);
     });
 
-    it('write errors come back as the error branch, never thrown', async () => {
+    it('write errors come back as the mapped error branch, never thrown', async () => {
       mock.results.fin_expense_categories = [{ data: null, error: ERR }];
-      expect(await createExpenseCategory({ name: 'x' })).toEqual({ ok: false, error: 'boom' });
+      expect(await createExpenseCategory({ name: 'x' })).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[treasury] createExpenseCategory:', 'boom');
-      expect(await deleteExpenseCategory('')).toEqual({
-        ok: false,
-        error: 'Falta el identificador de la categoría.',
-      });
+      expect(await deleteExpenseCategory('')).toEqual(
+        invalidInput('Falta el identificador de la categoría.'),
+      );
+      expect(await updateIncomeCategory('', {})).toEqual(
+        invalidInput('Falta el identificador de la categoría.'),
+      );
     });
   });
 });
