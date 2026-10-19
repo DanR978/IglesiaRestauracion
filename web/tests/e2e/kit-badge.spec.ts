@@ -61,8 +61,6 @@ async function badgeContrasts(page: Page): Promise<Measured[]> {
   });
 }
 
-const isWarn = (m: Measured) => m.className.includes('ird-badge--warn');
-
 test.describe('/kit/badge/', () => {
   test('tones, roles and record colours render glyph + words, with no console error', async ({
     page,
@@ -117,24 +115,11 @@ test.describe('/kit/badge/', () => {
       await gotoWithTheme(page, KIT, theme);
       const measured = await badgeContrasts(page);
       expect(measured.length).toBeGreaterThan(20);
-      // The light warn pair is A11Y-2 (tripwire test below), owned by the tokens session.
-      const checked = theme === 'light' ? measured.filter((m) => !isWarn(m)) : measured;
-      const failing = checked.filter((m) => m.ratio < 4.5).map((m) => `${m.text} ${m.ratio}`);
+      // Includes the light warn pair (A11Y-2, closed by D-038's --money-warn).
+      const failing = measured.filter((m) => m.ratio < 4.5).map((m) => `${m.text} ${m.ratio}`);
       expect(failing).toEqual([]);
     });
   }
-
-  test('A11Y-2 tripwire: the warn ink on its own tint in light', async ({ page }) => {
-    test.fail(
-      true,
-      'A11Y-2 (S05b): --status-pending on --status-pending-bg is 4.38:1 in light. The token ' +
-        'session re-tunes the pair; delete this test.fail line when it lands.',
-    );
-    await gotoWithTheme(page, KIT, 'light');
-    const warn = (await badgeContrasts(page)).filter(isWarn);
-    expect(warn.length).toBeGreaterThan(0);
-    for (const m of warn) expect(m.ratio, m.text).toBeGreaterThanOrEqual(4.5);
-  });
 
   test('the words are text, never markup', async ({ page }) => {
     await page.goto(KIT);
