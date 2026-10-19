@@ -1,0 +1,157 @@
+[
+  {
+    "input": "Pastor Raúl García Guerra",
+    "expected": "RG",
+    "note": "leading title skipped"
+  },
+  {
+    "input": "Ashley Navarro-Ortiz",
+    "expected": "AN",
+    "note": "hyphenated surname is one word"
+  },
+  {
+    "input": "Ana Pastor",
+    "expected": "AP",
+    "note": "a title-like SURNAME stays"
+  },
+  {
+    "input": "🙏 Flor Alfaro 🙏",
+    "expected": "FA",
+    "note": "words without a letter are ignored"
+  },
+  {
+    "input": "María",
+    "expected": "M",
+    "note": "one word, one letter"
+  },
+  {
+    "input": "Pastor",
+    "expected": "P",
+    "note": "a title alone is still the name"
+  },
+  {
+    "input": "Pastor Pastor",
+    "expected": "P",
+    "note": "only the leading title is skipped"
+  },
+  {
+    "input": "Dr. José Pérez",
+    "expected": "JP",
+    "note": "title with a trailing dot"
+  },
+  {
+    "input": "hna. Lucía",
+    "expected": "L",
+    "note": "lower-case title with a dot"
+  },
+  {
+    "input": "Pra. Ruth Ester Domínguez",
+    "expected": "RD",
+    "note": "first and LAST word, middle ignored"
+  },
+  {
+    "input": "Hno Pedro",
+    "expected": "P",
+    "note": "title without a dot"
+  },
+  {
+    "input": "Ev. Samuel Ortiz Rivera",
+    "expected": "SR",
+    "note": "evangelist title"
+  },
+  {
+    "input": "ángel  ruiz",
+    "expected": "ÁR",
+    "note": "lower case, double space"
+  },
+  {
+    "input": "Álvaro Gómez",
+    "expected": "ÁG",
+    "note": "decomposed accent is normalised (NFC)"
+  },
+  {
+    "input": "(Juan) Pérez",
+    "expected": "JP",
+    "note": "leading punctuation skipped inside a word"
+  },
+  {
+    "input": "Juan\tPérez\nLópez",
+    "expected": "JL",
+    "note": "any whitespace splits"
+  },
+  {
+    "input": "   Elena   Soto   ",
+    "expected": "ES",
+    "note": "trimmed"
+  },
+  {
+    "input": "Иван Петров",
+    "expected": "ИП",
+    "note": "Cyrillic"
+  },
+  {
+    "input": "李 小龍",
+    "expected": "李小",
+    "note": "CJK"
+  },
+  {
+    "input": "Ñandú Ñoño",
+    "expected": "ÑÑ",
+    "note": "Ñ survives"
+  },
+  {
+    "input": "ömer çelik",
+    "expected": "ÖÇ",
+    "note": "locale-stable upper case"
+  },
+  {
+    "input": "123 456",
+    "expected": "",
+    "note": "no letter at all"
+  },
+  {
+    "input": "🙏🙏",
+    "expected": "",
+    "note": "emoji only"
+  },
+  {
+    "input": "",
+    "expected": "",
+    "note": "empty"
+  },
+  {
+    "input": "   ",
+    "expected": "",
+    "note": "blank"
+  },
+  {
+    "input": "juan carlos pérez lópez",
+    "expected": "JL",
+    "note": "four words: first + last"
+  },
+  {
+    "input": "DR",
+    "expected": "D",
+    "note": "a lone title-like word"
+  },
+  {
+    "input": "Pastora Ana",
+    "expected": "A",
+    "note": "feminine title"
+  },
+  {
+    "input": "O’Brien Smith",
+    "expected": "OS",
+    "note": "apostrophe inside the word"
+  },
+  {
+    "input": "x",
+    "expected": "X",
+    "note": "single letter"
+  },
+  {
+    "input": null,
+    "expected": "",
+    "note": "null"
+  }
+]
