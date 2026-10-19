@@ -15,6 +15,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { pageTitle } from '#lib/components/admin/shell/page-title.svelte.js';
+import { LEGACY_PANEL_HREF, documentTitle } from '#lib/components/admin/shell/shell.js';
 import Inicio from '../../src/routes/(admin)/admin/(app)/+page.svelte';
 
 const h = vi.hoisted(() => ({
@@ -126,17 +128,22 @@ afterEach(() => {
 describe('Inicio — the header', () => {
   it('is "Inicio" with a greeting by first name and the one link to the current panel', async () => {
     signIn({ display_name: 'Ana María López' });
-    const { getByRole, getByText } = render(Inicio);
+    const { container, getByRole, getByText } = render(Inicio);
     await settle();
+    // S37: PageHeader is the page's first element — no container of its own.
+    expect(container.firstElementChild).toHaveClass('adm-page-header');
     expect(getByRole('heading', { level: 1, name: 'Inicio' })).toBeInTheDocument();
-    expect(document.title).toBe('Inicio');
+    expect(document.title).toBe(documentTitle('Inicio'));
+    expect(pageTitle.current).toBe('Inicio');
     expect(getByText('Hola, Ana')).toBeInTheDocument();
     const links = [...document.querySelectorAll('a')];
     expect(links).toHaveLength(1);
+    // The legacy panel at the site root, never resolve()d under /app.
     expect(getByRole('link', { name: 'Gestionar en el panel actual' })).toHaveAttribute(
       'href',
-      '/admin/',
+      LEGACY_PANEL_HREF,
     );
+    expect(LEGACY_PANEL_HREF).toBe('/admin/');
   });
 
   it('says just "Hola" for an account without a name', async () => {
@@ -364,8 +371,8 @@ describe('Inicio — figures and states', () => {
 
 describe('Inicio — layout', () => {
   // jsdom has no layout, so the rules are read from the page's own style block.
-  // Found at 360px with real data: an implicit `auto` column grows to a nowrap
-  // Badge's full width (a long ministry name) and widens the page.
+  // Found at 360px with real data: a grid track whose minimum is `auto` grows
+  // to a nowrap Badge's full width (a long ministry name) and widens the page.
   const css = readFileSync(
     resolve(process.cwd(), 'src/routes/(admin)/admin/(app)/+page.svelte'),
     'utf8',
@@ -380,8 +387,12 @@ describe('Inicio — layout', () => {
   });
 
   it('never lets a card’s content widen the page past its column', () => {
-    expect(rule('.inicio')).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)/);
     expect(rule('.inicio__tile')).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+    expect(rule('.inicio__lists')).toMatch(
+      /grid-template-columns:\s*repeat\(auto-fit,\s*minmax\(min\(100%,\s*24rem\),\s*1fr\)\)/,
+    );
+    // No page-level wrapper: the shell's content column (a block) sizes the page.
+    expect(css).not.toMatch(/\n\s*\.inicio\s*\{/);
   });
 });
 

@@ -41,9 +41,6 @@ import { fetchBooksSummary } from '#lib/repos/treasury/index.js';
 import { monthKeyOf, monthRange, type DateRange } from '#lib/repos/treasury/shared.js';
 import type { ReadResult } from '#lib/repos/types.js';
 
-/** The legacy panel at the site root — never under /app (the one "manage" link). */
-export const LEGACY_PANEL_URL = '/admin/';
-
 /** A tab coming back into view refetches at most this often. */
 export const REFRESH_MS = 60_000;
 

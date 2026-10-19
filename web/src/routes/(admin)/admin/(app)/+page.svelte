@@ -29,7 +29,6 @@
   import { CardRead } from '#lib/components/admin/dashboard/card-read.svelte.js';
   import {
     ACTIVITY_LIMIT,
-    LEGACY_PANEL_URL,
     NEXT_EVENTS_LIMIT,
     REFRESH_MS,
     TILES,
@@ -39,6 +38,7 @@
     type TileValue,
   } from '#lib/components/admin/dashboard/dashboard.js';
   import PageHeader from '#lib/components/admin/shell/PageHeader.svelte';
+  import { LEGACY_PANEL_HREF } from '#lib/components/admin/shell/shell.js';
   import { fetchRecentActivity } from '#lib/repos/activity.js';
   import { fetchNextCalendarEvents } from '#lib/repos/events.js';
   import { perms } from '#lib/stores/perms.svelte.js';
@@ -88,60 +88,54 @@
 
 <svelte:document onvisibilitychange={onVisibilityChange} />
 
-<div class="inicio">
-  <PageHeader title="Inicio" description={greeting(session.profile?.display_name)}>
-    {#snippet actions()}
-      <Button href={LEGACY_PANEL_URL} variant="ghost" icon="arrow-up-right-from-square">
-        Gestionar en el panel actual
-      </Button>
-    {/snippet}
-  </PageHeader>
+<!-- The shell's content column is the container: PageHeader first, no wrapper (S37). -->
+<PageHeader title="Inicio" description={greeting(session.profile?.display_name)}>
+  {#snippet actions()}
+    <Button href={LEGACY_PANEL_HREF} variant="ghost" icon="arrow-up-right-from-square">
+      Gestionar en el panel actual
+    </Button>
+  {/snippet}
+</PageHeader>
 
-  {#if tiles.length > 0}
-    <section aria-labelledby={summaryId}>
-      <h2 id={summaryId} class="sr-only">Resumen</h2>
-      <ul class="inicio__tiles">
-        {#each tiles as tile (tile.key)}
-          <li class="inicio__tile">
-            <CardBoundary compact onRetry={() => tileReads[tile.key].load()}>
-              <KpiTile
-                label={tile.label}
-                scope={tile.scope}
-                icon={tile.icon}
-                result={tileReads[tile.key].result}
-                onRetry={() => tileReads[tile.key].load()}
-              />
-            </CardBoundary>
-          </li>
-        {/each}
-      </ul>
-    </section>
-  {/if}
+{#if tiles.length > 0}
+  <section class="inicio__summary" aria-labelledby={summaryId}>
+    <h2 id={summaryId} class="sr-only">Resumen</h2>
+    <ul class="inicio__tiles">
+      {#each tiles as tile (tile.key)}
+        <li class="inicio__tile">
+          <CardBoundary compact onRetry={() => tileReads[tile.key].load()}>
+            <KpiTile
+              label={tile.label}
+              scope={tile.scope}
+              icon={tile.icon}
+              result={tileReads[tile.key].result}
+              onRetry={() => tileReads[tile.key].load()}
+            />
+          </CardBoundary>
+        </li>
+      {/each}
+    </ul>
+  </section>
+{/if}
 
-  {#if showEvents || showActivity}
-    <div class="inicio__lists">
-      {#if showEvents}
-        <CardBoundary onRetry={() => events.load()}>
-          <NextEvents result={events.result} onRetry={() => events.load()} />
-        </CardBoundary>
-      {/if}
-      {#if showActivity}
-        <CardBoundary onRetry={() => activity.load()}>
-          <RecentActivity result={activity.result} onRetry={() => activity.load()} />
-        </CardBoundary>
-      {/if}
-    </div>
-  {/if}
-</div>
+{#if showEvents || showActivity}
+  <div class="inicio__lists">
+    {#if showEvents}
+      <CardBoundary onRetry={() => events.load()}>
+        <NextEvents result={events.result} onRetry={() => events.load()} />
+      </CardBoundary>
+    {/if}
+    {#if showActivity}
+      <CardBoundary onRetry={() => activity.load()}>
+        <RecentActivity result={activity.result} onRetry={() => activity.load()} />
+      </CardBoundary>
+    {/if}
+  </div>
+{/if}
 
 <style>
-  /* minmax(0, 1fr), not the implicit `auto` column: an auto track never
-     shrinks below its widest item's min-content, and one long nowrap Badge
-     (a ministry name) would widen the page past 360px. */
-  .inicio {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--mg-md);
+  .inicio__summary {
+    margin-block-end: var(--mg-md);
   }
 
   /* Pure CSS — the column count follows the space (G-010: no autoBalance).
