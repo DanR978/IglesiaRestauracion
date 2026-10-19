@@ -21,10 +21,14 @@
  *   npx playwright install chromium webkit   # once
  *   npm run test:e2e                         # all four projects
  *   npx playwright test --project=webkit tests/e2e/kit-modal.spec.ts
+ *   E2E_PORT=4181 npx playwright test …      # a second worktree in parallel; WebKit
+ *                                            # refuses the Fetch "bad ports" (e.g. 4190)
  * ========================================================================== */
 import { defineConfig, devices } from '@playwright/test';
 
 const PERF_SPEC = /perf\.spec\.ts$/;
+// Two worktrees can run the suite at once on different ports.
+const PORT = Number(process.env.E2E_PORT) || 4173;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -34,15 +38,15 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
   webServer: {
-    command: 'npm run build && npm run preview',
-    port: 4173,
-    // Never test a server this run did not build: a preview left on 4173 (an
+    command: `npm run build && npm run preview -- --port ${PORT} --strictPort`,
+    port: PORT,
+    // Never test a server this run did not build: a preview left on the port (an
     // older build, another worktree) would be reused silently. A busy port
     // fails the run instead.
     reuseExistingServer: false,
     timeout: 180_000,
   },
-  use: { baseURL: 'http://localhost:4173', trace: 'retain-on-failure' },
+  use: { baseURL: `http://localhost:${PORT}`, trace: 'retain-on-failure' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: PERF_SPEC },
