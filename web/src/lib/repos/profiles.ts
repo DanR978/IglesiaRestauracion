@@ -38,16 +38,21 @@ const TAG = '[profiles]';
 
 export type ProfileRow = Tables<'profiles'>;
 export type ProfileMinistry = Pick<Tables<'ministries'>, 'name' | 'color'>;
+export type ProfilePreset = Pick<Tables<'role_presets'>, 'name'>;
 
 /**
  * The signed-in account's row. `ministries` is the legacy single
  * `ministry_id`'s name and colour (null at aal1: `ministries` is read at aal2
- * only); `ministry_ids` lists every ministry a leader leads.
+ * only); `ministry_ids` lists every ministry a leader leads. `role_presets`
+ * is the access preset's name (S45 Mi cuenta: "Desarrollador" says more than
+ * "Administrador") — RLS lets only admins read presets, so it is null for
+ * everyone else, and at aal1.
  */
 export type OwnProfile = Omit<ProfileRow, 'role'> & {
   /** null when the stored role is not one of STAFF_ROLES (#lib/roles.js). */
   role: StaffRole | null;
   ministries: ProfileMinistry | null;
+  role_presets: ProfilePreset | null;
 };
 
 /** The signed-in account's profile; `data: null` when the account has none. */
@@ -57,7 +62,7 @@ export async function fetchOwnProfile(): Promise<ReadResult<OwnProfile | null>> 
   const { data, error, status } = await supabase
     .from('profiles')
     .select(
-      'id,display_name,role,allowed_tabs,ministry_id,ministry_ids,preset_id,avatar_url,created_at,ministries(name,color)',
+      'id,display_name,role,allowed_tabs,ministry_id,ministry_ids,preset_id,avatar_url,created_at,ministries(name,color),role_presets(name)',
     )
     .eq('id', me.data)
     .maybeSingle();
