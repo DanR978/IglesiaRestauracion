@@ -211,13 +211,14 @@ describe('auth/session', () => {
   });
 
   describe('account', () => {
-    it('requestPasswordReset sends the restablecer/ URL and never reveals the account', async () => {
+    it('requestPasswordReset returns to the legacy panel (D-001) and never reveals the account', async () => {
       expect(await requestPasswordReset(' ana@example.org ')).toEqual({
         ok: true,
         data: undefined,
       });
+      // The legacy address at the site root, never under the app's base path.
       expect(auth.resetPasswordForEmail).toHaveBeenCalledWith('ana@example.org', {
-        redirectTo: `${location.origin}/admin/acceso/restablecer/`,
+        redirectTo: `${location.origin}/admin/?action=reset-password`,
       });
       expect((await requestPasswordReset('')).ok).toBe(false);
     });
