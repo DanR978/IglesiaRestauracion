@@ -92,13 +92,14 @@ for (const route of ROUTES) {
 
   test(`vitals — ${group} · ${route} stays within LCP ${LCP_BUDGET_MS} ms and CLS ${CLS_BUDGET}`, async ({
     page,
+    baseURL,
   }, testInfo) => {
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Network.enable');
     await cdp.send('Network.emulateNetworkConditions', SLOW_4G);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: CPU_SLOWDOWN });
     await page.addInitScript(observeVitals);
-    const offOrigin = watchOffOriginRequests(page);
+    const offOrigin = watchOffOriginRequests(page, baseURL);
 
     await page.goto(route, { waitUntil: 'load' });
     await page.waitForLoadState('networkidle');
