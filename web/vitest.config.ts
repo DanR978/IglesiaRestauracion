@@ -31,6 +31,8 @@ export default defineConfig({
       { find: /^\$app\/env$/, replacement: stub('app-env.ts') },
       { find: /^\$app\/env\/public$/, replacement: stub('app-env-public.ts') },
       { find: /^\$app\/paths$/, replacement: stub('app-paths.ts') },
+      // S39: the acceso pages navigate; tests vi.mock this stub to watch them.
+      { find: /^\$app\/navigation$/, replacement: stub('app-navigation.ts') },
     ],
   },
   test: {
