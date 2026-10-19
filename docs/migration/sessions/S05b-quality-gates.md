@@ -1,7 +1,7 @@
 # Session S05b — Cross-engine, accessibility, budget and boundary gates
 
 **Stream:** foundation (quality gates)
-**Depends on:** S02b (D-030), S05   **PR:** PR-C1 (not opened yet)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
+**Depends on:** S02b (D-030), S05   **PR:** [#50](https://github.com/DanR978/IglesiaRestauracion/pull/50) (PR-C1)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
 **Status:** 🟦 PR open — `migrate/S02b-S05b-S22b-foundations` (PR-C1)
 
 ## Goal (one sentence)

@@ -1,7 +1,7 @@
 # Session S22b — Repo result contract (D-032 / ADR-0004)
 
 **Stream:** foundation (data layer)
-**Depends on:** S02b (Kit 3 harness), S22 (public repos), S52 (treasury repo), S56b backend (receipts repo)   **PR:** PR-C1 (not opened yet)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
+**Depends on:** S02b (Kit 3 harness), S22 (public repos), S52 (treasury repo), S56b backend (receipts repo)   **PR:** [#50](https://github.com/DanR978/IglesiaRestauracion/pull/50) (PR-C1)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
 **Status:** 🟦 PR open — `migrate/S02b-S05b-S22b-foundations` (PR-C1)
 
 ## Goal (one sentence)
