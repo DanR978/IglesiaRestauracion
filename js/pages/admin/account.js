@@ -403,11 +403,6 @@ function renderAccountSection() {
 // ═══════════════════════════════════════════════════════════════════════════
 //  Section: Seguridad
 // ═══════════════════════════════════════════════════════════════════════════
-// An account that signed up through Google/Microsoft may have no password yet;
-// only accounts with one are asked to confirm it.
-const hasPassword = () => (currentUser?.identities ?? [{ provider: 'email' }])
-  .some(i => i.provider === 'email');
-
 function renderSecuritySection() {
   return `
     <div class="acct-card">
@@ -418,11 +413,14 @@ function renderSecuritySection() {
 
       <div class="section-divider"><i class="fas fa-key"></i> Cambiar contraseña</div>
       <div class="acct-grid">
-        ${hasPassword() ? `
         <div class="form-group">
           <label for="acctPw0">Contraseña actual</label>
-          <input type="password" id="acctPw0" autocomplete="current-password">
-        </div>` : ''}
+          <input type="password" id="acctPw0" autocomplete="current-password"
+                 aria-describedby="acctPw0Hint">
+          <small class="acct-hint" id="acctPw0Hint">Déjala vacía solo si nunca creaste una contraseña (entras con Google o Microsoft).</small>
+        </div>
+      </div>
+      <div class="acct-grid">
         <div class="form-group">
           <label for="acctPw1">Contraseña nueva</label>
           <input type="password" id="acctPw1" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
@@ -460,7 +458,6 @@ async function changePassword() {
   const setPwErr = (m) => { if (box) { box.textContent = m || ''; box.style.display = m ? 'block' : 'none'; } };
 
   setPwErr('');
-  if ($('acctPw0') && !cur) { setPwErr('Escribe tu contraseña actual.'); return; }
   if (p1.length < 8) { setPwErr('La contraseña debe tener al menos 8 caracteres.'); return; }
   if (p1 !== p2)     { setPwErr('Las contraseñas no coinciden.'); return; }
 

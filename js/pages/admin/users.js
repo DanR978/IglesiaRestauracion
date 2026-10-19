@@ -140,7 +140,7 @@ function openRowMenu(trigger) {
   const actions = u.confirmed
     ? [
         { label: 'Editar acceso', icon: 'fa-user-pen', onClick: () => openEdit(u) },
-        // Your own 2FA is replaced from "Mi cuenta" (the server refuses a self reset).
+        // Your own 2FA is replaced from "Mi cuenta", never reset from this list.
         ...(isSelf ? [] : [
           { label: 'Restablecer 2FA', icon: 'fa-shield-halved', onClick: () => doResetMfa(u) },
           { label: 'Eliminar cuenta', icon: 'fa-trash', variant: 'danger', onClick: () => doDelete(u) },

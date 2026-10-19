@@ -89,9 +89,10 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
   accepted; recovery steps up before the password change; the one-time `token_hash` leaves the
   address bar as soon as it is spent; re-enrollment is additive; realtime is re-authenticated after
   a verify; password changes confirm the current password; auth errors are mapped by code and never
-  shown raw. Supporting changes: supabase-js pinned to an exact CDN version, and the legacy admin's
-  modules (plus `/app/admin`) bypass the service worker, with a cache bump so no stale copy of the
-  gate runs.
+  shown raw. Supporting changes: supabase-js pinned to an exact CDN version, and every request made
+  by an admin page (its own and the shared modules) bypasses the service worker, with a cache bump.
+  The very first `/admin/` load after this deploy can still run the previous worker's cached copy;
+  the next load uses the new gate.
 - **Reproduction run** (2026-10-18, local stack, GoTrue v2.187.0, Playwright driving `/admin/`):
   *before* (develop) 3/3 cases reproduced; *after* (this branch) 14/14 checks pass — including
   "cancel keeps the original authenticator", "old authenticator active until the new one verifies",
@@ -99,10 +100,11 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 - **Mirror:** S39 builds the gate natively in the port (`resolveAccess()` + the `verificar/` route);
   its automated tests — the mocked suite and the local-stack integration suite — are the D-012b test.
 - **Release checklist:** TOTP enrollment and verification enabled in the project's Auth settings;
-  every developer completes one challenge on this build before it reaches `main`. After release the
-  Auth setting "Require current password" can be switched on (`supabase/apply-auth-email.mjs
-  --require-current-password`); this branch already sends `current_password`, and GoTrue exempts
-  invitation and recovery links from that check.
+  every developer completes one challenge on this build before it reaches `main` (reload `/admin/`
+  once after the deploy so the new worker is in control). **Required after release:** switch on the
+  Auth setting "Require current password" (Dashboard → Authentication, or the config script that
+  ships with the database hardening). Until then GoTrue ignores the "Contraseña actual" this branch
+  sends; GoTrue exempts invitation and recovery links and password-less accounts from that check.
 - **Landed:** ☐ — ships with `fix/DF-006-mandatory-mfa`.
 
 ### DF-005 — Contact form messages never reach the advertised inbox

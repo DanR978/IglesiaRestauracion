@@ -3,14 +3,19 @@
 //
 // MFA is REQUIRED for every staff account (D-033): auth.js routes every
 // successful credential step through `mfaStatus()` and opens the panel only at
-// AAL2. Client gating is UX; the database enforces aal2 separately.
+// AAL2. Client gating is UX; the database enforces aal2 only once the
+// fix/authz-hardening migration is applied.
 
 import { sb } from './state.js';
 
 let _factorId         = null;   // the TOTP factor being enrolled
 let _challengeIds     = [];     // verified TOTP factors a challenge code may match
 let _replaceFactorIds = [];     // factors to remove once their replacement is verified
-let _mode             = null;   // 'enroll' | 'challenge'
+let _mode             = null;   // 'enroll' | 'challenge' — the step on screen
+
+function reset() {
+  _factorId = null; _challengeIds = []; _replaceFactorIds = []; _mode = null;
+}
 
 /**
  * What does the current session need before it can reach the panel?
@@ -26,7 +31,8 @@ export async function mfaStatus() {
   if (data.currentLevel === 'aal2') return 'ok';
   const { data: list, error: listErr } = await sb.auth.mfa.listFactors();
   if (listErr) throw listErr;
-  return (list?.totp ?? []).length ? 'challenge' : 'enroll';
+  // Any verified factor (not only TOTP) means the account must prove it first.
+  return (list?.all ?? []).some(f => f.status === 'verified') ? 'challenge' : 'enroll';
 }
 
 // GoTrue rejects a second factor with the same friendly name for one user.
@@ -43,19 +49,20 @@ function friendlyName() {
  * @returns {Promise<{qr: string, secret: string}>}
  */
 export async function beginEnroll({ replace = false } = {}) {
+  reset();
+  _mode = 'enroll';
   const { data: list, error: listErr } = await sb.auth.mfa.listFactors();
   if (listErr) throw listErr;
   for (const f of (list?.all ?? []).filter(f => f.status === 'unverified')) {
     try { await sb.auth.mfa.unenroll({ factorId: f.id }); } catch { /* best effort */ }
   }
-  _replaceFactorIds = replace ? (list?.totp ?? []).map(f => f.id) : [];
+  const replaceIds = replace ? (list?.totp ?? []).map(f => f.id) : [];
 
   const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: friendlyName() });
   if (error) throw error;
 
-  _factorId     = data.id;
-  _challengeIds = [];
-  _mode         = 'enroll';
+  _factorId         = data.id;
+  _replaceFactorIds = replaceIds;
   return { qr: data.totp.qr_code, secret: data.totp.secret };
 }
 
@@ -66,11 +73,12 @@ export async function beginEnroll({ replace = false } = {}) {
  *          should fall back to enrollment).
  */
 export async function beginChallenge() {
+  reset();
+  _mode = 'challenge';
   const { data: list, error } = await sb.auth.mfa.listFactors();
   if (error) throw error;
   _challengeIds = (list?.totp ?? []).map(f => f.id);
-  _factorId     = null;
-  _mode         = _challengeIds.length ? 'challenge' : 'enroll';
+  if (!_challengeIds.length) _mode = 'enroll';
   return _challengeIds.length > 0;
 }
 
@@ -85,16 +93,34 @@ async function syncRealtimeAuth() {
  * Submit the 6-digit code. On success the session is upgraded to AAL2.
  * Enrollment verifies the new factor, then removes the factors it replaces.
  * A challenge tries each verified factor until one accepts the code.
+ * @returns {Promise<string[]>} replaced factors that could not be removed —
+ *          they still grant AAL2, so the caller must say so.
  */
 export async function submitCode(code) {
   const clean = String(code).trim();
+  const leftover = [];
+
+  // Preparing the challenge failed (e.g. a dropped request): prepare it now.
+  if (_mode === 'challenge' && !_challengeIds.length) await beginChallenge();
 
   if (_mode === 'enroll' && _factorId) {
     const { error } = await sb.auth.mfa.challengeAndVerify({ factorId: _factorId, code: clean });
     if (error) throw error;
-    for (const id of _replaceFactorIds.filter(id => id !== _factorId)) {
-      const { error: unErr } = await sb.auth.mfa.unenroll({ factorId: id });
-      if (unErr) console.warn('[mfa] unenroll replaced factor:', unErr.message);
+    // Read and clear in one step: a cancel that ran meanwhile already emptied the
+    // list (the old factors stay), and a later cancel finds nothing to remove.
+    const replaced = _replaceFactorIds.filter(id => id !== _factorId);
+    reset();
+    const gone = (e) => !e || e.code === 'mfa_factor_not_found';
+    for (const factorId of replaced) {
+      let { error: unErr } = await sb.auth.mfa.unenroll({ factorId });
+      if (!gone(unErr)) {                                     // one retry for a dropped request
+        await new Promise(r => setTimeout(r, 1000));
+        ({ error: unErr } = await sb.auth.mfa.unenroll({ factorId }));
+      }
+      if (!gone(unErr)) {
+        console.warn('[mfa] unenroll replaced factor:', unErr.message);
+        leftover.push(factorId);
+      }
     }
   } else if (_mode === 'challenge' && _challengeIds.length) {
     let lastErr = null;
@@ -106,19 +132,25 @@ export async function submitCode(code) {
       if (error.code !== 'mfa_verification_failed') break;   // rate limit, network… stop here
     }
     if (!verified) throw lastErr;
+    reset();
   } else {
-    throw new Error('No hay una verificación en curso.');
+    throw Object.assign(new Error('No MFA step is ready'), { code: 'mfa_step_not_ready' });
   }
 
-  _factorId = null; _challengeIds = []; _replaceFactorIds = []; _mode = null;
   await syncRealtimeAuth();
-  return true;
+  return leftover;
 }
 
 /** Abandon an enrollment in progress (removes the factor that was never verified). */
 export async function cancelEnroll() {
-  if (_mode === 'enroll' && _factorId) {
-    try { await sb.auth.mfa.unenroll({ factorId: _factorId }); } catch { /* best effort */ }
+  const pending = _mode === 'enroll' ? _factorId : null;
+  reset();   // before the request: a verify still in flight must not remove the old factors
+  if (!pending) return;
+  // Only a factor the server still lists as unverified may go: if the verify
+  // already landed, this factor is now the account's (possibly only) one.
+  const { data: list } = await sb.auth.mfa.listFactors();
+  const f = (list?.all ?? []).find(x => x.id === pending);
+  if (f?.status === 'unverified') {
+    try { await sb.auth.mfa.unenroll({ factorId: pending }); } catch { /* best effort */ }
   }
-  _factorId = null; _replaceFactorIds = []; _mode = null;
 }

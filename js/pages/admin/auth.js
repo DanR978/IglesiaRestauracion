@@ -62,6 +62,7 @@ const AUTH_ERROR_ES = {
   current_password_mismatch:     'La contraseña actual no es correcta.',
   session_not_found:             'Tu sesión expiró. Vuelve a abrir el enlace o pide uno nuevo.',
   session_expired:               'Tu sesión expiró. Inicia sesión de nuevo.',
+  mfa_step_not_ready:            'No se pudo preparar la verificación. Intenta de nuevo.',
   user_banned:                   'Esta cuenta está suspendida. Contacta al administrador.',
 };
 
@@ -151,6 +152,7 @@ async function routeAfterLogin() {
   try {
     status = await mfa.mfaStatus();
   } catch (e) {
+    busy(document.getElementById('loginBtn'), false, '<i class="fas fa-sign-in-alt"></i> Entrar');
     setErr('authError', spanishError(e));
     return showCard('loginCard');
   }
@@ -164,6 +166,8 @@ async function routeAfterLogin() {
 // (password recovery), or back to an already-open panel (device replacement).
 let afterMfa = null;
 let reenrollInPanel = false;
+let verifying = false;      // a code is being checked: cancel must wait
+let cancelling = false;
 
 function setMfaCancelLabel() {
   const link = document.getElementById('mfaLogoutBtn');
@@ -202,7 +206,15 @@ async function showMfaChallenge() {
   setMfaCancelLabel();
   try {
     const ok = await mfa.beginChallenge();
-    if (!ok) return showMfaEnroll();   // no verified factor — enroll instead
+    if (!ok) {
+      // A verified factor of a type this panel cannot challenge (phone, passkey).
+      const { data } = await sb.auth.mfa.listFactors();
+      if ((data?.all ?? []).some(f => f.status === 'verified')) {
+        setErr('mfaError', 'Tu cuenta usa un método de verificación que este panel no admite. Contacta al administrador.');
+        return;
+      }
+      return showMfaEnroll();          // no verified factor — enroll instead
+    }
   } catch (e) {
     setErr('mfaError', spanishError(e));
   }
@@ -219,10 +231,21 @@ export async function reEnrollMfa() {
 }
 
 async function cancelMfa() {
-  if (!reenrollInPanel) return logout();
-  reenrollInPanel = false;
-  await mfa.cancelEnroll();
-  showApp();
+  if (verifying || cancelling) return;
+  cancelling = true;
+  try {
+    if (!reenrollInPanel) {
+      // Backing out of the sign-in step ends only this device's session.
+      try { await sb.auth.signOut({ scope: 'local' }); } catch { /* ignore */ }
+      location.href = location.pathname;
+      return;
+    }
+    await mfa.cancelEnroll();
+    reenrollInPanel = false;
+    showApp();
+  } finally {
+    cancelling = false;
+  }
 }
 
 async function verifyMfa() {
@@ -234,15 +257,20 @@ async function verifyMfa() {
     setErr('mfaError', 'Ingresa el código de 6 dígitos.');
     return;
   }
+  if (cancelling) return;
+  const inPanel = reenrollInPanel;     // decided at entry, never by a concurrent cancel
+  verifying = true;
   busy(btn, true);
   try {
-    await mfa.submitCode(code);
-    toast('Verificación completada', 'success');
-    if (reenrollInPanel) {             // the panel is already booted — just return to it
+    const leftover = await mfa.submitCode(code);
+    if (inPanel) {                     // the panel is already booted — just return to it
       reenrollInPanel = false;
+      if (leftover.length) toast('No se pudo quitar el dispositivo anterior. Vuelve a intentarlo desde Mi cuenta.', 'error');
+      else toast('Verificación completada', 'success');
       showApp();
       return;
     }
+    toast('Verificación completada', 'success');
     const next = afterMfa;
     afterMfa = null;
     if (next) return next();
@@ -250,6 +278,7 @@ async function verifyMfa() {
   } catch (e) {
     setErr('mfaError', spanishError(e));
   } finally {
+    verifying = false;
     busy(btn, false, '<i class="fas fa-shield-alt"></i> Verificar');
   }
 }
