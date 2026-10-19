@@ -675,7 +675,7 @@
   }
 
   .wiz__card :global(.wiz__card-icon) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
     font-size: var(--fs-md);
   }
 
@@ -718,7 +718,7 @@
   }
 
   .wiz__review-key :global(.wiz__review-icon) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
   }
 
   .wiz__review-val {

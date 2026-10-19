@@ -221,7 +221,7 @@
             </li>
           {/each}
         </ul>
-        <p><strong>strong en --color-secondary</strong></p>
+        <p><strong>strong en --color-accent-ink</strong></p>
       </div>
       <div class="compare__col" data-surface="admin">
         <h3>Admin (pizarra)</h3>
@@ -233,7 +233,7 @@
             </li>
           {/each}
         </ul>
-        <p><strong>strong en --color-secondary</strong></p>
+        <p><strong>strong en --color-accent-ink</strong></p>
       </div>
     </div>
   </section>

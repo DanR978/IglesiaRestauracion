@@ -1,6 +1,9 @@
 // S11 — the token files as a contract: money/type tokens defined once in
 // :root, the type scale monotonic (D-015), one dark-mode mechanism (D-017),
 // the admin override scoped (D-014), and one shadow definition.
+// PR-C2 (D-038, A11Y-1/A11Y-2) — WCAG contrast recomputed from the token text
+// for every ink the palette pairs with a surface, a page or its own tint, in
+// both themes and on both surfaces (public, [data-surface="admin"]).
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -35,6 +38,18 @@ const MONEY = [
   '--money-neg-bg',
   '--money-warn',
   '--money-warn-bg',
+];
+const STATUS = [
+  'paid',
+  'pending',
+  'open',
+  'overdue',
+  'active',
+  'inactive',
+  'restricted',
+  'closed',
+  'completed',
+  'finished',
 ];
 const FS_SCALE = [
   '--fs-xxs',
@@ -77,6 +92,58 @@ function clampParts(value: string): { min: number; max: number } {
   return { min: rem(m[1].trim()), max: rem(m[2].trim()) };
 }
 
+/** r, g, b in 0–255 and alpha in 0–1. */
+type Rgba = readonly [number, number, number, number];
+
+/** A token value as RGBA. A format this test cannot read fails loudly, never passes. */
+function parseColor(value: string): Rgba {
+  const hex = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  if (hex) {
+    const full = hex[1].length === 3 ? [...hex[1]].map((c) => c + c).join('') : hex[1];
+    const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(full.slice(i, i + 2), 16));
+    return [r, g, b, 1];
+  }
+  const fn = value.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/);
+  if (fn) return [Number(fn[1]), Number(fn[2]), Number(fn[3]), fn[4] ? Number(fn[4]) : 1];
+  throw new Error(`not a colour the contrast test can read: ${value}`);
+}
+
+/** A translucent `top` painted over an opaque `under`, rounded to 8 bits as painted. */
+function over(top: Rgba, under: Rgba): Rgba {
+  const [r, g, b] = [0, 1, 2].map((i) => Math.round(top[i] * top[3] + under[i] * (1 - top[3])));
+  return [r, g, b, 1];
+}
+
+function luminance([r, g, b]: Rgba): number {
+  const lin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** WCAG 2.2 contrast ratio of two opaque colours. */
+function contrast(a: Rgba, b: Rgba): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/**
+ * A custom property as an element sees it. `layers` are the declarations of the
+ * element and its ancestors, outermost (:root) first. A var() resolves where it
+ * is DECLARED — `:root { --a: var(--b) }` keeps :root's --b even inside a scope
+ * that re-declares --b — which is the cascade's own computed-value rule.
+ */
+function computedToken(layers: readonly Map<string, string>[], name: string): string {
+  for (let i = layers.length - 1; i >= 0; i--) {
+    const raw = layers[i].get(name);
+    if (raw === undefined) continue;
+    const upTo = layers.slice(0, i + 1);
+    return raw.replace(/var\(\s*(--[\w-]+)\s*\)/g, (_m, ref: string) => computedToken(upTo, ref));
+  }
+  throw new Error(`${name} is not declared`);
+}
+
 describe('tokens — money (D-016)', () => {
   it('defines every --money-* token exactly once in :root', () => {
     const names = declaredNames(ROOT_LIGHT);
@@ -96,18 +163,7 @@ describe('tokens — money (D-016)', () => {
 
   it('status vocabulary (2.5) exists as ink + tint pairs', () => {
     const decl = declarations(ROOT_LIGHT);
-    for (const s of [
-      'paid',
-      'pending',
-      'open',
-      'overdue',
-      'active',
-      'inactive',
-      'restricted',
-      'closed',
-      'completed',
-      'finished',
-    ]) {
+    for (const s of STATUS) {
       expect(decl.has(`--status-${s}`), `--status-${s}`).toBe(true);
       expect(decl.has(`--status-${s}-bg`), `--status-${s}-bg`).toBe(true);
     }
@@ -221,6 +277,120 @@ describe('tokens — admin slate override (D-014)', () => {
     expect(order.indexOf('./tokens/admin.css')).toBeGreaterThan(
       order.indexOf('./tokens/colors.css'),
     );
+  });
+});
+
+const ADMIN_SCOPE = declarations(blockOf(admin, "[data-surface='admin']"));
+/** The :root element's own declarations per theme (a dark block overrides the light one). */
+const ROOT_BY_THEME = {
+  light: declarations(ROOT_LIGHT),
+  'dark (forced)': new Map([...declarations(ROOT_LIGHT), ...declarations(ROOT_DARK_FORCED)]),
+  'dark (system)': new Map([...declarations(ROOT_LIGHT), ...declarations(ROOT_DARK_SYSTEM)]),
+};
+type ThemeCase = keyof typeof ROOT_BY_THEME;
+type Surface = 'public' | 'admin';
+
+/** :root, plus the admin root inside it when the element is on the admin surface. */
+function layersFor(theme: ThemeCase, surface: Surface): Map<string, string>[] {
+  return surface === 'admin' ? [ROOT_BY_THEME[theme], ADMIN_SCOPE] : [ROOT_BY_THEME[theme]];
+}
+
+const colorOf = (layers: readonly Map<string, string>[], name: string): Rgba =>
+  parseColor(computedToken(layers, name));
+
+const AA_TEXT = 4.5;
+const AA_NON_TEXT = 3;
+/** What text sits on: raised panels and the page itself. */
+const UNDERLAYS = ['--color-surface', '--color-bg-light'];
+const TEXT_INKS = ['--color-text', '--color-muted', '--color-accent-ink'];
+/** Every semantic ink, and the tint a Badge / pill puts under it. */
+const INK_ON_TINT = [
+  ...['pos', 'neg', 'warn'].map((m) => [`--money-${m}`, `--money-${m}-bg`] as const),
+  ...STATUS.map((s) => [`--status-${s}`, `--status-${s}-bg`] as const),
+];
+const CASES = (Object.keys(ROOT_BY_THEME) as ThemeCase[]).flatMap((theme) =>
+  (['public', 'admin'] as const).map((surface) => ({ theme, surface })),
+);
+
+describe('tokens — accent ink (D-038)', () => {
+  it('outside the admin, the light accent ink aliases the gold fill (it already clears AA)', () => {
+    expect(declarations(ROOT_LIGHT).get('--color-accent-ink')).toBe('var(--color-secondary)');
+    expect(computedToken(layersFor('light', 'public'), '--color-accent-ink')).toBe('#9a6a2c');
+  });
+
+  it('gets its own dark value, because the gold fill has none', () => {
+    for (const theme of ['dark (forced)', 'dark (system)'] as const) {
+      expect(computedToken(layersFor(theme, 'public'), '--color-accent-ink')).toBe('#d9ab66');
+      // Fills stay on --color-secondary, untouched.
+      expect(computedToken(layersFor(theme, 'public'), '--color-secondary')).toBe('#9a6a2c');
+    }
+  });
+
+  it('the admin maps it onto the reversing slate pair, without naming a theme', () => {
+    expect(ADMIN_SCOPE.get('--color-accent-ink')).toBe('var(--slate-ink)');
+    expect(computedToken(layersFor('light', 'admin'), '--color-accent-ink')).toBe('#475569');
+    for (const theme of ['dark (forced)', 'dark (system)'] as const) {
+      expect(computedToken(layersFor(theme, 'admin'), '--color-accent-ink')).toBe('#cbd5e1');
+      expect(computedToken(layersFor(theme, 'admin'), '--color-secondary')).toBe('#475569');
+    }
+  });
+
+  it('no `color:` reads an accent FILL token — text uses --color-accent-ink', () => {
+    const fillAsInk =
+      /(?<![\w-])color\s*:\s*var\(\s*--(?:color-secondary|color-accent|gold-bright)\s*[,)]/;
+    for (const file of nonTokenSources()) {
+      expect(stripComments(readFileSync(file, 'utf8')), file).not.toMatch(fillAsInk);
+    }
+  });
+});
+
+describe('tokens — WCAG contrast, both themes, public and admin', () => {
+  describe.each(CASES)('$surface · $theme', ({ theme, surface }) => {
+    const layers = layersFor(theme, surface);
+
+    it('body, muted and accent ink clear 4.5:1 on the surface and on the page', () => {
+      for (const under of UNDERLAYS) {
+        for (const ink of TEXT_INKS) {
+          const ratio = contrast(colorOf(layers, ink), colorOf(layers, under));
+          expect(ratio, `${ink} on ${under}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+            AA_TEXT,
+          );
+        }
+      }
+    });
+
+    it('every money/status ink clears 4.5:1 on its own tint and on the bare surface (A11Y-2)', () => {
+      for (const under of UNDERLAYS) {
+        const base = colorOf(layers, under);
+        for (const [ink, tint] of INK_ON_TINT) {
+          const fg = colorOf(layers, ink);
+          const bare = contrast(fg, base);
+          const tinted = contrast(fg, over(colorOf(layers, tint), base));
+          expect(bare, `${ink} on ${under}: ${bare.toFixed(2)}:1`).toBeGreaterThanOrEqual(AA_TEXT);
+          expect(
+            tinted,
+            `${ink} on ${tint} over ${under}: ${tinted.toFixed(2)}:1`,
+          ).toBeGreaterThanOrEqual(AA_TEXT);
+        }
+      }
+    });
+
+    it('the focus ring clears 3:1 against the surface and the page', () => {
+      for (const under of UNDERLAYS) {
+        const ratio = contrast(colorOf(layers, '--color-focus'), colorOf(layers, under));
+        expect(ratio, `--color-focus on ${under}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
+          AA_NON_TEXT,
+        );
+      }
+    });
+  });
+
+  it('the contrast maths matches the A11Y-2 measurement it replaces', () => {
+    // axe measured the old amber at 4.38:1 on its painted tint #f2e8de.
+    const oldInk = parseColor('#a05a10');
+    const painted = over(parseColor('rgba(160, 90, 16, 0.14)'), parseColor('#ffffff'));
+    expect(painted).toEqual(parseColor('#f2e8de'));
+    expect(contrast(oldInk, painted)).toBeCloseTo(4.38, 2);
   });
 });
 

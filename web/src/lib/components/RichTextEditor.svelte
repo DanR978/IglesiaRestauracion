@@ -846,7 +846,7 @@
   }
 
   .rt__area :global(a) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
     text-decoration: underline;
   }
 

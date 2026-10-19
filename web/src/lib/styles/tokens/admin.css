@@ -29,6 +29,10 @@
   --color-secondary: #475569; /* slate-600 — was brand gold #9a6a2c */
   --gold-bright: #64748b; /* slate-500 — was #c89858 (decorative only) */
   --color-accent: #475569; /* slate-600 — was vivid orange #be660e */
+  /* Accent TEXT (D-038): the slate ink that reverses with the theme — #475569
+     light, #cbd5e1 dark (tokens/colors.css, the only file that may key a value
+     on data-theme). Resolved HERE, on the admin root, so it inherits as slate. */
+  --color-accent-ink: var(--slate-ink);
 
   /* Calm flat surfaces, no glow: the admin keeps black shadows in dark mode
      (the public site keeps its legacy white ones). See tokens/shadows.css. */

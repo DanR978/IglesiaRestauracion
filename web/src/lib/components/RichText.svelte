@@ -77,7 +77,7 @@
   }
 
   .rich-content :global(a) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
     text-decoration: underline;
     overflow-wrap: anywhere;
   }

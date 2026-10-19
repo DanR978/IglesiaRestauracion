@@ -33,18 +33,11 @@ interface KnownException {
  * docs/migration/sessions/S05b-quality-gates.md (Box 15 — axe). Each one is
  * matched per failing node on rule + theme + the exact colours axe measured,
  * so the same rule failing anywhere else still fails the run. The PR that
- * fixes one deletes its entry.
+ * fixes one deletes its entry. None is open: PR-C2 closed A11Y-1 (accent text
+ * moved to --color-accent-ink, D-038) and A11Y-2 (--money-warn darkened so it
+ * clears its own tint) — tests/unit/tokens.test.ts now recomputes those pairs.
  */
-const KNOWN_EXCEPTIONS: readonly KnownException[] = [
-  // --color-secondary used as INK (base `strong`, RichText links) has no dark
-  // value: gold #9a6a2c on the dark page/surface (3.7 / 3.3:1), the admin slate
-  // #475569 on the dark surface (2.0:1). Owner: PR-C2's --color-accent-ink
-  // (planned D-038).
-  { id: 'A11Y-1', rule: 'color-contrast', theme: 'dark', fg: ['#9a6a2c', '#475569'] },
-  // --money-warn (= --status-pending) on its own -bg tint: 4.38:1. The pair was
-  // only ever measured against the surface (D-023). Owner: S11b token layering.
-  { id: 'A11Y-2', rule: 'color-contrast', theme: 'light', fg: ['#a05a10'], bg: ['#f2e8de'] },
-];
+const KNOWN_EXCEPTIONS: readonly KnownException[] = [];
 
 const BLOCKING_IMPACTS = new Set(['serious', 'critical']);
 const THEMES: readonly Theme[] = ['light', 'dark'];
