@@ -90,13 +90,17 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
   address bar as soon as it is spent; re-enrollment is additive; realtime is re-authenticated after
   a verify; password changes confirm the current password; auth errors are mapped by code and never
   shown raw. Supporting changes: supabase-js pinned to an exact CDN version, and every request made
-  by an admin page (its own and the shared modules) bypasses the service worker, with a cache bump.
-  The very first `/admin/` load after this deploy can still run the previous worker's cached copy;
-  the next load uses the new gate.
-- **Reproduction run** (2026-10-18, local stack, GoTrue v2.187.0, Playwright driving `/admin/`):
-  *before* (develop) 3/3 cases reproduced; *after* (this branch) 14/14 checks pass — including
-  "cancel keeps the original authenticator", "old authenticator active until the new one verifies",
-  and the enrollment card never showing a previous attempt's QR.
+  by an admin page (its own and the shared modules) bypasses the service worker, with a cache bump;
+  the Spanish error map is a new module, so a cached copy of the previous `auth.js` can't stop Mi
+  cuenta from loading. The very first `/admin/` load after this deploy can still run the previous
+  worker's cached copy; the next load uses the new gate.
+- **Reproduction run** (local stack, GoTrue v2.187.0, Playwright driving `/admin/`): *before*
+  (develop, 2026-10-18) 3/3 cases reproduced; *after* (this branch, 2026-10-19) 13/13 checks pass —
+  including "cancel keeps the original authenticator" and "old authenticator active until the new
+  one verifies" — plus 11/11 routing and lock-out probes: no route reaches the panel without the
+  second factor, and a second device's code, an admin 2FA reset and a half-finished enrollment all
+  still get in. With "Require current password" on in the local GoTrue, a wrong current password
+  is refused ("La contraseña actual no es correcta.") and the old password keeps working.
 - **Mirror:** S39 builds the gate natively in the port (`resolveAccess()` + the `verificar/` route);
   its automated tests — the mocked suite and the local-stack integration suite — are the D-012b test.
 - **Release checklist:** TOTP enrollment and verification enabled in the project's Auth settings;
@@ -104,7 +108,9 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
   once after the deploy so the new worker is in control). **Required after release:** switch on the
   Auth setting "Require current password" (Dashboard → Authentication, or the config script that
   ships with the database hardening). Until then GoTrue ignores the "Contraseña actual" this branch
-  sends; GoTrue exempts invitation and recovery links and password-less accounts from that check.
+  sends. Verified on the local stack: GoTrue checks it only for an account that has a password, in a
+  session not opened from an emailed link — invitations, recovery links (also after the second-factor
+  step-up) and Google/Microsoft-only accounts are exempt.
 - **Landed:** ☐ — ships with `fix/DF-006-mandatory-mfa`.
 
 ### DF-005 — Contact form messages never reach the advertised inbox

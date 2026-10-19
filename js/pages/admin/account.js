@@ -16,7 +16,8 @@ import { sb, currentUser, currentProfile, ministries } from './state.js';
 import { toast, confirm } from './ui.js';
 import { esc } from '/js/utils/escape.js';
 import { $ } from '/js/utils/dom.js';
-import { reEnrollMfa, spanishError } from './auth.js';
+import { reEnrollMfa } from './auth.js';
+import { spanishError } from './auth-errors.js';
 import { mfaStatus } from './mfa.js';
 
 const ROLE_LABEL = {
