@@ -27,6 +27,7 @@ import { supabase } from '#lib/db/client.js';
 import { toNumeric } from '#lib/money.js';
 import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
 import type { ReadResult, WriteResult } from '../types';
 import {
   TAG,
@@ -54,6 +55,8 @@ export type TreasuryCatalog = {
 
 /** Unarchived funds, `sort` then `name` (`treasury-tab.js:66`). */
 export async function fetchFunds(): Promise<ReadResult<FundEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchFunds');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_funds')
     .select('*')
@@ -66,6 +69,8 @@ export async function fetchFunds(): Promise<ReadResult<FundEntry[]>> {
 
 /** Unarchived income categories, `sort` then `name` (`treasury-tab.js:67`). */
 export async function fetchIncomeCategories(): Promise<ReadResult<IncomeCategoryRow[]>> {
+  const denied = await requireSession(TAG, 'fetchIncomeCategories');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_income_categories')
     .select('*')
@@ -78,6 +83,8 @@ export async function fetchIncomeCategories(): Promise<ReadResult<IncomeCategory
 
 /** Unarchived expense categories, `sort` then `name` (`treasury-tab.js:68`). */
 export async function fetchExpenseCategories(): Promise<ReadResult<ExpenseCategoryRow[]>> {
+  const denied = await requireSession(TAG, 'fetchExpenseCategories');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_expense_categories')
     .select('*')
@@ -94,6 +101,8 @@ export async function fetchExpenseCategories(): Promise<ReadResult<ExpenseCatego
  * look like a church with no categories.
  */
 export async function fetchCatalog(): Promise<ReadResult<TreasuryCatalog>> {
+  const denied = await requireSession(TAG, 'fetchCatalog');
+  if (denied) return denied;
   const [funds, incomeCategories, expenseCategories] = await Promise.all([
     fetchFunds(),
     fetchIncomeCategories(),
@@ -115,6 +124,8 @@ export async function fetchCatalog(): Promise<ReadResult<TreasuryCatalog>> {
 const OPENING_BALANCE = { field: 'saldo inicial', allowNegative: true } as const;
 
 export async function createFund(input: FundInsert): Promise<WriteResult<FundEntry>> {
+  const denied = await requireSession(TAG, 'createFund');
+  if (denied) return denied;
   const { openingBalanceCents, ...rest } = input;
   const row: TablesInsert<'fin_funds'> = { ...rest };
   if (openingBalanceCents !== undefined) {
@@ -128,6 +139,8 @@ export async function createFund(input: FundInsert): Promise<WriteResult<FundEnt
 }
 
 export async function updateFund(id: string, patch: FundUpdate): Promise<WriteResult<FundEntry>> {
+  const denied = await requireSession(TAG, 'updateFund');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del fondo.');
   const { openingBalanceCents, ...rest } = patch;
   const row: TablesUpdate<'fin_funds'> = { ...rest };
@@ -147,6 +160,8 @@ export async function updateFund(id: string, patch: FundUpdate): Promise<WriteRe
 }
 
 export async function deleteFund(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteFund');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del fondo.');
   const { error, status, count } = await supabase
     .from('fin_funds')
@@ -162,6 +177,8 @@ export async function deleteFund(id: string): Promise<WriteResult> {
 export async function createIncomeCategory(
   input: IncomeCategoryInsert,
 ): Promise<WriteResult<IncomeCategoryRow>> {
+  const denied = await requireSession(TAG, 'createIncomeCategory');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_income_categories')
     .insert(input)
@@ -175,6 +192,8 @@ export async function updateIncomeCategory(
   id: string,
   patch: IncomeCategoryUpdate,
 ): Promise<WriteResult<IncomeCategoryRow>> {
+  const denied = await requireSession(TAG, 'updateIncomeCategory');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la categoría.');
   const { data, error, status } = await supabase
     .from('fin_income_categories')
@@ -187,6 +206,8 @@ export async function updateIncomeCategory(
 }
 
 export async function deleteIncomeCategory(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteIncomeCategory');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la categoría.');
   const { error, status, count } = await supabase
     .from('fin_income_categories')
@@ -202,6 +223,8 @@ export async function deleteIncomeCategory(id: string): Promise<WriteResult> {
 export async function createExpenseCategory(
   input: ExpenseCategoryInsert,
 ): Promise<WriteResult<ExpenseCategoryRow>> {
+  const denied = await requireSession(TAG, 'createExpenseCategory');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_expense_categories')
     .insert(input)
@@ -215,6 +238,8 @@ export async function updateExpenseCategory(
   id: string,
   patch: ExpenseCategoryUpdate,
 ): Promise<WriteResult<ExpenseCategoryRow>> {
+  const denied = await requireSession(TAG, 'updateExpenseCategory');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la categoría.');
   const { data, error, status } = await supabase
     .from('fin_expense_categories')
@@ -227,6 +252,8 @@ export async function updateExpenseCategory(
 }
 
 export async function deleteExpenseCategory(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteExpenseCategory');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la categoría.');
   const { error, status, count } = await supabase
     .from('fin_expense_categories')

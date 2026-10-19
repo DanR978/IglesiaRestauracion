@@ -1,13 +1,15 @@
 // S22 — repos/gallery: query shape per legacy js/lib/gallery.js. S22b — the
 // ReadResult / WriteResult contract: a failed read is `{ ok: false }` (legacy
-// rendered it as "Aún no hay álbumes"), and a delete/update that matched no
-// row is `not_found` (D-027).
+// rendered it as "Aún no hay álbumes"), a delete/update that matched no row
+// is `not_found` (D-027), and a staff-only call made signed out is `auth`.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as gallery from '#lib/repos/gallery.js';
 import {
   deleteAlbum,
   deletePhoto,
@@ -415,5 +417,31 @@ describe('repos/gallery', () => {
       subscribePhotos('alb', () => {})();
       expect(mock.channels).toHaveLength(0);
     });
+  });
+
+  // RLS: anon reads published albums and their photos (`galbums_public_read`,
+  // `gphotos_public_read`); unpublished rows and every write need staff.
+  const image = { main: blob(3), webp: blob(2), thumb: blob(1), width: 1, height: 1 };
+  describeSessionGate(gallery, '[gallery]', {
+    staffOnly: {
+      'fetchAlbums includeUnpublished': () => fetchAlbums({ includeUnpublished: true }),
+      'fetchAvailableYears includeUnpublished': () =>
+        fetchAvailableYears({ includeUnpublished: true }),
+      fetchAlbumByIdAdmin: () => fetchAlbumByIdAdmin('a'),
+      upsertAlbum: () => upsertAlbum({ title: 'T', year: 2026 }),
+      deleteAlbum: () => deleteAlbum('alb'),
+      uploadPhoto: () => uploadPhoto('alb', image),
+      deletePhoto: () => deletePhoto({ id: 'p', storage_path: 'alb/p.jpg' }),
+      setAlbumCover: () => setAlbumCover('alb', 'p', 'u'),
+      updatePhoto: () => updatePhoto('p', { caption: 'c' }),
+      reorderPhotos: () => reorderPhotos('alb', ['a', 'b']),
+    },
+    publicCalls: {
+      fetchAlbums: () => fetchAlbums(),
+      fetchAvailableYears: () => fetchAvailableYears(),
+      fetchAlbumBy: () => fetchAlbumBy({ slug: 'x' }),
+      fetchPhotos: () => fetchPhotos('alb'),
+    },
+    notRepoCalls: ['subscribeAlbums', 'subscribePhotos'],
   });
 });

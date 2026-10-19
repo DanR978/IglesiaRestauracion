@@ -10,7 +10,8 @@
  *   detail   the raw backend text (code, message, hint) for the console only
  *
  * Classification, first match wins:
- *   1. no answer at all — fetch threw, status 0, aborted, timed out → network
+ *   1. no answer at all — fetch threw, status 0, aborted, timed out, the body
+ *      dropped mid-read, or storage-js wrapped a fetch TypeError → network
  *   2. the error name or `code`: PostgREST `PGRST…` and Postgres SQLSTATE
  *      codes are decided by the code alone (an unlisted one is `unknown`,
  *      never guessed from its HTTP status — PostgREST answers a missing
@@ -181,11 +182,21 @@ const KIND_BY_NAME = new Map<string, RepoErrorKind>([
 ]);
 
 /**
- * How browsers and Node word "the request never got an answer". postgrest-js
- * prefixes the error name ("TypeError: Failed to fetch", "AbortError: …").
+ * How browsers and Node word "the request never got an answer", or lost it
+ * mid-body. postgrest-js prefixes the error name ("TypeError: Failed to
+ * fetch", "AbortError: …"). Chrome's failed body read is a bare "network
+ * error" — anchored, since the phrase could sit inside a server message that
+ * carries a code; WebKit's is "The network connection was lost.".
  */
 const NO_ANSWER =
-  /failed to fetch|fetch failed|networkerror|network request failed|load failed|aborterror|timeouterror/i;
+  /failed to fetch|fetch failed|networkerror|network request failed|load failed|network connection was lost|^(?:typeerror: )?network error$|aborterror|timeouterror/i;
+
+/**
+ * storage-js wraps whatever its fetch threw in this error. A wrapped
+ * TypeError is a request that never got (all of) its answer, whatever the
+ * browser called it.
+ */
+const STORAGE_WRAPPER = 'StorageUnknownError';
 
 /** A PostgREST code or a five-character Postgres SQLSTATE. */
 const SERVER_CODE = /^(PGRST[0-9X]+|[0-9A-Z]{5})$/;
@@ -231,6 +242,8 @@ type ErrorFields = {
   hint: string;
   status: number | null;
   statusCode: string;
+  /** The `name` of the error a library wrapped (storage-js `originalError`). */
+  originalName: string;
 };
 
 function fieldsOf(raw: unknown): ErrorFields {
@@ -241,12 +254,14 @@ function fieldsOf(raw: unknown): ErrorFields {
     hint: '',
     status: null,
     statusCode: '',
+    originalName: '',
   };
   if (raw === null || raw === undefined) return fields;
   if (typeof raw !== 'object') return { ...fields, message: String(raw) };
   const r = raw as Record<string, unknown>;
   const text = (v: unknown): string =>
     typeof v === 'string' ? v : typeof v === 'number' ? String(v) : '';
+  const original = r.originalError;
   return {
     message: text(r.message),
     code: text(r.code),
@@ -254,6 +269,10 @@ function fieldsOf(raw: unknown): ErrorFields {
     hint: text(r.hint),
     status: typeof r.status === 'number' ? r.status : null,
     statusCode: text(r.statusCode),
+    originalName:
+      typeof original === 'object' && original !== null
+        ? text((original as Record<string, unknown>).name)
+        : '',
   };
 }
 
@@ -261,6 +280,7 @@ function kindOf(f: ErrorFields, responseStatus: number | undefined): RepoErrorKi
   if (responseStatus === 0 || f.status === 0) return 'network';
   const byName = KIND_BY_NAME.get(f.name);
   if (byName) return byName;
+  if (f.name === STORAGE_WRAPPER && f.originalName === 'TypeError') return 'network';
   if (NO_ANSWER.test(f.message)) return 'network';
 
   if (f.code) {

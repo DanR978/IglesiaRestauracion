@@ -13,7 +13,7 @@
  * ========================================================================== */
 import { REPO_ERROR_MESSAGES } from '#lib/repos/errors.js';
 import type { RepoErrorKind, RepoFailure } from '#lib/repos/types.js';
-import type { Canned } from './mock-client';
+import type { Canned, SessionResult } from './mock-client';
 
 /** The failure branch for a mapped backend error: kind copy + raw detail. */
 export function failure(kind: RepoErrorKind, detail: string): RepoFailure {
@@ -27,6 +27,12 @@ export function invalidInput(message: string): RepoFailure {
 
 /** A delete/update that had to change a row and changed none (D-027). */
 export const NOT_FOUND = failure('not_found', 'no row was affected');
+
+/** `mock.session = SIGNED_OUT`: `auth.getSession()` finds no session. */
+export const SIGNED_OUT: SessionResult = { data: { session: null }, error: null };
+
+/** A staff-only call made signed out — refused before any query (repos/session.ts). */
+export const NO_SESSION = failure('auth', 'no signed-in session');
 
 /** What postgrest-js resolves to when the fetch itself failed (offline, DNS, CORS). */
 export const OFFLINE: Canned = {

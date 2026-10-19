@@ -3,13 +3,15 @@
 // `auto:recurring:<id>:<month>` tag is the whole idempotency mechanism, so it
 // is asserted from both sides: tags that exist are skipped, and a failed tag
 // read must NOT fall through to a duplicate insert. S22b — the ReadResult /
-// WriteResult contract and the counted delete (D-027).
+// WriteResult contract, the counted delete (D-027), and `auth` signed out.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as recurring from '#lib/repos/treasury/recurring.js';
 import {
   createRecurring,
   deleteRecurring,
@@ -285,5 +287,17 @@ describe('repos/treasury/recurring', () => {
       );
       expect(warn).toHaveBeenCalledWith('[treasury] materializeRecurring:', 'boom');
     });
+  });
+
+  // RLS: every `fin_*` policy is `to authenticated`. Signed out, the tag read
+  // would come back empty and a materialization would double-post the month.
+  describeSessionGate(recurring, '[treasury]', {
+    staffOnly: {
+      fetchRecurring: () => fetchRecurring(),
+      createRecurring: () => createRecurring({ payee: 'x', amountCents: 100 }),
+      updateRecurring: () => updateRecurring('r1', { active: false }),
+      deleteRecurring: () => deleteRecurring('r1'),
+      materializeRecurring: () => materializeRecurring('2026-08', { today: '2026-08-20' }),
+    },
   });
 });

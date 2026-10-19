@@ -29,6 +29,7 @@
 
 import { supabase } from '#lib/db/client.js';
 import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
 import type { ReadResult, WriteResult } from '../types';
 import { TAG, type ProjectInsert, type ProjectRow, type ProjectUpdate } from './shared';
 
@@ -51,6 +52,8 @@ export async function fetchProjects({
   ministryIds,
   includeArchived = false,
 }: ProjectFilter = {}): Promise<ReadResult<ProjectRow[]>> {
+  const denied = await requireSession(TAG, 'fetchProjects');
+  if (denied) return denied;
   let q = supabase.from('fin_projects').select('*');
   if (ownerId) q = q.eq('owner_id', ownerId);
   if (ministryIds?.length) q = q.in('ministry_id', ministryIds);
@@ -73,6 +76,8 @@ export async function fetchProjects({
 export async function fetchBudgetedMinistryIds(
   ministryIds: string[],
 ): Promise<ReadResult<string[]>> {
+  const denied = await requireSession(TAG, 'fetchBudgetedMinistryIds');
+  if (denied) return denied;
   if (!ministryIds.length) return ok([]);
   const [recRes, expRes] = await Promise.all([
     supabase
@@ -102,6 +107,8 @@ export async function fetchBudgetedMinistryIds(
 /* ── Writes ────────────────────────────────────────────────────────────── */
 
 export async function createProject(input: ProjectInsert): Promise<WriteResult<ProjectRow>> {
+  const denied = await requireSession(TAG, 'createProject');
+  if (denied) return denied;
   if (!input?.owner_id) return invalid('Falta el propietario del proyecto.');
   if (!input.name?.trim()) return invalid('El proyecto necesita un nombre.');
   const { data, error, status } = await supabase
@@ -118,6 +125,8 @@ export async function updateProject(
   id: string,
   patch: ProjectUpdate,
 ): Promise<WriteResult<ProjectRow>> {
+  const denied = await requireSession(TAG, 'updateProject');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del proyecto.');
   const { data, error, status } = await supabase
     .from('fin_projects')
@@ -136,6 +145,8 @@ export async function updateProject(
  * promises ("quedarán sin proyecto").
  */
 export async function deleteProject(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteProject');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del proyecto.');
   const { error, status, count } = await supabase
     .from('fin_projects')

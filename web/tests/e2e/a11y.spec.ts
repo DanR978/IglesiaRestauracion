@@ -24,23 +24,33 @@ interface KnownException {
   theme: Theme;
   /** Foreground colours axe measured (lowercase hex). */
   fg: readonly string[];
-  /** Background colours axe measured; any background when omitted. */
-  bg?: readonly string[];
+  /**
+   * Background colours axe measured. Required: an ink exempt on every
+   * background would hide the same failure on a surface nobody measured.
+   */
+  bg: readonly string[];
 }
 
 /**
  * Violations recorded with an owner in
  * docs/migration/sessions/S05b-quality-gates.md (Box 15 — axe). Each one is
- * matched per failing node on rule + theme + the exact colours axe measured,
- * so the same rule failing anywhere else still fails the run. The PR that
- * fixes one deletes its entry.
+ * matched per failing node on rule + theme + the exact colour pair axe
+ * measured, so the same rule failing anywhere else still fails the run. The
+ * PR that fixes one deletes its entries.
  */
 const KNOWN_EXCEPTIONS: readonly KnownException[] = [
   // --color-secondary used as INK (base `strong`, RichText links) has no dark
-  // value: gold #9a6a2c on the dark page/surface (3.7 / 3.3:1), the admin slate
-  // #475569 on the dark surface (2.0:1). Owner: PR-C2's --color-accent-ink
-  // (planned D-038).
-  { id: 'A11Y-1', rule: 'color-contrast', theme: 'dark', fg: ['#9a6a2c', '#475569'] },
+  // value: gold #9a6a2c on the dark page #121c1f (3.7:1) and the dark surface
+  // #1a262a (3.3:1), the admin slate #475569 on the dark surface (2.0:1).
+  // Owner: PR-C2's --color-accent-ink (planned D-038).
+  {
+    id: 'A11Y-1',
+    rule: 'color-contrast',
+    theme: 'dark',
+    fg: ['#9a6a2c'],
+    bg: ['#121c1f', '#1a262a'],
+  },
+  { id: 'A11Y-1', rule: 'color-contrast', theme: 'dark', fg: ['#475569'], bg: ['#1a262a'] },
   // --money-warn (= --status-pending) on its own -bg tint: 4.38:1. The pair was
   // only ever measured against the surface (D-023). Owner: S11b token layering.
   { id: 'A11Y-2', rule: 'color-contrast', theme: 'light', fg: ['#a05a10'], bg: ['#f2e8de'] },
@@ -66,7 +76,7 @@ function knownException(
       known.rule === violation.id &&
       known.theme === theme &&
       known.fg.includes(fg) &&
-      (known.bg === undefined || known.bg.includes(bg)),
+      known.bg.includes(bg),
   );
 }
 
@@ -98,6 +108,25 @@ test('axe — the build prerendered pages to scan', () => {
   expect(ROUTES.length, 'no prerendered pages found in build/').toBeGreaterThan(0);
 });
 
+test('axe — an exception covers only the colour pairs it was measured on', () => {
+  const contrast = { id: 'color-contrast' } as Violation;
+  const pair = (fgColor: string, bgColor: string) =>
+    ({ any: [{ data: { fgColor, bgColor } }] }) as unknown as ViolationNode;
+
+  expect(knownException(contrast, pair('#9A6A2C', '#121C1F'), 'dark')?.id).toBe('A11Y-1');
+  expect(knownException(contrast, pair('#9a6a2c', '#1a262a'), 'dark')?.id).toBe('A11Y-1');
+  expect(knownException(contrast, pair('#475569', '#1a262a'), 'dark')?.id).toBe('A11Y-1');
+  expect(knownException(contrast, pair('#a05a10', '#f2e8de'), 'light')?.id).toBe('A11Y-2');
+  // The same inks on any other background, or in the other theme, still fail.
+  expect(knownException(contrast, pair('#9a6a2c', '#ffffff'), 'dark')).toBeUndefined();
+  expect(knownException(contrast, pair('#475569', '#121c1f'), 'dark')).toBeUndefined();
+  expect(knownException(contrast, pair('#9a6a2c', '#121c1f'), 'light')).toBeUndefined();
+  expect(knownException(contrast, pair('#a05a10', '#ffffff'), 'light')).toBeUndefined();
+  expect(knownException({ id: 'link-name' } as Violation, pair('#9a6a2c', '#121c1f'), 'dark')).toBe(
+    undefined,
+  );
+});
+
 for (const theme of THEMES) {
   test.describe(`axe — ${theme}`, () => {
     test.beforeEach(async ({ page }) => {
@@ -112,8 +141,11 @@ for (const theme of THEMES) {
     });
 
     for (const route of ROUTES) {
-      test(`${route} has no serious or critical violations`, async ({ page }, testInfo) => {
-        const offOrigin = watchOffOriginRequests(page);
+      test(`${route} has no serious or critical violations`, async ({
+        page,
+        baseURL,
+      }, testInfo) => {
+        const offOrigin = watchOffOriginRequests(page, baseURL);
         await page.goto(route, { waitUntil: 'networkidle' });
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         await settleComputedStyles(page);

@@ -75,18 +75,9 @@ test.describe('kit/modal', () => {
     await expect(dialog).toHaveCount(0);
   });
 
-  test('traps Tab inside the dialog and returns focus to the trigger', async ({
-    page,
-    browserName,
-  }) => {
-    // S05b finding X-1: Safari does not focus a clicked <button>, so the modal
-    // records <main>/<body> as its trigger and focus never comes back to it.
-    // Expected to fail on WebKit until the overlays track their opener; this
-    // then fails as "passed unexpectedly" — delete the line.
-    test.fail(browserName === 'webkit', 'X-1: focus does not return to a clicked opener');
+  test('traps Tab inside the dialog', async ({ page }) => {
     await page.goto(KIT);
-    const trigger = page.getByRole('button', { name: 'Modal normal' });
-    await trigger.click();
+    await page.getByRole('button', { name: 'Modal normal' }).click();
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeFocused();
@@ -100,6 +91,21 @@ test.describe('kit/modal', () => {
         }),
       ).toBe(true);
     }
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test('returns focus to the trigger that opened it', async ({ page, browserName }) => {
+    // G-038 / X-1: Safari does not focus a clicked <button>, so the modal
+    // records <main>/<body> as its opener and focus never comes back to it.
+    // Removed when focus-trap.ts records the opener — PR-C2 does that; this
+    // then fails as "passed unexpectedly".
+    test.fail(browserName === 'webkit', 'G-038 / X-1: focus does not return to a clicked opener');
+    await page.goto(KIT);
+    const trigger = page.getByRole('button', { name: 'Modal normal' });
+    await trigger.click();
+    await expect(page.getByRole('dialog')).toBeFocused();
 
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();

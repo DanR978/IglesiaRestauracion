@@ -15,7 +15,9 @@
  * VISIBILITY is RLS's job, not this module's (D-002). `scope='ministry'` rows
  * are shared with every leader of that ministry (D-019); `scope='project'` rows
  * are owner-only and invisible even to finance. The scope argument here only
- * shapes the query.
+ * shapes the query. Every call is staff-only (`fin_receipts` and the bucket
+ * have no anon policy), so each one checks for a live session first
+ * (`./session`): signed out, RLS would answer an empty month, not an error.
  *
  * TYPES — TEMPORARY: `fin_receipts` is not in the generated
  * `#lib/db/database.types` yet. S56b's UI session runs `supabase gen types
@@ -33,6 +35,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase } from '#lib/db/client.js';
 import { fail, invalid, noRows, ok } from './errors';
+import { requireSession } from './session';
 import type { ReadResult, WriteResult } from './types';
 
 const TAG = '[receipts]';
@@ -155,6 +158,8 @@ export function receiptPaths(
 
 /** Every receipt of one scope + year, in month then upload order. */
 export async function listReceipts(ref: ScopeRef, year: number): Promise<ReadResult<FinReceipt[]>> {
+  const denied = await requireSession(TAG, 'listReceipts');
+  if (denied) return denied;
   if (!Number.isInteger(year)) return invalid('Año inválido.');
   let q = db
     .from('fin_receipts')
@@ -170,12 +175,22 @@ export async function listReceipts(ref: ScopeRef, year: number): Promise<ReadRes
   return ok(data ?? []);
 }
 
-/** Authenticated fetch of one object (the bucket is private). */
+/**
+ * Authenticated fetch of one object (the bucket is private). storage-js reads
+ * the body (`.blob()`) outside its own error handling, so a connection that
+ * drops mid-transfer REJECTS instead of resolving `{ error }` — caught here.
+ */
 export async function downloadReceipt(path: string): Promise<ReadResult<Blob>> {
+  const denied = await requireSession(TAG, 'downloadReceipt');
+  if (denied) return denied;
   if (!path) return invalid('Falta el recibo que quieres ver.');
-  const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).download(path);
-  if (error) return fail(TAG, 'downloadReceipt', error);
-  return ok(data);
+  try {
+    const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).download(path);
+    if (error) return fail(TAG, 'downloadReceipt', error);
+    return ok(data);
+  } catch (e) {
+    return fail(TAG, 'downloadReceipt', e);
+  }
 }
 
 /* ── Grouping (the 4×3 month grid) ─────────────────────────────────────────── */
@@ -278,6 +293,8 @@ export async function uploadReceipt(
   ref: ScopeRef,
   input: ReceiptUpload,
 ): Promise<WriteResult<FinReceipt>> {
+  const denied = await requireSession(TAG, 'uploadReceipt');
+  if (denied) return denied;
   if (!input?.main || !input?.thumb) return invalid('Falta la imagen del recibo.');
   const { year, month } = input;
   if (!Number.isInteger(year) || year < 2000 || year > 2100) return invalid('Año inválido.');
@@ -324,6 +341,8 @@ export async function uploadReceipt(
 export async function deleteReceipt(
   receipt: Pick<FinReceipt, 'id'> & { storage_path?: string | null; thumb_path?: string | null },
 ): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteReceipt');
+  if (denied) return denied;
   if (!receipt?.id) return invalid('Falta el recibo que quieres eliminar.');
   const paths = [receipt.storage_path, receipt.thumb_path].filter(
     (p): p is string => typeof p === 'string' && p.length > 0,

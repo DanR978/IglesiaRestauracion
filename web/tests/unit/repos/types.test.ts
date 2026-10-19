@@ -115,6 +115,17 @@ describe('repo types', () => {
     expectTypeOf(receipts.deleteReceipt).returns.resolves.toEqualTypeOf<WriteResult>();
   });
 
+  it('InterestStatus is exactly what discipleship_interests_status_check allows', () => {
+    // A `| string` member would widen the whole union to `string` and let
+    // a status the CHECK constraint rejects type-check.
+    type DbStatus = 'pending' | 'approved' | 'placed' | 'declined';
+    expectTypeOf<discipleship.InterestStatus>().toEqualTypeOf<DbStatus>();
+    expectTypeOf(discipleship.updateInterestStatus).parameter(1).toEqualTypeOf<DbStatus>();
+    expectTypeOf(discipleship.fetchInterests)
+      .parameter(0)
+      .toEqualTypeOf<{ status?: DbStatus | null } | undefined>();
+  });
+
   it('a result narrows on ok, and its error is a RepoError — never a raw string', () => {
     const r = { ok: false, error: { kind: 'network', message: 'x' } } as WriteResult<{
       id: string;

@@ -1,13 +1,15 @@
 // S22 — repos/registrations: query shape per legacy js/lib/special-events.js
 // + js/pages/eventos/hub.js:58 + registro-wizard.js:478, and G-006. S22b —
 // the ReadResult / WriteResult contract: a failed read is `{ ok: false }`,
-// never an empty list.
+// never an empty list or a throw, and every call here is public.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as registrations from '#lib/repos/registrations.js';
 import {
   fetchLiveEvents,
   fetchSpecialEventBy,
@@ -97,6 +99,14 @@ describe('repos/registrations', () => {
         failure('network', 'TypeError: fetch failed'),
       );
     });
+
+    it.each([Number.NaN, Number.POSITIVE_INFINITY, 9e15])(
+      'a `now` that is no instant (%s) is refused as invalid, without a query — never a RangeError',
+      async (now) => {
+        await expect(fetchLiveEvents({ now })).resolves.toEqual(invalidInput('Fecha inválida.'));
+        expect(mock.queries).toEqual([]);
+      },
+    );
   });
 
   describe('fetchSpecialEventBy (special-events.js:188)', () => {
@@ -195,5 +205,29 @@ describe('repos/registrations', () => {
         '42501: new row violates row-level security policy',
       );
     });
+  });
+
+  // RLS: `special_events_public_read` lets anon read EVERY row, so even the
+  // admin gallery picker gets the same answer signed out; the sign-up is an
+  // anon insert (`event_reg_insert`).
+  describeSessionGate(registrations, '[registrations]', {
+    publicCalls: {
+      fetchLiveEvents: () => fetchLiveEvents({ now: NOW }),
+      fetchSpecialEventBy: () => fetchSpecialEventBy({ slug: 'vbs' }),
+      fetchSpecialEventsForCalendar: () => fetchSpecialEventsForCalendar(),
+      fetchSpecialEventOptions: () => fetchSpecialEventOptions(),
+      submitRegistrations: () =>
+        submitRegistrations([
+          {
+            event_id: 'e',
+            first_name: 'Ana',
+            last_name: 'López',
+            age: 9,
+            contact_name: 'Luis',
+            contact_phone: '617',
+            relationship: 'Padre',
+          },
+        ]),
+    },
   });
 });

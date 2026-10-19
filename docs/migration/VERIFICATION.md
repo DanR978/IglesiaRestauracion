@@ -43,9 +43,12 @@ VERIFICATION GATE  —  paste results into the PR
                                                         # initial JS per prerendered page ≤ web/budget.json + 5%;
                                                         #   tests/e2e/perf.spec.ts: lab LCP ≤ 2.5 s, CLS ≤ 0.1 on a
                                                         #   throttled mobile profile (chromium)
-[ ] 18. Supply chain             npm audit --omit=dev --audit-level=high
-                                                        # clean, or an exception recorded in the PR; every runtime
-                                                        #   CDN URL carries an exact version
+[ ] 18. Supply chain             npm audit --audit-level=high
+                                                        # the WHOLE tree: svelte, @sveltejs/kit and devalue are
+                                                        #   devDependencies compiled into every page; clean, or an
+                                                        #   exception recorded in the PR; every runtime CDN URL
+                                                        #   carries an exact version; every CI action is pinned
+                                                        #   to a commit SHA
 [ ] 19. Security checklist       sessions touching auth, data or Edge Functions
                                                         # checklist pasted in the PR: OWASP ASVS 5.0 Level 1 for
                                                         #   public surfaces; Level 2 for V6 Authentication, V7

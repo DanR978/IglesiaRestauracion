@@ -10,8 +10,11 @@ import noRawHtml from './eslint-rules/no-raw-html.js';
  * One pattern per layer, matching the `#lib/…` subpath import and any relative
  * path into the same folder (`../db/client.js`, `../../lib/repos/events.js`).
  * Each block below lists everything its layer may NOT import: in flat config a
- * later block replaces an earlier block's `no-restricted-imports` options for
- * the files it matches, so no block relies on another's list.
+ * later block replaces an earlier block's options for the files it matches,
+ * so no block relies on another's list. `no-restricted-imports` only sees
+ * static imports and re-exports, so the same patterns also go to
+ * `no-restricted-syntax` for `import('…')` — a string, or the leading text of
+ * a template literal. tests/unit/layer-boundaries.test.ts proves both forms.
  */
 const into = (folder) => `^(?:[#$]lib/|(?:\\.{1,2}/)+(?:lib/)?)${folder}`;
 const LAYER = {
@@ -40,7 +43,23 @@ const LAYER = {
     message: 'Repos, platform and pure libs never import app state (target-architecture §3).',
   },
 };
-const restrict = (...layers) => ['error', { patterns: layers }];
+/**
+ * An esquery regex literal cannot contain `/`, even escaped, so each one is
+ * written `\u002F` — still a slash to the RegExp it becomes.
+ */
+const selectorRegex = (regex) => `/${regex.replaceAll('/', '\\u002F')}/`;
+const dynamicImport = ({ regex, message }) => [
+  { selector: `ImportExpression[source.value=${selectorRegex(regex)}]`, message },
+  {
+    selector: `ImportExpression[source.type='TemplateLiteral'][source.quasis.0.value.cooked=${selectorRegex(regex)}]`,
+    message,
+  },
+];
+/** The rules a block needs to close `layers` to its files, statically and dynamically. */
+const restrict = (...layers) => ({
+  'no-restricted-imports': ['error', { patterns: layers }],
+  'no-restricted-syntax': ['error', ...layers.flatMap(dynamicImport)],
+});
 
 export default ts.config(
   {
@@ -88,45 +107,35 @@ export default ts.config(
     // matched below: the typed client only through a repo.
     files: ['src/**/*.{ts,js,svelte}'],
     ignores: ['src/lib/repos/**', 'src/lib/db/**', 'src/lib/stores/session.svelte.ts'],
-    rules: { 'no-restricted-imports': restrict(LAYER.dbClient) },
+    rules: restrict(LAYER.dbClient),
   },
   {
     // Primitives: presentational; their own host stores are fine.
     files: ['src/lib/components/*.{ts,js,svelte}'],
-    rules: { 'no-restricted-imports': restrict(LAYER.db, LAYER.repos, LAYER.platform) },
+    rules: restrict(LAYER.db, LAYER.repos, LAYER.platform),
   },
   {
     files: ['src/lib/repos/**/*.{ts,js}'],
-    rules: { 'no-restricted-imports': restrict(LAYER.components, LAYER.stores) },
+    rules: restrict(LAYER.components, LAYER.stores),
   },
   {
     files: ['src/lib/stores/**/*.{ts,js}'],
     ignores: ['src/lib/stores/session.svelte.ts'],
-    rules: { 'no-restricted-imports': restrict(LAYER.components, LAYER.dbClient) },
+    rules: restrict(LAYER.components, LAYER.dbClient),
   },
   {
     // S38's session store is the one auth module allowed the client.
     files: ['src/lib/stores/session.svelte.ts'],
-    rules: { 'no-restricted-imports': restrict(LAYER.components) },
+    rules: restrict(LAYER.components),
   },
   {
     // Created only when CC1 shows a need: pure libs and nothing else.
     files: ['src/lib/platform/**/*.{ts,js,svelte}'],
-    rules: {
-      'no-restricted-imports': restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db),
-    },
+    rules: restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db),
   },
   {
     // Pure libs (src/lib/*.ts): each other only.
     files: ['src/lib/*.{ts,js}'],
-    rules: {
-      'no-restricted-imports': restrict(
-        LAYER.components,
-        LAYER.stores,
-        LAYER.repos,
-        LAYER.db,
-        LAYER.platform,
-      ),
-    },
+    rules: restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db, LAYER.platform),
   },
 );

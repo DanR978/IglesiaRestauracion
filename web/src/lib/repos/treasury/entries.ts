@@ -19,6 +19,10 @@
  * fetched a whole year and filtered in JS (`treasury-tab.js:443-444`,
  * `project-treasury.js:399-409`).
  *
+ * The row lists are one request each, so PostgREST's max-rows (1000) caps
+ * them; S53 pages the UI (G-033). Totals never come from these lists — the
+ * aggregates in `./summary` read every page.
+ *
  * Usage:
  *   import { fetchExpenses, createExpense, monthRange } from '#lib/repos/treasury/index.js';
  *   const res = await fetchExpenses(monthRange('2026-08'));
@@ -29,6 +33,7 @@ import { supabase } from '#lib/db/client.js';
 import { toNumeric } from '#lib/money.js';
 import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
 import type { ReadResult, WriteResult } from '../types';
 import {
   TAG,
@@ -48,6 +53,8 @@ import {
 
 /** Church-books income for the range, newest first (`treasury-tab.js:326`). */
 export async function fetchIncome(range: DateRange): Promise<ReadResult<IncomeEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchIncome');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_income')
     .select('*')
@@ -61,6 +68,8 @@ export async function fetchIncome(range: DateRange): Promise<ReadResult<IncomeEn
 
 /** Church-books expenses for the range, newest first (`treasury-tab.js:344`). */
 export async function fetchExpenses(range: DateRange): Promise<ReadResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchExpenses');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_expenses')
     .select('*')
@@ -82,6 +91,8 @@ export async function fetchProjectIncome(
   projectId: string,
   range?: DateRange,
 ): Promise<ReadResult<IncomeEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchProjectIncome');
+  if (denied) return denied;
   if (!projectId) return ok([]);
   let q = supabase.from('fin_income').select('*').eq('project_id', projectId);
   if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
@@ -95,6 +106,8 @@ export async function fetchProjectExpenses(
   projectId: string,
   range?: DateRange,
 ): Promise<ReadResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchProjectExpenses');
+  if (denied) return denied;
   if (!projectId) return ok([]);
   let q = supabase.from('fin_expenses').select('*').eq('project_id', projectId);
   if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
@@ -113,6 +126,8 @@ export async function fetchMinistryAllocations(
   ministryIds: string[],
   range?: DateRange,
 ): Promise<ReadResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchMinistryAllocations');
+  if (denied) return denied;
   if (!ministryIds.length) return ok([]);
   let q = supabase
     .from('fin_expenses')
@@ -134,6 +149,8 @@ function incomeRow(input: IncomeInsert): TablesInsert<'fin_income'> {
 
 /** Insert one income row (`treasury-tab.js:583` via `WIZ.income.toPayload`). */
 export async function createIncome(input: IncomeInsert): Promise<WriteResult<IncomeEntry>> {
+  const denied = await requireSession(TAG, 'createIncome');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
   if (bad) return invalid(bad);
   const { data, error, status } = await supabase
@@ -150,6 +167,8 @@ export async function createIncome(input: IncomeInsert): Promise<WriteResult<Inc
  * there is no partial-failure state to reconcile client-side (S56c).
  */
 export async function insertIncomeBatch(rows: IncomeInsert[]): Promise<WriteResult<IncomeEntry[]>> {
+  const denied = await requireSession(TAG, 'insertIncomeBatch');
+  if (denied) return denied;
   if (!rows.length) return ok([]);
   for (let i = 0; i < rows.length; i++) {
     const bad = centsError(rows[i].amountCents);
@@ -167,6 +186,8 @@ export async function updateIncome(
   id: string,
   patch: IncomeUpdate,
 ): Promise<WriteResult<IncomeEntry>> {
+  const denied = await requireSession(TAG, 'updateIncome');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del ingreso.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_income'> = { ...rest };
@@ -186,6 +207,8 @@ export async function updateIncome(
 }
 
 export async function deleteIncome(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteIncome');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del ingreso.');
   const { error, status, count } = await supabase
     .from('fin_income')
@@ -205,6 +228,8 @@ function expenseRow(input: ExpenseInsert): TablesInsert<'fin_expenses'> {
 
 /** Insert one expense row (`treasury-tab.js:583` via `WIZ.expenses.toPayload`). */
 export async function createExpense(input: ExpenseInsert): Promise<WriteResult<ExpenseEntry>> {
+  const denied = await requireSession(TAG, 'createExpense');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
   if (bad) return invalid(bad);
   const { data, error, status } = await supabase
@@ -220,6 +245,8 @@ export async function createExpense(input: ExpenseInsert): Promise<WriteResult<E
 export async function insertExpenseBatch(
   rows: ExpenseInsert[],
 ): Promise<WriteResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'insertExpenseBatch');
+  if (denied) return denied;
   if (!rows.length) return ok([]);
   for (let i = 0; i < rows.length; i++) {
     const bad = centsError(rows[i].amountCents);
@@ -237,6 +264,8 @@ export async function updateExpense(
   id: string,
   patch: ExpenseUpdate,
 ): Promise<WriteResult<ExpenseEntry>> {
+  const denied = await requireSession(TAG, 'updateExpense');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del gasto.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_expenses'> = { ...rest };
@@ -256,6 +285,8 @@ export async function updateExpense(
 }
 
 export async function deleteExpense(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteExpense');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del gasto.');
   const { error, status, count } = await supabase
     .from('fin_expenses')
@@ -273,6 +304,8 @@ export async function deleteExpense(id: string): Promise<WriteResult> {
  * is a success: most payables have no mirror yet.
  */
 export async function deleteExpensesByNote(note: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteExpensesByNote');
+  if (denied) return denied;
   if (!note) return invalid('Falta la etiqueta de la nota.');
   const { error, status } = await supabase.from('fin_expenses').delete().eq('note', note);
   if (error) return fail(TAG, 'deleteExpensesByNote', error, status);

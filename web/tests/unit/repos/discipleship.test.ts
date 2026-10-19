@@ -1,13 +1,24 @@
 // S22 — repos/discipleship: query shape per legacy js/lib/discipleship.js and
 // G-006 (no .select() on the anon interest insert). S22b — the ReadResult /
 // WriteResult contract: a failed read is `{ ok: false }`, never an empty list,
-// and a delete that matched no row is `not_found` (D-027).
+// a delete that matched no row is `not_found` (D-027), and a staff-only call
+// made signed out is `auth` before any query.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
-import { NOT_FOUND, OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
+import {
+  NOT_FOUND,
+  NO_SESSION,
+  OFFLINE,
+  RLS_DENIED,
+  SIGNED_OUT,
+  failure,
+  invalidInput,
+} from './results';
+import { describeSessionGate } from './session-gate';
+import * as discipleship from '#lib/repos/discipleship.js';
 import {
   addMember,
   deleteGroup,
@@ -214,21 +225,30 @@ describe('repos/discipleship', () => {
 
   describe('fetchInterests / updateInterestStatus', () => {
     it('newest first, optional status filter', async () => {
-      await fetchInterests({ status: 'new' });
+      await fetchInterests({ status: 'pending' });
       expect(mock.chain()).toEqual(['select', 'order', 'eq']);
       expect(mock.args('order')).toEqual(['created_at', { ascending: false }]);
-      expect(mock.args('eq')).toEqual(['status', 'new']);
+      expect(mock.args('eq')).toEqual(['status', 'pending']);
       mock.reset();
       await fetchInterests();
       expect(mock.chain()).toEqual(['select', 'order']);
     });
-    it('a staff read refused by RLS is forbidden — never "no interests yet"', async () => {
-      mock.results.discipleship_interests = [
-        { data: null, error: { message: 'permission denied', code: '42501' }, status: 403 },
-      ];
+    // RLS filters a SELECT, it does not refuse it: signed out, the anon key
+    // reads `discipleship_interests` as an empty 200 — "no interests yet".
+    it('signed out is auth before any query — never "no interests yet"', async () => {
+      mock.session = SIGNED_OUT;
       const res = await fetchInterests();
-      expect(res).toEqual(failure('forbidden', '42501: permission denied'));
+      expect(res).toEqual(NO_SESSION);
       expect(res).not.toEqual({ ok: true, data: [] });
+      expect(mock.queries).toEqual([]);
+    });
+    // The session check cannot tell a live session that RLS filters down to
+    // nothing (not staff, no `discipulado` tab) from a table with no rows:
+    // both are an empty 200. That is RLS being the boundary (D-002); the view
+    // decides who reaches this screen.
+    it('signed in, an RLS-filtered read is indistinguishable from an empty one', async () => {
+      mock.results.discipleship_interests = [{ data: [] }];
+      expect(await fetchInterests()).toEqual({ ok: true, data: [] });
     });
     it('placed records the group + contacted_at; other statuses clear the group', async () => {
       vi.useFakeTimers();
@@ -239,8 +259,13 @@ describe('repos/discipleship', () => {
           { status: 'placed', assigned_group_id: 'g', contacted_at: '2026-08-24T12:00:00.000Z' },
         ]);
         mock.reset();
-        await updateInterestStatus('i', 'archived');
-        expect(mock.args('update')).toEqual([{ status: 'archived', assigned_group_id: null }]);
+        await updateInterestStatus('i', 'approved');
+        expect(mock.args('update')).toEqual([
+          { status: 'approved', assigned_group_id: null, contacted_at: '2026-08-24T12:00:00.000Z' },
+        ]);
+        mock.reset();
+        await updateInterestStatus('i', 'declined');
+        expect(mock.args('update')).toEqual([{ status: 'declined', assigned_group_id: null }]);
         expect(mock.chain()).toEqual(['update', 'eq', 'select', 'single']);
       } finally {
         vi.useRealTimers();
@@ -248,7 +273,7 @@ describe('repos/discipleship', () => {
     });
     it('updateInterestStatus maps its error', async () => {
       mock.results.discipleship_interests = [{ data: null, error: ERR }];
-      expect(await updateInterestStatus('i', 'archived')).toEqual(failure('unknown', 'boom'));
+      expect(await updateInterestStatus('i', 'declined')).toEqual(failure('unknown', 'boom'));
       expect(warn).toHaveBeenCalledWith('[discipulado] updateInterestStatus:', 'boom');
     });
   });
@@ -331,5 +356,32 @@ describe('repos/discipleship', () => {
       subscribeInterests(() => {})();
       expect(mock.channels).toHaveLength(0);
     });
+  });
+
+  // RLS: groups are public only when published (`dgroups_public_read`) and
+  // interests are anon INSERT-only; members, messages and every other write
+  // are `to authenticated`.
+  describeSessionGate(discipleship, '[discipulado]', {
+    staffOnly: {
+      fetchAllGroups: () => fetchAllGroups(),
+      fetchGroupById: () => fetchGroupById('g'),
+      upsertGroup: () => upsertGroup({ name: 'Grupo' }),
+      deleteGroup: () => deleteGroup('g'),
+      markGroupCompleted: () => markGroupCompleted('g'),
+      fetchInterests: () => fetchInterests(),
+      updateInterestStatus: () => updateInterestStatus('i', 'approved'),
+      fetchMembers: () => fetchMembers('g'),
+      addMember: () => addMember({ group_id: 'g', full_name: 'Ana' }),
+      removeMember: () => removeMember('m'),
+      moveMember: () => moveMember('m', 'g2'),
+      fetchMessages: () => fetchMessages('g'),
+      sendMessage: () => sendMessage({ groupId: 'g', body: 'hola' }),
+    },
+    publicCalls: {
+      fetchPublicGroups: () => fetchPublicGroups(),
+      fetchPublicGroupBy: () => fetchPublicGroupBy({ slug: 's' }),
+      submitInterest: () => submitInterest({ full_name: 'Ana', email: 'a@b.c' }),
+    },
+    notRepoCalls: ['subscribeGroups', 'subscribeInterests'],
   });
 });

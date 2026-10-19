@@ -21,15 +21,7 @@ async function openFromTile(page: Page, index = 0): Promise<void> {
 test.describe('kit/lightbox', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test('opens from a tile, walks with the arrows and closes on Escape', async ({
-    page,
-    browserName,
-  }) => {
-    // S05b finding X-1: Safari does not focus a clicked <button>, so the
-    // viewer records <main>/<body> as its opener and focus never returns to
-    // the tile. Expected to fail on WebKit until the overlays track their
-    // opener; this then fails as "passed unexpectedly" — delete the line.
-    test.fail(browserName === 'webkit', 'X-1: focus does not return to a clicked opener');
+  test('opens from a tile, walks with the arrows and closes on Escape', async ({ page }) => {
     const errors: string[] = [];
     page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
 
@@ -48,9 +40,21 @@ test.describe('kit/lightbox', () => {
 
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);
-    // Focus went back to the tile that opened it.
-    await expect(page.locator('.tile').first()).toBeFocused();
     expect(errors).toEqual([]);
+  });
+
+  test('returns focus to the tile that opened it', async ({ page, browserName }) => {
+    // G-038 / X-1: Safari does not focus a clicked <button>, so the viewer
+    // records <main>/<body> as its opener and focus never returns to the
+    // tile. Removed when focus-trap.ts records the opener — PR-C2 does that;
+    // this then fails as "passed unexpectedly".
+    test.fail(browserName === 'webkit', 'G-038 / X-1: focus does not return to a clicked opener');
+    await page.goto(KIT);
+    await openFromTile(page, 0);
+
+    await page.keyboard.press('Escape');
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page.locator('.tile').first()).toBeFocused();
   });
 
   test('closes on the backdrop but not on the photo itself', async ({ page }) => {
