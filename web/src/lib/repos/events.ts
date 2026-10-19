@@ -11,6 +11,9 @@
  * Registration events (`special_events`) are a different table with their own
  * lifecycle — see `#lib/repos/registrations.js`.
  *
+ * Every read here is public (`events_public_read`, `calevents_public_read`:
+ * anon may read all rows), so none of them asks for a session.
+ *
  * Usage:
  *   import { fetchUpcomingEvents, fetchEventById } from '#lib/repos/events.js';
  *   const res = await fetchUpcomingEvents();
@@ -20,7 +23,7 @@
 import { browser } from '$app/env';
 import { supabase } from '#lib/db/client.js';
 import type { Tables } from '#lib/db/database.types.js';
-import { fail, ok } from './errors';
+import { fail, invalid, ok } from './errors';
 import type { ChangeHandler, ReadResult, Unsubscribe } from './types';
 
 const TAG = '[events]';
@@ -52,10 +55,12 @@ function startOfToday(): Date {
 /**
  * Upcoming special events for the homepage rail: everything starting at or
  * after `since` (default: the viewer's local start of today), soonest first.
+ * An Invalid Date is refused (`toISOString()` would throw).
  */
 export async function fetchUpcomingEvents(
   since: Date = startOfToday(),
 ): Promise<ReadResult<EventRow[]>> {
+  if (Number.isNaN(since.getTime())) return invalid('Fecha inválida.');
   const { data, error, status } = await supabase
     .from('events')
     .select('*')

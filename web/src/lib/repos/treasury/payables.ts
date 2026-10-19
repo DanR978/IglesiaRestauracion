@@ -24,6 +24,7 @@ import { supabase } from '#lib/db/client.js';
 import { toNumeric } from '#lib/money.js';
 import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
 import type { ReadResult, RepoError, RepoFailure, WriteResult } from '../types';
 import { deleteExpensesByNote } from './entries';
 import {
@@ -49,6 +50,8 @@ const PAID_BILL_CATEGORY = 'Cuenta pagada';
 export async function fetchPayables({ status }: { status?: PayableStatus } = {}): Promise<
   ReadResult<PayableEntry[]>
 > {
+  const denied = await requireSession(TAG, 'fetchPayables');
+  if (denied) return denied;
   let q = supabase.from('fin_payables').select('*');
   if (status) q = q.eq('status', status);
   const res = await q.order('status').order('due_on', { ascending: true, nullsFirst: false });
@@ -59,6 +62,8 @@ export async function fetchPayables({ status }: { status?: PayableStatus } = {})
 /* ── Writes ────────────────────────────────────────────────────────────── */
 
 export async function createPayable(input: PayableInsert): Promise<WriteResult<PayableEntry>> {
+  const denied = await requireSession(TAG, 'createPayable');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
   if (bad) return invalid(bad);
   const { amountCents, ...rest } = input;
@@ -72,6 +77,8 @@ export async function updatePayable(
   id: string,
   patch: PayableUpdate,
 ): Promise<WriteResult<PayableEntry>> {
+  const denied = await requireSession(TAG, 'updatePayable');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la cuenta por pagar.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_payables'> = { ...rest };
@@ -98,6 +105,8 @@ export async function updatePayable(
  * is an error (D-027). A payable with no mirror deletes cleanly.
  */
 export async function deletePayable(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deletePayable');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la cuenta por pagar.');
   const mirror = await deleteExpensesByNote(payableNoteTag(id));
   if (!mirror.ok) return mirror;
@@ -144,6 +153,8 @@ export async function markPayablePaid(
   payable: PayableToPay,
   { createdBy = null, paidAt = new Date().toISOString() }: MarkPaidOptions = {},
 ): Promise<WriteResult<{ paidAt: string }>> {
+  const denied = await requireSession(TAG, 'markPayablePaid');
+  if (denied) return denied;
   if (!payable?.id) return invalid('Falta la cuenta por pagar.');
   const bad = centsError(payable.amountCents);
   if (bad) return invalid(bad);

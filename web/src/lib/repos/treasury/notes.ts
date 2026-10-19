@@ -17,11 +17,14 @@
 
 import { supabase } from '#lib/db/client.js';
 import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
 import type { ReadResult, WriteResult } from '../types';
 import { TAG, type NoteInsert, type NoteRow, type NoteUpdate } from './shared';
 
 /** Notes, pinned first then newest (`treasury-tab.js:543-544`). */
 export async function fetchNotes(): Promise<ReadResult<NoteRow[]>> {
+  const denied = await requireSession(TAG, 'fetchNotes');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_notes')
     .select('*')
@@ -32,12 +35,16 @@ export async function fetchNotes(): Promise<ReadResult<NoteRow[]>> {
 }
 
 export async function createNote(input: NoteInsert): Promise<WriteResult<NoteRow>> {
+  const denied = await requireSession(TAG, 'createNote');
+  if (denied) return denied;
   const { data, error, status } = await supabase.from('fin_notes').insert(input).select().single();
   if (error) return fail(TAG, 'createNote', error, status);
   return ok(data);
 }
 
 export async function updateNote(id: string, patch: NoteUpdate): Promise<WriteResult<NoteRow>> {
+  const denied = await requireSession(TAG, 'updateNote');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la nota.');
   const { data, error, status } = await supabase
     .from('fin_notes')
@@ -50,6 +57,8 @@ export async function updateNote(id: string, patch: NoteUpdate): Promise<WriteRe
 }
 
 export async function deleteNote(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteNote');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador de la nota.');
   const { error, status, count } = await supabase
     .from('fin_notes')

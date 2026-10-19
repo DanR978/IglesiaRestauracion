@@ -2,13 +2,16 @@
 // New functionality, so there is no legacy oracle (VERIFICATION.md #5 is N/A for
 // this session); RLS itself is proven on staging, never here. S22b — the
 // ReadResult / WriteResult contract: a failed list is `{ ok: false }`, never an
-// empty month grid, and a delete that matched no row is `not_found` (D-027).
+// empty month grid, a delete that matched no row is `not_found` (D-027), every
+// call made signed out is `auth`, and a download never throws.
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock, supabase as mockClient } from './mock-client';
-import { NOT_FOUND, OFFLINE, failure, invalidInput } from './results';
+import { NOT_FOUND, NO_SESSION, OFFLINE, SIGNED_OUT, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as receipts from '#lib/repos/receipts.js';
 import {
   deleteReceipt,
   downloadReceipt,
@@ -36,7 +39,13 @@ const UUID = /^[0-9a-f-]{8,}$/i;
  */
 type DownloadResult = {
   data: Blob | null;
-  error: { message: string; name?: string; status?: number; statusCode?: string } | null;
+  error: {
+    message: string;
+    name?: string;
+    status?: number;
+    statusCode?: string;
+    originalError?: unknown;
+  } | null;
 };
 type DownloadFn = (path: string) => Promise<DownloadResult>;
 type Bucket = { download?: DownloadFn };
@@ -228,6 +237,45 @@ describe('repos/receipts', () => {
       });
       expect(await downloadReceipt('x')).toEqual(failure('not_found', '404: Object not found'));
     });
+
+    // storage-js reads the body (`.blob()`) outside its error wrapping, so a
+    // connection lost mid-transfer REJECTS the download instead of resolving
+    // `{ error }`. The repo must still resolve to a result.
+    it.each([
+      ["Chrome's failed body read", 'network error'],
+      ["WebKit's dropped connection", 'The network connection was lost.'],
+      ['Safari offline', 'Load failed'],
+    ])('a download that rejects (%s) resolves to a network error', async (_engine, message) => {
+      download.mockRejectedValueOnce(new TypeError(message));
+      const res = await downloadReceipt('church/2026/a.webp');
+      expect(res).toEqual(failure('network', message));
+      expect(warn).toHaveBeenCalledWith('[receipts] downloadReceipt:', message);
+    });
+
+    it('any other rejection is still a result, never a throw', async () => {
+      download.mockRejectedValueOnce(new Error('the SDK broke'));
+      await expect(downloadReceipt('x')).resolves.toEqual(failure('unknown', 'the SDK broke'));
+    });
+
+    it('storage-js wrapping a fetch TypeError is a network error, whatever its wording', async () => {
+      download.mockResolvedValueOnce({
+        data: null,
+        error: {
+          name: 'StorageUnknownError',
+          message: 'net::ERR_HTTP2_PROTOCOL_ERROR',
+          originalError: new TypeError('net::ERR_HTTP2_PROTOCOL_ERROR'),
+        },
+      });
+      expect(await downloadReceipt('x')).toEqual(
+        failure('network', 'net::ERR_HTTP2_PROTOCOL_ERROR'),
+      );
+    });
+
+    it('signed out, nothing is downloaded', async () => {
+      mock.session = SIGNED_OUT;
+      expect(await downloadReceipt('church/2026/a.webp')).toEqual(NO_SESSION);
+      expect(download).not.toHaveBeenCalled();
+    });
   });
 
   describe('monthSummaries / totalBytes', () => {
@@ -377,5 +425,24 @@ describe('repos/receipts', () => {
       mock.results.fin_receipts = [{ data: null, error: ERR }];
       expect(await deleteReceipt(row())).toEqual(failure('unknown', 'boom'));
     });
+  });
+
+  // RLS: `fin_receipts` and the private bucket have no anon policy at all.
+  describeSessionGate(receipts, '[receipts]', {
+    staffOnly: {
+      listReceipts: () => listReceipts({ scope: 'church' }, 2026),
+      downloadReceipt: () => downloadReceipt('church/2026/a.webp'),
+      uploadReceipt: () =>
+        uploadReceipt({ scope: 'church' }, { year: 2026, month: 3, main: blob(3), thumb: blob(1) }),
+      deleteReceipt: () => deleteReceipt(row()),
+    },
+    notRepoCalls: [
+      'monthSummaries',
+      'receiptFolder',
+      'receiptPaths',
+      'retainedYears',
+      'retentionCutoffYear',
+      'totalBytes',
+    ],
   });
 });

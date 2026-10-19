@@ -1,5 +1,6 @@
 // S22 — repos/events: query shape per catalogued legacy query. S22b — the
-// ReadResult contract: a failed read is `{ ok: false }`, never an empty list.
+// ReadResult contract: a failed read is `{ ok: false }`, never an empty list
+// or a throw, and every read here is public (no session asked).
 // Legacy sources: js/main.js:135-139 · js/components/event-detail.js:41 ·
 // js/pages/eventos/hub.js:56-57 · js/components/calendar.js:47-58.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -7,7 +8,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
-import { OFFLINE, failure } from './results';
+import { OFFLINE, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as events from '#lib/repos/events.js';
 import {
   fetchCalendarActivities,
   fetchEventById,
@@ -69,6 +72,13 @@ describe('repos/events', () => {
       expect(await fetchUpcomingEvents(new Date())).toEqual(
         failure('network', 'TypeError: Failed to fetch'),
       );
+    });
+
+    it('an Invalid Date is refused as invalid, without a query — never a RangeError', async () => {
+      await expect(fetchUpcomingEvents(new Date('no es una fecha'))).resolves.toEqual(
+        invalidInput('Fecha inválida.'),
+      );
+      expect(mock.queries).toEqual([]);
     });
   });
 
@@ -142,5 +152,16 @@ describe('repos/events', () => {
       expect(mock.channels).toHaveLength(0);
       expect(() => off()).not.toThrow();
     });
+  });
+
+  // RLS: `events_public_read` and `calevents_public_read` let anon read every row.
+  describeSessionGate(events, '[events]', {
+    publicCalls: {
+      fetchUpcomingEvents: () => fetchUpcomingEvents(new Date(2026, 7, 24)),
+      fetchEventById: () => fetchEventById('abc'),
+      fetchEventsForCalendar: () => fetchEventsForCalendar(),
+      fetchCalendarActivities: () => fetchCalendarActivities(),
+    },
+    notRepoCalls: ['subscribeEvents'],
   });
 });

@@ -1,15 +1,17 @@
 // S52 — repos/treasury/entries: query shape per the legacy `fin_income` /
 // `fin_expenses` calls and cents conversion in both directions. S22b — the
 // ReadResult / WriteResult contract: a failed ledger read is `{ ok: false }`,
-// never an empty month, and a delete that matched no row is `not_found`
-// (D-027). Query SHAPE is what we assert; RLS behaviour is staging's job
-// (VERIFICATION.md).
+// never an empty month, a delete that matched no row is `not_found` (D-027),
+// and every call made signed out is `auth`. Query SHAPE is what we assert;
+// RLS behaviour is staging's job (VERIFICATION.md).
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, OFFLINE, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as entries from '#lib/repos/treasury/entries.js';
 import {
   createExpense,
   createIncome,
@@ -408,5 +410,25 @@ describe('repos/treasury/entries', () => {
       mock.results.fin_expenses = [{ error: ERR }];
       expect(await deleteExpense('e1')).toEqual(failure('unknown', 'boom'));
     });
+  });
+
+  // RLS: every `fin_*` policy is `to authenticated`.
+  describeSessionGate(entries, '[treasury]', {
+    staffOnly: {
+      fetchIncome: () => fetchIncome(AUG),
+      fetchExpenses: () => fetchExpenses(AUG),
+      fetchProjectIncome: () => fetchProjectIncome('p1'),
+      fetchProjectExpenses: () => fetchProjectExpenses('p1'),
+      fetchMinistryAllocations: () => fetchMinistryAllocations([MIN_A]),
+      createIncome: () => createIncome({ source: 'Diezmos', amountCents: 100 }),
+      insertIncomeBatch: () => insertIncomeBatch([{ source: 'Diezmos', amountCents: 100 }]),
+      updateIncome: () => updateIncome('i1', { note: 'x' }),
+      deleteIncome: () => deleteIncome('i1'),
+      createExpense: () => createExpense({ amountCents: 100 }),
+      insertExpenseBatch: () => insertExpenseBatch([{ amountCents: 100 }]),
+      updateExpense: () => updateExpense('e1', { note: 'x' }),
+      deleteExpense: () => deleteExpense('e1'),
+      deleteExpensesByNote: () => deleteExpensesByNote('auto:payable:p1'),
+    },
   });
 });

@@ -1,12 +1,15 @@
 // S52 — repos/treasury/notes: `fin_notes` (treasury-tab.js:542-559). S22b —
 // the ReadResult / WriteResult contract: a failed read is `{ ok: false }`,
-// never an empty list, and a delete that matched no row is `not_found`.
+// never an empty list, a delete that matched no row is `not_found`, and every
+// call made signed out is `auth`.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as notes from '#lib/repos/treasury/notes.js';
 import { createNote, deleteNote, fetchNotes, updateNote } from '#lib/repos/treasury/index.js';
 
 const ERR = { message: 'boom' };
@@ -81,5 +84,15 @@ describe('repos/treasury/notes', () => {
     mock.results.fin_notes = [{ data: null, error: ERR }];
     expect(await createNote({ body: 'x' })).toEqual(failure('unknown', 'boom'));
     expect(warn).toHaveBeenCalledWith('[treasury] createNote:', 'boom');
+  });
+
+  // RLS: every `fin_*` policy is `to authenticated`.
+  describeSessionGate(notes, '[treasury]', {
+    staffOnly: {
+      fetchNotes: () => fetchNotes(),
+      createNote: () => createNote({ body: 'x' }),
+      updateNote: () => updateNote('n1', { pinned: false }),
+      deleteNote: () => deleteNote('n1'),
+    },
   });
 });

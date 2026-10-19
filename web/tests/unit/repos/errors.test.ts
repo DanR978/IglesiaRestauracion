@@ -62,8 +62,49 @@ describe('repos/errors — toRepoError', () => {
         label: 'storage-js: unknown error wrapping a failed fetch',
         raw: Object.assign(new Error('Failed to fetch'), { name: 'StorageUnknownError' }),
       },
+      {
+        label: 'Chrome: the body read failed (a bare TypeError)',
+        raw: new TypeError('network error'),
+      },
+      {
+        label: 'Chrome: the body read failed, as postgrest-js words it',
+        raw: { message: 'TypeError: network error', code: '' },
+      },
+      {
+        label: 'WebKit: the connection dropped mid-request',
+        raw: new TypeError('The network connection was lost.'),
+      },
+      {
+        label: 'WebKit: the connection dropped, as postgrest-js words it',
+        raw: { message: 'TypeError: The network connection was lost.', code: '' },
+      },
+      {
+        label: 'storage-js: a wrapped fetch TypeError, whatever its wording',
+        raw: Object.assign(new Error('net::ERR_HTTP2_PROTOCOL_ERROR'), {
+          name: 'StorageUnknownError',
+          originalError: new TypeError('net::ERR_HTTP2_PROTOCOL_ERROR'),
+          __isStorageError: true,
+        }),
+      },
     ])('$label', ({ raw, status }) => {
       expect(toRepoError(raw, status).kind).toBe('network');
+    });
+
+    it('"network error" inside a server message that carries a code is not a dropped connection', () => {
+      expect(
+        toRepoError({ message: 'could not log the network error for job 7', code: '42501' }).kind,
+      ).toBe('forbidden');
+      expect(toRepoError({ message: 'upstream network error, retry later' }, 500).kind).toBe(
+        'unknown',
+      );
+    });
+
+    it('a StorageUnknownError wrapping anything but a TypeError is not a network failure', () => {
+      const raw = Object.assign(new Error('Unexpected token < in JSON'), {
+        name: 'StorageUnknownError',
+        originalError: new SyntaxError('Unexpected token < in JSON'),
+      });
+      expect(toRepoError(raw).kind).toBe('unknown');
     });
   });
 
