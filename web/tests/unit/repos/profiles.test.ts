@@ -13,9 +13,7 @@ import { describeSessionGate } from './session-gate';
 import * as profiles from '#lib/repos/profiles.js';
 import {
   AVATAR_MAX_BYTES,
-  STAFF_ROLES,
   fetchOwnProfile,
-  isStaffRole,
   normalizeDisplayName,
   setAvatarUrl,
   setDisplayName,
@@ -44,17 +42,6 @@ describe('repos/profiles', () => {
     warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
   });
   afterEach(() => warn.mockRestore());
-
-  describe('roles', () => {
-    it('knows exactly the three roles profiles_role_check allows', () => {
-      expect(STAFF_ROLES).toEqual(['admin', 'treasurer', 'ministry_leader']);
-      for (const role of STAFF_ROLES) expect(isStaffRole(role)).toBe(true);
-    });
-
-    it.each(['pastor', 'Admin', 'admin ', '', null, undefined, 1, {}])('refuses %j', (role) => {
-      expect(isStaffRole(role)).toBe(false);
-    });
-  });
 
   describe('fetchOwnProfile (auth.js bootApp)', () => {
     it('reads the own row with the ministries embed, by the session user id', async () => {
@@ -274,6 +261,6 @@ describe('repos/profiles', () => {
       uploadAvatar: () => uploadAvatar(TEST_USER_ID, image(10), 'jpg'),
       setAvatarUrl: () => setAvatarUrl(null),
     },
-    notRepoCalls: ['isStaffRole', 'normalizeDisplayName'],
+    notRepoCalls: ['normalizeDisplayName'],
   });
 });

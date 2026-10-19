@@ -5,7 +5,6 @@
 // tests, not comments — each "≠" below is one.
 import { describe, expect, it } from 'vitest';
 import {
-  ROLE_LABELS,
   SURFACES,
   capabilitiesFor,
   visibleSurfacesFor,
@@ -233,15 +232,5 @@ describe('capabilitiesFor', () => {
       expect(capabilitiesFor(profile).has('notifications')).toBe(false);
       expect(keys(profile)).not.toContain('analytics');
     }
-  });
-});
-
-describe('ROLE_LABELS', () => {
-  it('names the three roles in Spanish (legacy account.js ROLE_LABEL)', () => {
-    expect(ROLE_LABELS).toEqual({
-      admin: 'Administrador',
-      treasurer: 'Tesorería',
-      ministry_leader: 'Líder de ministerio',
-    });
   });
 });

@@ -29,19 +29,12 @@
 
 import { supabase } from '#lib/db/client.js';
 import type { Tables } from '#lib/db/database.types.js';
+import { isStaffRole, type StaffRole } from '#lib/roles.js';
 import { fail, invalid, ok } from './errors';
 import { requireSession, requireUserId } from './session';
 import type { ReadResult, WriteResult } from './types';
 
 const TAG = '[profiles]';
-
-/** The base roles the `profiles_role_check` constraint allows. */
-export const STAFF_ROLES = ['admin', 'treasurer', 'ministry_leader'] as const;
-export type StaffRole = (typeof STAFF_ROLES)[number];
-
-export function isStaffRole(value: unknown): value is StaffRole {
-  return typeof value === 'string' && (STAFF_ROLES as readonly string[]).includes(value);
-}
 
 export type ProfileRow = Tables<'profiles'>;
 export type ProfileMinistry = Pick<Tables<'ministries'>, 'name' | 'color'>;
@@ -52,7 +45,7 @@ export type ProfileMinistry = Pick<Tables<'ministries'>, 'name' | 'color'>;
  * only); `ministry_ids` lists every ministry a leader leads.
  */
 export type OwnProfile = Omit<ProfileRow, 'role'> & {
-  /** null when the stored role is not one of STAFF_ROLES. */
+  /** null when the stored role is not one of STAFF_ROLES (#lib/roles.js). */
   role: StaffRole | null;
   ministries: ProfileMinistry | null;
 };

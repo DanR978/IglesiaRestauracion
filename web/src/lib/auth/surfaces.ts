@@ -33,7 +33,7 @@
  *   if (capabilitiesFor(profile).has('church-books')) showBooksTile();
  * ========================================================================== */
 
-import { isStaffRole, type StaffRole } from '#lib/repos/profiles.js';
+import { isStaffRole, type StaffRole } from '#lib/roles.js';
 import { ROUTES } from './routes';
 
 export type SurfaceKey =
@@ -187,10 +187,3 @@ export function capabilitiesFor(
   if (profile.role === 'treasurer') return new Set(['church-books']);
   return new Set();
 }
-
-/** The role as the sidebar footer shows it (legacy account.js ROLE_LABEL). */
-export const ROLE_LABELS: Readonly<Record<StaffRole, string>> = {
-  admin: 'Administrador',
-  treasurer: 'Tesorería',
-  ministry_leader: 'Líder de ministerio',
-};

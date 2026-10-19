@@ -21,13 +21,13 @@
  * ========================================================================== */
 
 import {
-  ROLE_LABELS,
   capabilitiesFor,
   visibleSurfacesFor,
   type Capability,
   type Surface,
   type SurfaceKey,
 } from '#lib/auth/surfaces.js';
+import { ROLE_LABELS } from '#lib/roles.js';
 import { session } from '#lib/stores/session.svelte.js';
 
 const profile = $derived(session.status === 'ready' ? session.profile : null);

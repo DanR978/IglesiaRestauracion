@@ -27,7 +27,7 @@
  * ========================================================================== */
 
 import type { RepoError } from '#lib/repos/types.js';
-import { isStaffRole } from '#lib/repos/profiles.js';
+import { isStaffRole } from '#lib/roles.js';
 import type { AccessProfile } from './surfaces';
 
 export type AccessState =

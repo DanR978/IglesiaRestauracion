@@ -39,6 +39,8 @@
  *   <Badge tint={ministry.color} label={ministry.name} />
  * ========================================================================== */
 
+import { ROLE_LABELS, STAFF_ROLES, isStaffRole, type StaffRole } from '#lib/roles.js';
+
 export type BadgeTone = 'neutral' | 'info' | 'success' | 'warn' | 'danger';
 
 export const BADGE_TONES: readonly BadgeTone[] = ['neutral', 'info', 'success', 'warn', 'danger'];
@@ -52,20 +54,20 @@ export const BADGE_TONE_ICONS: Readonly<Record<BadgeTone, string>> = {
   danger: 'circle-xmark',
 };
 
-/** The staff roles `profiles.role` allows (baseline CHECK constraint). */
-export type BadgeRole = 'admin' | 'treasurer' | 'ministry_leader';
+/** The staff roles `profiles.role` allows — one list for the whole app (#lib/roles.js). */
+export type BadgeRole = StaffRole;
 
-export const BADGE_ROLES: readonly BadgeRole[] = ['admin', 'treasurer', 'ministry_leader'];
+export const BADGE_ROLES: readonly BadgeRole[] = STAFF_ROLES;
 
-/** Spanish label + glyph per role — the account and users screens read the same words. */
+/** Spanish label (the shared ROLE_LABELS) + glyph per role. */
 export const ROLE_BADGES: Readonly<Record<BadgeRole, { label: string; icon: string }>> = {
-  admin: { label: 'Administrador', icon: 'user-shield' },
-  treasurer: { label: 'Tesorería', icon: 'coins' },
-  ministry_leader: { label: 'Líder de ministerio', icon: 'people-group' },
+  admin: { label: ROLE_LABELS.admin, icon: 'user-shield' },
+  treasurer: { label: ROLE_LABELS.treasurer, icon: 'coins' },
+  ministry_leader: { label: ROLE_LABELS.ministry_leader, icon: 'people-group' },
 };
 
 export function isBadgeRole(value: unknown): value is BadgeRole {
-  return typeof value === 'string' && (BADGE_ROLES as readonly string[]).includes(value);
+  return isStaffRole(value);
 }
 
 /** The class modifier for a role (`ministry_leader` → `ministry-leader`). */
