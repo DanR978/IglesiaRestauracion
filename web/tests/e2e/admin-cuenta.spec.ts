@@ -13,10 +13,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page, type Route } from '@playwright/test';
 import { gotoWithTheme } from './helpers/theme';
+import { STORAGE_KEY, supabasePath } from './helpers/supabase';
 
 /** The build's Supabase URL (web/.env locally, the CI env in CI): its first host label names the session key. */
-const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321';
-const STORAGE_KEY = `sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`;
 const CDN_ORIGIN = 'https://cdnjs.cloudflare.com';
 
 const USER_ID = '6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b';
@@ -136,10 +135,11 @@ async function mockBackend(page: Page, baseURL: string): Promise<Backend> {
   const backend: Backend = { refused: [], logouts: [] };
   const preview = new URL(baseURL).origin;
   await page.route(
-    (url) => url.origin !== preview && url.origin !== CDN_ORIGIN,
+    (url) => supabasePath(url) !== null || (url.origin !== preview && url.origin !== CDN_ORIGIN),
     async (route: Route) => {
       const request = route.request();
       const url = new URL(request.url());
+      const path = supabasePath(url);
       const json = (status: number, body: unknown, headers: Record<string, string> = {}) =>
         route.fulfill({
           status,
@@ -157,16 +157,16 @@ async function mockBackend(page: Page, baseURL: string): Promise<Backend> {
           },
         });
       }
-      if (url.pathname === '/rest/v1/profiles') {
+      if (path === '/rest/v1/profiles') {
         const single = (request.headers()['accept'] ?? '').includes('vnd.pgrst.object');
         return json(200, single ? PROFILE : [PROFILE]);
       }
-      if (url.pathname === '/auth/v1/user') return json(200, USER);
-      if (url.pathname === '/auth/v1/logout') {
+      if (path === '/auth/v1/user') return json(200, USER);
+      if (path === '/auth/v1/logout') {
         backend.logouts.push(url.searchParams.get('scope') ?? 'global');
         return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*' } });
       }
-      if (url.pathname.startsWith('/rest/v1/') && request.method() === 'GET') {
+      if (path?.startsWith('/rest/v1/') && request.method() === 'GET') {
         return json(200, [], { 'content-range': '*/0' });
       }
       backend.refused.push(`${request.method()} ${url.origin}${url.pathname}`);

@@ -13,12 +13,12 @@
  *   await seedSession(page, { userId: USER_ID, theme: 'dark' });
  * ========================================================================== */
 import type { Page } from '@playwright/test';
+import { STORAGE_KEY, SUPABASE_URL } from './supabase';
 
-/** What the e2e build points at (CI: ci.yml; locally: web/.env). Never contacted. */
-export const SUPABASE = new URL(process.env.PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321');
+/** What the e2e build points at (playwright.config.ts): same-origin, answered by mocks. */
+export const SUPABASE = new URL(SUPABASE_URL);
 
-/** supabase-js's default storage key for that URL. */
-export const STORAGE_KEY = `sb-${SUPABASE.hostname.split('.')[0]}-auth-token`;
+export { STORAGE_KEY };
 
 export const ADMIN_THEME_KEY = 'ird.app.admin.theme';
 

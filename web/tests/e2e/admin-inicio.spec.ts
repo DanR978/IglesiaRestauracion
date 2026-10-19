@@ -10,7 +10,8 @@
 // through Content-Range), anything else is aborted and recorded.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { SUPABASE, seedSession } from './helpers/admin-session';
+import { seedSession } from './helpers/admin-session';
+import { supabasePath } from './helpers/supabase';
 
 const CDN_ORIGIN = 'https://cdnjs.cloudflare.com';
 const USER_ID = '6f1c1d2e-3b4a-4c5d-8e9f-0a1b2c3d4e5f';
@@ -104,17 +105,18 @@ async function fakeBackend(
   const preview = new URL(baseURL ?? 'http://localhost').origin;
   const backend: Backend = { answered: [], refused: [] };
   await page.route(
-    (url) => url.origin !== preview && url.origin !== CDN_ORIGIN,
+    (url) => supabasePath(url) !== null || (url.origin !== preview && url.origin !== CDN_ORIGIN),
     async (route) => {
       const request = route.request();
       const url = new URL(request.url());
-      const call = `${request.method()} ${url.pathname}`;
-      if (url.origin !== SUPABASE.origin) {
+      const path = supabasePath(url);
+      const call = `${request.method()} ${path ?? url.pathname}`;
+      if (path === null) {
         backend.refused.push(`${call} @ ${url.origin}`);
         return route.abort();
       }
       backend.answered.push(call);
-      const table = url.pathname.replace('/rest/v1/', '');
+      const table = path.replace('/rest/v1/', '');
       if (failing.has(table)) {
         return route.fulfill({
           status: 500,

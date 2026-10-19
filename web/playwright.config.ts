@@ -33,13 +33,12 @@
  *                                            # refuses the Fetch "bad ports" (e.g. 4190)
  * ========================================================================== */
 import { defineConfig, devices } from '@playwright/test';
+import { E2E_ORIGIN, E2E_PORT, SUPABASE_URL } from './tests/e2e/helpers/supabase';
 
 const PERF_SPEC = /perf\.spec\.ts$/;
-// Two worktrees can run the suite at once on different ports.
-const PORT = Number(process.env.E2E_PORT) || 4173;
-const ORIGIN = `http://localhost:${PORT}`;
-/** helpers/supabase.ts SUPABASE_PATH — keep the two in step. */
-const SUPABASE_PATH = '/__supabase';
+// Two worktrees can run the suite at once on different ports (E2E_PORT).
+const PORT = E2E_PORT;
+const ORIGIN = E2E_ORIGIN;
 
 export default defineConfig({
   testDir: 'tests/e2e',
@@ -57,7 +56,7 @@ export default defineConfig({
     reuseExistingServer: false,
     timeout: 180_000,
     // Merged over process.env: the anon key still comes from web/.env or CI.
-    env: { PUBLIC_SUPABASE_URL: `${ORIGIN}${SUPABASE_PATH}` },
+    env: { PUBLIC_SUPABASE_URL: SUPABASE_URL },
   },
   use: { baseURL: ORIGIN, trace: 'retain-on-failure' },
   projects: [

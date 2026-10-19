@@ -13,13 +13,8 @@
 // the level from the token, with no network call).
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page, type Request } from '@playwright/test';
-import { SUPABASE_PATH } from './helpers/supabase';
+import { STORAGE_KEY, SUPABASE_PATH } from './helpers/supabase';
 
-/**
- * supabase-js's default storage key, `sb-<first label of the Supabase host>-auth-token`
- * — the session the legacy /admin shares (D-040). The e2e build's host is localhost.
- */
-const STORAGE_KEY = 'sb-localhost-auth-token';
 const CDN_ORIGIN = 'https://cdnjs.cloudflare.com';
 const ADMIN_THEME_KEY = 'ird.app.admin.theme';
 

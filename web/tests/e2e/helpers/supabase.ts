@@ -21,8 +21,25 @@
  * ========================================================================== */
 import type { Page, Request } from '@playwright/test';
 
-/** playwright.config.ts SUPABASE_PATH — keep the two in step. */
+/** Where the e2e build's Supabase lives: on the preview's own origin, answered only by mocks. */
 export const SUPABASE_PATH = '/__supabase';
+
+/** The preview playwright.config.ts builds and serves (E2E_PORT lets two worktrees run at once). */
+export const E2E_PORT = Number(process.env.E2E_PORT) || 4173;
+export const E2E_ORIGIN = `http://localhost:${E2E_PORT}`;
+
+/** The e2e build's PUBLIC_SUPABASE_URL (playwright.config.ts passes it to the build). */
+export const SUPABASE_URL = `${E2E_ORIGIN}${SUPABASE_PATH}`;
+
+/** supabase-js's default storage key for that URL: `sb-<first host label>-auth-token`. */
+export const STORAGE_KEY = `sb-${new URL(SUPABASE_URL).hostname.split('.')[0]}-auth-token`;
+
+/** The API path of a call to the mocked Supabase (`/rest/v1/…`), or null for any other URL. */
+export function supabasePath(url: URL): string | null {
+  return url.pathname.startsWith(`${SUPABASE_PATH}/`)
+    ? url.pathname.slice(SUPABASE_PATH.length)
+    : null;
+}
 
 /** auth-js reads `code` from an error body only with this response header. */
 const API_VERSION = { 'x-supabase-api-version': '2024-01-01' };
