@@ -77,6 +77,21 @@ function storedSession(): object {
   };
 }
 
+/** Inicio's reads for PROFILE (an Administrador without system tabs): its tiles' counts… */
+const INICIO_COUNTS = new Set([
+  '/rest/v1/calendar_events',
+  '/rest/v1/events',
+  '/rest/v1/discipleship_interests',
+  '/rest/v1/gallery_albums',
+]);
+/** …and the next events and the church books behind the Balance tile. */
+const INICIO_LISTS = new Set([
+  '/rest/v1/calendar_events',
+  '/rest/v1/fin_income',
+  '/rest/v1/fin_expenses',
+  '/rest/v1/fin_payables',
+]);
+
 interface Backend {
   /** Requests answered from the mock, as "METHOD /path". */
   readonly answered: string[];
@@ -105,6 +120,21 @@ async function fakeBackend(page: Page, baseURL: string | undefined): Promise<Bac
       if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204 });
       if (url.pathname === '/auth/v1/settings') {
         return route.fulfill({ status: 200, json: { external: {} } });
+      }
+      // Inicio (S41), the page the shell opens on, reads its own cards: head
+      // counts (the total travels in Content-Range) and lists — all empty here.
+      if (request.method() === 'HEAD' && INICIO_COUNTS.has(url.pathname)) {
+        return route.fulfill({
+          status: 200,
+          headers: {
+            'content-range': '*/0',
+            'access-control-allow-origin': '*',
+            'access-control-expose-headers': 'Content-Range',
+          },
+        });
+      }
+      if (request.method() === 'GET' && INICIO_LISTS.has(url.pathname)) {
+        return route.fulfill({ status: 200, json: [] });
       }
       return route.fulfill({ status: 404, json: { message: 'not mocked' } });
     },
@@ -233,10 +263,17 @@ test.describe('signed in — desktop', () => {
 
     expect(await scrollsSideways(page)).toBe(false);
     expect(backend.refused).toEqual([]);
-    // Only the profile is read (twice in WebKit, where supabase-js reports the
-    // restored session while the store's first read is still running).
+    // The shell reads only the profile (twice in WebKit, where supabase-js
+    // reports the restored session while the store's first read is still
+    // running); everything else is Inicio's own cards (S41).
     expect(backend.answered.length).toBeGreaterThan(0);
-    expect(new Set(backend.answered)).toEqual(new Set(['GET /rest/v1/profiles']));
+    expect(new Set(backend.answered)).toEqual(
+      new Set([
+        'GET /rest/v1/profiles',
+        ...[...INICIO_COUNTS].map((path) => `HEAD ${path}`),
+        ...[...INICIO_LISTS].map((path) => `GET ${path}`),
+      ]),
+    );
     expect(errors).toEqual([]);
   });
 
