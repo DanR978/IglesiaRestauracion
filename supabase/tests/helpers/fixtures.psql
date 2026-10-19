@@ -1,0 +1,176 @@
+-- ============================================================================
+-- supabase/tests/helpers/fixtures.psql — shared fixtures for the pgTAP suite
+-- ============================================================================
+-- Synthetic accounts (no real people, no PII) and one or two rows per table,
+-- inserted as postgres inside the including test's transaction, which rolls
+-- back at the end. Not a test itself: pg_prove only runs *.sql / *.pg files.
+--
+-- Usage (first lines of a test file):
+--   begin;
+--   \ir helpers/fixtures.psql
+--   select plan(n);
+--   :as_dev_aal2            -- act as the developer in an aal2 session
+--   …
+--   :as_postgres            -- back to the owner, no JWT
+--
+-- Identity macros (each expands to SET LOCAL role + request.jwt.claims):
+--   :as_<who>_aal1 / :as_<who>_aal2   who = dev | adm | tre | lea | med | non | pen
+--   :as_anon   :as_service   :as_postgres
+-- pg_temp.gotrue_delete_user(uuid) deletes an account the way GoTrue does;
+-- :gotrue_role says whether it runs as supabase_auth_admin.
+-- Accounts:
+--   dev  Desarrollador  admin + {ministries,users,activity,settings}
+--   adm  Administrador  admin + {}
+--   tre  Tesorería      treasurer
+--   lea  leader with every operational tab, leads ministry M1
+--   med  Medios         ministry_leader + {upcoming,calendario,special-events,galeria}
+--   non  leader with no tabs
+--   pen  a pending invitation (unconfirmed) carrying the developer grant
+-- ============================================================================
+
+\set dev_id 'a0000000-0000-4000-8000-000000000001'
+\set adm_id 'a0000000-0000-4000-8000-000000000002'
+\set tre_id 'a0000000-0000-4000-8000-000000000003'
+\set lea_id 'a0000000-0000-4000-8000-000000000004'
+\set med_id 'a0000000-0000-4000-8000-000000000005'
+\set non_id 'a0000000-0000-4000-8000-000000000006'
+\set pen_id 'a0000000-0000-4000-8000-000000000007'
+\set m1_id  'b0000000-0000-4000-8000-000000000001'
+\set m2_id  'b0000000-0000-4000-8000-000000000002'
+
+\set as_postgres 'reset role; set local request.jwt.claims = '''';'
+\set as_anon     'set local role anon; set local request.jwt.claims = ''{"role":"anon"}'';'
+\set as_service  'set local role service_role; set local request.jwt.claims = ''{"role":"service_role"}'';'
+
+\set as_dev_aal1 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1"}'';'
+\set as_dev_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}'';'
+\set as_adm_aal1 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}'';'
+\set as_adm_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}'';'
+\set as_tre_aal1 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000003","role":"authenticated","aal":"aal1"}'';'
+\set as_tre_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000003","role":"authenticated","aal":"aal2"}'';'
+\set as_lea_aal1 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal1"}'';'
+\set as_lea_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000004","role":"authenticated","aal":"aal2"}'';'
+\set as_med_aal1 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000005","role":"authenticated","aal":"aal1"}'';'
+\set as_med_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000005","role":"authenticated","aal":"aal2"}'';'
+\set as_non_aal1 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000006","role":"authenticated","aal":"aal1"}'';'
+\set as_non_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000006","role":"authenticated","aal":"aal2"}'';'
+\set as_pen_aal2 'set local role authenticated; set local request.jwt.claims = ''{"sub":"a0000000-0000-4000-8000-000000000007","role":"authenticated","aal":"aal2"}'';'
+
+-- GoTrue's admin delete as GoTrue runs it: unqualified `users`, under its role
+-- and that role's search_path (auth). The profile goes with it through
+-- profiles_id_fkey ON DELETE CASCADE, inside the same transaction. Taking the
+-- role needs `grant supabase_auth_admin to postgres with set true` (db.yml does
+-- it on the CI stack); without it the delete runs as postgres, same search_path.
+select pg_has_role('supabase_auth_admin', 'SET') as gotrue_role \gset
+\if :gotrue_role
+create function pg_temp.gotrue_delete_user(p_id uuid) returns void
+language plpgsql set role = supabase_auth_admin set search_path = auth as $$
+begin
+  delete from users where id = p_id;
+end $$;
+\else
+create function pg_temp.gotrue_delete_user(p_id uuid) returns void
+language plpgsql set search_path = auth as $$
+begin
+  delete from users where id = p_id;
+end $$;
+\endif
+
+-- ── Accounts ────────────────────────────────────────────────────────────────
+insert into auth.users (instance_id, id, aud, role, email, email_confirmed_at, created_at, updated_at,
+                        raw_app_meta_data, raw_user_meta_data)
+values
+  ('00000000-0000-0000-0000-000000000000', :'dev_id', 'authenticated', 'authenticated', 'dev@fixture.test', now(), now(), now(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', :'adm_id', 'authenticated', 'authenticated', 'adm@fixture.test', now(), now(), now(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', :'tre_id', 'authenticated', 'authenticated', 'tre@fixture.test', now(), now(), now(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', :'lea_id', 'authenticated', 'authenticated', 'lea@fixture.test', now(), now(), now(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', :'med_id', 'authenticated', 'authenticated', 'med@fixture.test', now(), now(), now(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', :'non_id', 'authenticated', 'authenticated', 'non@fixture.test', now(), now(), now(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', :'pen_id', 'authenticated', 'authenticated', 'pen@fixture.test', null,  now(), now(), '{}', '{}');
+
+insert into public.ministries (id, name) values
+  (:'m1_id', 'Fixture Uno'),
+  (:'m2_id', 'Fixture Dos');
+
+insert into public.profiles (id, display_name, role, allowed_tabs, ministry_ids, ministry_id) values
+  (:'dev_id', 'Fixture Dev',     'admin',           '{ministries,users,activity,settings}', '{}', null),
+  (:'adm_id', 'Fixture Admin',   'admin',           '{}', '{}', null),
+  (:'tre_id', 'Fixture Teso',    'treasurer',       '{}', '{}', null),
+  (:'lea_id', 'Fixture Lider',   'ministry_leader', '{upcoming,calendario,special-events,galeria,discipulado,treasury}',
+                                                    array[:'m1_id']::uuid[], :'m1_id'),
+  (:'med_id', 'Fixture Medios',  'ministry_leader', '{upcoming,calendario,special-events,galeria}', '{}', null),
+  (:'non_id', 'Fixture Sin',     'ministry_leader', '{}', '{}', null),
+  (:'pen_id', 'Fixture Pend',    'admin',           '{ministries,users,activity,settings}', '{}', null);
+
+insert into public.admins (user_id) values (:'dev_id');
+
+-- ── Public content ──────────────────────────────────────────────────────────
+insert into public.events (id, title, starts_at, ministry_id) values
+  ('c0000000-0000-4000-8000-000000000001', 'Fixture evento', now() + interval '7 days', :'m1_id');
+insert into public.calendar_events (id, title, date, ministry_id) values
+  ('c0000000-0000-4000-8000-000000000002', 'Fixture culto', current_date + 7, :'m1_id');
+insert into public.special_events (id, title, slug, registration_open, event_at) values
+  ('c0000000-0000-4000-8000-000000000003', 'Fixture abierto', 'fixture-abierto', true,  now() + interval '30 days'),
+  ('c0000000-0000-4000-8000-000000000004', 'Fixture cerrado', 'fixture-cerrado', false, now() + interval '30 days');
+insert into public.discipleship_groups (id, slug, name, level, status, is_published) values
+  ('c0000000-0000-4000-8000-000000000005', 'fixture-publico', 'Fixture público', 1, 'open', true),
+  ('c0000000-0000-4000-8000-000000000006', 'fixture-oculto',  'Fixture oculto',  1, 'open', false);
+insert into public.gallery_albums (id, slug, title, year, is_published) values
+  ('c0000000-0000-4000-8000-000000000007', 'fixture-publico', 'Fixture público', 2026, true),
+  ('c0000000-0000-4000-8000-000000000008', 'fixture-oculto',  'Fixture oculto',  2026, false);
+insert into public.gallery_photos (id, album_id, storage_path, public_url) values
+  ('c0000000-0000-4000-8000-000000000009', 'c0000000-0000-4000-8000-000000000007', 'fixture/a.jpg', 'https://fixture.test/a.jpg'),
+  ('c0000000-0000-4000-8000-000000000010', 'c0000000-0000-4000-8000-000000000008', 'fixture/b.jpg', 'https://fixture.test/b.jpg');
+insert into public.app_settings (key, value) values
+  ('features', '{"maintenance": false, "pause_invites": false}'),
+  ('church',   '{"name": "Fixture"}')
+on conflict (key) do update set value = excluded.value;
+
+-- ── Sign-ups and staff data ─────────────────────────────────────────────────
+insert into public.event_registrations (id, event_id, first_name, last_name, age, contact_name, relationship, contact_phone) values
+  ('c0000000-0000-4000-8000-000000000011', 'c0000000-0000-4000-8000-000000000003', 'Ana', 'Fixture', 9, 'Madre Fixture', 'madre', '5550000000');
+insert into public.discipleship_interests (id, full_name) values
+  ('c0000000-0000-4000-8000-000000000012', 'Fixture Interesado');
+insert into public.discipleship_members (id, group_id, full_name) values
+  ('c0000000-0000-4000-8000-000000000013', 'c0000000-0000-4000-8000-000000000005', 'Fixture Miembro');
+insert into public.discipleship_messages (id, group_id, body) values
+  ('c0000000-0000-4000-8000-000000000014', 'c0000000-0000-4000-8000-000000000005', 'Fixture mensaje');
+insert into public.calendar_presets (id, name, pattern_type, day_of_week) values
+  ('c0000000-0000-4000-8000-000000000015', 'Fixture plantilla', 'weekly', 0);
+insert into public.invitations (id, email, role) values
+  ('c0000000-0000-4000-8000-000000000016', 'invitado@fixture.test', 'ministry_leader');
+insert into public.newsletter_subscribers (id, email) values
+  ('c0000000-0000-4000-8000-000000000017', 'lector@fixture.test');
+insert into public.newsletter_dispatch_log (kind, ref) values ('monthly', 'fixture');
+
+insert into public.fin_funds (id, name) values ('c0000000-0000-4000-8000-000000000018', 'Fixture fondo');
+insert into public.fin_income_categories (id, name) values ('c0000000-0000-4000-8000-000000000019', 'Fixture ingreso');
+insert into public.fin_expense_categories (id, name) values ('c0000000-0000-4000-8000-000000000020', 'Fixture gasto');
+insert into public.fin_income (id, source, amount) values ('c0000000-0000-4000-8000-000000000021', 'Ofrenda', 100);
+-- A church expense allocated to M1: the budget the M1 leader reads.
+insert into public.fin_expenses (id, amount, ministry_id) values ('c0000000-0000-4000-8000-000000000022', 50, :'m1_id');
+insert into public.fin_payables (id, creditor, amount) values ('c0000000-0000-4000-8000-000000000023', 'Fixture acreedor', 10);
+insert into public.fin_recurring (id, payee, amount, ministry_id) values ('c0000000-0000-4000-8000-000000000024', 'Fixture pago', 20, :'m1_id');
+insert into public.fin_notes (id, body) values ('c0000000-0000-4000-8000-000000000025', 'Fixture nota');
+insert into public.fin_projects (id, owner_id, name, ministry_id) values
+  ('c0000000-0000-4000-8000-000000000026', :'lea_id', 'Fixture personal', null),
+  ('c0000000-0000-4000-8000-000000000027', :'lea_id', 'Fixture ministerio', :'m1_id');
+insert into public.fin_receipts (id, scope, year, month, storage_path, thumb_path) values
+  ('c0000000-0000-4000-8000-000000000028', 'church', 2026, 1,
+   'church/2026/c0000000-0000-4000-8000-000000000028.webp', 'church/2026/c0000000-0000-4000-8000-000000000028-thumb.webp');
+
+insert into public.designs (id, title, width, height, created_by) values
+  ('c0000000-0000-4000-8000-000000000029', 'Fixture diseño', 1080, 1080, :'med_id');
+insert into public.design_shares (design_id, user_id, added_by) values
+  ('c0000000-0000-4000-8000-000000000029', :'lea_id', :'med_id');
+
+insert into public.analytics_events (id, kind, visitor_hash, path) values
+  ('c0000000-0000-4000-8000-000000000030', 'pageview', 'fixture', '/');
+insert into public.analytics_salts (day, salt) values (current_date, 'fixture')
+on conflict (day) do nothing;
+
+-- Buckets that exist in production but are not created by any migration.
+insert into storage.buckets (id, name, public) values
+  ('gallery', 'gallery', true),
+  ('event-images', 'event-images', true)
+on conflict (id) do nothing;
