@@ -21,10 +21,11 @@
       referrerpolicy="no-referrer"
     />
     <!-- No-FOUC theme boot (S11, D-017): applies a forced light/dark choice before
-         first paint. Must stay byte-identical to THEME_BOOT_SCRIPT in
+         first paint — the admin's own key on a /admin/ path, the public one
+         elsewhere (D-038). Must stay byte-identical to THEME_BOOT_SCRIPT in
          src/lib/theme.svelte.ts — tests/unit/theme.test.ts enforces it. -->
     <!-- prettier-ignore -->
-    <script>try{var t=localStorage.getItem('ird.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
+    <script>try{var t=localStorage.getItem((location.pathname+'/').indexOf('/admin/')>-1?'ird.app.admin.theme':'ird.theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
     %sveltekit.head%
   </head>
   <body data-sveltekit-preload-data="hover">

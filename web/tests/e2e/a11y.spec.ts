@@ -4,14 +4,16 @@
 // report.
 //
 // The theme is forced through the app's own boot path — localStorage
-// `ird.theme` (D-022), read by the inline script in app.html — so the scan
-// sees the palette a visitor who picked it gets. Reduced motion is emulated
+// `ird.theme` (D-022) and, for admin routes, `ird.app.admin.theme` (D-038),
+// read by the inline script in app.html — so the scan sees the palette a
+// visitor who picked it gets. Reduced motion is emulated
 // so scroll reveals render settled and visible: axe skips `opacity: 0`
 // content and would mis-measure contrast mid-transition.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { watchOffOriginRequests } from './helpers/network';
 import { prerenderedRoutes } from './helpers/routes';
+import { THEME_STORAGE_KEYS } from './helpers/theme';
 
 // axe-core's own result types, reached through the one package we depend on.
 type Violation = Awaited<ReturnType<AxeBuilder['analyze']>>['violations'][number];
@@ -94,13 +96,16 @@ test('axe — the build prerendered pages to scan', () => {
 for (const theme of THEMES) {
   test.describe(`axe — ${theme}`, () => {
     test.beforeEach(async ({ page }) => {
-      await page.addInitScript((value) => {
-        try {
-          localStorage.setItem('ird.theme', value);
-        } catch {
-          // Storage refused: the data-theme assertion below fails loudly instead.
-        }
-      }, theme);
+      await page.addInitScript(
+        ({ keys, value }) => {
+          try {
+            for (const key of keys) localStorage.setItem(key, value);
+          } catch {
+            // Storage refused: the data-theme assertion below fails loudly instead.
+          }
+        },
+        { keys: THEME_STORAGE_KEYS, value: theme },
+      );
       await page.emulateMedia({ reducedMotion: 'reduce' });
     });
 

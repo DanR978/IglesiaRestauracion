@@ -1,7 +1,8 @@
 // S11 — real-browser proof of the ROADMAP "done when": var(--fs-lg) resolves,
 // light/dark/system flips the palette, and a forced theme paints BEFORE the app
 // bundle runs (no reload flash). Runs against `vite preview` (playwright.config).
-// PR-C2 (D-038): the accent TEXT role is lifted for dark on both surfaces.
+// PR-C2 (D-038): the accent TEXT role is lifted for dark on both surfaces, and
+// the admin's own theme key never paints a public page.
 import { expect, test, type Page } from '@playwright/test';
 
 const KIT = '/kit/tokens/';
@@ -63,6 +64,21 @@ test.describe('kit/tokens — light OS', () => {
     await context.unroute('**/_app/**/*.js');
     await page.reload();
     await expect(page.locator('.theme__btn.is-active')).toHaveText('Oscuro');
+  });
+
+  test("the admin's stored theme never paints a public page (D-038)", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem('ird.app.admin.theme', 'dark'));
+    await page.goto(KIT);
+    expect(await themeAttr(page)).toBeNull();
+    expect(await bodyBg(page)).toBe(WHITE);
+    // …nor after hydration, when the root layout re-reads the preferences.
+    await expect(page.locator('.theme__btn.is-active')).toHaveText('Sistema');
+    expect(await themeAttr(page)).toBeNull();
+
+    // The public control writes the public key only.
+    await page.getByRole('button', { name: 'Claro' }).click();
+    expect(await page.evaluate(() => localStorage.getItem('ird.theme'))).toBe('light');
+    expect(await page.evaluate(() => localStorage.getItem('ird.app.admin.theme'))).toBe('dark');
   });
 
   test('[data-surface="admin"] neutralises the brand accents to slate', async ({ page }) => {
