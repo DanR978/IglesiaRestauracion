@@ -6,6 +6,7 @@
 // dark in both themes. Runs against `vite preview` (playwright.config);
 // CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
+import { focusesClickedButtons } from './helpers/click-focus';
 
 const KIT = '/kit/lightbox/';
 
@@ -43,12 +44,16 @@ test.describe('kit/lightbox', () => {
     expect(errors).toEqual([]);
   });
 
-  test('returns focus to the tile that opened it', async ({ page, browserName }) => {
-    // G-038 / X-1: Safari does not focus a clicked <button>, so the viewer
-    // records <main>/<body> as its opener and focus never returns to the
-    // tile. Removed when focus-trap.ts records the opener — PR-C2 does that;
-    // this then fails as "passed unexpectedly".
-    test.fail(browserName === 'webkit', 'G-038 / X-1: focus does not return to a clicked opener');
+  test('returns focus to the tile that opened it', async ({ page }) => {
+    // G-038 / X-1: an engine that doesn't focus a clicked <button> (Safari;
+    // Playwright's WebKit on Windows and macOS) makes the viewer record
+    // <main>/<body> as its opener, and focus never returns to the tile.
+    // Removed when focus-trap.ts records the opener — PR-C2 does that; this
+    // then fails as "passed unexpectedly".
+    test.fail(
+      !(await focusesClickedButtons(page)),
+      'G-038 / X-1: focus does not return to a clicked opener',
+    );
     await page.goto(KIT);
     await openFromTile(page, 0);
 
