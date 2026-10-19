@@ -4,7 +4,7 @@
 // filename (the cross-origin `download` fix), share falls back to the
 // clipboard, there is no horizontal scroll at 360px, and the surface stays
 // dark in both themes. Runs against `vite preview` (playwright.config);
-// not part of the CI gate.
+// CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const KIT = '/kit/lightbox/';

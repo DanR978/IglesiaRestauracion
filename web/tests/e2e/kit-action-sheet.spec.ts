@@ -2,7 +2,7 @@
 // anchors to its trigger and repositions on scroll/resize/viewport edges, ≤640px
 // becomes a bottom sheet, and the menu is a keyboard-navigable role=menu that
 // Escape closes with focus back on the trigger. Runs against `vite preview`
-// (playwright.config); not part of the CI gate.
+// (playwright.config); CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const KIT = '/kit/action-sheet/';

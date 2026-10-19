@@ -1,8 +1,9 @@
 // S14 — /kit/card/ in a real browser: one radius and one shadow, the false
 // affordance made structural (only interactive cards get a pointer), the KPI
 // type steps resolved from the fluid scale, the pure-CSS grid, 360px and dark.
-// Not part of the CI gate — run with `npm run test:e2e`.
+// CI job `e2e` runs it (S05b); locally `npm run test:e2e`.
 import { expect, test } from '@playwright/test';
+import { gotoWithTheme } from './helpers/theme';
 
 test.describe('/kit/card/', () => {
   test('one radius, one surface, no console error', async ({ page }) => {
@@ -79,8 +80,7 @@ test.describe('/kit/card/', () => {
   });
 
   test('forced dark flips the surface and keeps the border subtle', async ({ page }) => {
-    await page.goto('/kit/card/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+    await gotoWithTheme(page, '/kit/card/', 'dark');
     const card = page.locator('.ird-card').first();
     await expect(card).toHaveCSS('background-color', 'rgb(26, 38, 42)');
     await expect(card).toHaveCSS('border-top-color', 'rgba(127, 127, 127, 0.18)');
