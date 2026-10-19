@@ -215,6 +215,20 @@ describe('Modal — focus', () => {
     expect(document.activeElement).toBe(trigger);
   });
 
+  it('returns focus to a trigger a click left unfocused, as Safari does (G-038)', async () => {
+    const { getByTestId } = render(ModalHarness, { props: { open: false } });
+    const trigger = getByTestId('trigger');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // Safari: the press happens, the button never takes focus.
+    await fireEvent.pointerDown(trigger);
+    await fireEvent.click(trigger);
+    expect(document.activeElement).toBe(dialogOf());
+
+    await press('Escape');
+    expect(document.activeElement).toBe(trigger);
+  });
+
   it('honours initialFocus, resolved inside this dialog only', async () => {
     const { getByTestId } = render(ModalHarness, {
       props: { open: true, initialFocus: '[data-testid="footer-save"]' },

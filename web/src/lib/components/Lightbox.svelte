@@ -17,6 +17,7 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import Icon from './Icon.svelte';
+  import { returnFocusTarget } from '#lib/focus-trap.js';
   import { lockBodyScroll } from '#lib/scroll-lock.js';
   import {
     lightbox,
@@ -51,7 +52,8 @@
   $effect(() => {
     if (!lightbox.isOpen) return;
     const release = lockBodyScroll();
-    const restoreTo = document.activeElement as HTMLElement | null;
+    // The tile that was tapped, even in Safari, which leaves it unfocused (G-038).
+    const restoreTo = returnFocusTarget();
 
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Tab') {

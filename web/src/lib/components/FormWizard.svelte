@@ -34,6 +34,7 @@
 -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
+  import { returnFocusTarget } from '#lib/focus-trap.js';
   import { lockBodyScroll } from '#lib/scroll-lock.js';
   import Icon from './Icon.svelte';
   import {
@@ -123,7 +124,8 @@
   $effect(() => {
     if (!open) return;
     const release = lockBodyScroll();
-    const restoreTo = document.activeElement as HTMLElement | null;
+    // Not document.activeElement: after a click in Safari that is <body> (G-038).
+    const restoreTo = returnFocusTarget();
 
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
