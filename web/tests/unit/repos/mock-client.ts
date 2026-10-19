@@ -11,6 +11,9 @@
  * when the canned result has an `error`) and the `count` a `{ count: 'exact' }`
  * write reports — a delete/update that must affect a row needs `count: 1`.
  *
+ * `supabase.auth.getSession()` answers a signed-in session unless a test
+ * sets `mock.session` (staff-only repos check it first — repos/session.ts).
+ *
  * Usage (top of a test file, before importing the repo):
  *   vi.mock('#lib/db/client.js', () => import('./mock-client'));
  *   import { mock } from './mock-client';
@@ -36,6 +39,13 @@ export type StorageFailure = {
 };
 
 type Results = Record<string, Canned[]>;
+/** What `auth.getSession()` resolves to. */
+export type SessionResult = {
+  data: { session: { access_token: string } | null };
+  error: { name?: string; message: string; status?: number } | null;
+};
+
+const SIGNED_IN: SessionResult = { data: { session: { access_token: 'test-token' } }, error: null };
 
 const state = {
   queries: [] as Query[],
@@ -43,6 +53,7 @@ const state = {
   storage: { calls: [] as Call[], uploadError: null as StorageFailure | null },
   channels: [] as { name: string; on: unknown[]; subscribed: boolean }[],
   removed: [] as string[],
+  session: SIGNED_IN as SessionResult,
 };
 
 function queryProxy(q: Query): unknown {
@@ -86,6 +97,7 @@ const bucket = {
 };
 
 export const supabase = {
+  auth: { getSession: vi.fn(async () => state.session) },
   from: vi.fn((table: string) => {
     const q: Query = { table, calls: [] };
     state.queries.push(q);
@@ -130,6 +142,10 @@ export const mock = {
   get removed(): string[] {
     return state.removed;
   },
+  /** Set to `{ data: { session: null }, error: null }` for a signed-out client. */
+  set session(value: SessionResult) {
+    state.session = value;
+  },
   /** The n-th query issued (default: the only one). */
   query(n = 0): Query {
     const q = state.queries[n];
@@ -153,6 +169,8 @@ export const mock = {
     state.storage.uploadError = null;
     state.channels = [];
     state.removed = [];
+    state.session = SIGNED_IN;
+    supabase.auth.getSession.mockClear();
     supabase.from.mockClear();
     supabase.channel.mockClear();
     supabase.removeChannel.mockClear();
