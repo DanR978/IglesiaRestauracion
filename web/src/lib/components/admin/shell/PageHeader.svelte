@@ -1,78 +1,113 @@
 <!--
-  PageHeader — a page's title row (S37 owns the real one; THIS IS S41's STUB).
-  S41 (Inicio) was built beside S37 and needed the header before S37's shell
-  existed, so this file carries exactly S37's announced API — `title`,
-  `description?`, `actions?` — as an h1, an optional line under it and an
-  actions slot. The real component also feeds the mobile topbar title; the
-  stub only sets document.title (D-036: the page owns its title). On merge,
-  keep S37's file and drop this one.
+  PageHeader — an admin page's own title (S37, D-036 "the page owns its title").
+  Fixes PORT-DEBT S37's missing titles: legacy Inicio and Mi cuenta had none,
+  because the topbar only ever said the church's name.
+
+  One per page, first thing in it. It renders the page's h1 (and an optional
+  one-line description), puts the title in the browser tab as
+  "<title> · Panel · Iglesia Restauración Divina", and hands it to the topbar,
+  which shows it at ≤900px (the page-title store). It moves no focus:
+  SvelteKit's own focus reset after a navigation is what screen readers get.
+
+  `actions` sit on the right of the title on a desktop and stack under it at
+  ≤640px. The page renders inside the shell's content column (max 1200px,
+  token padding) — no outer container of its own.
 
   Usage:
-    <PageHeader title="Inicio" description="Hola, Ana">
-      {#snippet actions()}<Button href="/admin/" variant="ghost">…</Button>{/snippet}
+    <PageHeader title="Inicio" />
+    <PageHeader title="Mi cuenta" description="Tu perfil, la seguridad de tu cuenta y tus preferencias." />
+    <PageHeader title="Tesorería">
+      {#snippet actions()}<Button icon="plus">Agregar ingreso</Button>{/snippet}
     </PageHeader>
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { setPageTitle } from './page-title.svelte';
+  import { documentTitle } from './shell';
 
   interface Props {
-    /** The page's name: the h1 and the document title. */
+    /** The h1, and the source of the tab title and the mobile topbar title. */
     title: string;
-    /** One short line under the title. */
+    /** One muted line under the h1. */
     description?: string;
-    /** The page's own actions, beside the title (below it on a phone). */
+    /** The page's primary actions. */
     actions?: Snippet;
   }
 
   let { title, description, actions }: Props = $props();
 
-  $effect(() => {
-    document.title = title;
-  });
+  $effect(() => setPageTitle(title));
 </script>
 
-<header class="page-header">
-  <div class="page-header__text">
-    <h1 class="page-header__title">{title}</h1>
+<svelte:head>
+  <title>{documentTitle(title)}</title>
+</svelte:head>
+
+<!-- A <div>, not <header>: the topbar is the page's one banner. -->
+<div class="adm-page-header">
+  <div class="adm-page-header__text">
+    <h1 class="adm-page-header__title">{title}</h1>
     {#if description}
-      <p class="page-header__description">{description}</p>
+      <p class="adm-page-header__description">{description}</p>
     {/if}
   </div>
   {#if actions}
-    <div class="page-header__actions">{@render actions()}</div>
+    <div class="adm-page-header__actions">{@render actions()}</div>
   {/if}
-</header>
+</div>
 
 <style>
-  .page-header {
+  .adm-page-header {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: space-between;
     gap: var(--mg-sm) var(--mg-md);
+    margin-block-end: var(--mg-md);
   }
 
-  .page-header__text {
+  .adm-page-header__text {
+    flex: 1 1 18rem;
     min-inline-size: 0;
   }
 
-  .page-header__title {
-    margin: 0;
+  /* A long title wraps; it never widens the page at 360px. */
+  .adm-page-header__title {
     color: var(--color-text);
     font-size: var(--fs-xl);
     font-weight: var(--fw-bold);
     line-height: 1.2;
+    overflow-wrap: anywhere;
   }
 
-  .page-header__description {
-    margin: var(--mg-xxs) 0 0;
+  .adm-page-header__description {
+    max-inline-size: 65ch;
+    margin: 0.4rem 0 0;
     color: var(--color-muted);
     font-size: var(--fs-base);
+    line-height: 1.5;
   }
 
-  .page-header__actions {
+  .adm-page-header__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--mg-xs);
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  @media (max-width: 640px) {
+    .adm-page-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .adm-page-header__text {
+      flex-basis: auto;
+    }
+
+    .adm-page-header__actions {
+      justify-content: flex-start;
+    }
   }
 </style>
