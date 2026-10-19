@@ -66,10 +66,10 @@ The complete, dependency-ordered plan to rewrite the site as SvelteKit + `adapte
 
 | # | Session | Prereqs | Done when |
 |---|---|---|---|
-| S37 | **Admin shell & routing skeleton** | S03, S11 | `(admin)` route group `ssr=false`+`fallback`; `/admin/gallery` deep-links & reloads on static host; nav renders |
+| S37 | **Admin shell & routing skeleton** | S03, S11 | `(admin)` route group `ssr=false`+`fallback`; `/admin/gallery` deep-links & reloads on static host; nav renders | *(D-036, 2026-10-19: prerendered `ssr=false` shells, no fallback — built in PR-C2.)*
 | S38 | **State stores + UI primitive hosts** | S37, S15, S16 | `session`/`ministries`/`perms` rune stores; `perms.tabs` derives; confirm/toast callable from non-component code |
 | S39 | **Auth flows + MFA enforcement + guards** (+ `aal2` RLS migration) | S38, S06 | login/invite/recovery/boot ported; a returning enrolled account cannot reach any `/admin/*` at `aal1`; **`aal2` enforced in RLS** (D-010); all Spanish error branches correct |
-| S40 | **Data-layer repos F3 (admin-support)** | S06 | `repos/{profiles,ministries,settings,notifications,activity,newsletter,admin}.ts`; `admin-invite` edge-fn contract byte-compatible |
+| S40 | **Data-layer repos F3 (admin-support)** | S06 | `repos/{profiles,ministries,settings,notifications,activity,newsletter,admin}.ts`; `admin-invite` edge-fn contract byte-compatible | *(2026-10-19, PR-C2: S40 built `profiles`, `ministries`, `activity` and the Inicio counts; `settings` → S42, `notifications` → S43, `newsletter` → S23 / S42, `admin` → S47. The `admin-invite` contract is the hardened one, D-034.)*
 
 ## Phase 4 — Admin CRUD tabs · S41–S51
 *Simplest first. Each is one shippable PR. S44 (ministries) unblocks S48–S49 (events).*

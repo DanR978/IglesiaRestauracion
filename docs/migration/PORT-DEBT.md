@@ -58,7 +58,7 @@ from. The dead-code table carries the grep/read proof that confirmed unreachabil
 | S37 | Admin shell / drawer | §1 | fix missing page titles; drawer focus-trap + Escape; nav count slot; drop amber dot |
 | S38 | State stores / hosts | §1 | `perms.tabs` is UX-only; RLS is the guard (D-006) |
 | S39 | Auth + MFA | §2 | **enforce MFA (aal2 RLS)**; CodeInput; password show/hide+meter; preserve anti-enumeration |
-| S40 | Admin repos | §16 | `pause_invites` is cosmetic — enforce or drop |
+| S40 | Admin repos | §16 | `pause_invites` is cosmetic — enforce or drop | ✅ enforced server-side (`fix/authz-hardening`, D-034)
 | S41 | Dashboard (Inicio) | §3 | human error+retry; kill grid-balance hack; reconcile `.dash-card`; false-affordance rows |
 | S42 | Activity + Settings | §15/§16 | paginate audit log; confirm+group the maintenance flag; card independence; enforce/remove flags |
 | S43 | Notifications bell | §1 | add loading + error(+retry); fix the count-failure-looks-like-zero badge |
@@ -667,7 +667,7 @@ wizards (event, discipleship, gallery); FOUR form vocabularies (`.form-group`/`.
   from `callAdmin('list')`) — a church with 40 volunteers cannot find anyone.
 - **Surface WHICH pages** an account can open, not just a bare count ("N páginas", `users.js:88-90`) —
   reuse the preset chip treatment.
-- Either **enforce `pause_invites`** in the new invite flow or **drop the toggle** — it is cosmetic (S40).
+- Either **enforce `pause_invites`** in the new invite flow or **drop the toggle** — it is cosmetic (S40). **✅ 2026-10-19:** `admin-invite` refuses invite and resend while paused (`fix/authz-hardening`, D-034).
 
 **DO NOT PORT**
 - The duplicate `id="presetModal"` markup and the double-bound `presetModalSave` handler.

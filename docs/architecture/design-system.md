@@ -68,7 +68,8 @@ Three layers, all CSS custom properties, existing names kept (DESIGN-SYSTEM §2)
 | Status | `--color-danger/success/warn/info`, `--status-*` (+`-bg`) | `--color-success` is a fill, not ink (D-023); status pairs icon + label |
 | Money | `--money-pos/neg/warn` (+`-bg`) | D-016; no money hex literals |
 | Categories | `--cat-*`, `--cat-*-t` | event categories |
-| Accent | `--color-secondary`, `--color-accent`, `--gold-bright` (decorative only) | admin overrides these to slate (D-014) |
+| Accent | `--color-secondary`, `--color-accent`, `--gold-bright` (decorative only) | fills; admin overrides these to slate (D-014) |
+| Accent ink | `--color-accent-ink` | accent as TEXT, AA in both themes and both surfaces (D-038) |
 | Elevation | `--shadow-sm/md/lg` | the only shadows (D-020) |
 | Roles to add only with a consumer | `--color-border`, `--color-link`, `--color-scrim`, `--cta-fill/--cta-ink` | S23 adds `--color-link` and `--cta-*` |
 
@@ -92,7 +93,7 @@ Two independent axes; no runtime brand switching beyond them:
 
 - **Add `color-scheme`** (D-031): `light dark` under system, and `light` / `dark` under the forced
   themes, so native controls, date pickers and scrollbars match. None is declared today.
-- **Known issue, not changed here:** the no-FOUC boot script in `web/src/app.html` applies
+- **Resolved by D-038 (2026-10-19):** admin routes use their own key (`ird.app.admin.theme`) and the boot script picks the key by path. *Was:* the no-FOUC boot script in `web/src/app.html` applies
   `ird.theme` on every route, so a theme forced in the admin would also force public pages. The
   public site is meant to follow the system (PUBLIC-DESIGN §6 on the S23 branch). The session that
   ships an admin appearance switch (S45) owes a D-022 amendment that scopes the key to the admin.
@@ -144,6 +145,8 @@ headless state machine over hand-rolling:
 - Bits UI 2.19.5 is the alternative if a widget needs styled defaults.
 
 Adopt per widget, pinned, with component tests — not as a wholesale UI kit.
+
+*2026-10-19 (PR-C2):* `CodeInput` didn't need one — it is a single native `<input autocomplete="one-time-code">` drawn as six boxes, which serves code autofill, password managers, paste and screen readers better than six inputs, with no dependency.
 
 ## 8. Enforcement (S11b)
 
