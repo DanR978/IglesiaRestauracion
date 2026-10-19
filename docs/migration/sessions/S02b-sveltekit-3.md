@@ -1,7 +1,7 @@
 # Session S02b — SvelteKit 3 upgrade
 
 **Stream:** foundation
-**Depends on:** S02–S22 (Phase 1 complete), D-030 / ADR-0002   **PR:** PR-C1 (not opened yet)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
+**Depends on:** S02–S22 (Phase 1 complete), D-030 / ADR-0002   **PR:** [#50](https://github.com/DanR978/IglesiaRestauracion/pull/50) (PR-C1)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
 **Status:** 🟦 PR open — `migrate/S02b-S05b-S22b-foundations` (PR-C1, with S05b and S22b)
 
 ## Goal (one sentence)
@@ -192,5 +192,5 @@ Read from its committed state (`fecc017`); the worktree may hold more.
 
 ## On completion
 - [ ] Update `MIGRATION.md` (ledger step): status board, Current state, Next up, the follow-ups above.
-- [ ] Open PR-C1; paste the gate results; link this file.
+- [x] Open PR-C1 (#50); paste the gate results; link this file.
 - [ ] Set this file's Status and PR number.
