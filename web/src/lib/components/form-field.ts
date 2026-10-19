@@ -41,9 +41,12 @@ export const REQUIRED_TEXT = '(obligatorio)';
 export const ERROR_PREFIX = 'Error:';
 
 /**
- * What the `control` snippet receives. Spread it first, then add your own
- * attributes: `<input {...attrs} type="email" bind:value />`. To add a class,
- * keep FormField's: `class={[attrs.class, 'mine']}`.
+ * What the `control` snippet receives. Set each one on the control explicitly
+ * (`id={attrs.id} class={attrs.class} aria-describedby={attrs['aria-describedby']}
+ * aria-invalid={attrs['aria-invalid']} aria-required={attrs['aria-required']}
+ * disabled={attrs.disabled}`), never `{...attrs}`: an attribute spread pulls
+ * Svelte's generic attribute runtime into the chunk every page loads (+1.6 kB
+ * gzip, box 17). To add a class, keep FormField's: `class={[attrs.class, 'mine']}`.
  */
 export interface FormFieldControlAttrs {
   /** Matches the label's `for`. */

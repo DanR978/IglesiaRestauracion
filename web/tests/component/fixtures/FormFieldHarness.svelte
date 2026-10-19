@@ -42,14 +42,39 @@
 <FormField {label} {hint} {error} {required} {disabled} {id} {describedBy}>
   {#snippet control(attrs)}
     {#if kind === 'select'}
-      <select {...attrs} bind:value>
+      <select
+        id={attrs.id}
+        class={attrs.class}
+        aria-describedby={attrs['aria-describedby']}
+        aria-invalid={attrs['aria-invalid']}
+        aria-required={attrs['aria-required']}
+        disabled={attrs.disabled}
+        bind:value
+      >
         <option value="">Elige…</option>
         <option value="a">Alabanza</option>
       </select>
     {:else if kind === 'textarea'}
-      <textarea {...attrs} bind:value></textarea>
+      <textarea
+        id={attrs.id}
+        class={attrs.class}
+        aria-describedby={attrs['aria-describedby']}
+        aria-invalid={attrs['aria-invalid']}
+        aria-required={attrs['aria-required']}
+        disabled={attrs.disabled}
+        bind:value></textarea>
     {:else}
-      <input {...attrs} type="text" {readonly} bind:value />
+      <input
+        id={attrs.id}
+        class={attrs.class}
+        aria-describedby={attrs['aria-describedby']}
+        aria-invalid={attrs['aria-invalid']}
+        aria-required={attrs['aria-required']}
+        disabled={attrs.disabled}
+        type="text"
+        {readonly}
+        bind:value
+      />
     {/if}
   {/snippet}
 </FormField>
@@ -57,7 +82,15 @@
 {#if second}
   <FormField label="Apellido" hint="Segundo campo">
     {#snippet control(attrs)}
-      <input {...attrs} type="text" />
+      <input
+        id={attrs.id}
+        class={attrs.class}
+        aria-describedby={attrs['aria-describedby']}
+        aria-invalid={attrs['aria-invalid']}
+        aria-required={attrs['aria-required']}
+        disabled={attrs.disabled}
+        type="text"
+      />
     {/snippet}
   </FormField>
 {/if}

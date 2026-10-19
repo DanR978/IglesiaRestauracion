@@ -76,7 +76,12 @@
       <FormField label="Correo">
         {#snippet control(attrs)}
           <input
-            {...attrs}
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
             type="email"
             autocomplete="username"
             inputmode="email"

@@ -88,7 +88,12 @@
       <FormField label="Nombre" hint="Como aparecerá en el panel." error={errors.name} required>
         {#snippet control(attrs)}
           <input
-            {...attrs}
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
             type="text"
             autocomplete="name"
             bind:value={name}
@@ -100,7 +105,12 @@
       <FormField label="Correo" error={errors.email} required>
         {#snippet control(attrs)}
           <input
-            {...attrs}
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
             type="email"
             autocomplete="email"
             inputmode="email"
@@ -112,7 +122,16 @@
 
       <FormField label="Ministerio" error={errors.ministry} required>
         {#snippet control(attrs)}
-          <select {...attrs} bind:value={ministry} onchange={() => edited('ministry')}>
+          <select
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            bind:value={ministry}
+            onchange={() => edited('ministry')}
+          >
             {#each MINISTRIES as [value, label] (value)}
               <option {value}>{label}</option>
             {/each}
@@ -122,7 +141,15 @@
 
       <FormField label="Nota" hint="Opcional. Solo la ve el equipo.">
         {#snippet control(attrs)}
-          <textarea {...attrs} rows="3" bind:value={note}></textarea>
+          <textarea
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            rows="3"
+            bind:value={note}></textarea>
         {/snippet}
       </FormField>
 
@@ -142,32 +169,87 @@
     <div class="grid">
       <FormField label="Con pista" hint="Aparece en tu perfil.">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" value="Ana Morales" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+            value="Ana Morales"
+          />
         {/snippet}
       </FormField>
       <FormField label="Teléfono" error="Escribe un teléfono de 10 dígitos.">
         {#snippet control(attrs)}
-          <input {...attrs} type="tel" inputmode="tel" value="555 12" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="tel"
+            inputmode="tel"
+            value="555 12"
+          />
         {/snippet}
       </FormField>
       <FormField label="Obligatorio" required hint="La marca es una palabra, no un color.">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+          />
         {/snippet}
       </FormField>
       <FormField label="Deshabilitado" disabled hint="Se activa al elegir un ministerio.">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" value="No disponible" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+            value="No disponible"
+          />
         {/snippet}
       </FormField>
       <FormField label="Solo lectura" hint="Se puede seleccionar y copiar.">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" readonly value="JBSWY3DPEHPK3PXP" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+            readonly
+            value="JBSWY3DPEHPK3PXP"
+          />
         {/snippet}
       </FormField>
       <FormField label="Con texto de ejemplo">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" placeholder="Ej. Retiro de jóvenes" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+            placeholder="Ej. Retiro de jóvenes"
+          />
         {/snippet}
       </FormField>
     </div>
@@ -179,12 +261,29 @@
     <div class="card">
       <FormField label="Título del evento" hint="Máximo 80 caracteres." required>
         {#snippet control(attrs)}
-          <input {...attrs} type="text" value="Culto de jóvenes" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+            value="Culto de jóvenes"
+          />
         {/snippet}
       </FormField>
       <FormField label="Lugar" error="Escribe dónde será el evento.">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+          />
         {/snippet}
       </FormField>
     </div>

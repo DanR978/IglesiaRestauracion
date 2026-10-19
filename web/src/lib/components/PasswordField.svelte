@@ -138,7 +138,11 @@
   {#snippet control(attrs)}
     <div class="ird-pw__wrap">
       <input
-        {...attrs}
+        id={attrs.id}
+        aria-describedby={attrs['aria-describedby']}
+        aria-invalid={attrs['aria-invalid']}
+        aria-required={attrs['aria-required']}
+        disabled={attrs.disabled}
         bind:this={input}
         bind:value
         class={[attrs.class, 'ird-pw__input', toggle && 'has-toggle']}

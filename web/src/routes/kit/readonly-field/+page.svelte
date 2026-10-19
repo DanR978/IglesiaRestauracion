@@ -37,7 +37,17 @@
     <div class="card">
       <FormField label="Nombre visible" hint="Así te ven los demás en el panel.">
         {#snippet control(attrs)}
-          <input {...attrs} type="text" autocomplete="name" bind:value={displayName} />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="text"
+            autocomplete="name"
+            bind:value={displayName}
+          />
         {/snippet}
       </FormField>
       <ReadonlyField
@@ -67,7 +77,18 @@
     <div class="row">
       <FormField label="Teléfono">
         {#snippet control(attrs)}
-          <input {...attrs} type="tel" inputmode="tel" autocomplete="tel" value="859 555 0142" />
+          <input
+            id={attrs.id}
+            class={attrs.class}
+            aria-describedby={attrs['aria-describedby']}
+            aria-invalid={attrs['aria-invalid']}
+            aria-required={attrs['aria-required']}
+            disabled={attrs.disabled}
+            type="tel"
+            inputmode="tel"
+            autocomplete="tel"
+            value="859 555 0142"
+          />
         {/snippet}
       </FormField>
       <ReadonlyField label="Usuario" value="amorales" />

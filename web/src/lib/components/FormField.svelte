@@ -26,7 +26,17 @@
   Usage:
     <FormField label="Nombre" hint="Como aparecerá en el panel." {error} required>
       {#snippet control(attrs)}
-        <input {...attrs} type="text" autocomplete="name" bind:value={name} />
+        <input
+          id={attrs.id}
+          class={attrs.class}
+          aria-describedby={attrs['aria-describedby']}
+          aria-invalid={attrs['aria-invalid']}
+          aria-required={attrs['aria-required']}
+          disabled={attrs.disabled}
+          type="text"
+          autocomplete="name"
+          bind:value={name}
+        />
       {/snippet}
     </FormField>
 -->
@@ -60,7 +70,7 @@
     /** More ids for the control's aria-describedby (e.g. a strength meter). */
     describedBy?: string;
     class?: ClassValue;
-    /** The control. Spread the attrs onto it: `<input {...attrs} … />`. */
+    /** The control. Set each of the attrs on it explicitly (see form-field.ts). */
     control: Snippet<[FormFieldControlAttrs]>;
   }
 
