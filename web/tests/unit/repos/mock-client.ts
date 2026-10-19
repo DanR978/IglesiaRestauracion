@@ -11,8 +11,13 @@
  * when the canned result has an `error`) and the `count` a `{ count: 'exact' }`
  * write reports — a delete/update that must affect a row needs `count: 1`.
  *
- * `supabase.auth.getSession()` answers a signed-in session unless a test
- * sets `mock.session` (staff-only repos check it first — repos/session.ts).
+ * `supabase.auth.getSession()` answers a signed-in session (user `TEST_USER_ID`)
+ * unless a test sets `mock.session` (staff-only repos check it first —
+ * repos/session.ts).
+ *
+ * `supabase.rpc(fn, args)` records a query on the table `rpc:<fn>` (its one
+ * call is `rpc` with `[fn, args]`) and resolves to `mock.results['rpc:<fn>']`.
+ * `supabase.storage.from(bucket)` records the bucket in `mock.storage.buckets`.
  *
  * Usage (top of a test file, before importing the repo):
  *   vi.mock('#lib/db/client.js', () => import('./mock-client'));
@@ -41,16 +46,26 @@ export type StorageFailure = {
 type Results = Record<string, Canned[]>;
 /** What `auth.getSession()` resolves to. */
 export type SessionResult = {
-  data: { session: { access_token: string } | null };
+  data: { session: { access_token: string; user: { id: string } } | null };
   error: { name?: string; message: string; status?: number } | null;
 };
 
-const SIGNED_IN: SessionResult = { data: { session: { access_token: 'test-token' } }, error: null };
+/** The signed-in user of the default session. */
+export const TEST_USER_ID = '00000000-0000-4000-8000-000000000001';
+
+const SIGNED_IN: SessionResult = {
+  data: { session: { access_token: 'test-token', user: { id: TEST_USER_ID } } },
+  error: null,
+};
 
 const state = {
   queries: [] as Query[],
   results: {} as Results,
-  storage: { calls: [] as Call[], uploadError: null as StorageFailure | null },
+  storage: {
+    calls: [] as Call[],
+    buckets: [] as string[],
+    uploadError: null as StorageFailure | null,
+  },
   channels: [] as { name: string; on: unknown[]; subscribed: boolean }[],
   removed: [] as string[],
   session: SIGNED_IN as SessionResult,
@@ -103,7 +118,17 @@ export const supabase = {
     state.queries.push(q);
     return queryProxy(q);
   }),
-  storage: { from: vi.fn(() => bucket) },
+  rpc: vi.fn((fn: string, args?: unknown) => {
+    const q: Query = { table: `rpc:${fn}`, calls: [{ method: 'rpc', args: [fn, args] }] };
+    state.queries.push(q);
+    return queryProxy(q);
+  }),
+  storage: {
+    from: vi.fn((name?: string) => {
+      if (name !== undefined) state.storage.buckets.push(name);
+      return bucket;
+    }),
+  },
   channel: vi.fn((name: string) => {
     const rec = { name, on: [] as unknown[], subscribed: false };
     state.channels.push(rec);
@@ -166,12 +191,15 @@ export const mock = {
     state.queries = [];
     state.results = {};
     state.storage.calls = [];
+    state.storage.buckets = [];
     state.storage.uploadError = null;
     state.channels = [];
     state.removed = [];
     state.session = SIGNED_IN;
     supabase.auth.getSession.mockClear();
     supabase.from.mockClear();
+    supabase.rpc.mockClear();
+    supabase.storage.from.mockClear();
     supabase.channel.mockClear();
     supabase.removeChannel.mockClear();
     bucket.upload.mockClear();

@@ -19,11 +19,12 @@ const eslint = new ESLint();
 /** Each layer's message, as eslint.config.js words it. */
 const MESSAGE = {
   db: 'Primitives, platform helpers and pure libs stay off db/* (target-architecture §3).',
-  dbClient: 'Only repos and the S38 session store import db/client (target-architecture §3).',
+  dbClient: 'Only repos and the S38 auth module import db/client (target-architecture §3).',
   repos: 'Primitives, platform helpers and pure libs never fetch (target-architecture §3).',
   platform: 'Primitives and pure libs stay context-agnostic (target-architecture §3).',
   components: 'Repos, stores, platform and pure libs never import UI (target-architecture §3).',
   stores: 'Repos, platform and pure libs never import app state (target-architecture §3).',
+  auth: 'Primitives, repos, platform and pure libs never sign anyone in (target-architecture §3).',
 } as const;
 type Layer = keyof typeof MESSAGE;
 
@@ -60,6 +61,7 @@ const CASES: Case[] = [
       '#lib/db/database.types.js',
       '#lib/components/Button.svelte',
       '#lib/stores/toast.svelte.js',
+      '#lib/auth/session.js',
     ],
   },
   {
@@ -78,6 +80,7 @@ const CASES: Case[] = [
       ['#lib/repos/gallery.js', 'repos'],
       ['../repos/gallery.js', 'repos'],
       ['#lib/platform/device.js', 'platform'],
+      ['#lib/auth/session.js', 'auth'],
     ],
     allowed: [
       './button.js',
@@ -102,8 +105,19 @@ const CASES: Case[] = [
       ['#lib/components/Button.svelte', 'components'],
       ['../components/button.js', 'components'],
       ['#lib/stores/toast.svelte.js', 'stores'],
+      ['#lib/auth/session.js', 'auth'],
     ],
     allowed: ['#lib/db/client.js', './errors', '#lib/money.js'],
+  },
+  {
+    layer: 'the S38 auth module',
+    probe: 'src/lib/auth/__layer-probe.ts',
+    forbidden: [
+      ['#lib/components/Button.svelte', 'components'],
+      ['#lib/stores/session.svelte.js', 'stores'],
+      ['../stores/toast.svelte.js', 'stores'],
+    ],
+    allowed: ['#lib/db/client.js', '#lib/repos/errors.js', './routes', '$app/paths'],
   },
   {
     layer: 'a store',
@@ -112,13 +126,21 @@ const CASES: Case[] = [
       ['#lib/components/Button.svelte', 'components'],
       ['#lib/db/client.js', 'dbClient'],
     ],
-    allowed: ['#lib/repos/events.js', '#lib/db/database.types.js', '#lib/escape.js'],
+    allowed: [
+      '#lib/repos/events.js',
+      '#lib/db/database.types.js',
+      '#lib/escape.js',
+      '#lib/auth/session.js',
+    ],
   },
   {
-    layer: "S38's session store",
+    layer: "S38's session store (Supabase only through the auth module)",
     probe: 'src/lib/stores/session.svelte.ts',
-    forbidden: [['#lib/components/Button.svelte', 'components']],
-    allowed: ['#lib/db/client.js', '#lib/repos/errors.js'],
+    forbidden: [
+      ['#lib/components/Button.svelte', 'components'],
+      ['#lib/db/client.js', 'dbClient'],
+    ],
+    allowed: ['#lib/auth/session.js', '#lib/repos/errors.js', '#lib/stores/confirm.svelte.js'],
   },
   {
     layer: 'a platform helper',
@@ -128,6 +150,7 @@ const CASES: Case[] = [
       ['#lib/stores/toast.svelte.js', 'stores'],
       ['#lib/repos/events.js', 'repos'],
       ['../db/client.js', 'db'],
+      ['#lib/auth/session.js', 'auth'],
     ],
     allowed: ['#lib/escape.js', '../date.js'],
   },
@@ -140,6 +163,7 @@ const CASES: Case[] = [
       ['./repos/events.js', 'repos'],
       ['./db/database.types.js', 'db'],
       ['#lib/platform/device.js', 'platform'],
+      ['./auth/next.js', 'auth'],
     ],
     allowed: ['./money.js', '#lib/escape.js'],
   },

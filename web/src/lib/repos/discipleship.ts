@@ -18,6 +18,9 @@
  * groups as only the published ones. Public: `fetchPublicGroups`,
  * `fetchPublicGroupBy`, `submitInterest`.
  *
+ * S40 adds `countPendingInterests` for the admin Inicio (dashboard.js
+ * "Discipulado pendiente") — staff-only too: signed out it would count 0.
+ *
  * Usage:
  *   import { fetchPublicGroups, submitInterest } from '#lib/repos/discipleship.js';
  *   const res = await submitInterest(form);
@@ -28,7 +31,7 @@ import { browser } from '$app/env';
 import { supabase } from '#lib/db/client.js';
 import type { Tables, TablesInsert } from '#lib/db/database.types.js';
 import { slugify } from '#lib/slug.js';
-import { fail, invalid, noRows, ok } from './errors';
+import { fail, invalid, noCount, noRows, ok } from './errors';
 import { requireSession } from './session';
 import type { ChangeHandler, ReadResult, Unsubscribe, WriteResult } from './types';
 
@@ -238,6 +241,22 @@ export async function updateInterestStatus(
     .single();
   if (res.error) return fail(TAG, 'updateInterestStatus', res.error, res.status);
   return ok(res.data);
+}
+
+/**
+ * How many interests still wait for a decision (`pending`) — Inicio's
+ * "Interesados pendientes" (S41). Staff-only: the session is checked first.
+ */
+export async function countPendingInterests(): Promise<ReadResult<number>> {
+  const denied = await requireSession(TAG, 'countPendingInterests');
+  if (denied) return denied;
+  const { count, error, status } = await supabase
+    .from('discipleship_interests')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending');
+  if (error) return fail(TAG, 'countPendingInterests', error, status);
+  if (count === null) return noCount(TAG, 'countPendingInterests');
+  return ok(count);
 }
 
 /* ── Members ───────────────────────────────────────────────────────────── */

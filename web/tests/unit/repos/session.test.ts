@@ -4,8 +4,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
-import { mock, supabase } from './mock-client';
-import { requireSession } from '#lib/repos/session.js';
+import { TEST_USER_ID, mock, supabase } from './mock-client';
+import { requireSession, requireUserId } from '#lib/repos/session.js';
 
 describe('requireSession', () => {
   beforeEach(() => {
@@ -49,5 +49,32 @@ describe('requireSession', () => {
   it('never throws when reading the session does', async () => {
     supabase.auth.getSession.mockRejectedValueOnce(new TypeError('Failed to fetch'));
     expect((await requireSession('[t]', 'fn'))?.ok).toBe(false);
+  });
+});
+
+// S40 — the same check for a call that needs to know whose session it is.
+describe('requireUserId', () => {
+  beforeEach(() => {
+    mock.reset();
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  it("returns the signed-in user's id", async () => {
+    expect(await requireUserId('[t]', 'fn')).toEqual({ ok: true, data: TEST_USER_ID });
+  });
+
+  it('fails exactly like requireSession without a session', async () => {
+    mock.session = { data: { session: null }, error: null };
+    expect(await requireUserId('[t]', 'fn')).toEqual(await requireSession('[t]', 'fn'));
+    expect((await requireUserId('[t]', 'fn')).ok).toBe(false);
+  });
+
+  it('keeps an unanswered refresh a network failure', async () => {
+    mock.session = {
+      data: { session: null },
+      error: { name: 'AuthRetryableFetchError', message: 'Failed to fetch', status: 0 },
+    };
+    const res = await requireUserId('[t]', 'fn');
+    expect(res.ok === false && res.error.kind).toBe('network');
   });
 });

@@ -15,6 +15,9 @@
  * Image optimisation is NOT a repo concern: `uploadPhoto` takes the already
  * optimised blobs (the S46 port of image-optimizer.js produces them).
  *
+ * S40 adds `countAlbums` for the admin Inicio (dashboard.js "Álbumes de
+ * galería"): every album, drafts included — staff-only for the same reason.
+ *
  * Usage:
  *   import { fetchAlbums, fetchAlbumBy, fetchPhotos } from '#lib/repos/gallery.js';
  *   const res = await fetchAlbums();
@@ -26,7 +29,7 @@ import { supabase } from '#lib/db/client.js';
 import type { Tables, TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import { BUCKET } from '#lib/gallery.js';
 import { slugify } from '#lib/slug.js';
-import { fail, invalid, noRows, ok } from './errors';
+import { fail, invalid, noCount, noRows, ok } from './errors';
 import { requireSession } from './session';
 import type { ChangeHandler, ReadResult, RepoFailure, Unsubscribe, WriteResult } from './types';
 
@@ -125,6 +128,18 @@ export async function fetchAvailableYears({
   const { data, error, status } = await q;
   if (error) return fail(TAG, 'fetchAvailableYears', error, status);
   return ok([...new Set((data ?? []).map((r) => r.year))].sort((a, b) => b - a));
+}
+
+/** How many albums exist, published or not (Inicio, S41). Staff-only. */
+export async function countAlbums(): Promise<ReadResult<number>> {
+  const denied = await requireSession(TAG, 'countAlbums');
+  if (denied) return denied;
+  const { count, error, status } = await supabase
+    .from('gallery_albums')
+    .select('id', { count: 'exact', head: true });
+  if (error) return fail(TAG, 'countAlbums', error, status);
+  if (count === null) return noCount(TAG, 'countAlbums');
+  return ok(count);
 }
 
 /* ── Albums: write (staff only via RLS) ────────────────────────────────── */
