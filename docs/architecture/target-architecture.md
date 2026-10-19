@@ -60,8 +60,9 @@ that S23's `site/Newsletter.svelte`, which already imports a repo, stays legal. 
   detail pages (`/eventos/evento.html?id=`, `/eventos/evento-especial.html?e=|?id=`,
   `/eventos/registro.html?e=|?id=`, `/discipulado/grupo/?slug=|?id=`, `/galeria/album/?slug=|?id=`,
   `/eventos/?view=…`) stay valid; S28's redirect stubs must forward `location.search` and the hash.
-- **Rendering:** public routes are prerendered (`trailingSlash: 'always'`). The admin group uses
-  `ssr=false` with a fallback, constrained by G-021 (Pages serves only the root `404.html`).
+- **Rendering:** public routes are prerendered (`trailingSlash: 'always'`). Admin routes are
+  prerendered `ssr=false` shells, one per route, with no SPA fallback (D-036): Pages serves only
+  the root `404.html` (G-021), so every admin URL is a real file.
 - **Back navigation:** every meaningful view state is a URL (`?view=`, admin tabs as routes in
   S37). Full-screen overlays — Lightbox, the mobile ActionSheet, a phone-width FormWizard — use
   SvelteKit **shallow routing** (`pushState` / `replaceState` from `$app/navigation`, read through

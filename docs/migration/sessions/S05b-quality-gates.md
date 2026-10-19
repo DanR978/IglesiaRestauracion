@@ -2,7 +2,7 @@
 
 **Stream:** foundation (quality gates)
 **Depends on:** S02b (D-030), S05   **PR:** PR-C1 (not opened yet)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
-**Status:** 🟨 in progress — gates built and green in the worktree and in a clean room; not committed yet (the PR-C1 run commits it)
+**Status:** 🟦 PR open — `migrate/S02b-S05b-S22b-foundations` (PR-C1)
 
 ## Goal (one sentence)
 Turn the proposed boxes 14–19 of [`testing-and-rollout.md` §1](../../architecture/testing-and-rollout.md#1-proposed-gates) into gates that run: four Playwright projects in CI, axe on every prerendered page in both themes, a per-page JS budget plus lab LCP/CLS, the layer import boundaries of [`target-architecture.md` §3](../../architecture/target-architecture.md#3-layers-and-dependency-rules-web) as lint, and `npm audit` for runtime dependencies.
@@ -180,7 +180,7 @@ Two places: the worktree (shared with S22b's work in progress) and a **clean roo
 [ ] 10. SEO diff          n/a
 [ ] 11. SW cache bumped   n/a (not a cutover)
 [x] 12. Secrets/PII clean box-12 grep over this session's patch → hits only in box 12's own pattern text
-[ ] 13. Ledger updated    → the PR-C1 ledger step (follow-ups below)
+[x] 13. Ledger updated    → MIGRATION.md, PR-C1 ledger step (2026-10-19)
 [x] 14. Cross-engine e2e  npx playwright test (clean room, CI=1, 2 workers, 6.9 min) → 484 tests:
                             chromium      133 passed
                             webkit        116 passed (incl. 2 expected failures, X-1) · 1 skipped (E-1)

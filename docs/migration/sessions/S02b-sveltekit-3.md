@@ -2,7 +2,7 @@
 
 **Stream:** foundation
 **Depends on:** S02–S22 (Phase 1 complete), D-030 / ADR-0002   **PR:** PR-C1 (not opened yet)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
-**Status:** 🟨 in progress — S02b done on the branch; S05b and S22b follow in the same PR
+**Status:** 🟦 PR open — `migrate/S02b-S05b-S22b-foundations` (PR-C1, with S05b and S22b)
 
 ## Goal (one sentence)
 Move `web/` from SvelteKit 2.69 to SvelteKit 3.1 (D-030) with every existing gate green and no change to what `/app/` serves, before any admin route depends on Kit 2 APIs.
@@ -126,7 +126,7 @@ After = `18619a9`, run in the worktree **and** in a clean-room copy
 [ ] 10. SEO diff          n/a
 [ ] 11. SW cache bumped   n/a (not a cutover)
 [x] 12. Secrets/PII clean patch grep (service_role, JWT, sk_, api keys) → only "never the service-role key" comments
-[ ] 13. Ledger updated    → the PR-C1 ledger step (follow-ups below)
+[x] 13. Ledger updated    → MIGRATION.md, PR-C1 ledger step (2026-10-19)
 ```
 
 D-007 checked by hand: an empty `PUBLIC_SUPABASE_URL`, an empty `PUBLIC_SUPABASE_ANON_KEY` and

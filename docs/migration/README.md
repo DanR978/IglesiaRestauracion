@@ -52,6 +52,8 @@ Claude's first actions, in order:
 - **Squash-merge** each PR → one commit per session on `main` → a clean `git revert` is a per-surface rollback.
 - **Legacy files are deleted only in the cutover PR, never earlier** — so a revert always restores a working legacy surface.
 - Branch protection on `main`: require the CI gate (typecheck + lint + test + build) and the ledger-updated check.
+- *D-041 (2026-10-17):* the admin PRs (PR-C1 foundations, PR-C2 admin) branch off `develop` and merge with merge
+  commits, so each session's commits stay individually revertible.
 
 ## Golden rules (the ones that most often get violated across sessions)
 

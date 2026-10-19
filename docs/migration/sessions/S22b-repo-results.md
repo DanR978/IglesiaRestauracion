@@ -2,7 +2,7 @@
 
 **Stream:** foundation (data layer)
 **Depends on:** S02b (Kit 3 harness), S22 (public repos), S52 (treasury repo), S56b backend (receipts repo)   **PR:** PR-C1 (not opened yet)   **Branch:** `migrate/S02b-S05b-S22b-foundations`
-**Status:** 🟨 in progress — code + tests done on the branch (uncommitted at the time of writing); the ledger step in this PR follows
+**Status:** 🟦 PR open — `migrate/S02b-S05b-S22b-foundations` (PR-C1)
 
 ## Goal (one sentence)
 Every repo function in `web/src/lib/repos/**` returns `ReadResult` / `WriteResult` carrying a typed `RepoError`, so a failed read can never be shown as an empty list, a "$0.00" or a missing record (D-032).
@@ -135,7 +135,7 @@ Every read suite now has a case asserting that a failing read returns `ok: false
 [x]  8. Legacy untouched  only web/src/lib/repos/**, web/tests/unit/repos/** and this file
 [ ]  9–11                 n/a (no UI, not a cutover)
 [x] 12. Secrets/PII clean no keys, no service role; fixtures are synthetic ids and amounts
-[ ] 13. Ledger updated    → the ledger step of PR-C1 (below)
+[x] 13. Ledger updated    → MIGRATION.md, PR-C1 ledger step (2026-10-19)
 ```
 
 ## How to resume if interrupted
