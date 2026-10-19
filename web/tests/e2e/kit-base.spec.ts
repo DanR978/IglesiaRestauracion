@@ -57,7 +57,12 @@ test.describe('kit/base — desktop', () => {
 
   test('skip link is hidden until Tab, then visible with the global focus ring', async ({
     page,
+    browserName,
   }) => {
+    // S05b: WebKit's Tab skips links unless Safari's "Press Tab to highlight
+    // each item" is on, and Playwright's WebKit has no Option-Tab — an <a>
+    // skip link is unreachable by Tab there by design, not a page defect.
+    test.skip(browserName === 'webkit', 'WebKit does not Tab to links by default');
     await page.goto(KIT);
     const skip = page.locator('.skip-link');
     await expect(skip).not.toHaveCSS('transform', 'none');

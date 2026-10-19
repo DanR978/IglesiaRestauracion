@@ -5,6 +5,43 @@ import prettier from 'eslint-config-prettier';
 import globals from 'globals';
 import noRawHtml from './eslint-rules/no-raw-html.js';
 
+/*
+ * S05b — layer import boundaries (docs/architecture/target-architecture.md §3).
+ * One pattern per layer, matching the `#lib/…` subpath import and any relative
+ * path into the same folder (`../db/client.js`, `../../lib/repos/events.js`).
+ * Each block below lists everything its layer may NOT import: in flat config a
+ * later block replaces an earlier block's `no-restricted-imports` options for
+ * the files it matches, so no block relies on another's list.
+ */
+const into = (folder) => `^(?:[#$]lib/|(?:\\.{1,2}/)+(?:lib/)?)${folder}`;
+const LAYER = {
+  db: {
+    regex: `${into('db')}(?:/|$)`,
+    message: 'Primitives, platform helpers and pure libs stay off db/* (target-architecture §3).',
+  },
+  dbClient: {
+    regex: `${into('db/client')}(?:\\.[jt]s)?$`,
+    message: 'Only repos and the S38 session store import db/client (target-architecture §3).',
+  },
+  repos: {
+    regex: `${into('repos')}(?:/|$)`,
+    message: 'Primitives, platform helpers and pure libs never fetch (target-architecture §3).',
+  },
+  platform: {
+    regex: `${into('platform')}(?:/|$)`,
+    message: 'Primitives and pure libs stay context-agnostic (target-architecture §3).',
+  },
+  components: {
+    regex: `${into('components')}(?:/|$)`,
+    message: 'Repos, stores, platform and pure libs never import UI (target-architecture §3).',
+  },
+  stores: {
+    regex: `${into('stores')}(?:/|$)`,
+    message: 'Repos, platform and pure libs never import app state (target-architecture §3).',
+  },
+};
+const restrict = (...layers) => ['error', { patterns: layers }];
+
 export default ts.config(
   {
     ignores: [
@@ -44,6 +81,52 @@ export default ts.config(
     rules: {
       'svelte/no-at-html-tags': 'off',
       'local/no-raw-html': 'error',
+    },
+  },
+  {
+    // Routes, feature components (components/<feature>/**) and everything not
+    // matched below: the typed client only through a repo.
+    files: ['src/**/*.{ts,js,svelte}'],
+    ignores: ['src/lib/repos/**', 'src/lib/db/**', 'src/lib/stores/session.svelte.ts'],
+    rules: { 'no-restricted-imports': restrict(LAYER.dbClient) },
+  },
+  {
+    // Primitives: presentational; their own host stores are fine.
+    files: ['src/lib/components/*.{ts,js,svelte}'],
+    rules: { 'no-restricted-imports': restrict(LAYER.db, LAYER.repos, LAYER.platform) },
+  },
+  {
+    files: ['src/lib/repos/**/*.{ts,js}'],
+    rules: { 'no-restricted-imports': restrict(LAYER.components, LAYER.stores) },
+  },
+  {
+    files: ['src/lib/stores/**/*.{ts,js}'],
+    ignores: ['src/lib/stores/session.svelte.ts'],
+    rules: { 'no-restricted-imports': restrict(LAYER.components, LAYER.dbClient) },
+  },
+  {
+    // S38's session store is the one auth module allowed the client.
+    files: ['src/lib/stores/session.svelte.ts'],
+    rules: { 'no-restricted-imports': restrict(LAYER.components) },
+  },
+  {
+    // Created only when CC1 shows a need: pure libs and nothing else.
+    files: ['src/lib/platform/**/*.{ts,js,svelte}'],
+    rules: {
+      'no-restricted-imports': restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db),
+    },
+  },
+  {
+    // Pure libs (src/lib/*.ts): each other only.
+    files: ['src/lib/*.{ts,js}'],
+    rules: {
+      'no-restricted-imports': restrict(
+        LAYER.components,
+        LAYER.stores,
+        LAYER.repos,
+        LAYER.db,
+        LAYER.platform,
+      ),
     },
   },
 );

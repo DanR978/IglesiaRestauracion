@@ -1,0 +1,21 @@
+{
+  "$comment": "Initial JS per prerendered page: gzip (level 9) bytes of every script the HTML loads up front. Checked by scripts/check-budget.mjs (VERIFICATION box 17); a page may grow by `tolerance` over its baseline. Raise a baseline only in a reviewed PR.",
+  "tolerance": 0.05,
+  "pages": {
+    "/": 41301,
+    "/kit/action-sheet/": 66982,
+    "/kit/base/": 44745,
+    "/kit/button/": 64754,
+    "/kit/card/": 65166,
+    "/kit/data-table/": 65914,
+    "/kit/disclosure/": 63821,
+    "/kit/form-wizard/": 67429,
+    "/kit/icon/": 64789,
+    "/kit/lightbox/": 67741,
+    "/kit/modal/": 68077,
+    "/kit/rich-text/": 68795,
+    "/kit/signature-pad/": 65730,
+    "/kit/toast/": 65385,
+    "/kit/tokens/": 44440
+  }
+}

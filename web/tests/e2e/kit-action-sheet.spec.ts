@@ -60,7 +60,11 @@ test.describe('kit/action-sheet — desktop popover', () => {
     }
   });
 
-  test('repositions while the page scrolls under it', async ({ page }) => {
+  test('repositions while the page scrolls under it', async ({ page, browserName, isMobile }) => {
+    test.skip(
+      browserName === 'webkit' && isMobile,
+      'Playwright cannot dispatch a mouse wheel in mobile WebKit (S05b)',
+    );
     await page.goto(KIT);
     const trigger = page.getByRole('button', { name: 'Acciones de Retiro de matrimonios' });
     await trigger.click();

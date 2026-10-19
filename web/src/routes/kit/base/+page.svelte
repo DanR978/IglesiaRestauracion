@@ -466,6 +466,13 @@
     grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
     gap: var(--mg-sm);
   }
+  /* Unrevealed .scroll-fade-right sits 28px to the right and widened a 360px
+     phone by 8px: Chromium zooms the page out to fit it and WebKit counts it as
+     scrollable width (S05b). Real pages clip reveals inside .wrapper
+     (layout/container.css); the demo clips its own. */
+  .anim-grid.reveal-stagger {
+    overflow-x: clip;
+  }
   .anim-box {
     display: flex;
     align-items: center;

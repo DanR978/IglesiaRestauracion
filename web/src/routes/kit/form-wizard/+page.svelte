@@ -349,6 +349,9 @@
   }
   .cta--danger {
     background: var(--color-danger);
+    /* Fixed white, as Button's danger variant: --color-white turns #dfdedc in
+       dark and drops to 3.6:1 on the red (axe, S05b). */
+    color: var(--static-white);
   }
 
   .payload {

@@ -297,7 +297,9 @@
     font-size: var(--fs-xxs);
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    opacity: 0.65;
+    /* 0.65 measured 3.7:1 on the white paper (axe, S05b); 0.8 clears 4.5:1 in
+       both themes. */
+    opacity: 0.8;
   }
 
   .row {

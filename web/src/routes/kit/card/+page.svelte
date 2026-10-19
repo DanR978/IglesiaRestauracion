@@ -130,9 +130,10 @@
           <Button size="sm" icon="eye">Ver inscritos</Button>
         </div>
       </Card>
+      <!-- No ariaLabel: the content already reads as the name, and a label that
+           leaves out the visible text fails WCAG 2.5.3 Label in Name (axe, S05b). -->
       <Card
         variant="interactive"
-        ariaLabel="Abrir Vacaciones Bíblicas 2026"
         heading="Vacaciones Bíblicas 2026"
         headingIcon="church"
         onclick={() => (opened = 'Vacaciones Bíblicas 2026')}
@@ -160,12 +161,7 @@
     <h3 class="kit__sub">Los mismos mosaicos, interactivos</h3>
     <div class="cardgrid">
       {#each KPIS.slice(0, 3) as kpi (kpi.label)}
-        <Card
-          variant="interactive"
-          {kpi}
-          ariaLabel="Ver {kpi.label}"
-          onclick={() => (opened = kpi.label)}
-        />
+        <Card variant="interactive" {kpi} onclick={() => (opened = kpi.label)} />
       {/each}
     </div>
   </section>

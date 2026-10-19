@@ -1,8 +1,12 @@
-# CI gate for the SvelteKit rewrite (MIGRATION.md S05).
+# CI gate for the SvelteKit rewrite (MIGRATION.md S05, S05b).
 # Job `web`: typecheck + lint + unit/golden tests + /app build must pass.
+# Job `e2e`: the /app build's JS budget, then Playwright in chromium, webkit,
+# Mobile Safari and Mobile Chrome — specs, axe and lab vitals
+# (docs/migration/VERIFICATION.md boxes 14, 15, 17).
+# Job `audit`: no high/critical advisory in runtime dependencies (box 18).
 # Job `ledger`: any PR labeled `migration` must touch MIGRATION.md in the same
 # PR ("a decision that isn't written down didn't happen").
-# Branch protection on main should require both checks (human task, one-time).
+# Branch protection on main should require these checks (human task, one-time).
 name: CI
 
 on:
@@ -37,6 +41,55 @@ jobs:
         working-directory: web
       - name: Build (/app)
         run: BASE_PATH=/app npm run build
+        working-directory: web
+
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Loopback placeholders, not the secrets: no e2e page calls Supabase, so a
+    # build pointed at 127.0.0.1 cannot reach production whatever a test does.
+    # The same values built web/budget.json's baseline, so the budget compares
+    # like with like.
+    env:
+      PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      PUBLIC_SUPABASE_ANON_KEY: local-test-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - name: Install Playwright browsers (chromium + webkit, with OS deps)
+        run: npx playwright install --with-deps chromium webkit
+        working-directory: web
+      - name: JS budget of the /app build (box 17)
+        run: BASE_PATH=/app npm run build && npm run budget
+        working-directory: web
+      # playwright.config's webServer rebuilds at base '' and serves it with
+      # `vite preview` (the specs address root paths, G-019).
+      - name: Playwright — chromium, webkit, Mobile Safari, Mobile Chrome
+        run: npx playwright test
+        working-directory: web
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: web/test-results/
+          retention-days: 7
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Runtime dependencies only: dev tooling never reaches the Pages artifact.
+      # An unfixable advisory is recorded as an exception in the PR (box 18).
+      - run: npm audit --omit=dev --audit-level=high
         working-directory: web
 
   ledger:

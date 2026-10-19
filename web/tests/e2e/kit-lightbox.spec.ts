@@ -21,7 +21,15 @@ async function openFromTile(page: Page, index = 0): Promise<void> {
 test.describe('kit/lightbox', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
-  test('opens from a tile, walks with the arrows and closes on Escape', async ({ page }) => {
+  test('opens from a tile, walks with the arrows and closes on Escape', async ({
+    page,
+    browserName,
+  }) => {
+    // S05b finding X-1: Safari does not focus a clicked <button>, so the
+    // viewer records <main>/<body> as its opener and focus never returns to
+    // the tile. Expected to fail on WebKit until the overlays track their
+    // opener; this then fails as "passed unexpectedly" — delete the line.
+    test.fail(browserName === 'webkit', 'X-1: focus does not return to a clicked opener');
     const errors: string[] = [];
     page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
 
@@ -56,7 +64,15 @@ test.describe('kit/lightbox', () => {
     await expect(dialog(page)).toHaveCount(0);
   });
 
-  test('locks the page scroll while open and gives the position back', async ({ page }) => {
+  test('locks the page scroll while open and gives the position back', async ({
+    page,
+    browserName,
+    isMobile,
+  }) => {
+    test.skip(
+      browserName === 'webkit' && isMobile,
+      'Playwright cannot dispatch a mouse wheel in mobile WebKit (S05b)',
+    );
     await page.goto(KIT);
     await page.evaluate(() => window.scrollTo(0, 600));
     await openFromTile(page, 1);

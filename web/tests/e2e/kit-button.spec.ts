@@ -31,9 +31,11 @@ test.describe('/kit/button/', () => {
 
   test('href picks the element: <a> with it, <button> without', async ({ page }) => {
     await page.goto('/kit/button/');
-    const facts = await page.locator('.facts').innerText();
-    expect(facts).toContain('<button>');
-    expect(facts).toContain('<a>');
+    // Auto-retried: the readout fills in after hydration, which can land after
+    // `load` (S05b: a one-shot innerText read raced it on Mobile Safari).
+    const facts = page.locator('.facts');
+    await expect(facts).toContainText('<button>');
+    await expect(facts).toContainText('<a>');
   });
 
   test('disabled is dimmed and refuses the pointer', async ({ page }) => {

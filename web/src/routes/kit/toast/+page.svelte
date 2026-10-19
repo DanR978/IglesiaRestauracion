@@ -358,7 +358,10 @@ toast.dismiss(id);`}</code
     background: var(--color-surface);
     box-shadow: var(--shadow-sm);
     font-size: var(--fs-xs);
-    overflow-x: auto;
+    /* Wrap rather than scroll: keyboard users cannot reach a scroller in
+       WebKit, which does not make one focusable (axe, S05b). */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 640px) {
