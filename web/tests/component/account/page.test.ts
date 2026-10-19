@@ -1,20 +1,23 @@
 // S45 — the /admin/cuenta/ route under jsdom: the page header, the section
 // list in link mode driven by `?seccion=` (default Perfil, anything unknown is
 // Perfil), a section kept mounted once opened (an unsaved name survives a look
-// at Seguridad), the skeleton until the session is ready — and Preferencias,
-// whose one control is the admin's own theme (D-038). The stores are faked,
-// $app/state's page is a reactive stand-in, the auth / mfa / repo calls are
-// mocked so every section can mount.
+// at Seguridad), the skeleton fallback without a ready session — and
+// Preferencias, whose one control is the admin's own theme (D-038). The stores
+// are faked, $app/state is S37's runes stand-in (moved with visit()), the
+// auth / mfa / repo calls are mocked so every section can mount.
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ADMIN_THEME_STORAGE_KEY, THEME_STORAGE_KEY, adminTheme } from '#lib/theme.svelte.js';
+import { documentTitle } from '#lib/components/admin/shell/shell.js';
 import PreferencesSection from '#lib/components/admin/account/PreferencesSection.svelte';
 import AccountPage from '../../../src/routes/(admin)/admin/(app)/cuenta/+page.svelte';
 import {
+  profileFixture,
   resetAccountFakes,
   sessionFake,
   setSession,
+  userFixture,
   visit,
 } from '../fixtures/account-fakes.svelte';
 
@@ -24,9 +27,6 @@ vi.mock('#lib/stores/session.svelte.js', async () => ({
 }));
 vi.mock('#lib/stores/ministries.svelte.js', async () => ({
   ministries: (await import('../fixtures/account-fakes.svelte')).ministriesFake,
-}));
-vi.mock('$app/state', async () => ({
-  page: (await import('../fixtures/account-fakes.svelte')).pageFake,
 }));
 vi.mock('#lib/auth/mfa.js', () => ({
   listFactors: vi.fn(async () => ({ ok: true, data: [] })),
@@ -61,7 +61,7 @@ describe('/admin/cuenta/', () => {
     render(AccountPage);
     await settle();
     expect(screen.getByRole('heading', { level: 1, name: 'Mi cuenta' })).toBeInTheDocument();
-    expect(document.title).toBe('Mi cuenta');
+    expect(document.title).toBe(documentTitle('Mi cuenta'));
   });
 
   it('lists the three sections as links that change only the query', async () => {
@@ -125,19 +125,22 @@ describe('/admin/cuenta/', () => {
     expect(screen.getByRole('button', { name: 'Guardar cambios' })).toBeEnabled();
   });
 
-  it('shows a skeleton, and no account data, until the session is ready', async () => {
+  it('shows a skeleton, and no account data, without a ready session', async () => {
     setSession({ status: 'loading', user: null, profile: null });
     const { container } = render(AccountPage);
     await settle();
-    expect(sessionFake.ready).toHaveBeenCalled();
     expect(container.querySelector('.ird-state--loading')).not.toBeNull();
     expect(region('Perfil')).toBeNull();
     // The header and the section list are already there.
     expect(screen.getByRole('heading', { level: 1, name: 'Mi cuenta' })).toBeInTheDocument();
     expect(nav()).toBeInTheDocument();
+    // The shell's guard starts the session; the page does not.
+    expect(sessionFake.ready).not.toHaveBeenCalled();
 
-    setSession({ status: 'ready', user: sessionFake.user, profile: sessionFake.profile });
+    setSession({ status: 'ready', user: userFixture(), profile: profileFixture() });
     await settle();
+    expect(container.querySelector('.ird-state--loading')).toBeNull();
+    expect(region('Perfil')).toBeVisible();
   });
 });
 

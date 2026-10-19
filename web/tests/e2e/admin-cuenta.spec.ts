@@ -1,16 +1,15 @@
-// S45 — Mi cuenta (/admin/cuenta/) in a real browser, every engine, with the
-// backend MOCKED: a signed-in, two-step-verified session is seeded in
-// localStorage before the app boots, and every request that leaves the
-// preview origin is answered here (profile, auth user) or refused — nothing
-// reaches a Supabase project, local or production. Checks what jsdom can't:
-// the sections follow `?seccion=` through the real router (links, Back, a
-// deep link), an unsaved name holds a navigation to another page but not a
-// switch of section, nothing scrolls sideways at 360px, axe finds nothing
-// serious in either theme on the populated page, and Preferencias paints the
-// admin's own theme and keeps it across a reload (D-038).
-//
-// Confirm dialogs and toasts render in the admin layout's hosts (S37); this
-// spec stays on what the page itself draws.
+// S45 — Mi cuenta (/admin/cuenta/) in a real browser, every engine, inside the
+// S37 shell, with the backend MOCKED: a signed-in, two-step-verified session
+// is seeded in localStorage before the app boots, and every request that
+// leaves the preview origin is answered here (profile, auth user, logout) or
+// refused — nothing reaches a Supabase project, local or production. Checks
+// what jsdom can't: the sections follow `?seccion=` through the real router
+// (links, Back, a deep link); an unsaved name survives a switch of section,
+// while a trip to another page asks first; "Cerrar sesión en todos los
+// dispositivos" ends the other sessions, then this one, and leaves for the
+// sign-in page with its notice; nothing scrolls sideways at 360px; axe finds
+// nothing serious in either theme on the populated page; and Preferencias
+// paints the admin's own theme and keeps it across a reload (D-038).
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page, type Route } from '@playwright/test';
 import { gotoWithTheme } from './helpers/theme';
@@ -121,13 +120,20 @@ const PROFILE = {
   role_presets: { name: 'Desarrollador' },
 };
 
+interface Backend {
+  /** Requests to anything not answered here, as "METHOD origin/path" — aborted. */
+  readonly refused: string[];
+  /** The `scope` of each sign-out request, in order. */
+  readonly logouts: string[];
+}
+
 /**
- * Answer every request that leaves the preview origin: the two reads Mi
- * cuenta makes, an empty list for any other REST read (the admin shell's,
- * once it lands), and a refusal for the rest. Returns what was refused.
+ * Answer every request that leaves the preview origin: the reads Mi cuenta
+ * and the shell make, an empty list for any other REST read, the sign-outs,
+ * and a refusal for the rest.
  */
-async function mockBackend(page: Page, baseURL: string): Promise<string[]> {
-  const refused: string[] = [];
+async function mockBackend(page: Page, baseURL: string): Promise<Backend> {
+  const backend: Backend = { refused: [], logouts: [] };
   const preview = new URL(baseURL).origin;
   await page.route(
     (url) => url.origin !== preview && url.origin !== CDN_ORIGIN,
@@ -156,10 +162,14 @@ async function mockBackend(page: Page, baseURL: string): Promise<string[]> {
         return json(200, single ? PROFILE : [PROFILE]);
       }
       if (url.pathname === '/auth/v1/user') return json(200, USER);
+      if (url.pathname === '/auth/v1/logout') {
+        backend.logouts.push(url.searchParams.get('scope') ?? 'global');
+        return route.fulfill({ status: 204, headers: { 'access-control-allow-origin': '*' } });
+      }
       if (url.pathname.startsWith('/rest/v1/') && request.method() === 'GET') {
         return json(200, [], { 'content-range': '*/0' });
       }
-      refused.push(`${request.method()} ${url.origin}${url.pathname}`);
+      backend.refused.push(`${request.method()} ${url.origin}${url.pathname}`);
       return route.abort('blockedbyclient');
     },
   );
@@ -173,7 +183,7 @@ async function mockBackend(page: Page, baseURL: string): Promise<string[]> {
     },
     { key: STORAGE_KEY, session: SESSION },
   );
-  return refused;
+  return backend;
 }
 
 const ready = (page: Page) =>
@@ -194,7 +204,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('shows the signed-in account on Perfil, each fact once', async ({ page, baseURL }) => {
-  const refused = await mockBackend(page, baseURL!);
+  const { refused } = await mockBackend(page, baseURL!);
   await page.goto('/admin/cuenta/');
   await ready(page);
   await expect(page.getByRole('heading', { level: 1, name: 'Mi cuenta' })).toBeVisible();
@@ -228,7 +238,7 @@ test('sections follow the URL: links, Back, and a deep link', async ({ page, bas
   await expect(sectionLink(page, 'Preferencias')).toHaveAttribute('aria-current', 'page');
 });
 
-test('an unsaved name holds a trip to another page, not a switch of section', async ({
+test('an unsaved name survives a switch of section; another page asks first', async ({
   page,
   baseURL,
 }) => {
@@ -242,20 +252,45 @@ test('an unsaved name holds a trip to another page, not a switch of section', as
   await expect(page).toHaveURL(/\?seccion=seguridad$/);
   await sectionLink(page, 'Perfil').click();
   await expect(name).toHaveValue('Ana María Pérez');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 
-  // A link to another page of the app: the guard holds it (its question is
-  // drawn by the shell's ConfirmHost, S37).
+  // A link to another page of the app, handled by the client router.
   await page.evaluate(() => {
     const link = document.createElement('a');
     link.href = '/kit/button/';
     link.textContent = 'Otra página';
     link.id = 'e2e-elsewhere';
-    document.body.append(link);
+    document.querySelector('main')?.append(link);
   });
+  const leave = page.getByRole('dialog', { name: '¿Salir sin guardar los cambios?' });
+
   await page.locator('#e2e-elsewhere').click();
-  await page.waitForTimeout(300);
+  await expect(leave).toBeVisible();
   await expect(page).toHaveURL(/\/admin\/cuenta\/\?seccion=perfil$/);
+  await leave.getByRole('button', { name: 'Seguir editando' }).click();
+  await expect(leave).toBeHidden();
   await expect(name).toHaveValue('Ana María Pérez');
+
+  await page.locator('#e2e-elsewhere').click();
+  await leave.getByRole('button', { name: 'Salir sin guardar' }).click();
+  await expect(page).toHaveURL(/\/kit\/button\/$/);
+});
+
+test('"Cerrar sesión en todos los dispositivos" ends the others, then this one, and leaves', async ({
+  page,
+  baseURL,
+}) => {
+  const backend = await mockBackend(page, baseURL!);
+  await page.goto('/admin/cuenta/?seccion=seguridad');
+  await expect(page.getByRole('region', { name: 'Seguridad' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Cerrar sesión en todos los dispositivos' }).click();
+  const dialog = page.getByRole('dialog', { name: '¿Cerrar sesión en todos los dispositivos?' });
+  await dialog.getByRole('button', { name: 'Cerrar sesión en todos' }).click();
+
+  // The shell's signOutAndLeave: a full load of the sign-in page, with its notice (S37).
+  await expect(page).toHaveURL(/\/admin\/acceso\/\?aviso=sesion-cerrada$/);
+  expect(backend.logouts).toEqual(['others', 'local']);
 });
 
 test('nothing scrolls sideways at 360px, in any section', async ({ page, baseURL }) => {

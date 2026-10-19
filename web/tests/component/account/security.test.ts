@@ -23,7 +23,6 @@ import {
   identityFixture,
   resetAccountFakes,
   sessionFake,
-  setSession,
   userFixture,
 } from '../fixtures/account-fakes.svelte';
 
@@ -32,8 +31,12 @@ vi.mock('#lib/stores/session.svelte.js', async () => ({
   session: (await import('../fixtures/account-fakes.svelte')).sessionFake,
 }));
 
-const nav = vi.hoisted(() => ({ beforeNavigate: vi.fn(), goto: vi.fn(async () => {}) }));
-vi.mock('$app/navigation', () => nav);
+// The shell's deliberate sign-out: it signs this device out and leaves the page.
+const leave = vi.hoisted(() => ({ signOutAndLeave: vi.fn(async () => {}) }));
+vi.mock('#lib/components/admin/shell/sign-out.svelte.js', () => ({
+  signOutAndLeave: leave.signOutAndLeave,
+  signingOut: { current: false },
+}));
 
 const auth = vi.hoisted(() => ({ updatePassword: vi.fn() }));
 vi.mock('#lib/auth/session.js', () => auth);
@@ -96,7 +99,7 @@ const device = (id: string, name: string, created = '2026-03-01T12:00:00Z'): Fac
 beforeEach(() => {
   resetAccountFakes();
   for (const fn of [...Object.values(mfa), ...Object.values(auth)]) fn.mockReset();
-  nav.goto.mockClear();
+  leave.signOutAndLeave.mockClear();
   mfa.beginChallenge.mockResolvedValue(ok(true));
   mfa.submitCode.mockResolvedValue(ok({ leftover: [] }));
   mfa.cancelEnroll.mockResolvedValue(ok(undefined));
@@ -688,14 +691,10 @@ describe('SecuritySection', () => {
     confirmState.answer(false);
     await settle();
     expect(sessionFake.signOut).not.toHaveBeenCalled();
-    expect(nav.goto).not.toHaveBeenCalled();
+    expect(leave.signOutAndLeave).not.toHaveBeenCalled();
   });
 
-  it('confirmed, it signs out everywhere and goes to the sign-in page', async () => {
-    sessionFake.signOut.mockImplementation(async () => {
-      setSession({ status: 'signed-out', user: null, profile: null });
-      return ok(undefined);
-    });
+  it('confirmed, it ends the other sessions, then this one through the shell', async () => {
     mount();
     await settle();
     await fireEvent.click(
@@ -703,40 +702,26 @@ describe('SecuritySection', () => {
     );
     confirmState.answer(true);
     await settle();
-    expect(sessionFake.signOut).toHaveBeenCalledWith('global');
-    expect(toasts()).toContainEqual(['success', 'Cerraste tu sesión en todos tus dispositivos.']);
-    expect(nav.goto).toHaveBeenCalledWith('/admin/acceso/', { replace: true });
+    expect(sessionFake.signOut).toHaveBeenCalledTimes(1);
+    expect(sessionFake.signOut).toHaveBeenCalledWith('others');
+    // The shell signs this device out and leaves with "Sesión cerrada." (S37).
+    expect(leave.signOutAndLeave).toHaveBeenCalledWith('local');
+    expect(sessionFake.signOut.mock.invocationCallOrder[0]).toBeLessThan(
+      leave.signOutAndLeave.mock.invocationCallOrder[0],
+    );
   });
 
-  it('a server that did not confirm: signed out here anyway, told so, sent to sign in', async () => {
-    sessionFake.signOut.mockImplementation(async () => {
-      setSession({ status: 'signed-out', user: null, profile: null });
-      return authFailure(null, 'Sin conexión.', 'network');
-    });
+  it('a server that did not hear it: a toast, nobody signed out, and the page stays', async () => {
+    sessionFake.signOut.mockResolvedValue(authFailure(null, 'Sin conexión.', 'network'));
     mount();
     await settle();
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Cerrar sesión en todos los dispositivos' }),
-    );
+    const button = screen.getByRole('button', { name: 'Cerrar sesión en todos los dispositivos' });
+    await fireEvent.click(button);
     confirmState.answer(true);
     await settle();
-    expect(toasts()).toContainEqual([
-      'error',
-      expect.stringContaining('no pudimos confirmar el cierre en tus otros dispositivos'),
-    ]);
-    expect(nav.goto).toHaveBeenCalledWith('/admin/acceso/', { replace: true });
-  });
-
-  it('nothing ended at all: a toast, and the page stays', async () => {
-    sessionFake.signOut.mockResolvedValue(authFailure(null, 'Tu sesión expiró.', 'auth'));
-    mount();
-    await settle();
-    await fireEvent.click(
-      screen.getByRole('button', { name: 'Cerrar sesión en todos los dispositivos' }),
-    );
-    confirmState.answer(true);
-    await settle();
-    expect(toasts()).toEqual([['error', 'Tu sesión expiró.']]);
-    expect(nav.goto).not.toHaveBeenCalled();
+    expect(toasts()).toEqual([['error', 'Sin conexión.']]);
+    expect(leave.signOutAndLeave).not.toHaveBeenCalled();
+    expect(button).not.toHaveAttribute('aria-busy');
+    expect(button).toBeEnabled();
   });
 });

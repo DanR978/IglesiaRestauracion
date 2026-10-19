@@ -1,12 +1,13 @@
 /* ============================================================================
  * tests/component/fixtures/account-fakes.svelte.ts — Mi cuenta's collaborators (S45)
  * ----------------------------------------------------------------------------
- * Reactive stand-ins for the session and ministries stores and for
- * $app/state's page, so a component test can render the account components
- * with a signed-in account and change it mid-test (a refreshed profile, a
- * session that ended, another ?seccion=). Runes state, so a change re-renders
- * whatever reads it. The auth module, the mfa module and the repos are mocked
- * in each test file with plain vi.fn()s.
+ * Reactive stand-ins for the session and ministries stores, so a component
+ * test can render the account components with a signed-in account and change
+ * it mid-test (a refreshed profile, a session that ended). Runes state, so a
+ * change re-renders whatever reads it. `visit()` moves S37's $app/state
+ * stand-in (tests/stubs/app-state.svelte.ts) to another ?seccion=. The auth
+ * module, the mfa module and the repos are mocked in each test file with
+ * plain vi.fn()s.
  *
  * Usage (top of a test file — vi.mock factories may import this module):
  *   vi.mock('#lib/stores/session.svelte.js', async () => ({
@@ -14,7 +15,6 @@
  *   }));
  *   import { sessionFake, resetAccountFakes, setSession } from '../fixtures/account-fakes.svelte';
  * ========================================================================== */
-import { SvelteURL } from 'svelte/reactivity';
 import { vi } from 'vitest';
 import type { AuthResult } from '#lib/auth/errors.js';
 import type { SignOutScope } from '#lib/auth/session.js';
@@ -22,6 +22,7 @@ import type { Ministry } from '#lib/repos/ministries.js';
 import type { OwnProfile } from '#lib/repos/profiles.js';
 import type { RepoError } from '#lib/repos/types.js';
 import type { SessionStatus, SessionUser } from '#lib/stores/session.svelte.js';
+import { resetPage } from '../../stubs/app-state.svelte';
 
 export const USER_ID = '6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b';
 
@@ -145,14 +146,9 @@ export function setMinistries(next: Partial<typeof ministriesState>): void {
 
 /* ── $app/state ────────────────────────────────────────────────────────── */
 
-export const PAGE_URL = 'http://localhost/admin/cuenta/';
-
-/** $app/state's `page`, as far as Mi cuenta reads it: a reactive URL, like Kit's. */
-export const pageFake = { url: new SvelteURL(PAGE_URL) };
-
-/** Land on Mi cuenta with this query ('' for none). */
+/** Land on Mi cuenta with this query ('' for none) — S37's page stand-in follows. */
 export function visit(query: string): void {
-  pageFake.url.href = `${PAGE_URL}${query}`;
+  resetPage(`/admin/cuenta/${query}`);
 }
 
 /** Every fake back to a signed-in admin at aal2 on /admin/cuenta/, calls cleared. */

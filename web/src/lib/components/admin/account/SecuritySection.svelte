@@ -11,17 +11,19 @@
 
   After a password or device change the panel that changed is followed by
   the offer to close the other sessions (SignOutOthersOffer). Closing every
-  session asks first (ConfirmDialog, danger), signs out everywhere —
-  this browser included, and with it the legacy panel, which shares the
-  session — and goes to the sign-in page.
+  session asks first (ConfirmDialog, danger), then ends the OTHER sessions —
+  an answer that can still be shown here if the server did not hear it — and
+  then this one through the shell's signOutAndLeave('local'), which leaves for
+  the sign-in page ("Sesión cerrada.") whatever the server says. Together:
+  every session, this browser's included, and with it the legacy panel, which
+  shares the session (D-040).
 
   Usage:
     <SecuritySection {user} />
 -->
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import Button from '#lib/components/Button.svelte';
-  import { ROUTES } from '#lib/auth/routes.js';
+  import { signOutAndLeave } from '#lib/components/admin/shell/sign-out.svelte.js';
   import { confirm } from '#lib/stores/confirm.svelte.js';
   import { session, type SessionUser } from '#lib/stores/session.svelte.js';
   import { toast } from '#lib/stores/toast.svelte.js';
@@ -51,24 +53,16 @@
     );
     if (!yes) return;
     leaving = true;
-    const res = await session.signOut('global');
-    if (!res.ok && session.status === 'ready') {
-      // Nothing ended, not even here: the session could not be read.
+    // signOut('global') would drop this device's session even when the server
+    // never heard it, and the page would leave saying "Sesión cerrada." with
+    // the other devices still signed in. The others first, then this one.
+    const others = await session.signOut('others');
+    if (!others.ok) {
       leaving = false;
-      toast.error(res.error.message);
+      toast.error(others.error.message);
       return;
     }
-    if (res.ok) {
-      toast.success('Cerraste tu sesión en todos tus dispositivos.');
-    } else {
-      // auth-js ended this session anyway; the server did not confirm the rest.
-      toast.error(
-        'Cerramos tu sesión aquí, pero no pudimos confirmar el cierre en tus otros dispositivos. Vuelve a entrar e inténtalo de nuevo.',
-      );
-    }
-    // ROUTES.login is resolve()d in #lib/auth/routes (its page is S39's).
-    // eslint-disable-next-line svelte/no-navigation-without-resolve
-    await goto(ROUTES.login, { replace: true });
+    await signOutAndLeave('local');
   }
 </script>
 

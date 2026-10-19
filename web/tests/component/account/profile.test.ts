@@ -1,6 +1,6 @@
 // S45 — Mi cuenta › Perfil under jsdom, with the session / ministries stores
-// faked (fixtures/account-fakes.svelte.ts), the profiles repo, the image
-// optimizer and $app/navigation mocked, and the real toast and confirm
+// faked (fixtures/account-fakes.svelte.ts), the profiles repo and the image
+// optimizer mocked, S37's $app/navigation spies, and the real toast and confirm
 // stores: the avatar uploader (image-only, ≤ 5 MB, square JPEG through the
 // optimizer, upload → set → refresh, progress on the button, the confirm in
 // front of "Quitar foto", every outcome a Spanish toast), the display-name
@@ -10,7 +10,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { BeforeNavigate } from '$app/navigation';
+import { beforeNavigate, goto, type BeforeNavigate } from '$app/navigation';
 import { confirmState } from '#lib/stores/confirm.svelte.js';
 import { toast } from '#lib/stores/toast.svelte.js';
 import { IMAGE_OPTIMIZER_MESSAGES, ImageOptimizerError } from '#lib/image-optimizer.js';
@@ -37,11 +37,8 @@ vi.mock('#lib/stores/ministries.svelte.js', async () => ({
   ministries: (await import('../fixtures/account-fakes.svelte')).ministriesFake,
 }));
 
-const nav = vi.hoisted(() => ({
-  beforeNavigate: vi.fn(),
-  goto: vi.fn(async () => {}),
-}));
-vi.mock('$app/navigation', () => nav);
+// S37's $app/navigation stand-in (tests/stubs/app-navigation.ts): router spies.
+const nav = { beforeNavigate: vi.mocked(beforeNavigate), goto: vi.mocked(goto) };
 
 const repo = vi.hoisted(() => ({
   setDisplayName: vi.fn(),
@@ -387,7 +384,7 @@ describe('DisplayNameForm', () => {
       guard()(navigation({ toPath: '/admin/' }).nav);
       confirmState.answer(true);
       await settle();
-      expect(nav.goto).toHaveBeenCalledWith(new URL('http://localhost/admin/'));
+      expect(String(nav.goto.mock.calls[0][0])).toBe('http://localhost/admin/');
       expect(input().value).toBe('Ana Pérez');
     });
 
@@ -411,7 +408,7 @@ describe('DisplayNameForm', () => {
       confirmState.answer(true);
       await settle();
       expect(nav.goto).toHaveBeenCalledTimes(1);
-      expect(nav.goto).toHaveBeenCalledWith(new URL('http://localhost/admin/tesoreria/'));
+      expect(String(nav.goto.mock.calls[0][0])).toBe('http://localhost/admin/tesoreria/');
     });
 
     it('ignores another section of Mi cuenta (same page, new query) and shallow navigations', async () => {

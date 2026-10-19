@@ -11,16 +11,15 @@
   hidden while another is open, so an unsaved name survives a look at
   Seguridad and its guard keeps watching.
 
-  Rendered inside the (app) layout: its guard lets the page render only for
-  a ready session (or an error, which the shell shows with Retry). Until the
-  session is ready the body is a skeleton. ready() is idempotent — the guard
-  already started the store — so the page also works where no guard runs.
+  Rendered in the S37 shell's content column, which shows a page only for a
+  ready session (the (app) guard and the shell own every other state); the
+  skeleton below is the type-level fallback for a session without its user
+  or profile, which `ready` rules out.
 
   Prerendered as an empty `ssr = false` shell (D-036): nothing here runs
   while prerendering, so reading the query is safe.
 -->
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { page } from '$app/state';
   import SectionNav from '#lib/components/SectionNav.svelte';
   import StateError from '#lib/components/StateError.svelte';
@@ -56,10 +55,6 @@
 
   const user = $derived(session.status === 'ready' ? session.user : null);
   const profile = $derived(session.status === 'ready' ? session.profile : null);
-
-  onMount(() => {
-    void session.ready();
-  });
 
   function report(error: unknown): void {
     console.error('[account] a section failed to render:', error);
