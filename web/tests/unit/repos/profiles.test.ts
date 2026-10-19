@@ -31,6 +31,7 @@ const ROW = {
   avatar_url: null,
   created_at: '2026-01-01T00:00:00Z',
   ministries: null,
+  role_presets: null,
 };
 const image = (size: number, type = 'image/jpeg'): Blob =>
   new Blob([new Uint8Array(size)], { type });
@@ -44,15 +45,26 @@ describe('repos/profiles', () => {
   afterEach(() => warn.mockRestore());
 
   describe('fetchOwnProfile (auth.js bootApp)', () => {
-    it('reads the own row with the ministries embed, by the session user id', async () => {
+    it('reads the own row with the ministries and preset embeds, by the session user id', async () => {
       mock.results.profiles = [{ data: ROW }];
       expect(await fetchOwnProfile()).toEqual({ ok: true, data: ROW });
       expect(mock.query().table).toBe('profiles');
       expect(mock.chain()).toEqual(['select', 'eq', 'maybeSingle']);
       expect(mock.args('select')).toEqual([
-        'id,display_name,role,allowed_tabs,ministry_id,ministry_ids,preset_id,avatar_url,created_at,ministries(name,color)',
+        'id,display_name,role,allowed_tabs,ministry_id,ministry_ids,preset_id,avatar_url,created_at,ministries(name,color),role_presets(name)',
       ]);
       expect(mock.args('eq')).toEqual(['id', TEST_USER_ID]);
+    });
+
+    it("carries the access preset's name when RLS lets the account read it (S45)", async () => {
+      const developer = {
+        ...ROW,
+        preset_id: '7a1c4c55-0d6b-4b5e-9f3a-1e2d3c4b5a69',
+        role_presets: { name: 'Desarrollador' },
+      };
+      mock.results.profiles = [{ data: developer }];
+      const res = await fetchOwnProfile();
+      expect(res.ok && res.data?.role_presets).toEqual({ name: 'Desarrollador' });
     });
 
     it('an account without a profile is a successful null (the oracle forbids it)', async () => {
