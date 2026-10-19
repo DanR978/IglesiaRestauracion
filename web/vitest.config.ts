@@ -24,17 +24,16 @@ export default defineConfig({
     // resolves natively. The SvelteKit virtual modules are stubbed so unit tests
     // can import config/client without a svelte-kit sync'd environment; the
     // stubs report browser=false — the prerender posture client.ts must be safe
-    // under — and $app/paths resolves at base '' (S38). $app/navigation and
-    // $app/state are inert (no router under jsdom) so a page component can be
-    // imported at all; a test mocks them with what it needs (S45). Anchored
-    // regexes, because a plain '$app/env' key is a prefix match and would
-    // also capture '$app/env/public'.
+    // under — and $app/paths resolves at base '' (S38). $app/state and
+    // $app/navigation (S37) are a runes `page` and router spies that write it.
+    // Anchored regexes, because a plain '$app/env' key is a prefix match and
+    // would also capture '$app/env/public'.
     alias: [
       { find: /^\$app\/env$/, replacement: stub('app-env.ts') },
       { find: /^\$app\/env\/public$/, replacement: stub('app-env-public.ts') },
       { find: /^\$app\/paths$/, replacement: stub('app-paths.ts') },
+      { find: /^\$app\/state$/, replacement: stub('app-state.svelte.ts') },
       { find: /^\$app\/navigation$/, replacement: stub('app-navigation.ts') },
-      { find: /^\$app\/state$/, replacement: stub('app-state.ts') },
     ],
   },
   test: {
