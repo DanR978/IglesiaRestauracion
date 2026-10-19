@@ -1,7 +1,7 @@
 # Session S41 — Inicio: role-aware tiles, next events and recent activity
 
 **Stream:** admin
-**Depends on:** S37 (the `(app)` shell + guard + `PageHeader`, built in parallel — see Landmines), S38 (`session` / `perms` stores), S40 (the Inicio repo reads), PR-C2 primitives (`Card`, `Badge`, `Avatar`, `StateLoading` / `StateEmpty` / `StateError`), S22b (`ReadResult`)   **PR:** PR-C2 (not opened yet)   **Branch:** `c2/s41` → `migrate/S37-S45-admin`
+**Depends on:** S37 (the `(app)` shell + guard + `PageHeader`, built in parallel and merged in — see Landmines), S38 (`session` / `perms` stores), S40 (the Inicio repo reads), PR-C2 primitives (`Card`, `Badge`, `Avatar`, `StateLoading` / `StateEmpty` / `StateError`), S22b (`ReadResult`)   **PR:** PR-C2 (not opened yet)   **Branch:** `c2/s41` → `migrate/S37-S45-admin`
 **Status:** 🟦 built on the branch — PR-C2 not opened yet
 
 ## Goal (one sentence)
@@ -11,8 +11,8 @@ Port the legacy Inicio (`js/pages/admin/dashboard.js`) as an honest, role-aware 
 - `web/src/routes/(admin)/admin/(app)/+page.svelte` — the page (replaces S37's placeholder).
 - `web/src/lib/components/admin/dashboard/` — `dashboard.ts` (tile registry, the load instant, words), `card-read.svelte.ts` (one card's async state), `KpiTile.svelte`, `NextEvents.svelte`, `RecentActivity.svelte`, `CardBoundary.svelte`.
 - `web/src/lib/activity-format.ts` — the verb / entity map + `timeAgo` of `js/pages/admin/activity-tab.js`, golden-tested.
-- `web/src/lib/components/admin/shell/PageHeader.svelte` — a **stub** of S37's component (see Landmines).
-- Tests: `tests/golden/activity-format.test.ts` + `tests/fixtures/activity-format.json` (captured by `tests/unit/capture-activity-format.test.ts`), `tests/unit/{activity-format,dashboard,card-read}.test.ts`, `tests/component/{KpiTile,NextEvents,RecentActivity,Inicio}.test.ts`, `tests/helpers/session-double.svelte.ts`.
+- Tests: `tests/golden/activity-format.test.ts` + `tests/fixtures/activity-format.json` (captured by `tests/unit/capture-activity-format.test.ts`), `tests/unit/{activity-format,dashboard,card-read}.test.ts`, `tests/component/{KpiTile,NextEvents,RecentActivity,Inicio}.test.ts`, `tests/helpers/session-double.svelte.ts`, `tests/e2e/admin-inicio.spec.ts` + `tests/e2e/helpers/admin-session.ts`.
+- One edit outside: S37's `tests/e2e/admin-shell.spec.ts` (its fake backend now answers Inicio's reads — see Decisions).
 
 ## Out of scope (do NOT touch)
 - The shell, guard, topbar and nav (S37); Mi cuenta (S45); the sign-in screens (S39).
@@ -27,7 +27,7 @@ Port the legacy Inicio (`js/pages/admin/dashboard.js`) as an honest, role-aware 
 ## What changed
 
 ### The page
-`PageHeader` "Inicio" with the greeting as its one line ("Hola, Ana" — the display name's first word, as legacy; "Hola" without a name; no date or weather filler) and the page's one action: **"Gestionar en el panel actual"**, a ghost `Button` to the legacy panel at the site root (`LEGACY_PANEL_URL = '/admin/'`, never under `/app`). Below it the tiles (an `<ul>` under a visually hidden `h2` "Resumen") and the two list cards (`h2` each), in a pure-CSS grid.
+S37's `PageHeader` first ("Inicio", which also titles the tab and the mobile topbar), with the greeting as its one line ("Hola, Ana" — the display name's first word, as legacy; "Hola" without a name; no date or weather filler) and the page's one action: **"Gestionar en el panel actual"**, a ghost `Button` to the legacy panel at the site root (S37's `LEGACY_PANEL_HREF`, `'/admin/'`, never `resolve()`d under `/app`). Below it the tiles (an `<ul>` under a visually hidden `h2` "Resumen") and the two list cards (`h2` each). The shell's content column (max 1200px, `--pd-md`) is the page's only container.
 
 ### KPI tiles — static, honest, gated (D-006)
 | Tile | Who sees it (perms) | Read (`dashboard.ts` `TILES`) | Scope label | Emphasis |
@@ -85,8 +85,10 @@ A tile reads label (beside its glyph) → figure → scope. Grid: `repeat(auto-f
 2. **The KPI typography is the brief's, not `Card`'s `kpi` sub-variant** (value `--fs-2xl` 700 tabular-nums, label `--fs-sm` muted, scope `--fs-xs` muted, the task's warn tone and an error slot): the tile is a static `Card` with its own content. Five tiles at 1280px leave ~150px of tile, so a money figure is sized to it (`clamp(--fs-lg, 18cqi, --fs-2xl)`; "$3,450.00" at `--fs-2xl` overflowed), and the warning is a glyph-and-words line, not a `Badge` — a Badge never wraps, and its uppercase pill ran past the tile there (seen by eye).
 3. **The full audited set, not only `profiles` / `role_presets` / `leader_*`** — the same bug ("un registro") on five more audited tables; guarded by the catalog test above.
 4. **A failed background refresh keeps the last good answer** (Retry and the first load always show the error) — waking a phone is not a reason to swap real figures for seven error boxes.
-5. **No committed e2e spec.** The `(app)` guard (S37) is not in this tree, and the page deliberately does not start the session itself. The page's behaviour is pinned by component tests over the real `perms` store (a reactive session double underneath) with every repo mocked; the axe spec scans `/admin/` as this tree renders it (the header). The integrated page was checked by eye with a throwaway harness (below).
-6. **`LEGACY_PANEL_URL` lives in `dashboard.ts`.** S37's "Abrir panel actual" points at the same `/admin/`; at integration one constant should serve both.
+5. **The page never starts the session itself** — the `(app)` guard (S37) has settled it before any page renders. Behaviour is pinned by component tests over the real `perms` store (a reactive session double underneath, every repo mocked); since S37's guard landed, `admin-inicio.spec.ts` drives the real page, stores and repos in four browsers with `page.route` answering the API.
+6. **The legacy link reuses S37's `LEGACY_PANEL_HREF`** (one site-root constant for the shell's "Abrir panel actual" and Inicio's "Gestionar en el panel actual"); S41's own constant went at the merge.
+7. **S37's `admin-shell.spec.ts` was edited.** It asserted the backend saw only `GET /rest/v1/profiles` — true of its placeholder page, false of Inicio. Its fake backend now also answers Inicio's reads for its profile (zero counts with `Content-Range`, empty lists), and the strict request-set check lists them, so "the shell reads only the profile" stays explicit. 68/68 in four browsers after the edit.
+8. **Failures in e2e answer 500, not 503**: postgrest-js retries a 503 (and 520) on GET/HEAD three times — 1 s, 2 s, 4 s — so a 503 shows its error state only after ~7 s. Worth knowing in production too: a PostgREST schema-cache 503 keeps a card's skeleton up that long.
 
 ## PORT-DEBT S41 coverage
 | Item (PORT-DEBT §3) | Where | Status |
@@ -95,7 +97,7 @@ A tile reads label (beside its glyph) → figure → scope. Grid: `repeat(auto-f
 | False affordance on the next-events rows | `NextEvents`: static rows, no hover / pointer / control (component test reads the CSS) | ✅ |
 | Delete `autoBalance` / `grid-balance.js` (G-010) | CSS grid `auto-fit, minmax(180px, 1fr)`; nothing sets `gridColumn` | ✅ |
 | Reconcile `.dash-card` to the Card system | static `Card`: `--radius-md`, slate, no amber wipe / icon tile / lift | ✅ |
-| KPI grid hierarchy — only pending interests is actionable | warn tint + glyph + "Requiere atención" Badge on that tile only | ✅ |
+| KPI grid hierarchy — only pending interests is actionable | warn tint + glyph + the words "Requiere atención" on that tile only | ✅ |
 | DO NOT PORT: grid-balance, amber hover, `e.message` | none ported | ✅ |
 | (S42) keep and unit-test the ACTION / ENTITY map and `timeAgo` | `#lib/activity-format` + golden (64) + unit (8) | ✅ (for S42 to reuse) |
 | (S42) actor avatar | Inicio's activity rows carry initials (`Avatar`, one algorithm) | ✅ on Inicio |
@@ -109,37 +111,47 @@ DESIGN-SYSTEM §6.3 (every async view): skeleton per shape ✅ · empty with cop
 | `unit/activity-format` · `unit/dashboard` · `unit/card-read` (new) | — | 8 · 24 · 7 |
 | `unit/capture-activity-format` (new, CAPTURE-gated) | — | 2 skipped |
 | `component/KpiTile` · `NextEvents` · `RecentActivity` · `Inicio` (new) | — | 7 · 9 · 7 · 25 |
-| **`npm run test`** | **99 files (1 skipped) · 2825 passed · 2 skipped** | **108 files (2 skipped) · 2976 passed · 4 skipped** |
+| **`npm run test`**, before the S37 merge | **99 files (1 skipped) · 2825 passed · 2 skipped** | **108 files (2 skipped) · 2976 passed · 4 skipped** |
+| **`npm run test`**, after the S37 merge | — | **116 files (2 skipped) · 3045 passed · 4 skipped** |
+| `e2e/admin-inicio.spec.ts` (new) · `e2e/admin-shell.spec.ts` (S37, edited) | — · 17 | 7 · 17 — × 4 browsers |
 
 ## Verification gate
+After the S37 merge (`57c186a`) unless marked otherwise.
 ```
 [ ]  1. Install clean     not re-run (lockfile unchanged)
-[x]  2. Typecheck         npm run check → 769 FILES 0 ERRORS 0 WARNINGS
+[x]  2. Typecheck         npm run check → 802 FILES 0 ERRORS 0 WARNINGS
 [x]  3. Lint / format     npx eslint . → exit 0 · npx prettier --check --end-of-line auto . → all files pass
-[x]  4. Unit tests        npm run test → 106 passed | 2 skipped files · 2976 passed | 4 skipped
+[x]  4. Unit tests        npm run test → 114 passed | 2 skipped files · 3045 passed | 4 skipped
+                          (before the merge: 106 | 2 · 2976 | 4)
 [x]  5. Golden parity     tests/golden/activity-format → 48 rows byte-identical to the legacy capture; 3
                           approved diffs checked on both sides; the capture re-runs clean (CAPTURE=1)
 [x]  6. Build             MSYS_NO_PATHCONV=1 BASE_PATH=/app npm run build → done; build/admin/index.html
-[ ]  7. Preview smoke     see "By eye" below (throwaway harness; the shell is S37's)
+[x]  7. Preview smoke     tests/e2e/admin-inicio.spec.ts, the real page in the real shell (below)
 [x]  8. Legacy untouched  only web/** and this file
 [x] 12. Secrets/PII clean no keys; invented names, example.org addresses, synthetic UUIDs
 [ ] 13. Ledger updated    → PR-C2 ledger step
-[x] 15. axe               E2E_PORT=4189 npx playwright test tests/e2e/a11y.spec.ts (4 projects) →
-                          224 passed (3.6m) on c2/s41 before the S37 merge, /admin/ included
-[x] 17. Budget            npm run budget → /admin/ 133.2 kB, no baseline (expected; integrator); every
-                          other page ok — `/` 41.8 → 42.3 kB (+3.7 % → +5.0 %, at its limit; see Landmines)
+[x] 14. E2E               E2E_PORT=4189 npx playwright test a11y + admin-inicio + admin-shell (4 projects)
+                          → 312 passed, 8 failed (2.3m). admin-inicio 28/28 · admin-shell 68/68.
+[~] 15. axe               the 8 failures are a11y.spec's SIGNED-OUT /admin/ scan, 4 browsers × 2 themes:
+                          the guard sends the visit to acceso/, which is not built yet, and that page has
+                          no <title> (document-title [serious]) — expected until S39 lands. Inicio itself
+                          never renders signed out; admin-inicio's axe over the filled page (both themes,
+                          one card in error) passes in all four browsers. Before the merge: 224/224.
+[x] 17. Budget            npm run budget → /admin/ 150.3 kB, no baseline (S37's tip 139.5 kB). Over the
+                          limit on 14 pages: 11 already over on S37's tip, +3 from S41's re-split
+                          (see Landmine 3) — for the integrator's re-baseline
 [x] 19. Security          V8: every card gated on perms (UX) over RLS; no read before the session is
-                          ready; RepoError.message only, never `detail` or an exception
+                          ready; RepoError.message only, never `detail` or an exception; e2e: nothing
+                          leaves the preview origin, and a treasurer's hidden cards are never read
 ```
 
 ## How to resume if interrupted
-- Branch `c2/s41`, worktree `IR-c2-s41`, on top of `b837ef3` (S37's route-group commit).
-- Done: everything above, one commit.
+- Branch `c2/s41`, worktree `IR-c2-s41`: `72ba29f` (S41, built on `b837ef3` with a PageHeader stub) → `9649475` (merge of `migrate/S37-S45-admin`: S37's PageHeader taken, Inicio kept over the placeholder) → `57c186a` (Inicio in the shell, the e2e spec, the admin-shell spec edit) → this file's update.
 
 ## Landmines
-1. **`PageHeader.svelte` here is a stub** with S37's announced API (`title`, `description?`, `actions?` snippet; sets `document.title`). On merge keep S37's file.
-2. **The page relies on the `(app)` guard**: it renders only after `guardAdmin` settled the session. It never calls `session.ready()`; with no guard (this tree) it shows only the header, which is what the axe spec scans here.
-3. **Budget**: `/admin/` needs a baseline (133.2 kB gzip at `/app`, most of it supabase-js). Adding any route that loads the Supabase client grows the route manifest and re-splits chunks the root layout shares (`#lib/config.js`), so `/` went +3.7 % → +5.0 % of its baseline — inside the limit, with no headroom; S37 / S39 / S45 add the same kind of routes.
+1. **S41 was built against a PageHeader stub**; the merge took S37's real one (same API). Tab title is now "Inicio · Panel · Iglesia Restauración Divina" and the mobile topbar shows "Inicio".
+2. **The page relies on the `(app)` guard**: it renders only after `guardAdmin` settled the session, and never calls `session.ready()`. Signed out, `/admin/` now redirects to `acceso/`, which another branch is still building — so the axe spec's signed-out `/admin/` scan fails until that lands (expected; see the gate).
+3. **Budget** (`/app` build): `/admin/` measures 150.3 kB — S37's tip alone is 139.5 kB, so Inicio adds 10.8 kB (its repos, money, activity-format, the dashboard components and the Card / Badge / Avatar / state primitives; the treasury barrel tree-shakes — no payables, recurring or report code ships). Every other page grows 0.4–0.5 kB: Inicio is one more consumer of the shared primitives, so the bundler re-splits their chunks and each page loads two more files (`<svelte:boundary>` is not it — measured with and without). S37's tip is already over on 11 pages; this adds `/kit/data-table/`, `/kit/signature-pad/` and `/kit/toast/`. The integrator's one re-baseline covers it; a `manualChunks` policy for the primitives would stop each new admin page from moving every page's numbers.
 4. **ICU in the golden**: week-old rows print `toLocaleDateString('es-ES')` ("12 oct 2026", "30 sept 2026") — captured on Node 24 / ICU 78; an image with an older ICU prints "sep". Same call in legacy and port, so a mismatch means the environment changed, not the port.
 5. **TZ in tests**: the golden, `RecentActivity` and `dashboard` suites set `process.env.TZ` and restore it; keep it that way — vitest reuses workers across files.
 6. **Svelte keeps the whitespace between two adjacent `{expressions}` verbatim** (a newline + indent survives into `textContent`, unlike whitespace next to an element). `RecentActivity` renders the words after the name as one text node for that reason; candidate gotcha for the ledger.
@@ -157,9 +169,11 @@ A preview build with `PUBLIC_SUPABASE_URL=http://localhost:<port>/__supabase` (s
 | Nothing upcoming, no activity | 360 × light / dark | both empty states |
 | Leader with galeria | 360 × light | Próximos, Este mes, Álbumes + the events list |
 
-Found and fixed there: (1) a long ministry name in a nowrap Badge widened the page to ~490px at 360 — the page's grids now use `minmax(0, 1fr)` columns and the Badge truncates as designed (component test pins the rule); (2) the "Requiere atención" pill overflowed a five-up tile — now a wrapping line; (3) skeletons were 128px against 151–255px tiles and 56px against ~80px event rows — the glyph moved beside the label and the state tokens were tuned (largest remaining growth: one tile row by its warning line).
+Found and fixed there: (1) a long ministry name in a nowrap Badge widened the page to ~490px at 360 — a grid track whose minimum was `auto` grew to the Badge's full width; the tracks now have fixed minimums (`minmax(0, 1fr)`, `minmax(min(100%, 24rem), 1fr)`), the Badge truncates as designed, a component test pins the rules and the e2e spec's sideways-scroll check fails on the original bug (mutation-checked); (2) the "Requiere atención" pill overflowed a five-up tile — now a wrapping line; (3) skeletons were 128px against 151–255px tiles and 56px against ~80px event rows — the glyph moved beside the label and the state tokens were tuned (largest remaining growth: one tile row by its warning line).
+
+After the S37 merge the same checks run inside the real shell as `tests/e2e/admin-inicio.spec.ts` (no temporary layout).
 
 ## On completion (PR-C2 ledger step)
 - [ ] ROADMAP S41 row → built; MIGRATION.md board + Current state; PORT-DEBT S41 closed (table above).
-- [ ] Candidate gotcha: Svelte expression whitespace (Landmine 6).
-- [ ] `budget.json`: baseline `/admin/` (and re-baseline `/`) from the integrated `/app` build.
+- [ ] Candidate gotchas: Svelte expression whitespace (Landmine 6); postgrest-js retries 503/520 for ~7 s (Decision 8).
+- [ ] `budget.json`: baseline `/admin/` and re-baseline the pages that moved (Landmine 3) from the integrated `/app` build.
