@@ -22,8 +22,6 @@ test.describe('kit/lightbox', () => {
   test.use({ viewport: { width: 1280, height: 900 } });
 
   test('opens from a tile, walks with the arrows and closes on Escape', async ({ page }) => {
-    // In WebKit the click leaves the tile unfocused, so focus returns to the
-    // opener the press was tracked to (G-038, S05b finding X-1).
     const errors: string[] = [];
     page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
 
@@ -42,9 +40,18 @@ test.describe('kit/lightbox', () => {
 
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);
-    // Focus went back to the tile that opened it.
-    await expect(page.locator('.tile').first()).toBeFocused();
     expect(errors).toEqual([]);
+  });
+
+  test('returns focus to the tile that opened it', async ({ page }) => {
+    // In WebKit the click leaves the tile unfocused, so focus returns to the
+    // opener the press was tracked to (G-038, S05b finding X-1).
+    await page.goto(KIT);
+    await openFromTile(page, 0);
+
+    await page.keyboard.press('Escape');
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page.locator('.tile').first()).toBeFocused();
   });
 
   test('closes on the backdrop but not on the photo itself', async ({ page }) => {

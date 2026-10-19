@@ -14,12 +14,20 @@
  * (`treasury-tab.js:25`, `report-builder.js:131-134`), which is the approved
  * golden divergence.
  *
- * ALL OR NOTHING (ADR-0004). Each aggregate runs its queries in parallel and
- * returns `{ ok: false, error }` if ANY of them failed — never totals computed
- * from the reads that happened to succeed. A balance without its expenses, or
- * a report without its income, is wrong money; legacy rendered exactly that
- * as "$0.00" (PORT-DEBT S53, S56). Each failed query is logged as
- * `[treasury] <fn> <part>:`.
+ * EVERY ROW, PAGE BY PAGE (G-033). PostgREST stops at max-rows (1000 on
+ * Supabase, `supabase/config.toml`) without saying so; legacy summed whatever
+ * the first request returned. Each read here walks `.range()` pages of
+ * PAGE_SIZE rows under a total order (`id` last, so pages neither overlap nor
+ * skip a row) until a page comes back short. Past MAX_PAGES the total is
+ * refused, never truncated. PAGE_SIZE must not exceed the server's max-rows,
+ * or the first page would already look like the last one.
+ *
+ * ALL OR NOTHING (ADR-0004). Each aggregate runs its reads in parallel and
+ * returns `{ ok: false, error }` if ANY query — or any page of one — failed,
+ * never totals computed from the reads that happened to succeed. A balance
+ * without its expenses, or a report without its income, is wrong money;
+ * legacy rendered exactly that as "$0.00" (PORT-DEBT S53, S56). Each failure
+ * is logged as `[treasury] <fn> <part>:`.
  *
  * Usage:
  *   import { fetchBooksSummary, monthRange } from '#lib/repos/treasury/index.js';
@@ -29,7 +37,8 @@
 
 import { supabase } from '#lib/db/client.js';
 import { fail, ok } from '../errors';
-import type { ReadResult } from '../types';
+import { requireSession } from '../session';
+import type { ReadResult, RepoFailure } from '../types';
 import {
   PASTOR_LABEL,
   TAG,
@@ -39,6 +48,45 @@ import {
   type ExpenseRow,
   type IncomeRow,
 } from './shared';
+
+/* ── Paging (G-033) ────────────────────────────────────────────────────── */
+
+/** Rows per request — Supabase's default max-rows. */
+const PAGE_SIZE = 1000;
+/** 50 000 rows per read; a total that needs more is refused, not truncated. */
+const MAX_PAGES = 50;
+const TOO_MANY_ROWS =
+  'Hay demasiados movimientos para calcular este total. Acota el rango de fechas.';
+
+/** What one awaited page resolves to: postgrest-js's response, narrowed. */
+type Page<Row> = { data: Row[] | null; error: unknown; status: number };
+
+/**
+ * Every row of one read. `page(from, to)` builds the query for the rows
+ * `from…to` (inclusive), with the same filters and order every time.
+ */
+async function readAllPages<Row>(
+  fn: string,
+  page: (from: number, to: number) => PromiseLike<Page<Row>>,
+): Promise<ReadResult<Row[]>> {
+  const rows: Row[] = [];
+  for (let n = 0; n < MAX_PAGES; n++) {
+    const from = n * PAGE_SIZE;
+    const { data, error, status } = await page(from, from + PAGE_SIZE - 1);
+    if (error) return fail(TAG, fn, error, status);
+    const batch = data ?? [];
+    for (const row of batch) rows.push(row);
+    if (batch.length < PAGE_SIZE) return ok(rows);
+  }
+  return tooManyRows(fn);
+}
+
+/** The last allowed page came back full: there may be more, so no total. */
+function tooManyRows(fn: string): RepoFailure {
+  const detail = `more than ${MAX_PAGES * PAGE_SIZE} rows`;
+  console.warn(`${TAG} ${fn}:`, detail);
+  return { ok: false, error: { kind: 'unknown', message: TOO_MANY_ROWS, detail } };
+}
 
 /* ── Resumen (church books) ────────────────────────────────────────────── */
 
@@ -68,35 +116,50 @@ export type BooksSummary = {
 
 /** The four Resumen KPI tiles plus the "Gastos por línea" breakdown. */
 export async function fetchBooksSummary(range: DateRange): Promise<ReadResult<BooksSummary>> {
+  const denied = await requireSession(TAG, 'fetchBooksSummary');
+  if (denied) return denied;
   const [inc, exp, pay] = await Promise.all([
-    supabase
-      .from('fin_income')
-      .select('amount')
-      .is('project_id', null)
-      .gte('occurred_on', range.start)
-      .lte('occurred_on', range.end),
-    supabase
-      .from('fin_expenses')
-      .select('amount,ministry_id,label')
-      .is('project_id', null)
-      .gte('occurred_on', range.start)
-      .lte('occurred_on', range.end),
-    supabase.from('fin_payables').select('amount').eq('status', 'open'),
+    readAllPages('fetchBooksSummary income', (from, to) =>
+      supabase
+        .from('fin_income')
+        .select('amount')
+        .is('project_id', null)
+        .gte('occurred_on', range.start)
+        .lte('occurred_on', range.end)
+        .order('id')
+        .range(from, to),
+    ),
+    readAllPages('fetchBooksSummary expenses', (from, to) =>
+      supabase
+        .from('fin_expenses')
+        .select('amount,ministry_id,label')
+        .is('project_id', null)
+        .gte('occurred_on', range.start)
+        .lte('occurred_on', range.end)
+        .order('id')
+        .range(from, to),
+    ),
+    readAllPages('fetchBooksSummary payables', (from, to) =>
+      supabase
+        .from('fin_payables')
+        .select('amount')
+        .eq('status', 'open')
+        .order('id')
+        .range(from, to),
+    ),
   ]);
-  if (inc.error) return fail(TAG, 'fetchBooksSummary income', inc.error, inc.status);
-  if (exp.error) return fail(TAG, 'fetchBooksSummary expenses', exp.error, exp.status);
-  if (pay.error) return fail(TAG, 'fetchBooksSummary payables', pay.error, pay.status);
+  if (!inc.ok) return inc;
+  if (!exp.ok) return exp;
+  if (!pay.ok) return pay;
 
-  const incomeCents = sumCents(
-    (inc.data ?? []).map((r) => amountToCents(r.amount, 'fetchBooksSummary')),
-  );
+  const incomeCents = sumCents(inc.data.map((r) => amountToCents(r.amount, 'fetchBooksSummary')));
   const byAllocation: ExpenseAllocationTotals = {
     generalCents: 0,
     pastorCents: 0,
     byMinistryCents: {},
   };
   let expensesCents = 0;
-  for (const row of exp.data ?? []) {
+  for (const row of exp.data) {
     const cents = amountToCents(row.amount, 'fetchBooksSummary');
     expensesCents += cents;
     if (row.label === PASTOR_LABEL) byAllocation.pastorCents += cents;
@@ -107,7 +170,7 @@ export async function fetchBooksSummary(range: DateRange): Promise<ReadResult<Bo
     }
   }
   const openPayablesCents = sumCents(
-    (pay.data ?? []).map((r) => amountToCents(r.amount, 'fetchBooksSummary')),
+    pay.data.map((r) => amountToCents(r.amount, 'fetchBooksSummary')),
   );
 
   return ok({
@@ -138,25 +201,35 @@ export async function fetchProjectTotals(
   projectIds: string[],
   range?: DateRange,
 ): Promise<ReadResult<ProjectTotalsResult>> {
+  const denied = await requireSession(TAG, 'fetchProjectTotals');
+  if (denied) return denied;
   const byProject: Record<string, ProjectTotals> = {};
   for (const id of projectIds) byProject[id] = { incomeCents: 0, expensesCents: 0 };
   if (!projectIds.length) return ok({ byProject });
 
-  let incQ = supabase.from('fin_income').select('project_id,amount').in('project_id', projectIds);
-  let expQ = supabase.from('fin_expenses').select('project_id,amount').in('project_id', projectIds);
-  if (range) {
-    incQ = incQ.gte('occurred_on', range.start).lte('occurred_on', range.end);
-    expQ = expQ.gte('occurred_on', range.start).lte('occurred_on', range.end);
-  }
-  const [inc, exp] = await Promise.all([incQ, expQ]);
-  if (inc.error) return fail(TAG, 'fetchProjectTotals income', inc.error, inc.status);
-  if (exp.error) return fail(TAG, 'fetchProjectTotals expenses', exp.error, exp.status);
+  const [inc, exp] = await Promise.all([
+    readAllPages('fetchProjectTotals income', (from, to) => {
+      let q = supabase.from('fin_income').select('project_id,amount').in('project_id', projectIds);
+      if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
+      return q.order('id').range(from, to);
+    }),
+    readAllPages('fetchProjectTotals expenses', (from, to) => {
+      let q = supabase
+        .from('fin_expenses')
+        .select('project_id,amount')
+        .in('project_id', projectIds);
+      if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
+      return q.order('id').range(from, to);
+    }),
+  ]);
+  if (!inc.ok) return inc;
+  if (!exp.ok) return exp;
 
-  for (const row of inc.data ?? []) {
+  for (const row of inc.data) {
     const bucket = row.project_id ? byProject[row.project_id] : undefined;
     if (bucket) bucket.incomeCents += amountToCents(row.amount, 'fetchProjectTotals');
   }
-  for (const row of exp.data ?? []) {
+  for (const row of exp.data) {
     const bucket = row.project_id ? byProject[row.project_id] : undefined;
     if (bucket) bucket.expensesCents += amountToCents(row.amount, 'fetchProjectTotals');
   }
@@ -178,19 +251,23 @@ export async function fetchMinistryAllocationTotals(
   ministryIds: string[],
   range?: DateRange,
 ): Promise<ReadResult<MinistryAllocationTotals>> {
+  const denied = await requireSession(TAG, 'fetchMinistryAllocationTotals');
+  if (denied) return denied;
   const byMinistry: Record<string, number> = {};
   for (const id of ministryIds) byMinistry[id] = 0;
   if (!ministryIds.length) return ok({ byMinistry });
 
-  let q = supabase
-    .from('fin_expenses')
-    .select('ministry_id,amount')
-    .is('project_id', null)
-    .in('ministry_id', ministryIds);
-  if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
-  const { data, error, status } = await q;
-  if (error) return fail(TAG, 'fetchMinistryAllocationTotals', error, status);
-  for (const row of data ?? []) {
+  const res = await readAllPages('fetchMinistryAllocationTotals', (from, to) => {
+    let q = supabase
+      .from('fin_expenses')
+      .select('ministry_id,amount')
+      .is('project_id', null)
+      .in('ministry_id', ministryIds);
+    if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
+    return q.order('id').range(from, to);
+  });
+  if (!res.ok) return res;
+  for (const row of res.data) {
     if (!row.ministry_id) continue;
     byMinistry[row.ministry_id] =
       (byMinistry[row.ministry_id] ?? 0) +
@@ -221,30 +298,40 @@ export type ReportEntries = {
  * weekly report and filtered in JS (PERF-07).
  */
 export async function fetchReportEntries(range: DateRange): Promise<ReadResult<ReportEntries>> {
+  const denied = await requireSession(TAG, 'fetchReportEntries');
+  if (denied) return denied;
   const [inc, exp] = await Promise.all([
-    supabase
-      .from('fin_income')
-      .select('occurred_on,source,fund,amount')
-      .is('project_id', null)
-      .gte('occurred_on', range.start)
-      .lte('occurred_on', range.end)
-      .order('occurred_on'),
-    supabase
-      .from('fin_expenses')
-      .select('occurred_on,payee,category,label,ministry_id,amount')
-      .is('project_id', null)
-      .gte('occurred_on', range.start)
-      .lte('occurred_on', range.end)
-      .order('occurred_on'),
+    readAllPages('fetchReportEntries income', (from, to) =>
+      supabase
+        .from('fin_income')
+        .select('occurred_on,source,fund,amount')
+        .is('project_id', null)
+        .gte('occurred_on', range.start)
+        .lte('occurred_on', range.end)
+        .order('occurred_on')
+        .order('id')
+        .range(from, to),
+    ),
+    readAllPages('fetchReportEntries expenses', (from, to) =>
+      supabase
+        .from('fin_expenses')
+        .select('occurred_on,payee,category,label,ministry_id,amount')
+        .is('project_id', null)
+        .gte('occurred_on', range.start)
+        .lte('occurred_on', range.end)
+        .order('occurred_on')
+        .order('id')
+        .range(from, to),
+    ),
   ]);
-  if (inc.error) return fail(TAG, 'fetchReportEntries income', inc.error, inc.status);
-  if (exp.error) return fail(TAG, 'fetchReportEntries expenses', exp.error, exp.status);
+  if (!inc.ok) return inc;
+  if (!exp.ok) return exp;
   return ok({
-    income: (inc.data ?? []).map(({ amount, ...rest }) => ({
+    income: inc.data.map(({ amount, ...rest }) => ({
       ...rest,
       amountCents: amountToCents(amount, 'fetchReportEntries'),
     })),
-    expenses: (exp.data ?? []).map(({ amount, ...rest }) => ({
+    expenses: exp.data.map(({ amount, ...rest }) => ({
       ...rest,
       amountCents: amountToCents(amount, 'fetchReportEntries'),
     })),

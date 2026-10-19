@@ -7,6 +7,11 @@
  * rendered as "Aún no hay álbumes". Writes are staff-only via RLS — the
  * client-side split is UX, not the guard.
  *
+ * Staff-only calls — every write, `fetchAlbumByIdAdmin`, and the reads that
+ * pass `includeUnpublished` — check for a live session first (`./session`):
+ * signed out, the anon key would read only the published albums and call
+ * that the whole gallery. The published reads stay public.
+ *
  * Image optimisation is NOT a repo concern: `uploadPhoto` takes the already
  * optimised blobs (the S46 port of image-optimizer.js produces them).
  *
@@ -22,6 +27,7 @@ import type { Tables, TablesInsert, TablesUpdate } from '#lib/db/database.types.
 import { BUCKET } from '#lib/gallery.js';
 import { slugify } from '#lib/slug.js';
 import { fail, invalid, noRows, ok } from './errors';
+import { requireSession } from './session';
 import type { ChangeHandler, ReadResult, RepoFailure, Unsubscribe, WriteResult } from './types';
 
 const TAG = '[gallery]';
@@ -37,7 +43,7 @@ export type GalleryPhotoUpdate = TablesUpdate<'gallery_photos'>;
 export type AlbumFilter = {
   year?: number | null;
   eventType?: string | null;
-  /** Admin only — anon RLS hides unpublished rows regardless. */
+  /** Admin only — needs a session; anon RLS hides unpublished rows regardless. */
   includeUnpublished?: boolean;
 };
 
@@ -47,6 +53,10 @@ export async function fetchAlbums({
   eventType,
   includeUnpublished = false,
 }: AlbumFilter = {}): Promise<ReadResult<GalleryAlbum[]>> {
+  if (includeUnpublished) {
+    const denied = await requireSession(TAG, 'fetchAlbums');
+    if (denied) return denied;
+  }
   let q = supabase
     .from('gallery_albums')
     .select('*')
@@ -77,6 +87,8 @@ export async function fetchAlbumBy({ id, slug }: AlbumLookup = {}): Promise<
 
 /** One album by id regardless of publication (admin editor); `null` when none. */
 export async function fetchAlbumByIdAdmin(id: string): Promise<ReadResult<GalleryAlbum | null>> {
+  const denied = await requireSession(TAG, 'fetchAlbumByIdAdmin');
+  if (denied) return denied;
   if (!id) return ok(null);
   const { data, error, status } = await supabase
     .from('gallery_albums')
@@ -104,6 +116,10 @@ export async function fetchPhotos(albumId: string): Promise<ReadResult<GalleryPh
 export async function fetchAvailableYears({
   includeUnpublished = false,
 }: Pick<AlbumFilter, 'includeUnpublished'> = {}): Promise<ReadResult<number[]>> {
+  if (includeUnpublished) {
+    const denied = await requireSession(TAG, 'fetchAvailableYears');
+    if (denied) return denied;
+  }
   let q = supabase.from('gallery_albums').select('year');
   if (!includeUnpublished) q = q.eq('is_published', true);
   const { data, error, status } = await q;
@@ -117,6 +133,8 @@ export type AlbumUpsert = GalleryAlbumInsert & { id?: string };
 
 /** Insert (no `id`) or update (with `id`); derives `slug` from the title when missing. */
 export async function upsertAlbum(album: AlbumUpsert): Promise<WriteResult<GalleryAlbum>> {
+  const denied = await requireSession(TAG, 'upsertAlbum');
+  if (denied) return denied;
   const payload: AlbumUpsert = { ...album };
   if (!payload.slug && payload.title) {
     payload.slug = `${slugify(payload.title)}-${payload.year ?? new Date().getFullYear()}`;
@@ -141,6 +159,8 @@ function storageVariants(storagePath: string): string[] {
  * storage objects with nothing pointing at them.
  */
 export async function deleteAlbum(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteAlbum');
+  if (denied) return denied;
   const photos = await fetchPhotos(id);
   if (!photos.ok) return photos;
   const paths = photos.data.flatMap((p) => (p.storage_path ? storageVariants(p.storage_path) : []));
@@ -184,6 +204,8 @@ export async function uploadPhoto(
   albumId: string,
   image: OptimizedImage,
 ): Promise<WriteResult<GalleryPhoto>> {
+  const denied = await requireSession(TAG, 'uploadPhoto');
+  if (denied) return denied;
   if (!albumId || !image) return invalid('Falta el álbum o la foto.');
 
   const base = `${albumId}/${newId()}`;
@@ -245,6 +267,8 @@ export async function uploadPhoto(
 export async function deletePhoto(
   photo: Pick<GalleryPhoto, 'id'> & { storage_path?: string | null },
 ): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deletePhoto');
+  if (denied) return denied;
   if (!photo?.id) return invalid('Falta la foto que quieres eliminar.');
   const base = photo.storage_path?.replace(/\.[^./]+$/, '');
   const paths = base
@@ -270,6 +294,8 @@ export async function setAlbumCover(
   photoId: string,
   coverUrl: string,
 ): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'setAlbumCover');
+  if (denied) return denied;
   const { error, status, count } = await supabase
     .from('gallery_albums')
     .update({ cover_photo_id: photoId, cover_url: coverUrl }, { count: 'exact' })
@@ -283,6 +309,8 @@ export async function updatePhoto(
   photoId: string,
   patch: GalleryPhotoUpdate,
 ): Promise<WriteResult<GalleryPhoto>> {
+  const denied = await requireSession(TAG, 'updatePhoto');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('gallery_photos')
     .update(patch)
@@ -299,6 +327,8 @@ export async function updatePhoto(
  * album (deleted meanwhile, or hidden by RLS) counts as one.
  */
 export async function reorderPhotos(albumId: string, orderedIds: string[]): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'reorderPhotos');
+  if (denied) return denied;
   if (!albumId) return invalid('Falta el álbum.');
   let firstFailure: RepoFailure | null = null;
   for (let i = 0; i < orderedIds.length; i++) {

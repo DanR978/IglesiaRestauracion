@@ -31,6 +31,7 @@ import { toNumeric } from '#lib/money.js';
 import { todayISO } from '#lib/date.js';
 import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
 import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
 import type { ReadResult, WriteResult } from '../types';
 import {
   AUTO_NOTE_PREFIX,
@@ -57,6 +58,8 @@ const RECURRING_CATEGORY = 'Recurrente';
 
 /** Every recurring payment, active first then by payee (`treasury-tab.js:361`). */
 export async function fetchRecurring(): Promise<ReadResult<RecurringEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchRecurring');
+  if (denied) return denied;
   const { data, error, status } = await supabase
     .from('fin_recurring')
     .select('*')
@@ -71,6 +74,8 @@ export async function fetchRecurring(): Promise<ReadResult<RecurringEntry[]>> {
 export async function createRecurring(
   input: RecurringInsert,
 ): Promise<WriteResult<RecurringEntry>> {
+  const denied = await requireSession(TAG, 'createRecurring');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
   if (bad) return invalid(bad);
   const { amountCents, ...rest } = input;
@@ -88,6 +93,8 @@ export async function updateRecurring(
   id: string,
   patch: RecurringUpdate,
 ): Promise<WriteResult<RecurringEntry>> {
+  const denied = await requireSession(TAG, 'updateRecurring');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del pago recurrente.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_recurring'> = { ...rest };
@@ -107,6 +114,8 @@ export async function updateRecurring(
 }
 
 export async function deleteRecurring(id: string): Promise<WriteResult> {
+  const denied = await requireSession(TAG, 'deleteRecurring');
+  if (denied) return denied;
   if (!id) return invalid('Falta el identificador del pago recurrente.');
   const { error, status, count } = await supabase
     .from('fin_recurring')
@@ -138,6 +147,8 @@ export async function materializeRecurring(
   monthKey: string,
   { createdBy = null, today = todayISO() }: MaterializeOptions = {},
 ): Promise<WriteResult<{ inserted: number }>> {
+  const denied = await requireSession(TAG, 'materializeRecurring');
+  if (denied) return denied;
   let range: DateRange;
   try {
     range = monthRange(monthKey);

@@ -3,15 +3,21 @@
 # Job `e2e`: the /app build's JS budget, then Playwright in chromium, webkit,
 # Mobile Safari and Mobile Chrome — specs, axe and lab vitals
 # (docs/migration/VERIFICATION.md boxes 14, 15, 17).
-# Job `audit`: no high/critical advisory in runtime dependencies (box 18).
+# Job `audit`: no high/critical advisory anywhere in the dependency tree (box 18).
 # Job `ledger`: any PR labeled `migration` must touch MIGRATION.md in the same
 # PR ("a decision that isn't written down didn't happen").
 # Branch protection on main should require these checks (human task, one-time).
+# Every action is pinned to a full commit SHA (a tag can be moved); the
+# trailing comment is the release that SHA was on 2026-10-19.
 name: CI
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+
+# Least privilege for GITHUB_TOKEN: every job only reads the repository.
+permissions:
+  contents: read
 
 jobs:
   web:
@@ -25,8 +31,8 @@ jobs:
       PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: npm
@@ -54,8 +60,8 @@ jobs:
       PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       PUBLIC_SUPABASE_ANON_KEY: local-test-key
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: npm
@@ -73,7 +79,7 @@ jobs:
       - name: Playwright — chromium, webkit, Mobile Safari, Mobile Chrome
         run: npx playwright test
         working-directory: web
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: failure()
         with:
           name: playwright-test-results
@@ -83,20 +89,22 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
-      # Runtime dependencies only: dev tooling never reaches the Pages artifact.
+      # The WHOLE tree, devDependencies included: svelte, @sveltejs/kit and
+      # devalue are devDependencies, yet the build compiles them into every
+      # page of the Pages artifact, and the rest of the toolchain produces it.
       # An unfixable advisory is recorded as an exception in the PR (box 18).
-      - run: npm audit --omit=dev --audit-level=high
+      - run: npm audit --audit-level=high
         working-directory: web
 
   ledger:
     if: contains(github.event.pull_request.labels.*.name, 'migration')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
       - name: migration-labeled PRs must update MIGRATION.md

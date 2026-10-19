@@ -75,12 +75,9 @@ test.describe('kit/modal', () => {
     await expect(dialog).toHaveCount(0);
   });
 
-  test('traps Tab inside the dialog and returns focus to the trigger', async ({ page }) => {
-    // In WebKit the click leaves the button unfocused (<main> takes focus), so
-    // this is the opener the press was tracked to (G-038, S05b finding X-1).
+  test('traps Tab inside the dialog', async ({ page }) => {
     await page.goto(KIT);
-    const trigger = page.getByRole('button', { name: 'Modal normal' });
-    await trigger.click();
+    await page.getByRole('button', { name: 'Modal normal' }).click();
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeFocused();
@@ -94,6 +91,18 @@ test.describe('kit/modal', () => {
         }),
       ).toBe(true);
     }
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test('returns focus to the trigger that opened it', async ({ page }) => {
+    // In WebKit the click leaves the button unfocused (<main> takes focus), so
+    // this is the opener the press was tracked to (G-038, S05b finding X-1).
+    await page.goto(KIT);
+    const trigger = page.getByRole('button', { name: 'Modal normal' });
+    await trigger.click();
+    await expect(page.getByRole('dialog')).toBeFocused();
 
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();

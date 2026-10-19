@@ -2,15 +2,17 @@
 // mirror (treasury-tab.js:402-438). The mirror is what makes a paid bill show
 // up in Gastos/Resumen/Reportes, so its payload and its step order are
 // asserted precisely. S22b — the ReadResult / WriteResult contract, D-027
-// (a write that matched no payable never reaches the books), and Retry
-// convergence for both multi-step writes.
+// (a write that matched no payable never reaches the books), Retry
+// convergence for both multi-step writes, and `auth` signed out.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, OFFLINE, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
 import { REPO_ERROR_MESSAGES } from '#lib/repos/errors.js';
+import * as payables from '#lib/repos/treasury/payables.js';
 import {
   createPayable,
   deletePayable,
@@ -273,5 +275,20 @@ describe('repos/treasury/payables', () => {
       ).toEqual(invalidInput('El monto debe ser una cantidad válida.'));
       expect(mock.queries).toHaveLength(0);
     });
+  });
+
+  // RLS: every `fin_*` policy is `to authenticated`.
+  describeSessionGate(payables, '[treasury]', {
+    staffOnly: {
+      fetchPayables: () => fetchPayables(),
+      createPayable: () => createPayable({ creditor: 'x', amountCents: 100 }),
+      updatePayable: () => updatePayable('p1', { note: 'x' }),
+      deletePayable: () => deletePayable('p1'),
+      markPayablePaid: () =>
+        markPayablePaid(
+          { id: 'p1', ministry_id: null, creditor: 'x', amountCents: 100 },
+          { paidAt: PAID_AT },
+        ),
+    },
   });
 });

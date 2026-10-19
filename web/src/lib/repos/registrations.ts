@@ -15,6 +15,10 @@
  * Lifecycle rules (phase, visibility, ordering) are pure and live in
  * `#lib/special-events.js`; this module only runs the queries and applies them.
  *
+ * Every call here is public, so none asks for a session: `special_events` is
+ * readable by anon (`special_events_public_read`, every row — the admin
+ * picker gets the same rows signed out), and the sign-up is an anon insert.
+ *
  * Usage:
  *   import { fetchLiveEvents, fetchSpecialEventBy } from '#lib/repos/registrations.js';
  *   const res = await fetchLiveEvents();
@@ -94,13 +98,15 @@ export type LiveEventsOptions = {
  * The effective end is computed (ends_at may be null), so the phase filter runs
  * client-side. The query only has to avoid missing anything — either timestamp
  * inside the linger window qualifies the row, which covers a long camp whose
- * start is well outside it.
+ * start is well outside it. A `now` that is no instant (NaN) is refused.
  */
 export async function fetchLiveEvents({
   limit = 12,
   now = Date.now(),
 }: LiveEventsOptions = {}): Promise<ReadResult<SpecialEventCard[]>> {
-  const floorIso = new Date(now - (LINGER_DAYS + 1) * DAY_MS).toISOString();
+  const floor = new Date(now - (LINGER_DAYS + 1) * DAY_MS);
+  if (Number.isNaN(floor.getTime())) return invalid('Fecha inválida.');
+  const floorIso = floor.toISOString();
   const { data, error, status } = await supabase
     .from('special_events')
     .select(CARD_COLS)

@@ -1,14 +1,17 @@
 // S52 — repos/treasury/projects: the `fin_projects` containers
 // (project-treasury.js:58-107, 328-360), including the D-019 ministry-scoped
 // read the S56b widening will start returning rows for. S22b — the ReadResult
-// / WriteResult contract, and D-027: RLS refusing an update/delete on a
-// ministry row matches no row, which must come back as `not_found`.
+// / WriteResult contract, D-027 (RLS refusing an update/delete on a ministry
+// row matches no row, which must come back as `not_found`), and `auth` signed
+// out.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as projects from '#lib/repos/treasury/projects.js';
 import {
   createProject,
   deleteProject,
@@ -205,5 +208,16 @@ describe('repos/treasury/projects', () => {
       );
       expect(warn).toHaveBeenCalledWith('[treasury] createProject:', 'boom');
     });
+  });
+
+  // RLS: every `fin_*` policy is `to authenticated`.
+  describeSessionGate(projects, '[treasury]', {
+    staffOnly: {
+      fetchProjects: () => fetchProjects({ ownerId: OWNER }),
+      fetchBudgetedMinistryIds: () => fetchBudgetedMinistryIds([MIN_A]),
+      createProject: () => createProject({ owner_id: OWNER, name: 'Jóvenes' }),
+      updateProject: () => updateProject('pr1', { name: 'x' }),
+      deleteProject: () => deleteProject('pr1'),
+    },
   });
 });

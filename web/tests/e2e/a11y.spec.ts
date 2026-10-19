@@ -26,18 +26,22 @@ interface KnownException {
   theme: Theme;
   /** Foreground colours axe measured (lowercase hex). */
   fg: readonly string[];
-  /** Background colours axe measured; any background when omitted. */
-  bg?: readonly string[];
+  /**
+   * Background colours axe measured. Required: an ink exempt on every
+   * background would hide the same failure on a surface nobody measured.
+   */
+  bg: readonly string[];
 }
 
 /**
  * Violations recorded with an owner in
  * docs/migration/sessions/S05b-quality-gates.md (Box 15 — axe). Each one is
- * matched per failing node on rule + theme + the exact colours axe measured,
- * so the same rule failing anywhere else still fails the run. The PR that
- * fixes one deletes its entry. None is open: PR-C2 closed A11Y-1 (accent text
- * moved to --color-accent-ink, D-038) and A11Y-2 (--money-warn darkened so it
- * clears its own tint) — tests/unit/tokens.test.ts now recomputes those pairs.
+ * matched per failing node on rule + theme + the exact colour pair axe
+ * measured, so the same rule failing anywhere else still fails the run. The
+ * PR that fixes one deletes its entries. None is open: PR-C2 closed A11Y-1
+ * (accent text moved to --color-accent-ink, D-038) and A11Y-2 (--money-warn
+ * darkened so it clears its own tint) — tests/unit/tokens.test.ts now
+ * recomputes those pairs.
  */
 const KNOWN_EXCEPTIONS: readonly KnownException[] = [];
 
@@ -54,14 +58,15 @@ function knownException(
   violation: Violation,
   node: ViolationNode,
   theme: Theme,
+  exceptions: readonly KnownException[] = KNOWN_EXCEPTIONS,
 ): KnownException | undefined {
   const { fg, bg } = measuredColours(node);
-  return KNOWN_EXCEPTIONS.find(
+  return exceptions.find(
     (known) =>
       known.rule === violation.id &&
       known.theme === theme &&
       known.fg.includes(fg) &&
-      (known.bg === undefined || known.bg.includes(bg)),
+      known.bg.includes(bg),
   );
 }
 
@@ -93,6 +98,40 @@ test('axe — the build prerendered pages to scan', () => {
   expect(ROUTES.length, 'no prerendered pages found in build/').toBeGreaterThan(0);
 });
 
+test('axe — an exception covers only the colour pairs it was measured on', () => {
+  // The matcher, checked against the entries S05b recorded (A11Y-1 / A11Y-2,
+  // both closed by D-038): the live list is empty, the rule must stay narrow.
+  const recorded: readonly KnownException[] = [
+    {
+      id: 'A11Y-1',
+      rule: 'color-contrast',
+      theme: 'dark',
+      fg: ['#9a6a2c'],
+      bg: ['#121c1f', '#1a262a'],
+    },
+    { id: 'A11Y-1', rule: 'color-contrast', theme: 'dark', fg: ['#475569'], bg: ['#1a262a'] },
+    { id: 'A11Y-2', rule: 'color-contrast', theme: 'light', fg: ['#a05a10'], bg: ['#f2e8de'] },
+  ];
+  const contrast = { id: 'color-contrast' } as Violation;
+  const pair = (fgColor: string, bgColor: string) =>
+    ({ any: [{ data: { fgColor, bgColor } }] }) as unknown as ViolationNode;
+
+  expect(knownException(contrast, pair('#9A6A2C', '#121C1F'), 'dark', recorded)?.id).toBe('A11Y-1');
+  expect(knownException(contrast, pair('#9a6a2c', '#1a262a'), 'dark', recorded)?.id).toBe('A11Y-1');
+  expect(knownException(contrast, pair('#475569', '#1a262a'), 'dark', recorded)?.id).toBe('A11Y-1');
+  expect(knownException(contrast, pair('#a05a10', '#f2e8de'), 'light', recorded)?.id).toBe(
+    'A11Y-2',
+  );
+  // The same inks on any other background, or in the other theme, still fail.
+  expect(knownException(contrast, pair('#9a6a2c', '#ffffff'), 'dark', recorded)).toBeUndefined();
+  expect(knownException(contrast, pair('#475569', '#121c1f'), 'dark', recorded)).toBeUndefined();
+  expect(knownException(contrast, pair('#9a6a2c', '#121c1f'), 'light', recorded)).toBeUndefined();
+  expect(knownException(contrast, pair('#a05a10', '#ffffff'), 'light', recorded)).toBeUndefined();
+  expect(
+    knownException({ id: 'link-name' } as Violation, pair('#9a6a2c', '#121c1f'), 'dark', recorded),
+  ).toBe(undefined);
+});
+
 for (const theme of THEMES) {
   test.describe(`axe — ${theme}`, () => {
     test.beforeEach(async ({ page }) => {
@@ -110,8 +149,11 @@ for (const theme of THEMES) {
     });
 
     for (const route of ROUTES) {
-      test(`${route} has no serious or critical violations`, async ({ page }, testInfo) => {
-        const offOrigin = watchOffOriginRequests(page);
+      test(`${route} has no serious or critical violations`, async ({
+        page,
+        baseURL,
+      }, testInfo) => {
+        const offOrigin = watchOffOriginRequests(page, baseURL);
         await page.goto(route, { waitUntil: 'networkidle' });
         await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
         await settleComputedStyles(page);

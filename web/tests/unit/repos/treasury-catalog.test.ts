@@ -1,12 +1,15 @@
 // S52 — repos/treasury/catalog: the three Configurar lookup tables. S22b — the
 // ReadResult / WriteResult contract: a failed read is `{ ok: false }` (never
-// an empty dropdown), and the catalog is all-or-nothing.
+// an empty dropdown), the catalog is all-or-nothing, and every call made
+// signed out is `auth`.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
 import { NOT_FOUND, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as catalog from '#lib/repos/treasury/catalog.js';
 import {
   createExpenseCategory,
   createFund,
@@ -244,5 +247,24 @@ describe('repos/treasury/catalog', () => {
         invalidInput('Falta el identificador de la categoría.'),
       );
     });
+  });
+
+  // RLS: the read policies are `to authenticated using (true)` — anon gets nothing.
+  describeSessionGate(catalog, '[treasury]', {
+    staffOnly: {
+      fetchFunds: () => fetchFunds(),
+      fetchIncomeCategories: () => fetchIncomeCategories(),
+      fetchExpenseCategories: () => fetchExpenseCategories(),
+      fetchCatalog: () => fetchCatalog(),
+      createFund: () => createFund({ name: 'Misiones' }),
+      updateFund: () => updateFund('f1', { name: 'x' }),
+      deleteFund: () => deleteFund('f1'),
+      createIncomeCategory: () => createIncomeCategory({ name: 'x' }),
+      updateIncomeCategory: () => updateIncomeCategory('ic1', { name: 'x' }),
+      deleteIncomeCategory: () => deleteIncomeCategory('ic1'),
+      createExpenseCategory: () => createExpenseCategory({ name: 'x' }),
+      updateExpenseCategory: () => updateExpenseCategory('ec1', { name: 'x' }),
+      deleteExpenseCategory: () => deleteExpenseCategory('ec1'),
+    },
   });
 });
