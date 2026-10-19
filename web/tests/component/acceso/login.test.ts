@@ -14,6 +14,7 @@ vi.mock('#lib/stores/session.svelte.js', () =>
 vi.mock('$app/navigation', () => import('./mocks').then((m) => m.nav));
 
 import LoginPage from '../../../src/routes/(admin)/admin/acceso/+page.svelte';
+import { withSignInNotice } from '#lib/auth/notice.js';
 import { carriedEmail, carryEmail } from '#lib/components/admin/auth/handoff.js';
 import { auth, failure, lastGoto, nav, openAt, resetMocks, settlesTo, store } from './mocks';
 
@@ -179,20 +180,25 @@ describe('acceso/ — signing in', () => {
   });
 });
 
-describe('acceso/ — notices', () => {
-  it('"Sesión cerrada." after the shell signs out', () => {
-    openAt('/admin/acceso/?aviso=sesion-cerrada');
+describe("acceso/ — the shell's notice (#lib/auth/notice)", () => {
+  it.each([
+    ['signed-out', 'Sesión cerrada.'],
+    ['expired', 'Tu sesión expiró.'],
+  ] as const)('%s: a calm info Alert', (notice, words) => {
+    openAt(withSignInNotice('/admin/acceso/', notice));
     render(LoginPage);
-    expect(screen.getByRole('status')).toHaveTextContent('Sesión cerrada.');
+    expect(screen.getByRole('status')).toHaveTextContent(`Información: ${words}`);
   });
 
-  it('"Tu sesión expiró…" for a session the store saw end unasked', () => {
-    store.status = 'expired';
+  it('reads `aviso` once and takes it out of the address, keeping `next`', () => {
+    openAt(withSignInNotice('/admin/acceso/?next=%2Fadmin%2Fcuenta%2F', 'expired'));
     render(LoginPage);
-    expect(screen.getByRole('status')).toHaveTextContent(/^Advertencia: Tu sesión expiró\./);
+    expect(location.pathname + location.search).toBe('/admin/acceso/?next=%2Fadmin%2Fcuenta%2F');
+    expect(screen.getByRole('status')).toHaveTextContent('Tu sesión expiró.');
   });
 
-  it('none on a plain visit', () => {
+  it('none on a plain visit, or for a value it does not know', () => {
+    openAt('/admin/acceso/?aviso=%3Cb%3Ehola%3C%2Fb%3E');
     render(LoginPage);
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });

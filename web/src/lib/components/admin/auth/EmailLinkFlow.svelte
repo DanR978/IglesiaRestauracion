@@ -39,6 +39,7 @@
   import PasswordField from '#lib/components/PasswordField.svelte';
   import ReadonlyField from '#lib/components/ReadonlyField.svelte';
   import StateError from '#lib/components/StateError.svelte';
+  import { signOutAndLeave } from '#lib/components/admin/shell/sign-out.svelte.js';
   import { scorePassword } from '#lib/components/password-field.js';
   import { REPO_ERROR_MESSAGES } from '#lib/repos/errors.js';
   import { session } from '#lib/stores/session.svelte.js';
@@ -48,7 +49,6 @@
   import ProviderButtons from './ProviderButtons.svelte';
   import { authParams, scrubLocation } from './auth-url';
   import { destinationFor, leaveTo } from './destination';
-  import { loginHref } from './handoff';
 
   interface Props {
     kind: 'invite' | 'recovery';
@@ -237,11 +237,6 @@
       await finish();
     });
   }
-
-  async function signOutHere(): Promise<void> {
-    await session.signOut('local');
-    await leaveTo(loginHref('signed-out'));
-  }
 </script>
 
 <AccessHeading title={heading.title} lede={heading.lede} />
@@ -252,7 +247,7 @@
       await session.settled();
       step = 'password';
     }}
-    onCancel={signOutHere}
+    onCancel={() => signOutAndLeave('local')}
     onNeedsEnroll={() => (step = 'password')}
   />
 {:else if step === 'password'}

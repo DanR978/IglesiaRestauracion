@@ -5,19 +5,21 @@
 // nav, the drawer at 360px with the Back gesture, logout, the expired screen,
 // the sticky topbar's scroll padding, no sideways scroll, axe in both themes.
 //
-// No backend is contacted: every request to an origin other than the preview
-// server and the pinned CDN is intercepted — the few Supabase endpoints the
-// shell uses are answered here, anything else is aborted and recorded. The
-// session is seeded in localStorage before the app boots (a 3-part JWT at
-// aal2: the store reads the level from the token, with no network call).
+// No backend is contacted: the e2e build's Supabase is the preview itself,
+// under SUPABASE_PATH (playwright.config.ts, S39) — the few endpoints the
+// shell uses are answered here; every request to another origin than the
+// preview and the pinned CDN is aborted and recorded. The session is seeded in
+// localStorage before the app boots (a 3-part JWT at aal2: the store reads
+// the level from the token, with no network call).
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page, type Request } from '@playwright/test';
+import { SUPABASE_PATH } from './helpers/supabase';
 
-/** What the e2e build points at (CI: ci.yml; locally: web/.env). Never contacted. */
-const SUPABASE_URL = process.env.PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321';
-const SUPABASE = new URL(SUPABASE_URL);
-/** supabase-js's default storage key — the session the legacy /admin shares (D-040). */
-const STORAGE_KEY = `sb-${SUPABASE.hostname.split('.')[0]}-auth-token`;
+/**
+ * supabase-js's default storage key, `sb-<first label of the Supabase host>-auth-token`
+ * — the session the legacy /admin shares (D-040). The e2e build's host is localhost.
+ */
+const STORAGE_KEY = 'sb-localhost-auth-token';
 const CDN_ORIGIN = 'https://cdnjs.cloudflare.com';
 const ADMIN_THEME_KEY = 'ird.app.admin.theme';
 
@@ -84,26 +86,29 @@ interface Backend {
   readonly refused: string[];
 }
 
-/** Intercept everything off the preview origin; answer what the shell uses. */
+/** Answer the app's Supabase (on the preview); refuse everything off the preview origin. */
 async function fakeBackend(page: Page, baseURL: string | undefined): Promise<Backend> {
   const preview = new URL(baseURL ?? 'http://localhost').origin;
   const backend: Backend = { answered: [], refused: [] };
   await page.route(
-    (url) => url.origin !== preview && url.origin !== CDN_ORIGIN,
+    (url) =>
+      (url.origin !== preview && url.origin !== CDN_ORIGIN) ||
+      url.pathname.startsWith(`${SUPABASE_PATH}/`),
     async (route) => {
       const request: Request = route.request();
       const url = new URL(request.url());
-      const call = `${request.method()} ${url.pathname}`;
-      if (url.origin !== SUPABASE.origin) {
-        backend.refused.push(`${call} @ ${url.origin}`);
+      if (url.origin !== preview) {
+        backend.refused.push(`${request.method()} ${url.pathname} @ ${url.origin}`);
         return route.abort();
       }
+      const path = url.pathname.slice(SUPABASE_PATH.length);
+      const call = `${request.method()} ${path}`;
       backend.answered.push(call);
-      if (url.pathname === '/rest/v1/profiles' && request.method() === 'GET') {
+      if (path === '/rest/v1/profiles' && request.method() === 'GET') {
         return route.fulfill({ status: 200, json: [PROFILE] });
       }
-      if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204 });
-      if (url.pathname === '/auth/v1/settings') {
+      if (path === '/auth/v1/logout') return route.fulfill({ status: 204 });
+      if (path === '/auth/v1/settings') {
         return route.fulfill({ status: 200, json: { external: {} } });
       }
       return route.fulfill({ status: 404, json: { message: 'not mocked' } });
@@ -183,13 +188,15 @@ test.describe('the prerendered admin shell', () => {
 
   test('the legacy email contract is honoured before anything else', async ({ page, baseURL }) => {
     await fakeBackend(page, baseURL);
+    // invitacion/ (S39) scrubs the one-time query from the address the moment
+    // it starts, so the proof is what it spends: the token from this URL.
+    const spent = page.waitForRequest(
+      (request) => request.method() === 'POST' && request.url().endsWith('/auth/v1/verify'),
+    );
 
     await page.goto('/admin/?action=accept-invite&token_hash=abc123&type=invite');
-    await page.waitForURL(
-      (url) =>
-        url.pathname === '/admin/acceso/invitacion/' &&
-        url.search === '?action=accept-invite&token_hash=abc123&type=invite',
-    );
+    await page.waitForURL((url) => url.pathname === '/admin/acceso/invitacion/');
+    expect((await spent).postDataJSON()).toMatchObject({ token_hash: 'abc123', type: 'invite' });
   });
 });
 
@@ -281,9 +288,10 @@ test.describe('signed in — desktop', () => {
     await expect(dialog).toBeVisible();
     await dialog.getByRole('button', { name: 'Cerrar sesión' }).click();
 
-    await page.waitForURL(
-      (url) => url.pathname === '/admin/acceso/' && url.search === '?aviso=sesion-cerrada',
-    );
+    // The sign-in page (S39) reads `?aviso=` and then scrubs it from the
+    // address: the notice it shows is the proof the reason arrived.
+    await page.waitForURL((url) => url.pathname === '/admin/acceso/');
+    await expect(page.getByRole('status')).toHaveText(/Sesión cerrada\./);
     expect(backend.answered).toContain('POST /auth/v1/logout');
     expect(await page.evaluate((key) => localStorage.getItem(key), STORAGE_KEY)).toBeNull();
   });

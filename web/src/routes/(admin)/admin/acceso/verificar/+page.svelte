@@ -10,7 +10,8 @@
   // The session store's settled status decides (needs-mfa / needs-enroll);
   // anything else leaves at once — signed out → sign-in, already aal2 → `next`,
   // no access → sin-acceso/. "Cancelar y cerrar sesión" ends only this
-  // device's session (signOut('local')), like the legacy cancel.
+  // device's session and reloads into the sign-in page, like the legacy cancel
+  // — the shell's own way out (signOutAndLeave), "Sesión cerrada." included.
   import { onMount } from 'svelte';
   import { safeNext } from '#lib/auth/next.js';
   import { ROUTES } from '#lib/auth/routes.js';
@@ -19,7 +20,7 @@
   import MfaChallenge from '#lib/components/admin/auth/MfaChallenge.svelte';
   import MfaEnroll from '#lib/components/admin/auth/MfaEnroll.svelte';
   import { destinationFor, leaveTo } from '#lib/components/admin/auth/destination.js';
-  import { loginHref } from '#lib/components/admin/auth/handoff.js';
+  import { signOutAndLeave } from '#lib/components/admin/shell/sign-out.svelte.js';
   import { REPO_ERROR_MESSAGES } from '#lib/repos/errors.js';
   import { session } from '#lib/stores/session.svelte.js';
   import { toast } from '#lib/stores/toast.svelte.js';
@@ -79,11 +80,6 @@
     failure = session.error?.message ?? REPO_ERROR_MESSAGES.unknown;
     step = 'error';
   }
-
-  async function signOutHere(): Promise<void> {
-    await session.signOut('local');
-    await leaveTo(loginHref('signed-out', next));
-  }
 </script>
 
 <AccessHeading title={TITLES[step].title} lede={TITLES[step].lede} />
@@ -91,13 +87,13 @@
 {#if step === 'challenge'}
   <MfaChallenge
     onVerified={verified}
-    onCancel={signOutHere}
+    onCancel={() => signOutAndLeave('local')}
     onNeedsEnroll={() => (step = 'enroll')}
   />
 {:else if step === 'enroll'}
   <MfaEnroll
     onVerified={verified}
-    onCancel={signOutHere}
+    onCancel={() => signOutAndLeave('local')}
     onNeedsChallenge={() => (step = 'challenge')}
   />
 {:else if step === 'error'}

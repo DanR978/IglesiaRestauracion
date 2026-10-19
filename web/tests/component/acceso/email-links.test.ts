@@ -14,6 +14,9 @@ vi.mock('#lib/stores/session.svelte.js', () =>
   import('./mocks').then((m) => ({ session: m.store })),
 );
 vi.mock('#lib/stores/toast.svelte.js', () => import('./mocks').then((m) => ({ toast: m.toast })));
+vi.mock('#lib/components/admin/shell/sign-out.svelte.js', () =>
+  import('./mocks').then((m) => m.shell),
+);
 vi.mock('$app/navigation', () => import('./mocks').then((m) => m.nav));
 
 import InvitePage from '../../../src/routes/(admin)/admin/acceso/invitacion/+page.svelte';
@@ -28,6 +31,7 @@ import {
   openAt,
   resetMocks,
   settlesTo,
+  shell,
   store,
   toast,
 } from './mocks';
@@ -348,12 +352,12 @@ describe('restablecer/ — recovery steps up first (DF-006)', () => {
     expect(auth.verifyOtp).not.toHaveBeenCalled();
   });
 
-  it('cancelling the step-up signs out here', async () => {
+  it("cancelling the step-up signs this device out, the shell's way", async () => {
     openAt('/admin/acceso/restablecer/?token_hash=9f8e7d&type=recovery');
     linkSignsInAs('needs-mfa');
     render(ResetPage);
     await fireEvent.click(await screen.findByRole('button', { name: 'Cancelar y cerrar sesión' }));
-    expect(store.signOut).toHaveBeenCalledWith('local');
-    await waitFor(() => expect(lastGoto()).toBe('/admin/acceso/?aviso=sesion-cerrada'));
+    expect(shell.signOutAndLeave).toHaveBeenCalledWith('local');
+    expect(auth.updatePassword).not.toHaveBeenCalled();
   });
 });

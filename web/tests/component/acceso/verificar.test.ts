@@ -2,7 +2,8 @@
 // the challenge and the enrollment as two distinct states, the DF-006
 // ordering (insufficient_aal on enroll → challenge; no factor → enroll; an
 // unsupported factor → a plain message), the QR without a stale image, the
-// copyable key, cancel → signOut('local'), and every status that moves on.
+// copyable key, cancel → the shell's signOutAndLeave('local'), and every
+// status that moves on.
 import { fireEvent, render, screen, waitFor } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -13,6 +14,9 @@ vi.mock('#lib/stores/session.svelte.js', () =>
   import('./mocks').then((m) => ({ session: m.store })),
 );
 vi.mock('#lib/stores/toast.svelte.js', () => import('./mocks').then((m) => ({ toast: m.toast })));
+vi.mock('#lib/components/admin/shell/sign-out.svelte.js', () =>
+  import('./mocks').then((m) => m.shell),
+);
 vi.mock('$app/navigation', () => import('./mocks').then((m) => m.nav));
 
 import VerifyPage from '../../../src/routes/(admin)/admin/acceso/verificar/+page.svelte';
@@ -26,6 +30,7 @@ import {
   openAt,
   resetMocks,
   settlesTo,
+  shell,
   store,
   toast,
 } from './mocks';
@@ -118,14 +123,12 @@ describe('verificar/ — challenge (a verified factor)', () => {
     expect(screen.getByRole('button', { name: 'Cancelar y cerrar sesión' })).toBeEnabled();
   });
 
-  it('"Cancelar y cerrar sesión" ends only this device\'s session', async () => {
+  it('"Cancelar y cerrar sesión" ends only this device\'s session, the shell\'s way', async () => {
     render(VerifyPage);
     await fireEvent.click(await screen.findByRole('button', { name: 'Cancelar y cerrar sesión' }));
-    expect(store.signOut).toHaveBeenCalledWith('local');
-    await waitFor(() =>
-      expect(lastGoto()).toBe('/admin/acceso/?next=%2Fadmin%2Fcuenta%2F&aviso=sesion-cerrada'),
-    );
+    expect(shell.signOutAndLeave).toHaveBeenCalledWith('local');
     expect(mfa.cancelEnroll).not.toHaveBeenCalled();
+    expect(nav.goto).not.toHaveBeenCalled();
   });
 
   it('cancel waits while a code is being checked', async () => {
@@ -231,10 +234,10 @@ describe('verificar/ — enrollment (no factor yet)', () => {
     render(VerifyPage);
     await screen.findByRole('img', { name: 'Código QR para tu app de autenticación' });
     await fireEvent.click(screen.getByRole('button', { name: 'Cancelar y cerrar sesión' }));
-    await waitFor(() => expect(store.signOut).toHaveBeenCalledWith('local'));
+    await waitFor(() => expect(shell.signOutAndLeave).toHaveBeenCalledWith('local'));
     expect(mfa.cancelEnroll).toHaveBeenCalled();
     expect(mfa.cancelEnroll.mock.invocationCallOrder[0]).toBeLessThan(
-      store.signOut.mock.invocationCallOrder[0],
+      shell.signOutAndLeave.mock.invocationCallOrder[0],
     );
   });
 });

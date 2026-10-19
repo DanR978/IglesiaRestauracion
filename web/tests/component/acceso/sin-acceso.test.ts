@@ -7,10 +7,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('#lib/stores/session.svelte.js', () =>
   import('./mocks').then((m) => ({ session: m.store })),
 );
+vi.mock('#lib/components/admin/shell/sign-out.svelte.js', () =>
+  import('./mocks').then((m) => m.shell),
+);
 vi.mock('$app/navigation', () => import('./mocks').then((m) => m.nav));
 
 import NoAccessPage from '../../../src/routes/(admin)/admin/acceso/sin-acceso/+page.svelte';
-import { lastGoto, nav, resetMocks, store } from './mocks';
+import { lastGoto, nav, resetMocks, shell, store } from './mocks';
 
 beforeEach(resetMocks);
 
@@ -27,13 +30,14 @@ describe('sin-acceso/', () => {
     expect(screen.getByText('ana@example.org')).toBeInTheDocument();
     expect(screen.getByText(/pide al administrador que revise tu cuenta/)).toBeInTheDocument();
 
+    // The shell's way out: this device only, then a reload into the sign-in page.
     await fireEvent.click(screen.getByRole('button', { name: 'Cerrar sesión' }));
-    expect(store.signOut).toHaveBeenCalledWith('local');
-    await waitFor(() =>
-      expect(nav.goto).toHaveBeenCalledWith('/admin/acceso/?aviso=sesion-cerrada', {
-        replace: true,
-      }),
+    expect(shell.signOutAndLeave).toHaveBeenCalledWith('local');
+    expect(screen.getByRole('button', { name: 'Cerrar sesión' })).toHaveAttribute(
+      'aria-busy',
+      'true',
     );
+    expect(nav.goto).not.toHaveBeenCalled();
   });
 
   it.each([

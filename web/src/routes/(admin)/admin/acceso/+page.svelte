@@ -6,12 +6,15 @@
   // once; after a sign-in the settled session store picks the next page —
   // verificar/ for the second factor (D-033), or the validated `next`.
   //
-  // The notice ("Sesión cerrada." / "Tu sesión expiró…") and the email carried
-  // back from recuperar/ are both known when the page is created, so they are
-  // in the first paint and nothing jumps.
+  // The shell's notice ("Sesión cerrada." / "Tu sesión expiró.", the `?aviso=`
+  // of #lib/auth/notice.ts) and the email carried back from recuperar/ are both
+  // known when the page is created, so they are in the first paint and nothing
+  // jumps. `aviso` is a one-time value: it leaves the address bar once read
+  // (`next` stays, so a reload still knows where to go).
   import { onMount } from 'svelte';
   import { resolve } from '$app/paths';
   import { safeNext } from '#lib/auth/next.js';
+  import { SIGN_IN_NOTICES, signInNoticeFrom } from '#lib/auth/notice.js';
   import { ROUTES } from '#lib/auth/routes.js';
   import { signInWithPassword } from '#lib/auth/session.js';
   import Alert from '#lib/components/Alert.svelte';
@@ -20,13 +23,9 @@
   import PasswordField from '#lib/components/PasswordField.svelte';
   import AccessHeading from '#lib/components/admin/auth/AccessHeading.svelte';
   import ProviderButtons from '#lib/components/admin/auth/ProviderButtons.svelte';
+  import { scrubLocation } from '#lib/components/admin/auth/auth-url.js';
   import { destinationFor, leaveTo } from '#lib/components/admin/auth/destination.js';
-  import {
-    LOGIN_NOTICE_COPY,
-    carriedEmail,
-    carryEmail,
-    loginNoticeFor,
-  } from '#lib/components/admin/auth/handoff.js';
+  import { carriedEmail, carryEmail } from '#lib/components/admin/auth/handoff.js';
   import { REPO_ERROR_MESSAGES } from '#lib/repos/errors.js';
   import { session, type SessionStatus } from '#lib/stores/session.svelte.js';
   import { isValidEmail } from '#lib/validators.js';
@@ -40,13 +39,14 @@
   ]);
 
   const params = new URL(location.href).searchParams;
+  scrubLocation(['next']);
 
   let email = $state(carriedEmail());
   let password = $state('');
   let emailError = $state<string | null>(null);
   let passwordError = $state<string | null>(null);
   let formError = $state<string | null>(null);
-  let notice = $state(loginNoticeFor(params, session.status));
+  let notice = $state(signInNoticeFrom(params));
   let signingIn = $state(false);
   let next = $state(ROUTES.home);
   let emailInput = $state<HTMLInputElement>();
@@ -102,7 +102,7 @@
 <AccessHeading title="Iniciar sesión" lede="Usa la cuenta con la que te invitaron al panel." />
 
 {#if notice}
-  <Alert tone={notice === 'expired' ? 'warn' : 'info'} message={LOGIN_NOTICE_COPY[notice]} />
+  <Alert tone="info" message={SIGN_IN_NOTICES[notice]} />
 {/if}
 
 <form class="login" novalidate onsubmit={signIn}>

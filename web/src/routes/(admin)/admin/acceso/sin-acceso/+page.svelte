@@ -4,7 +4,9 @@
   // unknown roles fail closed, D-006). Says so plainly and offers to sign out.
   // Legacy bootApp() signed the person out on its own with "Tu cuenta no
   // tiene un perfil asignado"; here the choice is theirs, and the account they
-  // are signed in with is named, in case it is the wrong one.
+  // are signed in with is named, in case it is the wrong one. "Cerrar sesión"
+  // is the shell's own way out (signOutAndLeave): this device only, then a
+  // reload into the sign-in page with "Sesión cerrada.".
   //
   // Anyone else who lands here moves on: signed out → sign-in, a second
   // factor pending → verificar/, full access → Inicio.
@@ -14,7 +16,7 @@
   import StateError from '#lib/components/StateError.svelte';
   import AccessHeading from '#lib/components/admin/auth/AccessHeading.svelte';
   import { destinationFor, leaveTo } from '#lib/components/admin/auth/destination.js';
-  import { loginHref } from '#lib/components/admin/auth/handoff.js';
+  import { signOutAndLeave } from '#lib/components/admin/shell/sign-out.svelte.js';
   import { REPO_ERROR_MESSAGES } from '#lib/repos/errors.js';
   import { session } from '#lib/stores/session.svelte.js';
 
@@ -53,8 +55,7 @@
   async function signOutHere(): Promise<void> {
     if (signingOut) return;
     signingOut = true;
-    await session.signOut('local');
-    await leaveTo(loginHref('signed-out'));
+    await signOutAndLeave('local');
   }
 </script>
 

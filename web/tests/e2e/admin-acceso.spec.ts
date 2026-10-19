@@ -139,10 +139,16 @@ test.describe('sign in', () => {
     expect(api.calls()).not.toContain('POST /auth/v1/token');
   });
 
-  test('"Sesión cerrada." after the shell signs out', async ({ page }) => {
+  test("the shell's notice (#lib/auth/notice) shows once and leaves the address", async ({
+    page,
+  }) => {
     await supabase(page);
+    await page.goto('/admin/acceso/?next=%2Fadmin%2F&aviso=sesion-expirada');
+    await expect(page.getByRole('status')).toHaveText(/Tu sesión expiró\./);
+    await expect.poll(() => address(page)).toBe('/admin/acceso/?next=%2Fadmin%2F');
     await page.goto('/admin/acceso/?aviso=sesion-cerrada');
     await expect(page.getByRole('status')).toHaveText(/Sesión cerrada\./);
+    await expect.poll(() => address(page)).toBe('/admin/acceso/');
   });
 
   test('the email goes to recuperar/ in memory, never in the URL', async ({ page }) => {

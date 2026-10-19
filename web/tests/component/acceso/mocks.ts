@@ -13,6 +13,7 @@
  *   vi.mock('#lib/auth/next.js', () => import('./mocks').then((m) => m.next));
  *   vi.mock('#lib/stores/session.svelte.js', () => import('./mocks').then((m) => ({ session: m.store })));
  *   vi.mock('#lib/stores/toast.svelte.js', () => import('./mocks').then((m) => ({ toast: m.toast })));
+ *   vi.mock('#lib/components/admin/shell/sign-out.svelte.js', () => import('./mocks').then((m) => m.shell));
  *   vi.mock('$app/navigation', () => import('./mocks').then((m) => m.nav));
  *   import { auth, store, nav, resetMocks, openAt } from './mocks';
  *   beforeEach(resetMocks);
@@ -64,6 +65,8 @@ export const mfa = {
 export const next = { safeNext: vi.fn() };
 export const nav = { goto: vi.fn() };
 export const toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
+/** The shell's deliberate sign-out (S37): signs out, then reloads into the sign-in page. */
+export const shell = { signOutAndLeave: vi.fn() };
 
 export const store = {
   status: 'signed-out' as Status,
@@ -77,9 +80,10 @@ export const store = {
 
 /** The happy path: nothing signed in, every call succeeding, no providers. */
 export function resetMocks(): void {
-  for (const group of [auth, mfa, next, nav, toast]) {
+  for (const group of [auth, mfa, next, nav, toast, shell]) {
     for (const fn of Object.values(group)) fn.mockReset();
   }
+  shell.signOutAndLeave.mockResolvedValue(undefined);
   for (const fn of [store.ready, store.settled, store.retry, store.signOut]) fn.mockReset();
   store.status = 'signed-out';
   store.user = null;
