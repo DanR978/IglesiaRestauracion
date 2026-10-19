@@ -14,13 +14,25 @@
 
   Icon-only controls are IconButton's job, not this component's: a Button
   without a label has no accessible name.
+
+  ARIA states (aria-expanded/-controls/-haspopup/-pressed/-describedby/-label)
+  and data-* pass through to the element (PR-C2); nothing else does. They are
+  explicit attributes and an attachment, never a spread — see button.ts.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
-  import { BUTTON_BLOCK, type ButtonSize, type ButtonVariant } from './button';
+  import {
+    BUTTON_BLOCK,
+    dataAttributes,
+    dataAttributesOf,
+    type ButtonAria,
+    type ButtonSize,
+    type ButtonVariant,
+    type DataAttributes,
+  } from './button';
 
-  interface Props {
+  interface Props extends ButtonAria, DataAttributes {
     /** Hierarchy: solid primary/secondary/danger, or the bordered ghost. */
     variant?: ButtonVariant;
     /** `sm` for dense rows, `full` for a stacked mobile action bar. */
@@ -65,7 +77,16 @@
     onclick,
     class: className = '',
     children,
+    'aria-label': ariaLabel,
+    'aria-expanded': ariaExpanded,
+    'aria-controls': ariaControls,
+    'aria-haspopup': ariaHaspopup,
+    'aria-pressed': ariaPressed,
+    'aria-describedby': ariaDescribedby,
+    ...rest
   }: Props = $props();
+
+  const data = $derived(dataAttributesOf(rest));
 
   // Loading implies disabled: a second click must not fire the same save twice.
   const inert = $derived(disabled || loading);
@@ -112,6 +133,7 @@
        internal path the CALLER already put through resolve() from $app/paths.
        A library primitive cannot resolve it — it does not know which it is. -->
   <!-- eslint-disable svelte/no-navigation-without-resolve -->
+  <!-- No aria-pressed here: a link is never a toggle. -->
   <a
     {id}
     class={classes}
@@ -121,9 +143,15 @@
     {title}
     role={inert ? 'link' : undefined}
     tabindex={inert ? -1 : undefined}
+    aria-label={ariaLabel}
+    aria-expanded={ariaExpanded}
+    aria-controls={ariaControls}
+    aria-haspopup={ariaHaspopup}
+    aria-describedby={ariaDescribedby}
     aria-disabled={inert ? 'true' : undefined}
     aria-busy={loading ? 'true' : undefined}
     onclick={handleClick}
+    {@attach dataAttributes(data)}
   >
     {@render content()}
   </a>
@@ -136,8 +164,15 @@
     {form}
     {title}
     disabled={inert}
+    aria-label={ariaLabel}
+    aria-expanded={ariaExpanded}
+    aria-controls={ariaControls}
+    aria-haspopup={ariaHaspopup}
+    aria-pressed={ariaPressed}
+    aria-describedby={ariaDescribedby}
     aria-busy={loading ? 'true' : undefined}
     onclick={handleClick}
+    {@attach dataAttributes(data)}
   >
     {@render content()}
   </button>
