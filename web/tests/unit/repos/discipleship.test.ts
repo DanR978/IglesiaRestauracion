@@ -21,6 +21,7 @@ import { describeSessionGate } from './session-gate';
 import * as discipleship from '#lib/repos/discipleship.js';
 import {
   addMember,
+  countPendingInterests,
   deleteGroup,
   fetchAllGroups,
   fetchGroupById,
@@ -278,6 +279,35 @@ describe('repos/discipleship', () => {
     });
   });
 
+  // S40 — Inicio's "Interesados pendientes" (js/pages/admin/dashboard.js:46-48).
+  describe('countPendingInterests', () => {
+    it('a head count of pending interests', async () => {
+      mock.results.discipleship_interests = [{ data: null, count: 4 }];
+      expect(await countPendingInterests()).toEqual({ ok: true, data: 4 });
+      expect(mock.chain()).toEqual(['select', 'eq']);
+      expect(mock.args('select')).toEqual(['id', { count: 'exact', head: true }]);
+      expect(mock.args('eq')).toEqual(['status', 'pending']);
+    });
+
+    it('signed out is an auth failure, never a false 0', async () => {
+      mock.session = SIGNED_OUT;
+      const res = await countPendingInterests();
+      expect(res).toEqual(NO_SESSION);
+      expect(res).not.toEqual({ ok: true, data: 0 });
+      expect(mock.queries).toHaveLength(0);
+    });
+
+    it('no count, or a refusal, is a failure — never 0', async () => {
+      mock.results.discipleship_interests = [{ data: null }, RLS_DENIED];
+      expect(await countPendingInterests()).toEqual(
+        failure('unknown', 'the response carried no count'),
+      );
+      expect(await countPendingInterests()).toEqual(
+        failure('forbidden', '42501: new row violates row-level security policy'),
+      );
+    });
+  });
+
   describe('members + messages', () => {
     it('fetchMembers: group filter, role then name', async () => {
       await fetchMembers('g');
@@ -376,6 +406,7 @@ describe('repos/discipleship', () => {
       moveMember: () => moveMember('m', 'g2'),
       fetchMessages: () => fetchMessages('g'),
       sendMessage: () => sendMessage({ groupId: 'g', body: 'hola' }),
+      countPendingInterests: () => countPendingInterests(),
     },
     publicCalls: {
       fetchPublicGroups: () => fetchPublicGroups(),

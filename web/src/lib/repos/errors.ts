@@ -347,6 +347,21 @@ export function noRows(tag: string, fn: string): RepoFailure {
   return { ok: false, error };
 }
 
+/**
+ * A `{ count: 'exact', head: true }` read that came back without a number
+ * (PostgREST sends it in `Content-Range`). Never read as 0: a tile showing
+ * "0 pendientes" for a count that failed is the bug PORT-DEBT S43 records.
+ */
+export function noCount(tag: string, fn: string): RepoFailure {
+  const error: RepoError = {
+    kind: 'unknown',
+    message: REPO_ERROR_MESSAGES.unknown,
+    detail: 'the response carried no count',
+  };
+  console.warn(`${tag} ${fn}:`, error.detail);
+  return { ok: false, error };
+}
+
 /** The success branch of a `ReadResult` / `WriteResult`. */
 export function ok<T>(data: T): { ok: true; data: T } {
   return { ok: true, data };
