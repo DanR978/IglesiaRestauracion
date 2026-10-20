@@ -209,3 +209,35 @@ Measured by bisection in a scratch build (a trivial `(app)` group with a `load` 
 - [ ] MIGRATION.md: S37 on the board; candidate gotchas — G-0xx Kit 3 strips universal-load support until the first route `load` (every page pays ~0.7 kB when it lands); G-0xx reduced-motion `transition-duration` on `*` makes inherited `visibility` lag (use `inert`).
 - [ ] ROADMAP S37 row → done (amended done-when per D-036: prerendered `ssr = false` shells, no fallback).
 - [ ] budget.json re-baseline (integrator).
+
+## Public-page cost (2026-10-19, PR-C2 integration)
+
+One SvelteKit app means one client runtime, so the integrated admin grew every public page's
+initial JS. Measured on the `/app` build (gzip, `npm run budget`) and the throttled lab profile
+(`perf.spec.ts`, chromium):
+
+| | `/` initial JS | files | `/kit/states/` LCP |
+|---|---|---|---|
+| Before the admin (budget baseline) | 40.3 kB | 14 | — |
+| Admin integrated, untuned | 45.1 kB (+11.8%) | 18 | 2524–2696 ms (over 2.5 s) |
+| After the reductions below | 41.8 kB (+3.7%) | 8 | 2212 ms |
+
+Reductions:
+- **The (app) guard runs in the layout component, not a universal `load`** — Kit strips its
+  universal-load support from the client until one exists (≈ 0.7 kB on every page). Same
+  decisions, same redirect targets (`guardAdmin` logic unchanged); the shell renders nothing until
+  the session store settles.
+- **Client chunk groups** (`web/client-chunks.ts`): the startup code every page loads (Kit's client,
+  the Svelte runtime, the root layout's theme and config) is regrouped into a few files instead of
+  a dozen, and admin-only modules stay in admin chunks — fewer preloads competing with the
+  render-blocking CSS, and a shorter dependency map in `app.js`. A unit test and a build guard keep
+  admin chunks out of public pages' preloads.
+- **Small per-component stylesheets are inlined** (`inlineStyleThreshold`, 4 KB): a page with
+  several primitives spent a whole extra round trip on them before first paint over HTTP/1.1 (G-041);
+  Kit's hash-mode CSP hashes the inlined `<style>` blocks.
+
+What remains is inherent to one app: shallow routing, `goto` / `beforeNavigate`, and the admin
+routes' entries in the client manifest. Admin pages themselves are 133–165 kB (supabase-js, the
+session check and the shell) and are client-rendered shells (D-036): `perf.spec.ts` records their
+LCP and gates their CLS; `budget.json` holds their size. Re-measure at the public cutover (S23+).
+

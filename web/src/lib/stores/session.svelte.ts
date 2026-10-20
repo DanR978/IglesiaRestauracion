@@ -29,20 +29,21 @@
  * change while a tab sleeps. A background refresh that fails in transit
  * keeps the page as it was; only the first read and Retry show 'error'.
  *
- * guardAdmin(url) is the (app) layout's load. Browser-only: admin routes are
+ * guardAdmin(url) is the (app) layout's guard: it answers where the visit
+ * goes, and the layout moves it there. Browser-only: admin routes are
  * `ssr = false` shells (D-036), so none of this runs while prerendering.
  * UX only — RLS and the aal2 layer are the guard (D-002, D-034).
  *
  * Usage:
- *   // src/routes/(admin)/admin/(app)/+layout.ts
- *   export const load = ({ url }) => guardAdmin(url);
+ *   // src/routes/(admin)/admin/(app)/+layout.svelte
+ *   const target = await guardAdmin(url);
+ *   if (target) await leaveTo(target); // else render the page
  *   // anywhere
  *   import { session } from '#lib/stores/session.svelte.js';
  *   if (session.status === 'expired') showExpired();
  *   await session.signOut('local');
  * ========================================================================== */
 
-import { redirect } from '@sveltejs/kit';
 import { browser } from '$app/env';
 import { resolveAccess } from '#lib/auth/access.js';
 import type { AuthResult } from '#lib/auth/errors.js';
@@ -320,17 +321,18 @@ export const session = {
 };
 
 /**
- * The (app) layout's load: email links first (the legacy `?action=` /
- * `token_hash` contract), then the access state. Throws SvelteKit's
- * redirect; resolves when the page may render (`ready`, or `error`, which
- * the shell shows with Retry).
+ * The (app) layout's guard: email links first (the legacy `?action=` /
+ * `token_hash` contract), then the access state. Resolves with the page
+ * the visit must go to instead, or null when it may render (`ready`, or
+ * `error`, which the shell shows with Retry). A return value, not Kit's
+ * redirect(): the layout navigates itself, and redirect() would put Kit's
+ * redirect checks into every page's runtime (S37 "Public-page cost").
  */
-export async function guardAdmin(url: URL): Promise<void> {
-  if (!browser) return;
+export async function guardAdmin(url: URL): Promise<string | null> {
+  if (!browser) return null;
   const emailLink = emailLinkTarget(url, location.hash);
-  if (emailLink) redirect(307, emailLink);
+  if (emailLink) return emailLink;
   await ready();
   await settled(); // a sign-in or verify a moment ago is still being read
-  const target = accessTarget(url, status);
-  if (target) redirect(307, target);
+  return accessTarget(url, status);
 }

@@ -12,7 +12,10 @@
  *   Mobile Safari  iPhone descriptor — WebKit, touch, 393px
  *   Mobile Chrome  Pixel descriptor — Chromium, touch, 412px
  * perf.spec.ts (lab LCP/CLS, box 17) throttles through Chromium's DevTools
- * protocol, so it runs in the `chromium` project only.
+ * protocol, and build-head.spec.ts reads build/ without a browser, so both
+ * run in the `chromium` project only — as does admin-screens.spec.ts, the
+ * by-eye screenshots, which load only when E2E_SCREENSHOTS_DIR names a folder
+ * outside the repository to write them to.
  *
  * The build inside webServer needs the PUBLIC_* values: web/.env locally (see
  * .env.example), loopback placeholders in CI. No spec reaches production.
@@ -35,13 +38,15 @@
 import { defineConfig, devices } from '@playwright/test';
 import { E2E_ORIGIN, E2E_PORT, SUPABASE_URL } from './tests/e2e/helpers/supabase';
 
-const PERF_SPEC = /perf\.spec\.ts$/;
+const CHROMIUM_ONLY = /(perf|build-head|admin-screens)\.spec\.ts$/;
+const SCREENSHOTS = /admin-screens\.spec\.ts$/;
 // Two worktrees can run the suite at once on different ports (E2E_PORT).
 const PORT = E2E_PORT;
 const ORIGIN = E2E_ORIGIN;
 
 export default defineConfig({
   testDir: 'tests/e2e',
+  testIgnore: process.env.E2E_SCREENSHOTS_DIR ? [] : [SCREENSHOTS],
   forbidOnly: !!process.env.CI,
   // One retry in CI absorbs runner noise; a test that passes only on the
   // retry is still reported as flaky.
@@ -61,8 +66,8 @@ export default defineConfig({
   use: { baseURL: ORIGIN, trace: 'retain-on-failure' },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: PERF_SPEC },
-    { name: 'Mobile Safari', use: { ...devices['iPhone 15'] }, testIgnore: PERF_SPEC },
-    { name: 'Mobile Chrome', use: { ...devices['Pixel 7'] }, testIgnore: PERF_SPEC },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] }, testIgnore: CHROMIUM_ONLY },
+    { name: 'Mobile Safari', use: { ...devices['iPhone 15'] }, testIgnore: CHROMIUM_ONLY },
+    { name: 'Mobile Chrome', use: { ...devices['Pixel 7'] }, testIgnore: CHROMIUM_ONLY },
   ],
 });

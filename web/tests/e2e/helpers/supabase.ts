@@ -47,6 +47,8 @@ const API_VERSION = { 'x-supabase-api-version': '2024-01-01' };
 export interface Answer {
   status?: number;
   json?: unknown;
+  /** Extra response headers — e.g. PostgREST's `content-range` for a head count. */
+  headers?: Record<string, string>;
 }
 
 export type Handler = Answer | ((request: Request) => Answer | Promise<Answer>);
@@ -88,7 +90,7 @@ export async function mockSupabase(
       const answer = typeof handler === 'function' ? await handler(request) : handler;
       await route.fulfill({
         status: answer.status ?? 200,
-        headers: API_VERSION,
+        headers: { ...API_VERSION, ...answer.headers },
         json: answer.json ?? {},
       });
     },
