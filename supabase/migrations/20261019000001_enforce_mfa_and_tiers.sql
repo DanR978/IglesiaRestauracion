@@ -17,7 +17,8 @@
 --     zero rows). Undo with supabase/sql/rollback-auth.sql.
 --
 -- WHAT IT ENFORCES
---   1. is_aal2() reads the `aal` claim of the caller's JWT.
+--   1. is_aal2() reads the `aal` claim of the caller's JWT; an account with no
+--      verified second factor passes too (optional setup, D-033 as amended).
 --   2. A RESTRICTIVE aal2 layer — policies aal2_select / aal2_insert /
 --      aal2_update / aal2_delete, `to authenticated` — on every public table
 --      with RLS, on storage.objects writes and on Realtime private-channel
@@ -69,9 +70,16 @@ set local lock_timeout = '5s';
 -- ════ 1. is_aal2() ═══════════════════════════════════════════════════════════
 -- GoTrue stamps every access token with `aal`; it reads 'aal2' once a second
 -- factor was verified in that session. anon and service-role tokens carry none.
+-- Amended 2026-10-20 (D-033): setting up a second factor is optional, so only
+-- an account that HAS a verified factor must have used it — Supabase's own
+-- pattern for optional MFA. An account without one works at aal1. The name
+-- stays: every policy and RPC below calls it.
 create or replace function public.is_aal2()
 returns boolean language sql stable security definer set search_path = public as $$
   select coalesce((select auth.jwt()) ->> 'aal', '') = 'aal2'
+      or ((select auth.uid()) is not null
+          and not exists (select 1 from auth.mfa_factors f
+                           where f.user_id = (select auth.uid()) and f.status = 'verified'))
 $$;
 
 

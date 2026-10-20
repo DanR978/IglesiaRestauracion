@@ -96,10 +96,10 @@ describe('the first read', () => {
     expect(h.listFactors).toHaveBeenCalledTimes(1);
   });
 
-  it('aal1 without a factor: needs-enroll', async () => {
+  it('aal1 without a factor: ready — setting one up is optional', async () => {
     h.getAal.mockResolvedValue(ok({ current: 'aal1', next: 'aal1' }));
     const { session } = await started();
-    expect(session.status).toBe('needs-enroll');
+    expect(session.status).toBe('ready');
   });
 
   it('no profile, or a role outside the three: forbidden', async () => {

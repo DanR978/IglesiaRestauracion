@@ -1,10 +1,11 @@
 // js/pages/admin/mfa.js
 // Two-factor authentication (TOTP) via Supabase Auth — enrollment + verification.
 //
-// MFA is REQUIRED for every staff account (D-033): auth.js routes every
-// successful credential step through `mfaStatus()` and opens the panel only at
-// AAL2. Client gating is UX; the database enforces aal2 only once the
-// fix/authz-hardening migration is applied.
+// An account that has an authenticator must use it (D-033, amended 2026-10-20):
+// auth.js routes every successful credential step through `mfaStatus()` and
+// challenges a verified factor before the panel opens. Setting one up is
+// optional, from Mi cuenta. Client gating is UX; the database enforces it once
+// the fix/authz-hardening migration is applied.
 
 import { sb } from './state.js';
 

@@ -2,8 +2,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // Authentication for the admin panel.
 //   • Login (email + password)
-//   • Mandatory two-factor auth — enrollment for new accounts, challenge for
-//     returning ones (see mfa.js)
+//   • Two-factor auth — a challenge for accounts that have an authenticator;
+//     setting one up is optional, from Mi cuenta (see mfa.js)
 //   • Invitation acceptance — an invited user sets their first password
 //   • Password recovery — "forgot password" + reset landing
 //   • Session boot — restores a session with no login-screen flash
@@ -95,8 +95,9 @@ async function doLogin() {
   }
 }
 
-// After any successful credential step: challenge, enroll, or straight in.
-// Two-factor auth is required for every staff account (D-033).
+// After any successful credential step: the code for an account that has an
+// authenticator, otherwise straight in. Setting one up is optional (D-033 as
+// amended 2026-10-20) — offered from Mi cuenta, never forced at sign-in.
 async function routeAfterLogin() {
   let status;
   try {
@@ -107,7 +108,6 @@ async function routeAfterLogin() {
     return showCard('loginCard');
   }
   if (status === 'challenge') return showMfaChallenge();
-  if (status === 'enroll')    return showMfaEnroll();
   return bootApp();
 }
 
@@ -163,7 +163,10 @@ async function showMfaChallenge() {
         setErr('mfaError', 'Tu cuenta usa un método de verificación que este panel no admite. Contacta al administrador.');
         return;
       }
-      return showMfaEnroll();          // no verified factor — enroll instead
+      // No verified factor after all: nothing to challenge.
+      const next = afterMfa;
+      afterMfa = null;
+      return next ? next() : bootApp();
     }
   } catch (e) {
     setErr('mfaError', spanishError(e));

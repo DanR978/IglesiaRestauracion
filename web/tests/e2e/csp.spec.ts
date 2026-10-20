@@ -72,7 +72,7 @@ const SIGNED_IN: ReadonlyArray<[label: string, account: StaffAccount, path: stri
   ['Mi cuenta · Seguridad', DEVELOPER, '/admin/cuenta/?seccion=seguridad', 'Mi cuenta'],
   ['Mi cuenta · Preferencias', DEVELOPER, '/admin/cuenta/?seccion=preferencias', 'Mi cuenta'],
   ['verificar/ — the code', CHALLENGE, '/admin/acceso/verificar/', 'Verifica tu identidad'],
-  ['verificar/ — enrol with the QR', ENROLL, '/admin/acceso/verificar/', 'Protege tu cuenta'],
+  ['Inicio — no authenticator yet (optional, D-033 as amended)', ENROLL, '/admin/', 'Inicio'],
 ];
 
 for (const [label, account, path, h1] of SIGNED_IN) {
@@ -81,14 +81,6 @@ for (const [label, account, path, h1] of SIGNED_IN) {
     await staffBackend(page, account);
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1, name: h1 })).toBeVisible();
-    if (account === ENROLL) {
-      // GoTrue's QR, an SVG data: URL in an <img> — what img-src's data: is for.
-      const qr = page.getByRole('img', { name: 'Código QR para tu app de autenticación' });
-      await expect(qr).toHaveAttribute('src', /^data:image\/svg\+xml/);
-      await expect
-        .poll(() => qr.evaluate((img: HTMLImageElement) => img.naturalWidth))
-        .toBeGreaterThan(0);
-    }
     await settle(page);
     expect(violations).toEqual([]);
   });
