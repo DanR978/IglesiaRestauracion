@@ -22,6 +22,7 @@ import { renderNavAccount } from './account.js';
 import { applyLandingPref } from './prefs.js';
 import { toast, confirm }  from './ui.js';
 import * as mfa           from './mfa.js';
+import { spanishError }    from './auth-errors.js';
 
 // ─── Screen routing ───────────────────────────────────────────────────────────
 const CARDS = ['bootCard', 'loginCard', 'mfaCard', 'inviteCard', 'forgotCard'];
@@ -40,32 +41,6 @@ function showApp() {
   const screen = document.getElementById('authScreen');
   if (screen) screen.hidden = true;
   document.getElementById('app').style.display = 'block';
-}
-
-// ─── Friendly Spanish error messages ──────────────────────────────────────────
-function spanishError(err) {
-  const m = (err?.message || String(err) || '').toLowerCase();
-  if (m.includes('invalid login') || m.includes('invalid credentials'))
-    return 'Correo o contraseña incorrectos.';
-  if (m.includes('email not confirmed'))
-    return 'Tu cuenta aún no ha sido activada. Revisa tu correo.';
-  if (m.includes('too many') || m.includes('rate limit'))
-    return 'Demasiados intentos. Espera unos minutos e intenta de nuevo.';
-  if (m.includes('totp') || m.includes('invalid code') ||
-      m.includes('challenge') || m.includes('factor'))
-    return 'Código incorrecto o expirado. Revisa tu app e intenta de nuevo.';
-  if (m.includes('weak password') || m.includes('at least') || m.includes('6 characters'))
-    return 'La contraseña es muy débil. Usa al menos 8 caracteres.';
-  if (m.includes('different from the old') || m.includes('should be different'))
-    return 'La nueva contraseña debe ser distinta a la anterior.';
-  if (m.includes('network') || m.includes('failed to fetch'))
-    return 'Error de conexión. Revisa tu internet e intenta de nuevo.';
-  if (m.includes('not allowed') || m.includes('disabled'))
-    return 'Esta operación no está permitida.';
-  if (m.includes('session missing') || m.includes('session not found') ||
-      m.includes('session_not_found'))
-    return 'Tu sesión expiró. Vuelve a abrir el enlace o pide uno nuevo.';
-  return err?.message || 'Ocurrió un error inesperado. Intenta de nuevo.';
 }
 
 // Shown when an invite / reset link is expired, already used, or was consumed
@@ -101,6 +76,7 @@ async function doLogin() {
   const email    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   const btn      = document.getElementById('loginBtn');
+  if (btn?.disabled) return;                    // Enter while a sign-in is in flight
 
   setErr('authError', '');
   if (!email || !password) {
@@ -119,25 +95,53 @@ async function doLogin() {
   }
 }
 
-// After any successful credential step, go straight into the panel.
-// (Two-factor auth is no longer a required step.)
+// After any successful credential step: challenge, enroll, or straight in.
+// Two-factor auth is required for every staff account (D-033).
 async function routeAfterLogin() {
+  let status;
+  try {
+    status = await mfa.mfaStatus();
+  } catch (e) {
+    busy(document.getElementById('loginBtn'), false, '<i class="fas fa-sign-in-alt"></i> Entrar');
+    setErr('authError', spanishError(e));
+    return showCard('loginCard');
+  }
+  if (status === 'challenge') return showMfaChallenge();
+  if (status === 'enroll')    return showMfaEnroll();
   return bootApp();
 }
 
 // ─── MFA ──────────────────────────────────────────────────────────────────────
-async function showMfaEnroll() {
+// What a verified code leads to: the panel (default), a step that needed AAL2
+// (password recovery), or back to an already-open panel (device replacement).
+let afterMfa = null;
+let reenrollInPanel = false;
+let verifying = false;      // a code is being checked: cancel must wait
+let cancelling = false;
+
+function setMfaCancelLabel() {
+  const link = document.getElementById('mfaLogoutBtn');
+  if (link) link.textContent = reenrollInPanel ? 'Cancelar' : 'Cancelar y cerrar sesión';
+}
+
+async function showMfaEnroll({ replace = false } = {}) {
   showCard('mfaCard');
   document.getElementById('mfaEnroll').hidden    = false;
   document.getElementById('mfaChallenge').hidden = true;
   document.getElementById('mfaCardSub').textContent = 'Configura la verificación en dos pasos';
   document.getElementById('mfaCode').value = '';
   setErr('mfaError', '');
+  setMfaCancelLabel();
+  // Never show a previous attempt's QR/secret while the new factor is created.
+  document.getElementById('mfaQrImg').removeAttribute('src');
+  document.getElementById('mfaSecret').textContent = '';
   try {
-    const { qr, secret } = await mfa.beginEnroll();
+    const { qr, secret } = await mfa.beginEnroll({ replace });
     document.getElementById('mfaQrImg').src = qr;
     document.getElementById('mfaSecret').textContent = secret;
   } catch (e) {
+    // A verified factor exists but this session is still AAL1: prove it first.
+    if (e?.code === 'insufficient_aal') return showMfaChallenge();
     setErr('mfaError', spanishError(e));
   }
 }
@@ -149,36 +153,82 @@ async function showMfaChallenge() {
   document.getElementById('mfaCardSub').textContent = 'Verificación en dos pasos';
   document.getElementById('mfaCode').value = '';
   setErr('mfaError', '');
+  setMfaCancelLabel();
   try {
     const ok = await mfa.beginChallenge();
-    if (!ok) return showMfaEnroll();   // no verified factor — enroll instead
+    if (!ok) {
+      // A verified factor of a type this panel cannot challenge (phone, passkey).
+      const { data } = await sb.auth.mfa.listFactors();
+      if ((data?.all ?? []).some(f => f.status === 'verified')) {
+        setErr('mfaError', 'Tu cuenta usa un método de verificación que este panel no admite. Contacta al administrador.');
+        return;
+      }
+      return showMfaEnroll();          // no verified factor — enroll instead
+    }
   } catch (e) {
     setErr('mfaError', spanishError(e));
   }
   document.getElementById('mfaCode').focus();
 }
 
-/** Re-enroll 2FA from inside the panel (used by the "Mi cuenta" screen). */
+/**
+ * Replace the 2FA device from inside the panel ("Mi cuenta"). Additive: the
+ * old factor is removed only after the new one is verified.
+ */
 export async function reEnrollMfa() {
-  try { await mfa.unenrollAll(); } catch { /* ignore */ }
-  showMfaEnroll();
+  reenrollInPanel = true;
+  return showMfaEnroll({ replace: true });
+}
+
+async function cancelMfa() {
+  if (verifying || cancelling) return;
+  cancelling = true;
+  try {
+    if (!reenrollInPanel) {
+      // Backing out of the sign-in step ends only this device's session.
+      try { await sb.auth.signOut({ scope: 'local' }); } catch { /* ignore */ }
+      location.href = location.pathname;
+      return;
+    }
+    await mfa.cancelEnroll();
+    reenrollInPanel = false;
+    showApp();
+  } finally {
+    cancelling = false;
+  }
 }
 
 async function verifyMfa() {
   const code = document.getElementById('mfaCode').value.trim();
   const btn  = document.getElementById('mfaVerifyBtn');
+  if (btn?.disabled) return;                    // Enter while a verify is in flight
   setErr('mfaError', '');
   if (!/^\d{6}$/.test(code)) {
     setErr('mfaError', 'Ingresa el código de 6 dígitos.');
     return;
   }
+  if (cancelling) return;
+  const inPanel = reenrollInPanel;     // decided at entry, never by a concurrent cancel
+  verifying = true;
   busy(btn, true);
   try {
-    await mfa.submitCode(code);
+    const leftover = await mfa.submitCode(code);
+    if (inPanel) {                     // the panel is already booted — just return to it
+      reenrollInPanel = false;
+      if (leftover.length) toast('No se pudo quitar el dispositivo anterior. Vuelve a intentarlo desde Mi cuenta.', 'error');
+      else toast('Verificación completada', 'success');
+      showApp();
+      return;
+    }
     toast('Verificación completada', 'success');
+    const next = afterMfa;
+    afterMfa = null;
+    if (next) return next();
     await bootApp();
   } catch (e) {
     setErr('mfaError', spanishError(e));
+  } finally {
+    verifying = false;
     busy(btn, false, '<i class="fas fa-shield-alt"></i> Verificar');
   }
 }
@@ -202,6 +252,7 @@ async function submitSetPassword() {
   const pw   = document.getElementById('invitePassword').value;
   const pw2  = document.getElementById('invitePassword2').value;
   const btn  = document.getElementById('inviteBtn');
+  if (btn?.disabled) return;                    // Enter while a save is in flight
 
   setErr('inviteError', '');
   if (pw.length < 8) {
@@ -226,13 +277,32 @@ async function submitSetPassword() {
     }
     const { error } = await sb.auth.updateUser({ password: pw });
     if (error) throw error;
-    history.replaceState({}, '', location.pathname);   // strip ?action= + tokens
+    history.replaceState({}, '', location.pathname);   // strip ?action=
     toast(mode === 'recovery' ? 'Contraseña actualizada' : 'Cuenta activada', 'success');
-    await routeAfterLogin();                            // → MFA enroll / challenge
+    busy(btn, false, '<i class="fas fa-arrow-right"></i> Continuar');
+    await routeAfterLogin();                            // → MFA enroll / challenge / panel
   } catch (e) {
     setErr('inviteError', spanishError(e));
     busy(btn, false, '<i class="fas fa-arrow-right"></i> Continuar');
   }
+}
+
+// A recovery link signs in at AAL1. GoTrue only accepts a new password for an
+// account with 2FA once that session has passed the second factor.
+async function startRecovery() {
+  let status;
+  try {
+    status = await mfa.mfaStatus();
+  } catch (e) {
+    showCard('loginCard');
+    setErr('authError', spanishError(e));
+    return;
+  }
+  if (status === 'challenge') {
+    afterMfa = () => showSetPassword('recovery');
+    return showMfaChallenge();
+  }
+  return showSetPassword('recovery');
 }
 
 // ─── Forgot password ─────────────────────────────────────────────────────────
@@ -453,6 +523,10 @@ async function boot() {
       setErr('authError', expiredLinkMsg(action));
       return;
     }
+    // The one-time token is spent: drop it from the address bar and history,
+    // keeping ?action= so a reload still lands on the set-password step.
+    history.replaceState({}, '',
+      action ? `${location.pathname}?action=${encodeURIComponent(action)}` : location.pathname);
   }
 
   // ── 2) Fallback (legacy implicit flow): supabase-js consumes tokens from the
@@ -466,7 +540,7 @@ async function boot() {
   }
 
   if (session && action === 'accept-invite')  return showSetPassword('invite');
-  if (session && action === 'reset-password') return showSetPassword('recovery');
+  if (session && action === 'reset-password') return startRecovery();
   if (session) return routeAfterLogin();
 
   // Arrived via an invite/reset link but no session could be established — the
@@ -500,7 +574,7 @@ export function initAuth() {
     if (e.key === 'Enter') verifyMfa();
   });
   document.getElementById('mfaLogoutBtn')?.addEventListener('click', e => {
-    e.preventDefault(); logout();
+    e.preventDefault(); cancelMfa();
   });
 
   // Invitation / password reset
