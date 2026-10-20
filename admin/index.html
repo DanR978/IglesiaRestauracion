@@ -104,6 +104,42 @@
       <h2>Protege tu cuenta</h2>
       <p class="auth-text">Escanea este código con una app de autenticación
         (Google Authenticator, Authy o Microsoft Authenticator).</p>
+
+      <details class="mfa-help">
+        <summary>¿Primera vez? Te guiamos paso a paso</summary>
+        <p>Vas a guardar en tu teléfono un código de 6 dígitos que cambia cada 30 segundos.
+          Se configura una sola vez. No recargues ni cierres esta página mientras lo haces:
+          se crearía una clave nueva.</p>
+
+        <h3>En iPhone (con la app Contraseñas)</h3>
+        <ol>
+          <li>Mantén presionada la clave que aparece abajo y toca <strong>Copiar</strong>.</li>
+          <li>Abre la app <strong>Contraseñas</strong> y busca <strong>irdlex</strong>. Si no
+            aparece, toca <strong>+</strong> y guarda <strong>www.irdlex.org</strong> con tu correo
+            y tu contraseña de este panel.</li>
+          <li>Toca <strong>Editar</strong> → <strong>Configurar código de verificación</strong>,
+            elige la opción de <strong>clave de configuración</strong>, pega la clave y confirma.</li>
+          <li>Regresa aquí y toca la casilla del código: el iPhone te lo ofrece sobre el teclado.
+            Si no aparece, cópialo desde Contraseñas y pégalo. Luego toca
+            <strong>Verificar</strong>.</li>
+        </ol>
+
+        <h3>En Android (con Google Authenticator)</h3>
+        <ol>
+          <li>Instala <strong>Google Authenticator</strong> desde la Play Store.</li>
+          <li>Mantén presionada la clave que aparece abajo y toca <strong>Copiar</strong>.</li>
+          <li>En la app, toca <strong>+</strong> → <strong>Ingresar una clave de
+            configuración</strong>. Escribe un nombre (por ejemplo, Panel IRD), pega la clave y
+            toca <strong>Agregar</strong>.</li>
+          <li>Toca el código de 6 dígitos para copiarlo, regresa aquí, pégalo en la casilla y toca
+            <strong>Verificar</strong>.</li>
+        </ol>
+
+        <p>¿Lo haces desde una computadora? Sigue los mismos pasos en tu teléfono, pero en vez de
+          pegar la clave, elige escanear el código QR.</p>
+        <p>Desde ahora, cada vez que entres solo te pedirá el código de 6 dígitos de la app.</p>
+      </details>
+
       <div class="mfa-qr"><img id="mfaQrImg" alt="Código QR de verificación"></div>
       <p class="auth-text auth-text--muted">¿No puedes escanear? Ingresa esta clave a mano:</p>
       <code class="mfa-secret" id="mfaSecret"></code>
