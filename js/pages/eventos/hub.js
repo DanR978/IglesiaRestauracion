@@ -35,6 +35,10 @@ const CATS = {
 
 const todayYMD = () => { const t = new Date(); return ymd(t.getFullYear(), t.getMonth(), t.getDate()); };
 
+// The Mes tab is hidden at this width (same breakpoint in eventos-hub.css) —
+// the grid is too cramped — so phones always get Lista instead.
+const PHONE = window.matchMedia('(max-width: 640px)');
+
 // ─── State ──────────────────────────────────────────────────────────────────
 let view      = 'list';
 let category  = '';
@@ -136,18 +140,25 @@ function renderMini() {
   const first  = new Date(miniYear, miniMonth, 1).getDay();
   const days   = new Date(miniYear, miniMonth + 1, 0).getDate();
   const byDate = new Map();
-  filtered().forEach(e => { if (!byDate.has(e.date)) byDate.set(e.date, []); byDate.get(e.date).push(e); });
+  upcoming(filtered()).forEach(e => { if (!byDate.has(e.date)) byDate.set(e.date, []); byDate.get(e.date).push(e); });
+
+  // Lista is "Próximos": past days are inert and there's no paging back
+  // before the current month.
+  const now = new Date();
+  $('evhubMiniPrev').disabled = miniYear * 12 + miniMonth <= now.getFullYear() * 12 + now.getMonth();
 
   let html = DAYS_S.map(d => `<span class="evhub-mini__wd">${d}</span>`).join('');
   for (let i = 0; i < first; i++) html += `<span class="evhub-mini__cell evhub-mini__cell--empty"></span>`;
   for (let d = 1; d <= days; d++) {
     const ds = ymd(miniYear, miniMonth, d);
     const has = byDate.has(ds);
+    const past = ds < today;
     const cls = ['evhub-mini__cell',
       ds === today ? 'is-today' : '',
+      past ? 'is-past' : '',
       ds === selectedDate ? 'is-selected' : '',
       has ? 'has-events' : ''].filter(Boolean).join(' ');
-    html += `<button type="button" class="${cls}" data-date="${ds}">${d}${has ? '<span class="evhub-mini__dot"></span>' : ''}</button>`;
+    html += `<button type="button" class="${cls}" data-date="${ds}"${past ? ' disabled' : ''}>${d}${has ? '<span class="evhub-mini__dot"></span>' : ''}</button>`;
   }
   $('evhubMiniGrid').innerHTML = html;
 }
@@ -194,13 +205,13 @@ function renderUpcoming() {
     return;
   }
 
-  // Only the month currently shown in the mini-calendar.
+  // Only the month currently shown in the mini-calendar, from today on.
   const monthStart = ymd(miniYear, miniMonth, 1);
   const monthEnd   = ymd(miniYear, miniMonth, new Date(miniYear, miniMonth + 1, 0).getDate());
-  const list = filtered()
+  const list = upcoming(filtered())
     .filter(e => e.date >= monthStart && e.date <= monthEnd)
     .sort((a, b) => (a.date > b.date ? 1 : -1));
-  if (!list.length) { host.innerHTML = `<p class="evhub__empty">No hay eventos este mes.</p>`; return; }
+  if (!list.length) { host.innerHTML = `<p class="evhub__empty">No hay eventos próximos este mes.</p>`; return; }
 
   // Group by day
   let html = '', curDay = '';
@@ -290,6 +301,20 @@ function longDate(ds) {
   return `${DAYS_L[new Date(y, m - 1, d).getDay()]}, ${d} de ${MONTHS[m - 1]} ${y}`;
 }
 
+// Mes on a phone (a ?view=month link — /calendario/ redirects there — or a
+// rotation to portrait) → Lista, and drop ?view=month from the address so the
+// link a phone visitor shares opens Lista too. Returns whether it switched.
+function leaveMonthOnPhone() {
+  if (view !== 'month' || !PHONE.matches) return false;
+  view = 'list';
+  const url = new URL(location.href);
+  if (url.searchParams.has('view')) {
+    url.searchParams.delete('view');
+    history.replaceState(history.state, '', url);
+  }
+  return true;
+}
+
 // ─── Boot ───────────────────────────────────────────────────────────────────
 function init() {
   if (init._done) return; init._done = true;
@@ -298,6 +323,8 @@ function init() {
   // "Calendario" entry now that the calendar is folded in here).
   const urlView = new URLSearchParams(location.search).get('view');
   if (['list', 'month', 'gallery'].includes(urlView)) view = urlView;
+  leaveMonthOnPhone();
+  PHONE.addEventListener('change', () => { if (leaveMonthOnPhone()) render(); });
 
   document.querySelectorAll('.evhub__view').forEach(b =>
     b.addEventListener('click', () => { view = b.dataset.view; render(); }));
@@ -306,7 +333,7 @@ function init() {
   $('evhubMiniPrev')?.addEventListener('click', () => { if (--miniMonth < 0) { miniMonth = 11; miniYear--; } selectedDate = null; renderMini(); renderUpcoming(); });
   $('evhubMiniNext')?.addEventListener('click', () => { if (++miniMonth > 11) { miniMonth = 0; miniYear++; } selectedDate = null; renderMini(); renderUpcoming(); });
   $('evhubMiniGrid')?.addEventListener('click', (e) => {
-    const cell = e.target.closest('.evhub-mini__cell[data-date]');
+    const cell = e.target.closest('.evhub-mini__cell[data-date]:not(:disabled)');
     if (!cell) return;
     selectedDate = (selectedDate === cell.dataset.date) ? null : cell.dataset.date;  // toggle
     renderMini(); renderUpcoming();
