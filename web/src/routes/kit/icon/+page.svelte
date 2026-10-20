@@ -286,10 +286,10 @@
     <h2 id="h-admin">Superficie pública vs. admin</h2>
     <div class="compare">
       <div class="compare__col">
-        <strong><Icon set="fas" name="star" /> --color-secondary público (dorado)</strong>
+        <strong><Icon set="fas" name="star" /> --color-accent-ink público (dorado)</strong>
       </div>
       <div class="compare__col" data-surface="admin">
-        <strong><Icon set="fas" name="star" /> --color-secondary admin (pizarra)</strong>
+        <strong><Icon set="fas" name="star" /> --color-accent-ink admin (pizarra)</strong>
       </div>
     </div>
   </section>

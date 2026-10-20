@@ -1,11 +1,16 @@
-// S05b — the off-origin guard (helpers/network.ts) compares full ORIGINS. The
-// e2e build points PUBLIC_SUPABASE_URL at http://127.0.0.1:54321, so a guard
-// keyed on hostnames let a page that called a local Supabase pass as the
-// preview server. Nothing here reaches anything but the preview: the HTTP
+// S05b — the off-origin guard (helpers/network.ts) compares full ORIGINS. A
+// local Supabase answers at http://127.0.0.1:54321, so a guard keyed on
+// hostnames let a page that called it pass as the preview server. (Since S39
+// the e2e build's own Supabase is the preview, under /__supabase.) Nothing
+// here reaches anything but the preview: the HTTP
 // requests are answered in-process (page.route), and the off-origin socket
 // goes to a port nothing listens on, so it is refused.
 import { expect, test } from '@playwright/test';
 import { watchOffOriginRequests } from './helpers/network';
+
+// The pages' CSP (D-037) blocks these requests in the browser before they leave,
+// so the guard would see nothing; this spec tests the guard, csp.spec.ts the CSP.
+test.use({ bypassCSP: true });
 
 const LOCAL_SUPABASE = 'http://127.0.0.1:54321';
 const REFUSED_SOCKET = 'ws://127.0.0.1:59999/realtime/v1/websocket';

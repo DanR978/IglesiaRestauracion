@@ -27,7 +27,7 @@
   import Icon from './Icon.svelte';
   import { MODAL_BLOCK, MODAL_CLOSE_LABEL, type ModalVariant } from './modal';
   import { lockBodyScroll } from '#lib/scroll-lock.js';
-  import { isTopmostTrap, trapFocus } from '#lib/focus-trap.js';
+  import { isTopmostTrap, returnFocusTarget, trapFocus } from '#lib/focus-trap.js';
 
   interface Props {
     /** Two-way: `bind:open`. The component sets it to false on every close path. */
@@ -129,7 +129,8 @@
     const dialog = dialogEl;
     if (!open || !dialog) return;
 
-    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Not document.activeElement: after a click in Safari that is <body> (G-038).
+    const trigger = returnFocusTarget();
     const releaseScroll = lockBodyScroll();
     const releaseTrap = trapFocus(dialog);
     const wanted = initialFocus ? dialog.querySelector<HTMLElement>(initialFocus) : null;

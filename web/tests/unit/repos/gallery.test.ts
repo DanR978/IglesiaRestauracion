@@ -7,10 +7,19 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
-import { NOT_FOUND, OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
+import {
+  NOT_FOUND,
+  NO_SESSION,
+  OFFLINE,
+  RLS_DENIED,
+  SIGNED_OUT,
+  failure,
+  invalidInput,
+} from './results';
 import { describeSessionGate } from './session-gate';
 import * as gallery from '#lib/repos/gallery.js';
 import {
+  countAlbums,
   deleteAlbum,
   deletePhoto,
   fetchAlbumBy,
@@ -151,6 +160,28 @@ describe('repos/gallery', () => {
     it('a failed read is an error, never an empty year wheel', async () => {
       mock.results.gallery_albums = [{ data: null, error: ERR }];
       expect(await fetchAvailableYears()).toEqual(failure('unknown', 'boom'));
+    });
+  });
+
+  // S40 — Inicio's "Álbumes de galería" (js/pages/admin/dashboard.js:49-50).
+  describe('countAlbums', () => {
+    it('a head count of every album, drafts included', async () => {
+      mock.results.gallery_albums = [{ data: null, count: 12 }];
+      expect(await countAlbums()).toEqual({ ok: true, data: 12 });
+      expect(mock.chain()).toEqual(['select']);
+      expect(mock.args('select')).toEqual(['id', { count: 'exact', head: true }]);
+    });
+
+    it('staff-only: signed out it would count only the published ones, so it asks nothing', async () => {
+      mock.session = SIGNED_OUT;
+      expect(await countAlbums()).toEqual(NO_SESSION);
+      expect(mock.queries).toHaveLength(0);
+    });
+
+    it('no count, or a dropped connection, is a failure — never 0', async () => {
+      mock.results.gallery_albums = [{ data: null }, OFFLINE];
+      expect(await countAlbums()).toEqual(failure('unknown', 'the response carried no count'));
+      expect(await countAlbums()).toEqual(failure('network', 'TypeError: Failed to fetch'));
     });
   });
 
@@ -435,6 +466,7 @@ describe('repos/gallery', () => {
       setAlbumCover: () => setAlbumCover('alb', 'p', 'u'),
       updatePhoto: () => updatePhoto('p', { caption: 'c' }),
       reorderPhotos: () => reorderPhotos('alb', ['a', 'b']),
+      countAlbums: () => countAlbums(),
     },
     publicCalls: {
       fetchAlbums: () => fetchAlbums(),

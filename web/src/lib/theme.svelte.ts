@@ -1,5 +1,5 @@
 /* ============================================================================
- * web/src/lib/theme.svelte.ts — light / dark / system theme (S11, D-017)
+ * web/src/lib/theme.svelte.ts — light / dark / system theme (S11, D-017, D-038)
  * ----------------------------------------------------------------------------
  * The ONE dark-mode mechanism: a `data-theme` attribute on <html> that
  * tokens/colors.css keys its palette override on. 'system' REMOVES the
@@ -11,42 +11,71 @@
  * never the DB), read/written inside try/catch so a blocked storage never
  * throws — the attribute is still applied for the current page.
  *
- * No FOUC: THEME_BOOT_SCRIPT is inlined verbatim in src/app.html so a forced
- * theme is applied BEFORE first paint; tests/unit/theme.test.ts keeps the two
- * byte-identical. initTheme() (root +layout.svelte, onMount) then syncs the
- * runes state to what the boot script already painted.
+ * Two surfaces, two preferences (D-038). The public pages keep D-022's
+ * `ird.theme`; the admin has its own `ird.app.admin.theme` — not the legacy
+ * panel's key, whose dark palette is unreadable — so choosing dark in the
+ * admin never darkens the public site. A page is the admin's when its pathname
+ * contains "/admin/" under any base path (themeScopeFor), and only that
+ * surface's preference is ever painted on it.
+ *
+ * No FOUC: THEME_BOOT_SCRIPT is inlined verbatim in src/app.html, so the URL's
+ * own preference is applied BEFORE first paint; tests/unit/theme.test.ts keeps
+ * the two byte-identical. The root +layout.svelte then calls applyThemeFor()
+ * after every navigation (the first included): it syncs the runes state with
+ * what is painted, and swaps the preference when a client-side navigation
+ * crosses between the two surfaces.
  *
  * Usage:
- *   import { theme, initTheme } from '#lib/theme.svelte.js';
- *   theme.current    // 'light' | 'dark' | 'system'  (reactive)
+ *   import { theme, adminTheme, applyThemeFor } from '#lib/theme.svelte.js';
+ *   theme.current    // the viewed surface's 'light' | 'dark' | 'system' (reactive)
  *   theme.resolved   // 'light' | 'dark' — what is actually painted (reactive)
- *   theme.set('dark');
+ *   theme.set('dark');                     // the viewed surface's preference
+ *   adminTheme.current = 'dark';           // the admin's, from any page
+ *   <SegmentedControl bind:value={adminTheme.current} … />  // S45 Preferencias
+ *   applyThemeFor(to.url.pathname);        // after a navigation (root layout)
  * ========================================================================== */
 import { MediaQuery } from 'svelte/reactivity';
+import {
+  ADMIN_PATH_SEGMENT,
+  ADMIN_THEME_STORAGE_KEY,
+  THEME_ATTR,
+  THEME_STORAGE_KEY,
+} from '#lib/theme-boot.js';
+
+// The keys and the boot script live in a plain module the build reads too (CSP hash, D-037).
+export {
+  ADMIN_PATH_SEGMENT,
+  ADMIN_THEME_STORAGE_KEY,
+  THEME_ATTR,
+  THEME_BOOT_SCRIPT,
+  THEME_STORAGE_KEY,
+} from '#lib/theme-boot.js';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = Exclude<Theme, 'system'>;
+/** Whose preference governs a page (D-038). */
+export type ThemeScope = 'public' | 'admin';
 
 export const THEMES: readonly Theme[] = ['light', 'dark', 'system'];
-export const THEME_STORAGE_KEY = 'ird.theme';
-export const THEME_ATTR = 'data-theme';
+export const THEME_SCOPES: readonly ThemeScope[] = ['public', 'admin'];
+export const THEME_STORAGE_KEYS: Readonly<Record<ThemeScope, string>> = {
+  public: THEME_STORAGE_KEY,
+  admin: ADMIN_THEME_STORAGE_KEY,
+};
 export const DEFAULT_THEME: Theme = 'system';
 
 /**
- * Pre-paint boot snippet for src/app.html (inside a <script> in <head>).
- * Minified by hand and ES5 on purpose: it runs before any bundle, in every
- * browser, and must never throw. Only 'light'/'dark' are honoured — anything
- * else means 'system', which is "no attribute".
+ * The surface a pathname belongs to. `/app/admin` without its trailing slash
+ * counts too, so a hand-typed URL cannot paint the public preference.
  */
-export const THEME_BOOT_SCRIPT =
-  `try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');` +
-  `if(t==='light'||t==='dark')document.documentElement.setAttribute('${THEME_ATTR}',t)}catch(e){}`;
+export function themeScopeFor(pathname: string): ThemeScope {
+  return `${pathname}/`.includes(ADMIN_PATH_SEGMENT) ? 'admin' : 'public';
+}
 
 export function isTheme(value: unknown): value is Theme {
   return typeof value === 'string' && (THEMES as readonly string[]).includes(value);
 }
 
-let current = $state<Theme>(DEFAULT_THEME);
 let osDark: MediaQuery | undefined;
 
 function systemPrefersDark(): boolean {
@@ -55,9 +84,10 @@ function systemPrefersDark(): boolean {
   return osDark.current;
 }
 
-function readStored(): Theme {
+function readStored(scope: ThemeScope): Theme {
+  if (typeof window === 'undefined') return DEFAULT_THEME;
   try {
-    const raw = localStorage.getItem(THEME_STORAGE_KEY);
+    const raw = localStorage.getItem(THEME_STORAGE_KEYS[scope]);
     // 'system' is represented by the ABSENCE of the key, so only the two
     // forced values are meaningful here; garbage falls back to the default.
     return raw === 'light' || raw === 'dark' ? raw : DEFAULT_THEME;
@@ -66,10 +96,11 @@ function readStored(): Theme {
   }
 }
 
-function writeStored(next: Theme): void {
+function writeStored(scope: ThemeScope, next: Theme): void {
   try {
-    if (next === 'system') localStorage.removeItem(THEME_STORAGE_KEY);
-    else localStorage.setItem(THEME_STORAGE_KEY, next);
+    const key = THEME_STORAGE_KEYS[scope];
+    if (next === 'system') localStorage.removeItem(key);
+    else localStorage.setItem(key, next);
   } catch {
     /* storage blocked — the attribute below still applies for this page */
   }
@@ -82,30 +113,87 @@ function applyAttribute(next: Theme): void {
   else root.setAttribute(THEME_ATTR, next);
 }
 
-/**
- * Read the persisted preference and apply it. Call once in the browser
- * (root layout onMount). Idempotent; safe to call again after a storage event.
- */
-export function initTheme(): Theme {
-  const stored = readStored();
-  current = stored;
-  applyAttribute(stored);
-  return stored;
+function resolved(preference: Theme): ResolvedTheme {
+  if (preference !== 'system') return preference;
+  return systemPrefersDark() ? 'dark' : 'light';
 }
 
+// Seeded from storage at import, so the first client render already shows what
+// the boot script painted instead of flipping from 'system' after mount.
+const preferences = $state<Record<ThemeScope, Theme>>({
+  public: readStored('public'),
+  admin: readStored('admin'),
+});
+let viewed = $state<ThemeScope>(
+  themeScopeFor(typeof location === 'undefined' ? '/' : location.pathname),
+);
+
+function setPreference(scope: ThemeScope, next: Theme): void {
+  const safe = isTheme(next) ? next : DEFAULT_THEME;
+  preferences[scope] = safe;
+  writeStored(scope, safe);
+  // The other surface's choice waits for its own pages.
+  if (scope === viewed) applyAttribute(safe);
+}
+
+/**
+ * Make `pathname`'s surface the viewed one: re-read both stored preferences
+ * (another tab may have changed one) and paint that surface's. The root layout
+ * calls it after every navigation; idempotent.
+ */
+export function applyThemeFor(pathname: string): void {
+  viewed = themeScopeFor(pathname);
+  for (const scope of THEME_SCOPES) preferences[scope] = readStored(scope);
+  applyAttribute(preferences[viewed]);
+}
+
+/**
+ * Read the persisted preference of the surface this page belongs to and apply
+ * it — applyThemeFor(location.pathname) — and return it. Idempotent.
+ */
+export function initTheme(): Theme {
+  applyThemeFor(typeof location === 'undefined' ? '/' : location.pathname);
+  return preferences[viewed];
+}
+
+/** The surface being viewed: what the page paints. */
 export const theme = {
+  /** 'public' or 'admin', from the last applyThemeFor() (reactive). */
+  get scope(): ThemeScope {
+    return viewed;
+  },
   get current(): Theme {
-    return current;
+    return preferences[viewed];
   },
   /** What is actually painted right now ('system' resolved against the OS). */
   get resolved(): ResolvedTheme {
-    if (current !== 'system') return current;
-    return systemPrefersDark() ? 'dark' : 'light';
+    return resolved(preferences[viewed]);
   },
   set(next: Theme): void {
-    const safe = isTheme(next) ? next : DEFAULT_THEME;
-    current = safe;
-    writeStored(safe);
-    applyAttribute(safe);
+    setPreference(viewed, next);
+  },
+};
+
+/** One surface's preference, readable and writable from any page. */
+export interface ScopedTheme {
+  readonly scope: ThemeScope;
+  /** The stored preference (reactive). Assigning persists it, and paints it
+   *  when this surface is the one on screen. */
+  current: Theme;
+  /** What this surface paints ('system' resolved against the OS). */
+  readonly resolved: ResolvedTheme;
+}
+
+/** The admin's preference (D-038) — S45's Claro / Oscuro / Sistema control binds to `current`. */
+export const adminTheme: ScopedTheme = {
+  scope: 'admin',
+  get current(): Theme {
+    return preferences.admin;
+  },
+  set current(next: Theme) {
+    setPreference('admin', next);
+  },
+  get resolved(): ResolvedTheme {
+    return resolved(preferences.admin);
   },
 };

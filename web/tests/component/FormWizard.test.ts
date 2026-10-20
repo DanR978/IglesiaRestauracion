@@ -148,6 +148,26 @@ describe('FormWizard — shell', () => {
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 
+  it('returns focus to an opener a click left unfocused, as Safari does (G-038)', async () => {
+    const { getByTestId, rerender } = render(FormWizardHarness, {
+      steps: INCOME_STEPS,
+      open: false,
+    });
+    const opener = getByTestId('opener');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // Safari: the press happens, the button never takes focus.
+    opener.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await rerender({ steps: INCOME_STEPS, open: true });
+    await tick();
+    expect(document.activeElement).not.toBe(opener);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await tick();
+    expect(getByTestId('open-state')).toHaveTextContent('cerrado');
+    expect(document.activeElement).toBe(opener);
+  });
+
   it('gives the scrim an accessible name instead of a click handler on a bare div', () => {
     const { container } = render(FormWizardHarness, { steps: INCOME_STEPS });
     const scrim = container.querySelector('.wiz__scrim')!;

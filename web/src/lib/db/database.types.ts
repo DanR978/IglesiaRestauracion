@@ -56,6 +56,90 @@ export type Database = {
         };
         Relationships: [];
       };
+      analytics_events: {
+        Row: {
+          browser: string | null;
+          created_at: string;
+          device: string | null;
+          engaged_ms: number | null;
+          id: string;
+          kind: string;
+          label: string | null;
+          lang: string | null;
+          name: string | null;
+          not_found: boolean;
+          os: string | null;
+          path: string;
+          referrer_host: string | null;
+          scroll_pct: number | null;
+          title: string | null;
+          tz: string | null;
+          utm_campaign: string | null;
+          utm_medium: string | null;
+          utm_source: string | null;
+          visitor_hash: string;
+        };
+        Insert: {
+          browser?: string | null;
+          created_at?: string;
+          device?: string | null;
+          engaged_ms?: number | null;
+          id: string;
+          kind: string;
+          label?: string | null;
+          lang?: string | null;
+          name?: string | null;
+          not_found?: boolean;
+          os?: string | null;
+          path: string;
+          referrer_host?: string | null;
+          scroll_pct?: number | null;
+          title?: string | null;
+          tz?: string | null;
+          utm_campaign?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          visitor_hash: string;
+        };
+        Update: {
+          browser?: string | null;
+          created_at?: string;
+          device?: string | null;
+          engaged_ms?: number | null;
+          id?: string;
+          kind?: string;
+          label?: string | null;
+          lang?: string | null;
+          name?: string | null;
+          not_found?: boolean;
+          os?: string | null;
+          path?: string;
+          referrer_host?: string | null;
+          scroll_pct?: number | null;
+          title?: string | null;
+          tz?: string | null;
+          utm_campaign?: string | null;
+          utm_medium?: string | null;
+          utm_source?: string | null;
+          visitor_hash?: string;
+        };
+        Relationships: [];
+      };
+      analytics_salts: {
+        Row: {
+          day: string;
+          salt: string;
+        };
+        Insert: {
+          day: string;
+          salt: string;
+        };
+        Update: {
+          day?: string;
+          salt?: string;
+        };
+        Relationships: [];
+      };
       app_settings: {
         Row: {
           key: string;
@@ -1037,6 +1121,69 @@ export type Database = {
           },
         ];
       };
+      fin_receipts: {
+        Row: {
+          created_at: string;
+          file_size: number | null;
+          id: string;
+          ministry_id: string | null;
+          month: number;
+          note: string | null;
+          original_name: string | null;
+          project_id: string | null;
+          scope: string;
+          storage_path: string;
+          thumb_path: string;
+          uploaded_by: string | null;
+          year: number;
+        };
+        Insert: {
+          created_at?: string;
+          file_size?: number | null;
+          id?: string;
+          ministry_id?: string | null;
+          month: number;
+          note?: string | null;
+          original_name?: string | null;
+          project_id?: string | null;
+          scope: string;
+          storage_path: string;
+          thumb_path: string;
+          uploaded_by?: string | null;
+          year: number;
+        };
+        Update: {
+          created_at?: string;
+          file_size?: number | null;
+          id?: string;
+          ministry_id?: string | null;
+          month?: number;
+          note?: string | null;
+          original_name?: string | null;
+          project_id?: string | null;
+          scope?: string;
+          storage_path?: string;
+          thumb_path?: string;
+          uploaded_by?: string | null;
+          year?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'fin_receipts_ministry_id_fkey';
+            columns: ['ministry_id'];
+            isOneToOne: false;
+            referencedRelation: 'ministries';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'fin_receipts_project_id_fkey';
+            columns: ['project_id'];
+            isOneToOne: false;
+            referencedRelation: 'fin_projects';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       fin_recurring: {
         Row: {
           active: boolean;
@@ -1274,6 +1421,86 @@ export type Database = {
           },
         ];
       };
+      leader_members: {
+        Row: {
+          contact_email: string | null;
+          contact_opt_in: boolean;
+          contact_phone: string | null;
+          created_at: string;
+          id: string;
+          is_leader: boolean;
+          name: string;
+          photo_path: string | null;
+          role: string;
+          section_id: string;
+          sort_order: number;
+        };
+        Insert: {
+          contact_email?: string | null;
+          contact_opt_in?: boolean;
+          contact_phone?: string | null;
+          created_at?: string;
+          id?: string;
+          is_leader?: boolean;
+          name: string;
+          photo_path?: string | null;
+          role?: string;
+          section_id: string;
+          sort_order?: number;
+        };
+        Update: {
+          contact_email?: string | null;
+          contact_opt_in?: boolean;
+          contact_phone?: string | null;
+          created_at?: string;
+          id?: string;
+          is_leader?: boolean;
+          name?: string;
+          photo_path?: string | null;
+          role?: string;
+          section_id?: string;
+          sort_order?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'leader_members_section_id_fkey';
+            columns: ['section_id'];
+            isOneToOne: false;
+            referencedRelation: 'leader_sections';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      leader_sections: {
+        Row: {
+          created_at: string;
+          icon: string;
+          id: string;
+          name: string;
+          sort_order: number;
+          verse_ref: string | null;
+          verse_text: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          icon?: string;
+          id?: string;
+          name: string;
+          sort_order?: number;
+          verse_ref?: string | null;
+          verse_text?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          icon?: string;
+          id?: string;
+          name?: string;
+          sort_order?: number;
+          verse_ref?: string | null;
+          verse_text?: string | null;
+        };
+        Relationships: [];
+      };
       ministries: {
         Row: {
           color: string | null;
@@ -1498,16 +1725,55 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      _analytics_sessions: {
+        Args: { p_from: string; p_to: string };
+        Returns: {
+          duration_ms: number;
+          entry_path: string;
+          exit_path: string;
+          pages: number;
+          source: string;
+          started_at: string;
+          utm_campaign: string;
+          utm_medium: string;
+          visitor_hash: string;
+        }[];
+      };
+      _analytics_totals: {
+        Args: { p_from: string; p_to: string };
+        Returns: Json;
+      };
+      account_has_system_tab: {
+        Args: { p_tab: string; p_user_id: string };
+        Returns: boolean;
+      };
+      admin_revoke_user_sessions: {
+        Args: { p_user_id: string };
+        Returns: number;
+      };
+      analytics_live: { Args: never; Returns: Json };
+      analytics_summary: {
+        Args: { p_bucket?: string; p_from: string; p_to: string; p_tz?: string };
+        Returns: Json;
+      };
+      avatar_url_is_valid: {
+        Args: { p_url: string; p_user_id: string };
+        Returns: boolean;
+      };
       can_edit_design: { Args: { d: string }; Returns: boolean };
       can_finance: { Args: never; Returns: boolean };
       can_join_design_topic: { Args: { topic: string }; Returns: boolean };
       close_ended_special_events: { Args: never; Returns: number };
+      design_shared_with_me: { Args: { d: string }; Returns: boolean };
       has_any_tab: { Args: { tabs: string[] }; Returns: boolean };
+      has_system_tab: { Args: { tab: string }; Returns: boolean };
       has_tab: { Args: { tab: string }; Returns: boolean };
       is_aal2: { Args: never; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
+      is_developer: { Args: never; Returns: boolean };
       is_finance: { Args: never; Returns: boolean };
       is_treasurer: { Args: never; Returns: boolean };
+      leaders_directory: { Args: never; Returns: Json };
       list_designer_users: {
         Args: never;
         Returns: {

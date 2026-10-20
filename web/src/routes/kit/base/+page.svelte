@@ -94,7 +94,7 @@
       <h5>Encabezado h5</h5>
       <h6>Encabezado h6</h6>
       <p>
-        Párrafo con <strong>texto fuerte en --color-secondary</strong>, <em>énfasis</em>, un
+        Párrafo con <strong>texto fuerte en --color-accent-ink</strong>, <em>énfasis</em>, un
         <a href="#h-elements">enlace en --color-40</a> y <code>código</code>. Los márgenes de los
         encabezados están a cero; cada componente decide su ritmo.
       </p>

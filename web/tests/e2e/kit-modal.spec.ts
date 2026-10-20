@@ -5,7 +5,6 @@
 // scroll at 360px. Runs against `vite preview` (playwright.config); CI job `e2e`
 // runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
-import { focusesClickedButtons } from './helpers/click-focus';
 import { gotoWithTheme } from './helpers/theme';
 
 const KIT = '/kit/modal/';
@@ -98,15 +97,8 @@ test.describe('kit/modal', () => {
   });
 
   test('returns focus to the trigger that opened it', async ({ page }) => {
-    // G-038 / X-1: an engine that doesn't focus a clicked <button> (Safari;
-    // Playwright's WebKit on Windows and macOS) makes the modal record
-    // <main>/<body> as its opener, and focus never comes back to it. Removed
-    // when focus-trap.ts records the opener — PR-C2 does that; this then fails
-    // as "passed unexpectedly".
-    test.fail(
-      !(await focusesClickedButtons(page)),
-      'G-038 / X-1: focus does not return to a clicked opener',
-    );
+    // In WebKit the click leaves the button unfocused (<main> takes focus), so
+    // this is the opener the press was tracked to (G-038, S05b finding X-1).
     await page.goto(KIT);
     const trigger = page.getByRole('button', { name: 'Modal normal' });
     await trigger.click();

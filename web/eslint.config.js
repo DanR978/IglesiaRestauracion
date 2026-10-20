@@ -24,7 +24,7 @@ const LAYER = {
   },
   dbClient: {
     regex: `${into('db/client')}(?:\\.[jt]s)?$`,
-    message: 'Only repos and the S38 session store import db/client (target-architecture §3).',
+    message: 'Only repos and the S38 auth module import db/client (target-architecture §3).',
   },
   repos: {
     regex: `${into('repos')}(?:/|$)`,
@@ -41,6 +41,11 @@ const LAYER = {
   stores: {
     regex: `${into('stores')}(?:/|$)`,
     message: 'Repos, platform and pure libs never import app state (target-architecture §3).',
+  },
+  auth: {
+    regex: `${into('auth')}(?:/|$)`,
+    message:
+      'Primitives, repos, platform and pure libs never sign anyone in (target-architecture §3).',
   },
 };
 /**
@@ -104,38 +109,46 @@ export default ts.config(
   },
   {
     // Routes, feature components (components/<feature>/**) and everything not
-    // matched below: the typed client only through a repo.
+    // matched below: the typed client only through a repo or the auth module.
     files: ['src/**/*.{ts,js,svelte}'],
-    ignores: ['src/lib/repos/**', 'src/lib/db/**', 'src/lib/stores/session.svelte.ts'],
+    ignores: ['src/lib/repos/**', 'src/lib/db/**', 'src/lib/auth/**'],
     rules: restrict(LAYER.dbClient),
   },
   {
     // Primitives: presentational; their own host stores are fine.
     files: ['src/lib/components/*.{ts,js,svelte}'],
-    rules: restrict(LAYER.db, LAYER.repos, LAYER.platform),
+    rules: restrict(LAYER.db, LAYER.repos, LAYER.platform, LAYER.auth),
   },
   {
     files: ['src/lib/repos/**/*.{ts,js}'],
+    rules: restrict(LAYER.components, LAYER.stores, LAYER.auth),
+  },
+  {
+    // S38: sign-in, two-step verification and the session reads — the one
+    // non-repo user of the client. The session store reaches Supabase only
+    // through it.
+    files: ['src/lib/auth/**/*.{ts,js}'],
     rules: restrict(LAYER.components, LAYER.stores),
   },
   {
     files: ['src/lib/stores/**/*.{ts,js}'],
-    ignores: ['src/lib/stores/session.svelte.ts'],
     rules: restrict(LAYER.components, LAYER.dbClient),
-  },
-  {
-    // S38's session store is the one auth module allowed the client.
-    files: ['src/lib/stores/session.svelte.ts'],
-    rules: restrict(LAYER.components),
   },
   {
     // Created only when CC1 shows a need: pure libs and nothing else.
     files: ['src/lib/platform/**/*.{ts,js,svelte}'],
-    rules: restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db),
+    rules: restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db, LAYER.auth),
   },
   {
     // Pure libs (src/lib/*.ts): each other only.
     files: ['src/lib/*.{ts,js}'],
-    rules: restrict(LAYER.components, LAYER.stores, LAYER.repos, LAYER.db, LAYER.platform),
+    rules: restrict(
+      LAYER.components,
+      LAYER.stores,
+      LAYER.repos,
+      LAYER.db,
+      LAYER.platform,
+      LAYER.auth,
+    ),
   },
 );

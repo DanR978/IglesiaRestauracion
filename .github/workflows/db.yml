@@ -6,7 +6,14 @@
 #   2. the pgTAP suite in supabase/tests passes — RLS by role × aal1/aal2, the
 #      tiers, the RPCs, the triggers, storage, and the catalog guard that fails
 #      when a new table ships without the RESTRICTIVE aal2 layer;
-#   3. the Edge Functions type-check and their unit tests pass.
+#   3. the integration suite (web/tests/integration) passes — the new admin,
+#      built against THIS stack, signs in for real in Chromium: password +
+#      TOTP, first enrollment, the emailed invitation and recovery links (read
+#      from Mailpit), aal1 refused at the API, the tiers, Mi cuenta's devices
+#      and password, sign-out everywhere;
+#   4. the Edge Functions type-check and their unit tests pass.
+# It also runs for web/** changes: the integration suite is the only check of
+# the admin's sign-in and account flows against a real GoTrue and RLS.
 # Informational, not a required check (branch protection is not changed).
 # Action refs are pinned to commit SHAs; the CLI and Deno to exact versions.
 name: DB
@@ -15,6 +22,7 @@ on:
   pull_request:
     paths:
       - 'supabase/**'
+      - 'web/**'
       - '.github/workflows/db.yml'
 
 permissions:
@@ -56,6 +64,36 @@ jobs:
 
       - name: pgTAP suite
         run: supabase test db
+
+      # The integration suite. Same Node setup as ci.yml.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install the web app's dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: Install Playwright's Chromium (with OS deps)
+        run: npx playwright install --with-deps chromium
+        working-directory: web
+
+      # playwright.integration.config.ts reads this stack's API URL and anon key
+      # from `supabase status -o env` here, in the job (no secret — it refuses a
+      # non-loopback URL), builds the app at /app against them, serves it with
+      # `vite preview`, and makes and removes its own synthetic accounts.
+      - name: Integration suite — the admin against this stack (Chromium)
+        run: npm run test:integration
+        working-directory: web
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: integration-test-results
+          path: web/test-results/
+          retention-days: 7
 
       - name: Type-check the Edge Functions
         run: deno check supabase/functions

@@ -12,8 +12,9 @@
  * Usage:
  *   import { prerenderedRoutes, routeGroup } from './helpers/routes';
  *   for (const route of prerenderedRoutes()) test(route, …);
+ *   const html = prerenderedHtml('/admin/');   // the file a route is served from
  * ========================================================================== */
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -36,6 +37,11 @@ export function prerenderedRoutes(): string[] {
       file.endsWith('index.html') ? `/${file.slice(0, -'index.html'.length)}` : `/${file}`,
     )
     .sort();
+}
+
+/** The prerendered HTML of `route` (`/x/` → build/x/index.html), as the host serves it. */
+export function prerenderedHtml(route: string): string {
+  return readFileSync(join(BUILD_DIR, route.slice(1), 'index.html'), 'utf8');
 }
 
 /** A route's group: its first path segment (`/kit/button/` → `kit`), `home` for `/`. */

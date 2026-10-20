@@ -5,7 +5,15 @@
 // storage-js puts the body's status in `statusCode`, auth-js errors carry a
 // snake_case `code` and an HTTP `status`.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { REPO_ERROR_MESSAGES, fail, invalid, noRows, ok, toRepoError } from '#lib/repos/errors.js';
+import {
+  REPO_ERROR_MESSAGES,
+  fail,
+  invalid,
+  noCount,
+  noRows,
+  ok,
+  toRepoError,
+} from '#lib/repos/errors.js';
 import type { RepoErrorKind } from '#lib/repos/types.js';
 
 const authError = (name: string, code: string | undefined, status: number, message = 'x') =>
@@ -426,6 +434,18 @@ describe('repos/errors — result helpers', () => {
       },
     });
     expect(warn).toHaveBeenCalledWith('[treasury] deleteFund:', 'no row was affected');
+  });
+
+  it('noCount() is a logged failure — a head count without a number is never 0 (S40)', () => {
+    expect(noCount('[gallery]', 'countAlbums')).toEqual({
+      ok: false,
+      error: {
+        kind: 'unknown',
+        message: REPO_ERROR_MESSAGES.unknown,
+        detail: 'the response carried no count',
+      },
+    });
+    expect(warn).toHaveBeenCalledWith('[gallery] countAlbums:', 'the response carried no count');
   });
 
   it('ok() is the success branch, whatever the data', () => {

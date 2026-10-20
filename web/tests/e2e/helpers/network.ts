@@ -2,12 +2,13 @@
  * web/tests/e2e/helpers/network.ts — prove a page stayed off other origins
  * ----------------------------------------------------------------------------
  * The e2e suite runs against `vite preview` and must never reach a Supabase
- * project — production, or the LOCAL one: the e2e build points
- * PUBLIC_SUPABASE_URL at http://127.0.0.1:54321, which is "localhost" too.
- * So this compares full ORIGINS (scheme, host and port), never hostnames: a
- * page may reach only the preview server it was loaded from (the test's
- * `baseURL`) and the pinned Font Awesome CDN (app.html, S13). A WebSocket
- * counts as its http(s) twin.
+ * project — production, or the LOCAL one at http://127.0.0.1:54321, which is
+ * "localhost" too. So this compares full ORIGINS (scheme, host and port),
+ * never hostnames: a page may reach only the preview server it was loaded
+ * from (the test's `baseURL`) and the pinned Font Awesome CDN (app.html,
+ * S13). A WebSocket counts as its http(s) twin. Since S39 the e2e build's own
+ * Supabase is that preview origin, under /__supabase (playwright.config.ts),
+ * answered by page.route or the preview's 404.
  *
  * Passive on purpose: it listens to `request` and `websocket` events instead
  * of routing, so it adds no interception round-trip to what the lab-vitals
