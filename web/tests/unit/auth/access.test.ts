@@ -38,7 +38,7 @@ describe('resolveAccess', () => {
     );
   });
 
-  describe('D-033: the second factor is mandatory', () => {
+  describe('D-033 (amended 2026-10-20): an account with a second factor must use it', () => {
     it('aal1 with a verified factor must pass the challenge', () => {
       expect(resolveAccess(input({ aal: AAL1, factors: VERIFIED }))).toBe('needs-mfa');
     });
@@ -48,24 +48,26 @@ describe('resolveAccess', () => {
       expect(resolveAccess(input({ aal: AAL1, factors: phone }))).toBe('needs-mfa');
     });
 
-    it('aal1 with no factor, or only an unverified one, must enroll', () => {
-      expect(resolveAccess(input({ aal: AAL1, factors: [] }))).toBe('needs-enroll');
-      expect(resolveAccess(input({ aal: AAL1, factors: UNVERIFIED }))).toBe('needs-enroll');
+    it('aal1 with no factor, or only an unverified one, goes straight in (setup is optional)', () => {
+      expect(resolveAccess(input({ aal: AAL1, factors: [] }))).toBe('ready');
+      expect(resolveAccess(input({ aal: AAL1, factors: UNVERIFIED }))).toBe('ready');
     });
 
     it('the fresh factor list beats the cached `next` level (factor removed elsewhere)', () => {
-      expect(resolveAccess(input({ aal: AAL1_FACTOR, factors: [] }))).toBe('needs-enroll');
+      expect(resolveAccess(input({ aal: AAL1_FACTOR, factors: [] }))).toBe('ready');
       expect(resolveAccess(input({ aal: AAL1, factors: VERIFIED }))).toBe('needs-mfa');
     });
 
-    it('without the list, a cached next=aal2 still means challenge; otherwise it cannot tell', () => {
+    it('without the list, the cached `next` level decides; an unknown one is an error', () => {
       expect(resolveAccess(input({ aal: AAL1_FACTOR, factors: null }))).toBe('needs-mfa');
-      expect(resolveAccess(input({ aal: AAL1, factors: null }))).toBe('error');
+      expect(resolveAccess(input({ aal: { current: 'aal1', next: null }, factors: null }))).toBe(
+        'error',
+      );
     });
 
-    it('a session without an aal claim is not two-step verified', () => {
+    it('a session without an aal claim and no factor goes straight in', () => {
       expect(resolveAccess(input({ aal: { current: null, next: null }, factors: [] }))).toBe(
-        'needs-enroll',
+        'ready',
       );
     });
 

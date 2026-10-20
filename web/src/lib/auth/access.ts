@@ -9,9 +9,12 @@
  *   signed-out    no session, or the server no longer accepts it
  *   error         a read failed in transit — offer Retry; never a sign-out
  *   forbidden     no profile, or a role outside the three staff roles
- *   needs-enroll  no verified second factor yet: set one up first (D-033)
+ *   needs-enroll  kept for the routes that handle it; resolveAccess no longer
+ *                 returns it — setting up a second factor is optional (D-033,
+ *                 amended 2026-10-20), offered from Mi cuenta
  *   needs-mfa     a verified factor exists and this session is still aal1
- *   ready         a staff profile in a two-step-verified (aal2) session
+ *   ready         a staff profile, in an aal2 session or on an account with no
+ *                 verified second factor
  *
  * Order: who you are (session, profile) before how you proved it (aal), so an
  * account without access is told so instead of being asked to enroll a
@@ -66,6 +69,7 @@ export function resolveAccess({
   if (!aal) return 'error';
   if (aal.current === 'aal2') return 'ready';
 
-  if (factors) return factors.some((f) => f.status === 'verified') ? 'needs-mfa' : 'needs-enroll';
-  return aal.next === 'aal2' ? 'needs-mfa' : 'error';
+  if (factors) return factors.some((f) => f.status === 'verified') ? 'needs-mfa' : 'ready';
+  if (aal.next === 'aal2') return 'needs-mfa';
+  return aal.next === 'aal1' ? 'ready' : 'error';
 }

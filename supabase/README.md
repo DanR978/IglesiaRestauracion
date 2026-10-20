@@ -347,13 +347,17 @@ Each step is finished before the next one starts.
    without a factor, the Administrador holders and `pause_invites`.
 1. **Legacy MFA gate (DF-006).** Every developer passes a real TOTP challenge on the
    new gate — a local build, or right after the deploy with break-glass ready —
-   before it reaches `main`; staff then enroll at their next sign-in. Keep at least
-   two developers who have passed it. Then switch on **Require current password**
+   before it reaches `main`. Setting up an authenticator is optional (D-033 as
+   amended 2026-10-20): accounts that have one are asked for the code; the others
+   sign in as before and can turn it on from Mi cuenta. Keep at least two developers
+   who have passed it. Then switch on **Require current password**
    (Dashboard → Authentication, or `--require-current-password --apply` — see
    [Settings the script enforces](#4-settings-the-script-enforces)).
-2. **Enrollment cutoff.** On the announced date, reset, notify or remove every account
-   still without a factor (pre-flight lists them). This comes before the providers:
-   from then on every account that can sign in already has its own factor.
+2. **~~Enrollment cutoff~~ — not needed since 2026-10-20.** The database requires the
+   second factor only from accounts that have one, so applying step 3 locks nobody
+   out. Pre-flight still lists the accounts without a factor, for information. Note:
+   an account without a factor is protected by its password (or Google / Microsoft)
+   alone.
 3. **Server-side enforcement.** Tag the source of the `admin-invite` deployed today so
    it can be redeployed: `git tag pre-authz-YYYYMMDD a8749cf && git push origin pre-authz-YYYYMMDD`.
    `a8749cf` is the `develop` commit this hardening branched from; its `admin-invite`

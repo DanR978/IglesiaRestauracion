@@ -5,7 +5,8 @@
 //
 // Authorization is the same for EVERY action, checked in this order:
 //   1. a bearer JWT that GoTrue accepts (signature + live session) → 401
-//   2. aal2 in that JWT — the session passed a second factor      → 403 aal2_required
+//   2. the second factor: aal2 in that JWT, unless the account has  → 403 aal2_required
+//      no verified factor (setup is optional, D-033 as amended)
 //   3. the developer tier — profile role 'admin' with 'users' in
 //      allowed_tabs, on a confirmed, non-banned auth user         → 403 forbidden
 // Then each action validates its input and applies its guards (own account,
@@ -26,7 +27,7 @@ import {
   corsHeaders,
   decodeJwtPayload,
   hasDeveloperGrant,
-  isAal2,
+  secondFactorSatisfied,
   isConfirmed,
   isDeveloper,
   parseAllowedOrigins,
@@ -213,7 +214,7 @@ async function authorize(
   // GoTrue verified this exact token above, so its claims can be read.
   const claims = decodeJwtPayload(jwt);
   if (!claims || claims.sub !== user.id) return { code: "invalid_session" };
-  if (!isAal2(claims)) return { code: "aal2_required" };
+  if (!secondFactorSatisfied(claims, user)) return { code: "aal2_required" };
 
   const [profileRes, authRes] = await Promise.all([
     admin.from("profiles").select("id, display_name, role, allowed_tabs").eq("id", user.id).maybeSingle(),

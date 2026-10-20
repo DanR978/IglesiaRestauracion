@@ -8,7 +8,9 @@ import {
   decodeJwtPayload,
   DEFAULT_ALLOWED_ORIGINS,
   hasDeveloperGrant,
+  hasVerifiedFactor,
   isAal2,
+  secondFactorSatisfied,
   isBanned,
   isConfirmed,
   isDeveloper,
@@ -180,4 +182,20 @@ Deno.test("corsHeaders echoes an allowed origin and always varies on Origin", ()
   assertEquals(denied["Access-Control-Allow-Origin"], undefined);
   assertEquals(denied["Vary"], "Origin");
   assertEquals(corsHeaders(null, DEFAULT_ALLOWED_ORIGINS)["Access-Control-Allow-Origin"], undefined);
+});
+
+Deno.test("hasVerifiedFactor counts only verified factors", () => {
+  assert(hasVerifiedFactor({ factors: [{ status: "unverified" }, { status: "verified" }] }));
+  assertFalse(hasVerifiedFactor({ factors: [{ status: "unverified" }] }));
+  assertFalse(hasVerifiedFactor({ factors: [] }));
+  assertFalse(hasVerifiedFactor({ factors: null }));
+  assertFalse(hasVerifiedFactor(null));
+});
+
+Deno.test("secondFactorSatisfied: aal2, or an account with no verified factor (D-033 as amended)", () => {
+  const withFactor = { factors: [{ status: "verified" }] };
+  assert(secondFactorSatisfied({ aal: "aal2" }, withFactor));
+  assertFalse(secondFactorSatisfied({ aal: "aal1" }, withFactor));
+  assert(secondFactorSatisfied({ aal: "aal1" }, { factors: [] }));
+  assert(secondFactorSatisfied({ aal: "aal1" }, { factors: [{ status: "unverified" }] }));
 });
