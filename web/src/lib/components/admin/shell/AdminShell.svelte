@@ -1,7 +1,7 @@
 <!--
   AdminShell — the frame of every signed-in admin page (S37, D-036). The
-  (app) layout renders it around its pages; the guard in that layout's load
-  has already decided the visit may stay. Retires the legacy #app chrome
+  (app) layout renders it around its pages once the guard there has decided
+  the visit may stay. Retires the legacy #app chrome
   (admin/index.html, shell.css) — see the parts for what each one fixes.
 
     skip link → <main id="contenido">        topbar <header> (burger, title)

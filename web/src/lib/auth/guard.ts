@@ -2,7 +2,7 @@
  * web/src/lib/auth/guard.ts — where an admin page visit goes (S38)
  * ----------------------------------------------------------------------------
  * The pure half of guardAdmin() in #lib/stores/session.svelte.ts, which the
- * (app) layout's load calls before any admin page renders:
+ * (app) layout calls before any admin page renders:
  *
  *   1. The legacy email contract, first. Invitation and recovery emails link to
  *      `/admin/?action=accept-invite|reset-password&token_hash=…&type=…`
@@ -21,7 +21,7 @@
  * Usage:
  *   import { emailLinkTarget, accessTarget } from '#lib/auth/guard.js';
  *   const to = emailLinkTarget(url, location.hash) ?? accessTarget(url, status);
- *   if (to) redirect(307, to);
+ *   if (to) await leaveTo(to); // #lib/components/admin/auth/destination
  * ========================================================================== */
 
 import type { AccessState } from './access';

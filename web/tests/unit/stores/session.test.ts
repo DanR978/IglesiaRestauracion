@@ -2,7 +2,6 @@
 // transitions with a mocked auth layer, and guardAdmin's decisions (the
 // legacy email contract first, then the access state). Each test imports a
 // fresh store instance (vi.resetModules), so no state leaks between cases.
-import { isRedirect } from '@sveltejs/kit';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   USER,
@@ -355,21 +354,9 @@ describe('refresh()', () => {
 describe('guardAdmin', () => {
   const at = (path: string) => new URL(path, 'https://www.irdlex.org');
 
-  async function redirectOf(guard: Promise<void>): Promise<string | null> {
-    try {
-      await guard;
-      return null;
-    } catch (e) {
-      if (isRedirect(e)) return e.location;
-      throw e;
-    }
-  }
-
   it('sends an invitation link on before reading the session', async () => {
     const { guardAdmin } = await fresh();
-    const to = await redirectOf(
-      guardAdmin(at('/admin/?action=accept-invite&token_hash=abc&type=invite')),
-    );
+    const to = await guardAdmin(at('/admin/?action=accept-invite&token_hash=abc&type=invite'));
     expect(to).toBe('/admin/acceso/invitacion/?action=accept-invite&token_hash=abc&type=invite');
     expect(h.getSession).not.toHaveBeenCalled();
   });
@@ -377,20 +364,20 @@ describe('guardAdmin', () => {
   it('a recovery link keeps its hash', async () => {
     history.replaceState(null, '', '/#error_code=otp_expired');
     const { guardAdmin } = await fresh();
-    expect(await redirectOf(guardAdmin(at('/admin/?action=reset-password')))).toBe(
+    expect(await guardAdmin(at('/admin/?action=reset-password'))).toBe(
       '/admin/acceso/restablecer/?action=reset-password#error_code=otp_expired',
     );
   });
 
   it('ready: the page renders', async () => {
     const { guardAdmin } = await fresh();
-    expect(await redirectOf(guardAdmin(at('/admin/cuenta/')))).toBeNull();
+    expect(await guardAdmin(at('/admin/cuenta/'))).toBeNull();
   });
 
   it('signed out: to sign in, keeping the page asked for', async () => {
     h.getSession.mockResolvedValue(ok(null));
     const { guardAdmin } = await fresh();
-    expect(await redirectOf(guardAdmin(at('/admin/cuenta/?tab=seguridad')))).toBe(
+    expect(await guardAdmin(at('/admin/cuenta/?tab=seguridad'))).toBe(
       `/admin/acceso/?next=${encodeURIComponent('/admin/cuenta/?tab=seguridad')}`,
     );
   });
@@ -399,7 +386,7 @@ describe('guardAdmin', () => {
     const { guardAdmin, session } = await started();
     emit('SIGNED_OUT', null);
     expect(session.status).toBe('expired');
-    expect(await redirectOf(guardAdmin(at('/admin/cuenta/')))).toBe(
+    expect(await guardAdmin(at('/admin/cuenta/'))).toBe(
       `/admin/acceso/?next=${encodeURIComponent('/admin/cuenta/')}`,
     );
   });
@@ -408,13 +395,13 @@ describe('guardAdmin', () => {
     h.getAal.mockResolvedValue(ok({ current: 'aal1', next: 'aal2' }));
     h.listFactors.mockResolvedValue(ok([{ status: 'verified' }]));
     const { guardAdmin } = await fresh();
-    expect(await redirectOf(guardAdmin(at('/admin/')))).toBe('/admin/acceso/verificar/');
+    expect(await guardAdmin(at('/admin/'))).toBe('/admin/acceso/verificar/');
   });
 
   it('no access: to sin-acceso/', async () => {
     h.fetchOwnProfile.mockResolvedValue(ok(profileFor({ role: null })));
     const { guardAdmin } = await fresh();
-    expect(await redirectOf(guardAdmin(at('/admin/')))).toBe('/admin/acceso/sin-acceso/');
+    expect(await guardAdmin(at('/admin/'))).toBe('/admin/acceso/sin-acceso/');
   });
 
   it('waits for the read a sign-in just queued (no bounce back to sign in)', async () => {
@@ -423,14 +410,14 @@ describe('guardAdmin', () => {
     expect(session.status).toBe('signed-out');
     h.getSession.mockResolvedValue(ok(sessionFor()));
     emit('SIGNED_IN', sessionFor()); // the login page navigates right after this
-    expect(await redirectOf(guardAdmin(at('/admin/cuenta/')))).toBeNull();
+    expect(await guardAdmin(at('/admin/cuenta/'))).toBeNull();
     expect(session.status).toBe('ready');
   });
 
   it('error: the page renders its error state with Retry — never a trip to sign in', async () => {
     h.fetchOwnProfile.mockResolvedValue(failure('network'));
     const { guardAdmin, session } = await fresh();
-    expect(await redirectOf(guardAdmin(at('/admin/')))).toBeNull();
+    expect(await guardAdmin(at('/admin/'))).toBeNull();
     expect(session.status).toBe('error');
   });
 });

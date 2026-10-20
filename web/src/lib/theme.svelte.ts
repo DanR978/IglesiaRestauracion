@@ -35,6 +35,21 @@
  *   applyThemeFor(to.url.pathname);        // after a navigation (root layout)
  * ========================================================================== */
 import { MediaQuery } from 'svelte/reactivity';
+import {
+  ADMIN_PATH_SEGMENT,
+  ADMIN_THEME_STORAGE_KEY,
+  THEME_ATTR,
+  THEME_STORAGE_KEY,
+} from '#lib/theme-boot.js';
+
+// The keys and the boot script live in a plain module the build reads too (CSP hash, D-037).
+export {
+  ADMIN_PATH_SEGMENT,
+  ADMIN_THEME_STORAGE_KEY,
+  THEME_ATTR,
+  THEME_BOOT_SCRIPT,
+  THEME_STORAGE_KEY,
+} from '#lib/theme-boot.js';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = Exclude<Theme, 'system'>;
@@ -43,18 +58,11 @@ export type ThemeScope = 'public' | 'admin';
 
 export const THEMES: readonly Theme[] = ['light', 'dark', 'system'];
 export const THEME_SCOPES: readonly ThemeScope[] = ['public', 'admin'];
-/** The public pages' preference (D-022). */
-export const THEME_STORAGE_KEY = 'ird.theme';
-/** The admin's preference (D-038) — never shared with the legacy panel. */
-export const ADMIN_THEME_STORAGE_KEY = 'ird.app.admin.theme';
 export const THEME_STORAGE_KEYS: Readonly<Record<ThemeScope, string>> = {
   public: THEME_STORAGE_KEY,
   admin: ADMIN_THEME_STORAGE_KEY,
 };
-export const THEME_ATTR = 'data-theme';
 export const DEFAULT_THEME: Theme = 'system';
-/** A pathname containing this, under any base path (`/app` or none), is the admin's. */
-export const ADMIN_PATH_SEGMENT = '/admin/';
 
 /**
  * The surface a pathname belongs to. `/app/admin` without its trailing slash
@@ -63,18 +71,6 @@ export const ADMIN_PATH_SEGMENT = '/admin/';
 export function themeScopeFor(pathname: string): ThemeScope {
   return `${pathname}/`.includes(ADMIN_PATH_SEGMENT) ? 'admin' : 'public';
 }
-
-/**
- * Pre-paint boot snippet for src/app.html (inside a <script> in <head>).
- * Minified by hand and ES5 on purpose: it runs before any bundle, in every
- * browser, and must never throw. It reads the key of the surface the URL
- * belongs to — themeScopeFor(), inlined. Only 'light'/'dark' are honoured;
- * anything else means 'system', which is "no attribute".
- */
-export const THEME_BOOT_SCRIPT =
-  `try{var t=localStorage.getItem((location.pathname+'/').indexOf('${ADMIN_PATH_SEGMENT}')>-1` +
-  `?'${ADMIN_THEME_STORAGE_KEY}':'${THEME_STORAGE_KEY}');` +
-  `if(t==='light'||t==='dark')document.documentElement.setAttribute('${THEME_ATTR}',t)}catch(e){}`;
 
 export function isTheme(value: unknown): value is Theme {
   return typeof value === 'string' && (THEMES as readonly string[]).includes(value);

@@ -1,8 +1,14 @@
 import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { readFileSync } from 'node:fs';
-import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
+import { defineConfig, loadEnv } from 'vite';
+import { CLIENT_CHUNK_GROUPS, clientChunkGuard } from './client-chunks';
+import { cspDirectives } from './csp';
 import { compilerOptions, preprocess } from './svelte-options';
+
+/** web/: where .env lives, and where Kit reads the build's env from (its env.dir). */
+const WEB_DIR = fileURLToPath(new URL('.', import.meta.url));
 
 /**
  * The SVG sprite's symbol ids (S13). Icon.svelte renders `<use href="#id">`, and the
@@ -44,8 +50,15 @@ if (BASE_PATH !== '' && !isRootRelative(BASE_PATH)) {
  * No SPA `fallback`: every route is prerendered (an `ssr = false` route still gets its shell,
  * D-036), and GitHub Pages only ever serves the ROOT 404.html, so an `app/404.html` was dead
  * weight (G-021). `strict` keeps a route that cannot be prerendered a build error.
+ *
+ * The client's chunk groups and the guard that holds them come from client-chunks.ts: what
+ * every page loads at startup is one chunk, and no public page ever loads admin code.
+ *
+ * The Content-Security-Policy (D-037) comes from csp.ts: one policy for every page, in Kit's
+ * hash mode, whose Supabase sources are this build's own PUBLIC_SUPABASE_URL, read the way Kit
+ * reads it (loadEnv over web/, the process env winning over .env).
  */
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     sveltekit({
       preprocess,
@@ -71,6 +84,21 @@ export default defineConfig({
           if (!SPRITE_IDS.has(id)) throw new Error(message);
         },
       },
+      csp: {
+        mode: 'hash',
+        directives: cspDirectives(loadEnv(mode, WEB_DIR, 'PUBLIC_').PUBLIC_SUPABASE_URL),
+      },
+      // Inline each page's small per-component stylesheets: every one is a
+      // render-blocking request, and a page with several primitives spent a
+      // whole extra round trip on them before first paint (G-041). Kit's
+      // hash-mode CSP hashes the <style> blocks it inlines.
+      inlineStyleThreshold: 4096,
     }),
+    clientChunkGuard(),
   ],
-});
+  environments: {
+    client: {
+      build: { rolldownOptions: { output: { codeSplitting: { groups: CLIENT_CHUNK_GROUPS } } } },
+    },
+  },
+}));

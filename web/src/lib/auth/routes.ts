@@ -15,7 +15,7 @@
  *
  * Usage:
  *   import { ROUTES } from '#lib/auth/routes.js';
- *   redirect(307, `${ROUTES.login}?next=${encodeURIComponent(next)}`);
+ *   await leaveTo(`${ROUTES.login}?next=${encodeURIComponent(next)}`);
  * ========================================================================== */
 
 import { resolve } from '$app/paths';

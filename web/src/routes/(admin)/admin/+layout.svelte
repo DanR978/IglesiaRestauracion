@@ -1,8 +1,9 @@
 <script lang="ts">
   // The admin surface root (D-021): admin tokens apply under
   // [data-surface="admin"], so the overlay hosts live inside it — a host
-  // portaled to <body> would paint the public gold. Links preload on tap, not
-  // hover: an admin route's load runs the session guard.
+  // portaled to <body> would paint the public gold. Links preload their code
+  // on tap, not hover: the sidebar is passed over all the time, and no admin
+  // route has a load to run early (the guard lives in the (app) layout).
   //
   // Frame guard (D-037): `frame-ancestors` cannot come from a <meta> and Pages
   // sends no headers, so a framed admin page mounts nothing but a refusal —
