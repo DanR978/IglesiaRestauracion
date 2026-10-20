@@ -122,7 +122,9 @@ V6 Authentication
   6.3.3        a second factor for every staff account (D-033); the server half is PR-B's aal2 layer
   6.3.4        every pathway (password, Google, Microsoft, invite, recovery) ends at the same TOTP step
   6.4.3        recovery cannot bypass the second factor: the code comes before the new password
-  6.5.1/6.5.5  TOTP single use and lifetime are GoTrue's; a code from ANY verified factor is accepted
+  6.5.1        EXCEPTION: GoTrue v2.187 accepts the same TOTP code again within its window (found by the
+               local-stack integration suite) — single use isn't enforced server-side; recorded, not fixable here
+  6.5.5        the code's lifetime (30 s step, ±1 window) is GoTrue's; a code from ANY verified factor is accepted
   6.8.1/6.8.4  provider identities link only to an invited account by verified email (auto-link, manual linking off,
                D-035); a provider sign-in is aal1 and still steps up — provider AMR is never trusted for aal2
 V7 Session Management
