@@ -1,5 +1,5 @@
 -- ============================================================================
--- 20261020_special_event_replaces_service.sql — a special event takes over its
+-- 20261020000001_special_event_replaces_service.sql — a special event takes over its
 -- day: the routine service scheduled that day is deleted automatically.
 -- ============================================================================
 -- Example: Noche de Caballeros / Noche de Damas lands on a Servicio de Oración
