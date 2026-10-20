@@ -140,8 +140,11 @@ function openRowMenu(trigger) {
   const actions = u.confirmed
     ? [
         { label: 'Editar acceso', icon: 'fa-user-pen', onClick: () => openEdit(u) },
-        { label: 'Restablecer 2FA', icon: 'fa-shield-halved', onClick: () => doResetMfa(u) },
-        ...(isSelf ? [] : [{ label: 'Eliminar cuenta', icon: 'fa-trash', variant: 'danger', onClick: () => doDelete(u) }]),
+        // Your own 2FA is replaced from "Mi cuenta", never reset from this list.
+        ...(isSelf ? [] : [
+          { label: 'Restablecer 2FA', icon: 'fa-shield-halved', onClick: () => doResetMfa(u) },
+          { label: 'Eliminar cuenta', icon: 'fa-trash', variant: 'danger', onClick: () => doDelete(u) },
+        ]),
       ]
     : [
         { label: 'Reenviar invitación', icon: 'fa-rotate', onClick: () => doResend(u) },
