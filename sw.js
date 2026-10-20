@@ -11,7 +11,7 @@
 //
 // Bumping CACHE_VERSION invalidates everything on the next install.
 
-const CACHE_VERSION = 'ird-v11';
+const CACHE_VERSION = 'ird-v12';
 const CACHE_NAME    = `ird-${CACHE_VERSION}`;
 
 const APP_SHELL = [
@@ -26,8 +26,12 @@ const APP_SHELL = [
   '/src/footer.html',
 ];
 
-// Same-origin paths we should never touch (admin uses live Supabase + auth).
-const SKIP_PATHS = [/^\/admin(\/|$)/, /^\/sw\.js$/, /^\/manifest\.json$/];
+// Same-origin paths we should never touch: both admins use live Supabase + auth.
+const SKIP_PATHS = [/^\/admin(\/|$)/, /^\/app\/admin(\/|$)/, /^\/sw\.js$/, /^\/manifest\.json$/];
+// Everything an admin page loads (its own and the shared modules) comes from the
+// network, so a fresh admin module never links against a stale shared one and the
+// auth gate never runs from cache.
+const ADMIN_PAGE = /^\/(app\/)?admin(\/|$)/;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -60,6 +64,20 @@ self.addEventListener('fetch', (event) => {
 
   // Admin + sentinels: never intercept.
   if (SKIP_PATHS.some(re => re.test(url.pathname))) return;
+  if (event.clientId) {
+    event.respondWith((async () => {
+      const client = await self.clients.get(event.clientId);
+      if (client && ADMIN_PAGE.test(new URL(client.url).pathname)) return fetch(req);
+      return handle(event, req, url);
+    })());
+    return;
+  }
+  return handle(event, req, url, true);
+});
+
+// The public-page strategies. `direct` = no wrapping respondWith yet.
+function handle(event, req, url, direct = false) {
+  const respond = (p) => (direct ? event.respondWith(p) : p);
 
   // HTML navigations: network-first, fall back to cache, then homepage shell.
   const isHTML =
@@ -67,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     (req.headers.get('accept') || '').includes('text/html');
 
   if (isHTML) {
-    event.respondWith(
+    return respond(
       fetch(req)
         .then(resp => {
           if (resp && resp.status === 200) {
@@ -80,7 +98,6 @@ self.addEventListener('fetch', (event) => {
           caches.match(req).then(hit => hit || caches.match('/'))
         )
     );
-    return;
   }
 
   // Critical render assets — the global stylesheet and the shared HTML
@@ -89,7 +106,7 @@ self.addEventListener('fetch', (event) => {
   // (Stale-while-revalidate would paint the previous deploy's CSS first and
   // only update on the *next* navigation — a visible flash of stale styling.)
   if (url.pathname === '/css/style.css' || url.pathname.startsWith('/src/')) {
-    event.respondWith(
+    return respond(
       fetch(req)
         .then(resp => {
           if (resp && resp.status === 200 && resp.type === 'basic') {
@@ -100,11 +117,10 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => caches.match(req))
     );
-    return;
   }
 
   // Other static assets: stale-while-revalidate.
-  event.respondWith(
+  return respond(
     caches.match(req).then(cached => {
       const fetchPromise = fetch(req)
         .then(resp => {
@@ -118,7 +134,7 @@ self.addEventListener('fetch', (event) => {
       return cached || fetchPromise;
     })
   );
-});
+}
 
 // Allow the page to nudge a waiting SW to activate immediately.
 self.addEventListener('message', (event) => {

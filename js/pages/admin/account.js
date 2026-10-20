@@ -17,6 +17,7 @@ import { toast, confirm } from './ui.js';
 import { esc } from '/js/utils/escape.js';
 import { $ } from '/js/utils/dom.js';
 import { reEnrollMfa } from './auth.js';
+import { spanishError } from './auth-errors.js';
 import { mfaStatus } from './mfa.js';
 
 const ROLE_LABEL = {
@@ -414,6 +415,14 @@ function renderSecuritySection() {
       <div class="section-divider"><i class="fas fa-key"></i> Cambiar contraseña</div>
       <div class="acct-grid">
         <div class="form-group">
+          <label for="acctPw0">Contraseña actual</label>
+          <input type="password" id="acctPw0" autocomplete="current-password"
+                 aria-describedby="acctPw0Hint">
+          <small class="acct-hint" id="acctPw0Hint">Déjala vacía solo si nunca creaste una contraseña (entras con Google o Microsoft).</small>
+        </div>
+      </div>
+      <div class="acct-grid">
+        <div class="form-group">
           <label for="acctPw1">Contraseña nueva</label>
           <input type="password" id="acctPw1" placeholder="Mínimo 8 caracteres" autocomplete="new-password">
         </div>
@@ -442,6 +451,7 @@ function wireSecuritySection() {
 }
 
 async function changePassword() {
+  const cur = $('acctPw0')?.value || '';
   const p1  = $('acctPw1')?.value || '';
   const p2  = $('acctPw2')?.value || '';
   const box = $('acctPwError');
@@ -454,13 +464,14 @@ async function changePassword() {
 
   if (btn) btn.disabled = true;
   try {
-    const { error } = await sb.auth.updateUser({ password: p1 });
+    // GoTrue checks current_password when the project requires it (ASVS 6.2.3).
+    const attrs = cur ? { password: p1, current_password: cur } : { password: p1 };
+    const { error } = await sb.auth.updateUser(attrs);
     if (error) throw error;
-    if ($('acctPw1')) $('acctPw1').value = '';
-    if ($('acctPw2')) $('acctPw2').value = '';
+    ['acctPw0', 'acctPw1', 'acctPw2'].forEach(id => { if ($(id)) $(id).value = ''; });
     toast('Contraseña actualizada', 'success');
   } catch (e) {
-    setPwErr(e.message || 'No se pudo cambiar la contraseña.');
+    setPwErr(spanishError(e));
   } finally {
     if (btn) btn.disabled = false;
   }
@@ -485,7 +496,7 @@ async function refresh2faRow() {
     const ok = await confirm(
       enrolled ? 'Reconfigurar verificación' : 'Configurar verificación',
       'Se te mostrará un código QR para escanear con tu app de autenticación. ' +
-      (enrolled ? 'Tu configuración anterior se reemplazará.' : ''));
+      (enrolled ? 'Tu dispositivo anterior seguirá funcionando hasta que confirmes el código del nuevo.' : ''));
     if (!ok) return;
     reEnrollMfa();
   });
