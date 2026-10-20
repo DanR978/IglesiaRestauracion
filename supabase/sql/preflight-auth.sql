@@ -64,9 +64,8 @@ select u.email,
  where p.role = 'admin' and p.allowed_tabs @> array['users']
  order by u.email, f.created_at;
 
--- 5) Accounts with NO verified factor, by role. After the migration every one
---    of them reads only public data until it enrolls. Pending invitations
---    (confirmed = false) enroll when they accept.
+-- 5) Accounts with NO verified factor, by role — for information: setting one
+--    up is optional (D-033 as amended), and these accounts keep working.
 select p.role,
        u.email_confirmed_at is not null                    as confirmed,
        count(*)                                            as accounts,
