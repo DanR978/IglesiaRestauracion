@@ -195,7 +195,7 @@ test.describe('Google and Microsoft (D-035)', () => {
     ).toBeVisible();
   });
 
-  test('Google round trip: /authorize → callback → code exchanged (PKCE) → enroll', async ({
+  test('Google round trip: /authorize → callback → code exchanged (PKCE) → Inicio', async ({
     page,
     baseURL,
   }) => {
@@ -204,18 +204,6 @@ test.describe('Google and Microsoft (D-035)', () => {
       'POST /auth/v1/token': { json: sessionResponse({ aal: 'aal1' }) },
       'GET /rest/v1/profiles': { json: profileResponse() },
       'GET /auth/v1/user': { json: userResponse([]) },
-      'POST /auth/v1/factors': {
-        json: {
-          id: 'f-e2e',
-          type: 'totp',
-          friendly_name: 'IRD e2e',
-          totp: {
-            qr_code: '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"/>',
-            secret: 'JBSWY3DPEHPK3PXP',
-            uri: 'otpauth://totp/IRD:ana@example.org?secret=JBSWY3DPEHPK3PXP',
-          },
-        },
-      },
     });
     // The provider's round trip in one hop: an HTML page that sends the browser
     // on to the callback (Playwright's WebKit cannot fulfill a navigation with
@@ -238,13 +226,13 @@ test.describe('Google and Microsoft (D-035)', () => {
     await page.goto('/admin/acceso/');
     await page.getByRole('button', { name: 'Continuar con Google' }).click();
 
-    await expect(page.getByRole('heading', { level: 1, name: 'Protege tu cuenta' })).toBeVisible();
+    // No authenticator on this account: setting one up is optional (D-033 as amended).
+    await expect(page.getByRole('heading', { level: 1, name: 'Inicio' })).toBeVisible();
     expect(redirectTo).toBe(`${baseURL}/admin/acceso/oauth/`);
-    expect(address(page)).toBe('/admin/acceso/verificar/');
+    expect(address(page)).toBe('/admin/');
     const [exchange] = api.bodies('POST /auth/v1/token');
     expect(exchange).toMatchObject({ auth_code: 'e2e-auth-code' });
     expect((exchange as { code_verifier: string }).code_verifier).toMatch(/^[0-9a-f]{40,}$/);
-    await expect(page.getByLabel('Clave de configuración')).toHaveValue('JBSW Y3DP EHPK 3PXP');
   });
 
   test.describe('the callback maps every failure, from the query or the fragment', () => {

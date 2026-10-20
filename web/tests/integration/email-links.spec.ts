@@ -14,15 +14,12 @@
 import { appPath, jwtClaims, syntheticPassword } from './helpers/stack';
 import { expect, test } from './helpers/fixtures';
 import { emailLink, waitForMail } from './helpers/mailpit';
-import { expectInicio, heading, setupKey, storedSession } from './helpers/ui';
+import { expectInicio, heading, storedSession } from './helpers/ui';
 import { totp } from './helpers/totp';
 
 const LEGACY_PANEL = 'https://www.irdlex.org/admin/';
 
-test('an invitation: the emailed link, a new password, the first authenticator, Inicio', async ({
-  page,
-  stack,
-}) => {
+test('an invitation: the emailed link, a new password, then Inicio', async ({ page, stack }) => {
   const rut = await stack.invite({ preset: 'administrador', displayName: 'Rut Invitada' });
   const mail = await waitForMail(stack.keys.mailpitUrl, rut.email, 'Te han invitado al panel');
   const link = emailLink(mail.html);
@@ -45,15 +42,12 @@ test('an invitation: the emailed link, a new password, the first authenticator, 
   await page.getByLabel('Confirma la contraseña', { exact: true }).fill(rut.password);
   await page.getByRole('button', { name: 'Crear contraseña' }).click();
 
-  // Every staff account needs an authenticator (D-033): enrollment comes next.
-  await expect(heading(page, 'Protege tu cuenta')).toBeVisible();
-  await page.getByLabel('Código de verificación').fill(totp(await setupKey(page)));
+  // Setting up an authenticator is optional (D-033 as amended): straight in.
   await expectInicio(page);
 
-  // The server's view: the invitation is accepted, the new password signs in,
-  // one verified authenticator.
+  // The server's view: the invitation is accepted and the new password signs in.
   expect((await stack.passwordGrant(rut.email, rut.password)).status).toBe(200);
-  expect(await stack.factors(rut)).toEqual([expect.objectContaining({ status: 'verified' })]);
+  expect(await stack.factors(rut)).toEqual([]);
 });
 
 test('recovery with an authenticator: the code comes before the new password', async ({

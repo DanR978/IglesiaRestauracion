@@ -7,7 +7,7 @@
 import type { Page } from '@playwright/test';
 import { appPath, jwtClaims } from './helpers/stack';
 import { expect, test } from './helpers/fixtures';
-import { expectInicio, heading, setupKey, storedSession, submitSignIn } from './helpers/ui';
+import { expectInicio, heading, storedSession, submitSignIn } from './helpers/ui';
 import { totp } from './helpers/totp';
 
 /** An admin's tiles (S41 dashboard.ts TILES), in order. */
@@ -66,23 +66,18 @@ test('password + TOTP: the challenge, then Inicio at aal2', async ({ page, stack
   await expectCardsAnswered(page, { activity: true });
 });
 
-test('first sign-in without an authenticator: enroll from the QR screen, then Inicio', async ({
+test('sign-in without an authenticator goes straight to Inicio (setup is optional)', async ({
   page,
   stack,
 }) => {
   const rut = await stack.createAccount({ preset: 'administrador', displayName: 'Rut Prueba' });
 
   await submitSignIn(page, rut.email, rut.password);
-  await expect(heading(page, 'Protege tu cuenta')).toBeVisible();
-  await expect(
-    page.getByRole('img', { name: 'Código QR para tu app de autenticación' }),
-  ).toBeVisible();
-  // The key under the QR — what a person types into the app — is the enrolled secret.
-  await page.getByLabel('Código de verificación').fill(totp(await setupKey(page)));
   await expectInicio(page);
   await expect(page.getByText('Hola, Rut')).toBeVisible();
   const session = await storedSession(page, stack.storageKey);
-  expect(jwtClaims(session!.access_token).aal).toBe('aal2');
-  expect(await stack.factors(rut)).toEqual([expect.objectContaining({ status: 'verified' })]);
+  expect(jwtClaims(session!.access_token).aal).toBe('aal1');
+  expect(await stack.factors(rut)).toEqual([]);
+  // The database lets an account without a second factor work at aal1 (D-033 as amended).
   await expectCardsAnswered(page, { activity: false });
 });

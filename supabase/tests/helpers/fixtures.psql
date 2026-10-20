@@ -88,6 +88,13 @@ values
   ('00000000-0000-0000-0000-000000000000', :'non_id', 'authenticated', 'authenticated', 'non@fixture.test', now(), now(), now(), '{}', '{}'),
   ('00000000-0000-0000-0000-000000000000', :'pen_id', 'authenticated', 'authenticated', 'pen@fixture.test', null,  now(), now(), '{}', '{}');
 
+-- Every confirmed fixture account has an authenticator, so its aal1 session
+-- is refused (an account WITH a factor must use it; 08_optional_mfa.sql covers
+-- the account without one).
+insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+select gen_random_uuid(), u.id, 'fixture', 'totp', 'verified', now(), now()
+  from auth.users u where u.email like '%@fixture.test' and u.email_confirmed_at is not null;
+
 insert into public.ministries (id, name) values
   (:'m1_id', 'Fixture Uno'),
   (:'m2_id', 'Fixture Dos');

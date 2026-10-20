@@ -47,6 +47,28 @@ export function isAal2(claims: JwtClaims | null | undefined): boolean {
   return claims?.aal === "aal2";
 }
 
+export interface FactorLike {
+  status?: unknown;
+}
+
+// A verified second factor on the account (GoTrue's `user.factors`).
+export function hasVerifiedFactor(
+  user: { factors?: ReadonlyArray<FactorLike> | null } | null | undefined,
+): boolean {
+  return Array.isArray(user?.factors) && user.factors.some((f) => f?.status === "verified");
+}
+
+// The second factor is satisfied when the session passed it, or when the
+// account has none to pass: setting one up is optional (D-033, amended
+// 2026-10-20), so only an account WITH a verified factor must use it. Mirrors
+// public.is_aal2() in the database.
+export function secondFactorSatisfied(
+  claims: JwtClaims | null | undefined,
+  user: { factors?: ReadonlyArray<FactorLike> | null } | null | undefined,
+): boolean {
+  return isAal2(claims) || !hasVerifiedFactor(user);
+}
+
 export interface AuthUserLike {
   email_confirmed_at?: string | null;
   banned_until?: string | null;

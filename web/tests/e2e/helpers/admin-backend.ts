@@ -12,7 +12,7 @@
  *               activity, settings): every Inicio card
  *   TREASURER   Tesorería: the calendar counts and the Balance
  *   CHALLENGE   aal1 with a verified authenticator: verificar/ asks for the code
- *   ENROLL      aal1 with no authenticator: verificar/ shows the QR to enrol
+ *   ENROLL      aal1 with no authenticator: goes straight in (setup is optional)
  *   NO_ACCESS   signed in, not staff: sin-acceso/
  *
  * Nothing reaches a backend: the e2e build's Supabase is the preview itself

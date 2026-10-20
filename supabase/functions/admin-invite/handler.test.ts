@@ -975,3 +975,10 @@ Deno.test("list-presets: a failed re-read after seeding is internal", async () =
   db.failOn("select:role_presets", { message: "x" }, 1);
   assertFails(await call(db, { action: "list-presets" }), "internal");
 });
+
+Deno.test("a developer with no authenticator may act at aal1 (setup is optional, D-033 as amended)", async () => {
+  const db = world();
+  db.users.get(DEV1)!.factors = [];
+  const r = await call(db, { action: "list" }, { claims: claimsFor(DEV1, "aal1") });
+  assertEquals(r.res.status, 200);
+});

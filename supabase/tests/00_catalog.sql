@@ -123,6 +123,15 @@ select is_empty($$
 $$, 'every SECURITY DEFINER function in public pins its search_path');
 
 -- ── 3. is_aal2() reads the JWT ──────────────────────────────────────────────
+-- The account below has a verified factor, so its aal1 session must not pass
+-- (an account without one does — 08_optional_mfa.sql).
+insert into auth.users (instance_id, id, aud, role, email, email_confirmed_at, created_at, updated_at,
+                        raw_app_meta_data, raw_user_meta_data)
+values ('00000000-0000-0000-0000-000000000000', 'a0000000-0000-4000-8000-000000000001', 'authenticated',
+        'authenticated', 'catalog@fixture.test', now(), now(), now(), '{}', '{}')
+on conflict (id) do nothing;
+insert into auth.mfa_factors (id, user_id, friendly_name, factor_type, status, created_at, updated_at)
+values (gen_random_uuid(), 'a0000000-0000-4000-8000-000000000001', 'catalog', 'totp', 'verified', now(), now());
 set local request.jwt.claims = '';
 select is(public.is_aal2(), false, 'is_aal2: no JWT → false');
 set local request.jwt.claims = '{"role":"anon"}';
