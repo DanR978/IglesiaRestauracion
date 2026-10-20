@@ -1,7 +1,7 @@
-// S22 golden parity for $lib/gallery + $lib/slug (pure half of js/lib/gallery.js).
+// S22 golden parity for #lib/gallery + #lib/slug (pure half of js/lib/gallery.js).
 // Fixture captured from the legacy module; TZ-independent (local-date split).
 import { describe, expect, it } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
 import {
   BUCKET,
   EVENT_TYPES,
@@ -9,8 +9,8 @@ import {
   albumPublicUrl,
   formatEventDate,
   type AlbumRef,
-} from '$lib/gallery';
-import { slugify } from '$lib/slug';
+} from '#lib/gallery.js';
+import { slugify } from '#lib/slug.js';
 import fixtureJson from '../fixtures/gallery.json';
 
 type Fixture = {

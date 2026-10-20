@@ -17,7 +17,7 @@
  * runes state to what the boot script already painted.
  *
  * Usage:
- *   import { theme, initTheme } from '$lib/theme.svelte';
+ *   import { theme, initTheme } from '#lib/theme.svelte.js';
  *   theme.current    // 'light' | 'dark' | 'system'  (reactive)
  *   theme.resolved   // 'light' | 'dark' — what is actually painted (reactive)
  *   theme.set('dark');

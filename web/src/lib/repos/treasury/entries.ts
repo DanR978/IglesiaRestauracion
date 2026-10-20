@@ -19,22 +19,27 @@
  * fetched a whole year and filtered in JS (`treasury-tab.js:443-444`,
  * `project-treasury.js:399-409`).
  *
+ * The row lists are one request each, so PostgREST's max-rows (1000) caps
+ * them; S53 pages the UI (G-033). Totals never come from these lists — the
+ * aggregates in `./summary` read every page.
+ *
  * Usage:
- *   import { fetchExpenses, createExpense, monthRange } from '$lib/repos/treasury';
- *   const rows = await fetchExpenses(monthRange('2026-08'));
+ *   import { fetchExpenses, createExpense, monthRange } from '#lib/repos/treasury/index.js';
+ *   const res = await fetchExpenses(monthRange('2026-08'));
+ *   if (res.ok) render(res.data);
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import { toNumeric } from '$lib/money';
-import type { TablesInsert, TablesUpdate } from '$lib/db/database.types';
-import type { WriteResult } from '../types';
+import { supabase } from '#lib/db/client.js';
+import { toNumeric } from '#lib/money.js';
+import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
+import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
+import type { ReadResult, WriteResult } from '../types';
 import {
+  TAG,
   centsError,
   toExpenseEntry,
   toIncomeEntry,
-  warnRead,
-  writeFail,
-  writeOk,
   type DateRange,
   type ExpenseEntry,
   type ExpenseInsert,
@@ -47,35 +52,33 @@ import {
 /* ── Reads ─────────────────────────────────────────────────────────────── */
 
 /** Church-books income for the range, newest first (`treasury-tab.js:326`). */
-export async function fetchIncome(range: DateRange): Promise<IncomeEntry[]> {
-  const { data, error } = await supabase
+export async function fetchIncome(range: DateRange): Promise<ReadResult<IncomeEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchIncome');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_income')
     .select('*')
     .is('project_id', null)
     .gte('occurred_on', range.start)
     .lte('occurred_on', range.end)
     .order('occurred_on', { ascending: false });
-  if (error) {
-    warnRead('fetchIncome', error.message);
-    return [];
-  }
-  return (data ?? []).map(toIncomeEntry);
+  if (error) return fail(TAG, 'fetchIncome', error, status);
+  return ok((data ?? []).map(toIncomeEntry));
 }
 
 /** Church-books expenses for the range, newest first (`treasury-tab.js:344`). */
-export async function fetchExpenses(range: DateRange): Promise<ExpenseEntry[]> {
-  const { data, error } = await supabase
+export async function fetchExpenses(range: DateRange): Promise<ReadResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchExpenses');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_expenses')
     .select('*')
     .is('project_id', null)
     .gte('occurred_on', range.start)
     .lte('occurred_on', range.end)
     .order('occurred_on', { ascending: false });
-  if (error) {
-    warnRead('fetchExpenses', error.message);
-    return [];
-  }
-  return (data ?? []).map(toExpenseEntry);
+  if (error) return fail(TAG, 'fetchExpenses', error, status);
+  return ok((data ?? []).map(toExpenseEntry));
 }
 
 /**
@@ -87,32 +90,30 @@ export async function fetchExpenses(range: DateRange): Promise<ExpenseEntry[]> {
 export async function fetchProjectIncome(
   projectId: string,
   range?: DateRange,
-): Promise<IncomeEntry[]> {
-  if (!projectId) return [];
+): Promise<ReadResult<IncomeEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchProjectIncome');
+  if (denied) return denied;
+  if (!projectId) return ok([]);
   let q = supabase.from('fin_income').select('*').eq('project_id', projectId);
   if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
-  const { data, error } = await q.order('occurred_on', { ascending: false });
-  if (error) {
-    warnRead('fetchProjectIncome', error.message);
-    return [];
-  }
-  return (data ?? []).map(toIncomeEntry);
+  const { data, error, status } = await q.order('occurred_on', { ascending: false });
+  if (error) return fail(TAG, 'fetchProjectIncome', error, status);
+  return ok((data ?? []).map(toIncomeEntry));
 }
 
 /** One project's expenses (`project-treasury.js:237`, `:402`). */
 export async function fetchProjectExpenses(
   projectId: string,
   range?: DateRange,
-): Promise<ExpenseEntry[]> {
-  if (!projectId) return [];
+): Promise<ReadResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchProjectExpenses');
+  if (denied) return denied;
+  if (!projectId) return ok([]);
   let q = supabase.from('fin_expenses').select('*').eq('project_id', projectId);
   if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
-  const { data, error } = await q.order('occurred_on', { ascending: false });
-  if (error) {
-    warnRead('fetchProjectExpenses', error.message);
-    return [];
-  }
-  return (data ?? []).map(toExpenseEntry);
+  const { data, error, status } = await q.order('occurred_on', { ascending: false });
+  if (error) return fail(TAG, 'fetchProjectExpenses', error, status);
+  return ok((data ?? []).map(toExpenseEntry));
 }
 
 /**
@@ -124,20 +125,19 @@ export async function fetchProjectExpenses(
 export async function fetchMinistryAllocations(
   ministryIds: string[],
   range?: DateRange,
-): Promise<ExpenseEntry[]> {
-  if (!ministryIds.length) return [];
+): Promise<ReadResult<ExpenseEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchMinistryAllocations');
+  if (denied) return denied;
+  if (!ministryIds.length) return ok([]);
   let q = supabase
     .from('fin_expenses')
     .select('*')
     .is('project_id', null)
     .in('ministry_id', ministryIds);
   if (range) q = q.gte('occurred_on', range.start).lte('occurred_on', range.end);
-  const { data, error } = await q.order('occurred_on', { ascending: false });
-  if (error) {
-    warnRead('fetchMinistryAllocations', error.message);
-    return [];
-  }
-  return (data ?? []).map(toExpenseEntry);
+  const { data, error, status } = await q.order('occurred_on', { ascending: false });
+  if (error) return fail(TAG, 'fetchMinistryAllocations', error, status);
+  return ok((data ?? []).map(toExpenseEntry));
 }
 
 /* ── Writes: income ────────────────────────────────────────────────────── */
@@ -149,15 +149,17 @@ function incomeRow(input: IncomeInsert): TablesInsert<'fin_income'> {
 
 /** Insert one income row (`treasury-tab.js:583` via `WIZ.income.toPayload`). */
 export async function createIncome(input: IncomeInsert): Promise<WriteResult<IncomeEntry>> {
+  const denied = await requireSession(TAG, 'createIncome');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
-  if (bad) return writeFail('createIncome', bad);
-  const { data, error } = await supabase
+  if (bad) return invalid(bad);
+  const { data, error, status } = await supabase
     .from('fin_income')
     .insert(incomeRow(input))
     .select()
     .single();
-  if (error) return writeFail('createIncome', error.message);
-  return writeOk(toIncomeEntry(data));
+  if (error) return fail(TAG, 'createIncome', error, status);
+  return ok(toIncomeEntry(data));
 }
 
 /**
@@ -165,43 +167,56 @@ export async function createIncome(input: IncomeInsert): Promise<WriteResult<Inc
  * there is no partial-failure state to reconcile client-side (S56c).
  */
 export async function insertIncomeBatch(rows: IncomeInsert[]): Promise<WriteResult<IncomeEntry[]>> {
-  if (!rows.length) return writeOk([]);
+  const denied = await requireSession(TAG, 'insertIncomeBatch');
+  if (denied) return denied;
+  if (!rows.length) return ok([]);
   for (let i = 0; i < rows.length; i++) {
     const bad = centsError(rows[i].amountCents);
-    if (bad) return writeFail('insertIncomeBatch', `Fila ${i + 1}: ${bad}`);
+    if (bad) return invalid(`Fila ${i + 1}: ${bad}`);
   }
-  const { data, error } = await supabase.from('fin_income').insert(rows.map(incomeRow)).select();
-  if (error) return writeFail('insertIncomeBatch', error.message);
-  return writeOk((data ?? []).map(toIncomeEntry));
+  const { data, error, status } = await supabase
+    .from('fin_income')
+    .insert(rows.map(incomeRow))
+    .select();
+  if (error) return fail(TAG, 'insertIncomeBatch', error, status);
+  return ok((data ?? []).map(toIncomeEntry));
 }
 
 export async function updateIncome(
   id: string,
   patch: IncomeUpdate,
 ): Promise<WriteResult<IncomeEntry>> {
-  if (!id) return writeFail('updateIncome', 'Falta el identificador del ingreso.');
+  const denied = await requireSession(TAG, 'updateIncome');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del ingreso.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_income'> = { ...rest };
   if (amountCents !== undefined) {
     const bad = centsError(amountCents);
-    if (bad) return writeFail('updateIncome', bad);
+    if (bad) return invalid(bad);
     row.amount = toNumeric(amountCents);
   }
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from('fin_income')
     .update(row)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateIncome', error.message);
-  return writeOk(toIncomeEntry(data));
+  if (error) return fail(TAG, 'updateIncome', error, status);
+  return ok(toIncomeEntry(data));
 }
 
 export async function deleteIncome(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteIncome', 'Falta el identificador del ingreso.');
-  const { error } = await supabase.from('fin_income').delete().eq('id', id);
-  if (error) return writeFail('deleteIncome', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteIncome');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del ingreso.');
+  const { error, status, count } = await supabase
+    .from('fin_income')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteIncome', error, status);
+  if (!count) return noRows(TAG, 'deleteIncome');
+  return ok(undefined);
 }
 
 /* ── Writes: expenses ──────────────────────────────────────────────────── */
@@ -213,68 +228,86 @@ function expenseRow(input: ExpenseInsert): TablesInsert<'fin_expenses'> {
 
 /** Insert one expense row (`treasury-tab.js:583` via `WIZ.expenses.toPayload`). */
 export async function createExpense(input: ExpenseInsert): Promise<WriteResult<ExpenseEntry>> {
+  const denied = await requireSession(TAG, 'createExpense');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
-  if (bad) return writeFail('createExpense', bad);
-  const { data, error } = await supabase
+  if (bad) return invalid(bad);
+  const { data, error, status } = await supabase
     .from('fin_expenses')
     .insert(expenseRow(input))
     .select()
     .single();
-  if (error) return writeFail('createExpense', error.message);
-  return writeOk(toExpenseEntry(data));
+  if (error) return fail(TAG, 'createExpense', error, status);
+  return ok(toExpenseEntry(data));
 }
 
 /** One atomic statement for the whole batch (S56c). */
 export async function insertExpenseBatch(
   rows: ExpenseInsert[],
 ): Promise<WriteResult<ExpenseEntry[]>> {
-  if (!rows.length) return writeOk([]);
+  const denied = await requireSession(TAG, 'insertExpenseBatch');
+  if (denied) return denied;
+  if (!rows.length) return ok([]);
   for (let i = 0; i < rows.length; i++) {
     const bad = centsError(rows[i].amountCents);
-    if (bad) return writeFail('insertExpenseBatch', `Fila ${i + 1}: ${bad}`);
+    if (bad) return invalid(`Fila ${i + 1}: ${bad}`);
   }
-  const { data, error } = await supabase.from('fin_expenses').insert(rows.map(expenseRow)).select();
-  if (error) return writeFail('insertExpenseBatch', error.message);
-  return writeOk((data ?? []).map(toExpenseEntry));
+  const { data, error, status } = await supabase
+    .from('fin_expenses')
+    .insert(rows.map(expenseRow))
+    .select();
+  if (error) return fail(TAG, 'insertExpenseBatch', error, status);
+  return ok((data ?? []).map(toExpenseEntry));
 }
 
 export async function updateExpense(
   id: string,
   patch: ExpenseUpdate,
 ): Promise<WriteResult<ExpenseEntry>> {
-  if (!id) return writeFail('updateExpense', 'Falta el identificador del gasto.');
+  const denied = await requireSession(TAG, 'updateExpense');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del gasto.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_expenses'> = { ...rest };
   if (amountCents !== undefined) {
     const bad = centsError(amountCents);
-    if (bad) return writeFail('updateExpense', bad);
+    if (bad) return invalid(bad);
     row.amount = toNumeric(amountCents);
   }
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from('fin_expenses')
     .update(row)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateExpense', error.message);
-  return writeOk(toExpenseEntry(data));
+  if (error) return fail(TAG, 'updateExpense', error, status);
+  return ok(toExpenseEntry(data));
 }
 
 export async function deleteExpense(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteExpense', 'Falta el identificador del gasto.');
-  const { error } = await supabase.from('fin_expenses').delete().eq('id', id);
-  if (error) return writeFail('deleteExpense', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteExpense');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del gasto.');
+  const { error, status, count } = await supabase
+    .from('fin_expenses')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteExpense', error, status);
+  if (!count) return noRows(TAG, 'deleteExpense');
+  return ok(undefined);
 }
 
 /**
  * Delete every expense carrying an exact `auto:` linkage tag. The tag is what
  * makes the payable mirror idempotent (`treasury-tab.js:419, 430`) — this is
- * the only supported way to remove a generated row by tag.
+ * the only supported way to remove a generated row by tag. Matching zero rows
+ * is a success: most payables have no mirror yet.
  */
 export async function deleteExpensesByNote(note: string): Promise<WriteResult> {
-  if (!note) return writeFail('deleteExpensesByNote', 'Falta la etiqueta de la nota.');
-  const { error } = await supabase.from('fin_expenses').delete().eq('note', note);
-  if (error) return writeFail('deleteExpensesByNote', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteExpensesByNote');
+  if (denied) return denied;
+  if (!note) return invalid('Falta la etiqueta de la nota.');
+  const { error, status } = await supabase.from('fin_expenses').delete().eq('note', note);
+  if (error) return fail(TAG, 'deleteExpensesByNote', error, status);
+  return ok(undefined);
 }

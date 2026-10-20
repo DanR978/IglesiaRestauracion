@@ -2,9 +2,10 @@
 // jsdom has no contenteditable editing and no execCommand at all, so the caret
 // claim ("typing never moves the cursor") only has real evidence HERE — typed
 // through the keyboard, with the selection read back from the live document.
-// Not part of the CI gate — run with `npm run test:e2e` after
-// `npx playwright install chromium`.
+// CI job `e2e` runs it (S05b); locally `npm run test:e2e` after
+// `npx playwright install chromium webkit`.
 import { expect, test } from '@playwright/test';
+import { gotoWithTheme } from './helpers/theme';
 
 const EDITOR = '.rt';
 const AREA = '.rt__area';
@@ -151,8 +152,7 @@ test.describe('/kit/rich-text/', () => {
   });
 
   test('forced dark reverses through the tokens alone', async ({ page }) => {
-    await page.goto('/kit/rich-text/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+    await gotoWithTheme(page, '/kit/rich-text/', 'dark');
     const box = page.locator('.rt__box').first();
     await expect(box).toHaveCSS('background-color', 'rgb(26, 38, 42)');
     // The hairline stays translucent — never the gray ramp, which glares in dark.

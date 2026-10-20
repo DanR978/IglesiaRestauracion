@@ -17,10 +17,10 @@
  *     keeps the flag honest once an event ends.
  *
  * Every function takes an explicit `now` (epoch ms) so prerenders and tests
- * are deterministic (G-002). Queries live in `$lib/repos/registrations`.
+ * are deterministic (G-002). Queries live in `#lib/repos/registrations.js`.
  *
  * Usage:
- *   import { eventPhase, isRegistrationOpen, eventAlbum } from '$lib/special-events';
+ *   import { eventPhase, isRegistrationOpen, eventAlbum } from '#lib/special-events.js';
  * ========================================================================== */
 
 const TZ = 'America/New_York';

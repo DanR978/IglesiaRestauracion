@@ -4,10 +4,10 @@
   // one-step wizard vs a five-step one (the progress strip adapts), showIf,
   // per-step validation, the review screen, and both submit outcomes.
   // Prerendered, no data fetching, noindex.
-  import FormWizard from '$lib/components/FormWizard.svelte';
-  import Icon from '$lib/components/Icon.svelte';
-  import { todayISO } from '$lib/date';
-  import type { WizardData, WizardSpec } from '$lib/components/wizard';
+  import FormWizard from '#lib/components/FormWizard.svelte';
+  import Icon from '#lib/components/Icon.svelte';
+  import { todayISO } from '#lib/date.js';
+  import type { WizardData, WizardSpec } from '#lib/components/wizard.js';
 
   interface IncomeRow {
     amount: number;
@@ -349,6 +349,9 @@
   }
   .cta--danger {
     background: var(--color-danger);
+    /* Fixed white, as Button's danger variant: --color-white turns #dfdedc in
+       dark and drops to 3.6:1 on the red (axe, S05b). */
+    color: var(--static-white);
   }
 
   .payload {

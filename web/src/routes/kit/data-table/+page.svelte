@@ -5,9 +5,9 @@
   // money tones, system + overdue rows, and the loading / empty / error
   // states. Prerendered, no data fetching, noindex.
   import { onMount, type Snippet } from 'svelte';
-  import DataTable from '$lib/components/DataTable.svelte';
-  import Icon from '$lib/components/Icon.svelte';
-  import type { DataTableColumn, DataTableState } from '$lib/components/data-table';
+  import DataTable from '#lib/components/DataTable.svelte';
+  import Icon from '#lib/components/Icon.svelte';
+  import type { DataTableColumn, DataTableState } from '#lib/components/data-table.js';
 
   interface Payable {
     id: string;

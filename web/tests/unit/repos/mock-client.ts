@@ -1,32 +1,59 @@
 /* ============================================================================
- * web/tests/unit/repos/mock-client.ts — recording stand-in for `$lib/db/client`
+ * web/tests/unit/repos/mock-client.ts — recording stand-in for `#lib/db/client.js`
  * ----------------------------------------------------------------------------
  * Repo tests assert QUERY SHAPE (table, select columns, filters, order) and the
- * never-throw / WriteResult contracts — never real Supabase behaviour
- * (VERIFICATION.md: RLS is covered by staging, not unit tests).
+ * never-throw / ReadResult / WriteResult contracts — never real Supabase
+ * behaviour (VERIFICATION.md: RLS is covered by staging, not unit tests).
  *
  * `supabase.from(table)` returns a chainable proxy that records every method
  * call and is thenable, resolving to the canned result queued for that table.
+ * Like postgrest-js, the result carries the HTTP `status` (200 by default, 500
+ * when the canned result has an `error`) and the `count` a `{ count: 'exact' }`
+ * write reports — a delete/update that must affect a row needs `count: 1`.
+ *
+ * `supabase.auth.getSession()` answers a signed-in session unless a test
+ * sets `mock.session` (staff-only repos check it first — repos/session.ts).
  *
  * Usage (top of a test file, before importing the repo):
- *   vi.mock('$lib/db/client', () => import('./mock-client'));
+ *   vi.mock('#lib/db/client.js', () => import('./mock-client'));
  *   import { mock } from './mock-client';
  *   mock.reset(); mock.results.events = [{ data: [...], error: null }];
  * ========================================================================== */
 import { vi } from 'vitest';
 
 export type Call = { method: string; args: unknown[] };
-export type Canned = { data?: unknown; error?: { message: string } | null; count?: number | null };
+export type CannedError = { message: string; code?: string; details?: string; hint?: string };
+export type Canned = {
+  data?: unknown;
+  error?: CannedError | null;
+  count?: number | null;
+  status?: number;
+};
 export type Query = { table: string; calls: Call[] };
+/** A Storage API error as storage-js builds it (`statusCode` is the body's status). */
+export type StorageFailure = {
+  message: string;
+  name?: string;
+  status?: number;
+  statusCode?: string;
+};
 
 type Results = Record<string, Canned[]>;
+/** What `auth.getSession()` resolves to. */
+export type SessionResult = {
+  data: { session: { access_token: string } | null };
+  error: { name?: string; message: string; status?: number } | null;
+};
+
+const SIGNED_IN: SessionResult = { data: { session: { access_token: 'test-token' } }, error: null };
 
 const state = {
   queries: [] as Query[],
   results: {} as Results,
-  storage: { calls: [] as Call[], uploadError: null as { message: string } | null },
+  storage: { calls: [] as Call[], uploadError: null as StorageFailure | null },
   channels: [] as { name: string; on: unknown[]; subscribed: boolean }[],
   removed: [] as string[],
+  session: SIGNED_IN as SessionResult,
 };
 
 function queryProxy(q: Query): unknown {
@@ -41,6 +68,7 @@ function queryProxy(q: Query): unknown {
             data: next.data ?? null,
             error: next.error ?? null,
             count: next.count ?? null,
+            status: next.status ?? (next.error ? 500 : 200),
           };
           return (onFulfilled: (v: unknown) => unknown) =>
             Promise.resolve(resolved).then(onFulfilled);
@@ -69,6 +97,7 @@ const bucket = {
 };
 
 export const supabase = {
+  auth: { getSession: vi.fn(async () => state.session) },
   from: vi.fn((table: string) => {
     const q: Query = { table, calls: [] };
     state.queries.push(q);
@@ -113,6 +142,10 @@ export const mock = {
   get removed(): string[] {
     return state.removed;
   },
+  /** Set to `{ data: { session: null }, error: null }` for a signed-out client. */
+  set session(value: SessionResult) {
+    state.session = value;
+  },
   /** The n-th query issued (default: the only one). */
   query(n = 0): Query {
     const q = state.queries[n];
@@ -136,6 +169,8 @@ export const mock = {
     state.storage.uploadError = null;
     state.channels = [];
     state.removed = [];
+    state.session = SIGNED_IN;
+    supabase.auth.getSession.mockClear();
     supabase.from.mockClear();
     supabase.channel.mockClear();
     supabase.removeChannel.mockClear();

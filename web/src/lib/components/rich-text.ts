@@ -19,8 +19,8 @@
  * token values they are named after. The editor's own chrome uses tokens only.
  *
  * Usage:
- *   import RichTextEditor from '$lib/components/RichTextEditor.svelte';
- *   import { RICH_TEXT_TOOL_GROUPS, type RichTextEditorApi } from '$lib/components/rich-text';
+ *   import RichTextEditor from '#lib/components/RichTextEditor.svelte';
+ *   import { RICH_TEXT_TOOL_GROUPS, type RichTextEditorApi } from '#lib/components/rich-text.js';
  * ========================================================================== */
 
 /** Every `document.execCommand` id the toolbar can issue. */
@@ -148,7 +148,7 @@ export function safeHexColor(value: unknown): string {
 /**
  * Normalize a link the author typed, or `null` when it is not one we allow.
  *
- * Mirrors `safeHref` in $lib/sanitize-html (https/http/mailto/tel, or a
+ * Mirrors `safeHref` in #lib/sanitize-html (https/http/mailto/tel, or a
  * relative path / anchor); a bare `irdlex.org/x` gets `https://` prepended so
  * the common paste does the expected thing instead of becoming a broken
  * relative link. The sanitizer strips a bad href on the way out regardless —

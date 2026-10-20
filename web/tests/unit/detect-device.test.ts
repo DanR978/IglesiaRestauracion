@@ -1,7 +1,7 @@
 // S07 — detect-device is UA-environment-dependent, so no golden fixture;
 // assert the invariants that hold in any environment (jsdom reports desktop).
 import { describe, expect, it } from 'vitest';
-import { getPlatform, isAndroid, isDesktop, isIOS } from '$lib/detect-device';
+import { getPlatform, isAndroid, isDesktop, isIOS } from '#lib/detect-device.js';
 
 describe('detect-device', () => {
   it('classifies jsdom as desktop', () => {

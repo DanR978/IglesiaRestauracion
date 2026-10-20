@@ -12,7 +12,7 @@ import {
   initTheme,
   isTheme,
   theme,
-} from '$lib/theme.svelte';
+} from '#lib/theme.svelte.js';
 
 const root = () => document.documentElement;
 

@@ -17,7 +17,7 @@
  * as "$0.00", exactly as every legacy call site relied on.
  *
  * Usage:
- *   import { toCents, sumC, formatUSD, toNumeric } from '$lib/money';
+ *   import { toCents, sumC, formatUSD, toNumeric } from '#lib/money.js';
  *   toCents('1,234.56')                      // 123456
  *   toCents(10.075)                          // 1008 (half up at the cent)
  *   sumC(toCents('0.10'), toCents('0.20'))   // 30 — exact, no float drift

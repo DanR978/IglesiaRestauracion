@@ -9,7 +9,7 @@ import {
   listCssFiles,
   readStyle,
   stripComments,
-} from '$lib/test/css';
+} from '#lib/test/css.js';
 
 const bundle = stripComments(bundleAppCss());
 const imports = appCssImports();

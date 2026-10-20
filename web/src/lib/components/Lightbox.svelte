@@ -2,7 +2,7 @@
   Lightbox — the full-screen photo viewer (S20, DESIGN-SYSTEM §4.2).
   Mount it ONCE on a route that opens photos; it renders nothing until
   openLightbox(photos, i) is called, and it holds no photo state of its own —
-  everything lives in $lib/stores/lightbox.svelte.
+  everything lives in #lib/stores/lightbox.svelte.
 
   Retires the id-coupled overlay in galeria/album/index.html (#lightbox,
   #lbImg, #lbPrev, #lbCounter, …) and its document-wide click bindings.
@@ -17,14 +17,14 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import Icon from './Icon.svelte';
-  import { lockBodyScroll } from '$lib/scroll-lock';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
   import {
     lightbox,
     photoAlt,
     photoSrc,
     SWIPE_CLOSE_PX,
     SWIPE_NEXT_PX,
-  } from '$lib/stores/lightbox.svelte';
+  } from '#lib/stores/lightbox.svelte.js';
 
   // Every clause carries both exclusions: the backdrop is a <button> that is
   // deliberately out of the tab order, so a plain `button:not([disabled])`

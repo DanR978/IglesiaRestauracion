@@ -1,8 +1,9 @@
 // S14 — /kit/button/ in a real browser: the things jsdom cannot answer.
 // Computed token values, the focus ring, the loading width, the palette swap,
-// 360px and reduced motion. Not part of the CI gate — run with
-// `npm run test:e2e` after `npx playwright install chromium`.
+// 360px and reduced motion. CI job `e2e` runs it (S05b); locally
+// `npm run test:e2e` after `npx playwright install chromium webkit`.
 import { expect, test } from '@playwright/test';
+import { gotoWithTheme } from './helpers/theme';
 
 test.describe('/kit/button/', () => {
   test('the primary variant resolves to its tokens and renders with no console error', async ({
@@ -31,9 +32,11 @@ test.describe('/kit/button/', () => {
 
   test('href picks the element: <a> with it, <button> without', async ({ page }) => {
     await page.goto('/kit/button/');
-    const facts = await page.locator('.facts').innerText();
-    expect(facts).toContain('<button>');
-    expect(facts).toContain('<a>');
+    // Auto-retried: the readout fills in after hydration, which can land after
+    // `load` (S05b: a one-shot innerText read raced it on Mobile Safari).
+    const facts = page.locator('.facts');
+    await expect(facts).toContainText('<button>');
+    await expect(facts).toContainText('<a>');
   });
 
   test('disabled is dimmed and refuses the pointer', async ({ page }) => {
@@ -90,8 +93,7 @@ test.describe('/kit/button/', () => {
   });
 
   test('forced dark flips the surface without a light hairline border', async ({ page }) => {
-    await page.goto('/kit/button/');
-    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+    await gotoWithTheme(page, '/kit/button/', 'dark');
     const ghost = page.locator('.ird-btn--ghost').first();
     await expect(ghost).toHaveCSS('background-color', 'rgb(26, 38, 42)');
     // --gray-50 goes LIGHTER in dark (#cccccc); the translucent idiom does not.

@@ -18,7 +18,7 @@
    • the three divergent review renderers;
    • the unescaped money `value="${v ?? ''}"` (values are bound now);
    • `document.body.style.overflow = ''` on close — the lock is
-     reference-counted ($lib/scroll-lock), so a nested overlay cannot unlock
+     reference-counted (#lib/scroll-lock), so a nested overlay cannot unlock
      the page underneath this one;
    • the click-only, non-focusable `<div>` choice cards — `choice` is a real
      radio group (arrow keys, Space, labels).
@@ -34,7 +34,7 @@
 -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
-  import { lockBodyScroll } from '$lib/scroll-lock';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
   import Icon from './Icon.svelte';
   import {
     applyDefaults,

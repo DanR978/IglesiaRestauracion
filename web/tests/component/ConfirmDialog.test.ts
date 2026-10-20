@@ -12,15 +12,15 @@ import { resolve } from 'node:path';
 import { fireEvent, render, within } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ConfirmHost from '$lib/components/ConfirmHost.svelte';
+import ConfirmHost from '#lib/components/ConfirmHost.svelte';
 import {
   CONFIRM_DEFAULT_NO,
   CONFIRM_DEFAULT_TITLE,
   CONFIRM_DEFAULT_YES,
   confirm,
   confirmState,
-} from '$lib/stores/confirm.svelte';
-import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '$lib/scroll-lock';
+} from '#lib/stores/confirm.svelte.js';
+import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '#lib/scroll-lock.js';
 import ModalHarness from './fixtures/ModalHarness.svelte';
 
 /** Ask, then let Svelte paint the dialog. */
@@ -183,7 +183,7 @@ describe('confirm() — queueing (the legacy overwrote its single resolver)', ()
 describe('confirm() — stacking above an open Modal', () => {
   // Vitest has no layout engine and does not inject a component's scoped
   // <style>, so the elevation itself is asserted on the CSS SOURCE (the same
-  // approach $lib/test/css.ts takes for the token sheets); the browser-side
+  // approach #lib/test/css.ts takes for the token sheets); the browser-side
   // computed z-index is checked in tests/e2e/kit-modal.spec.ts.
   it('declares the legacy #confirmModal elevation', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/lib/components/Modal.svelte'), 'utf8');

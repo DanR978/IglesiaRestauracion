@@ -24,7 +24,7 @@
  * Prerender-safe: with no `document` it returns an inert release function.
  *
  * Usage:
- *   import { trapFocus, isTopmostTrap } from '$lib/focus-trap';
+ *   import { trapFocus, isTopmostTrap } from '#lib/focus-trap.js';
  *   const release = trapFocus(dialogEl);   // in an $effect
  *   return release;                        // …and its cleanup
  * ========================================================================== */

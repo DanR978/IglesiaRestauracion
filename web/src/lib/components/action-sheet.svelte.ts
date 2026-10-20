@@ -15,7 +15,7 @@
  * Two ways to use it:
  *
  *   1. Imperative (the legacy call shape — treasury, events, users, presets):
- *        import { showActionSheet } from '$lib/components/action-sheet.svelte';
+ *        import { showActionSheet } from '#lib/components/action-sheet.svelte.js';
  *        showActionSheet({ trigger: btn, title: ev.title, actions: [
  *          { label: 'Editar',   icon: 'fa-pen',   onClick: () => edit(id) },
  *          { label: 'Eliminar', icon: 'fa-trash', variant: 'danger', onClick: … },

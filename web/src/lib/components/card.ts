@@ -20,8 +20,8 @@
  *   ird-card--alert
  *
  * Usage:
- *   import Card from '$lib/components/Card.svelte';
- *   import type { KpiTile } from '$lib/components/card';
+ *   import Card from '#lib/components/Card.svelte';
+ *   import type { KpiTile } from '#lib/components/card.js';
  * ========================================================================== */
 
 /** Static container, or a real control that performs the card's primary action. */
@@ -48,7 +48,7 @@ export const KPI_TONES: readonly KpiTone[] = ['default', 'alert'];
 export interface KpiTile {
   /** Font Awesome solid glyph for the tile (decorative — the label names it). */
   icon?: string;
-  /** The number, already formatted (money via formatUSD from $lib/money). */
+  /** The number, already formatted (money via formatUSD from #lib/money). */
   value: string | number;
   /** What is being counted, e.g. "Inscritos". */
   label: string;

@@ -1,28 +1,38 @@
-# CI gate for the SvelteKit rewrite (MIGRATION.md S05).
+# CI gate for the SvelteKit rewrite (MIGRATION.md S05, S05b).
 # Job `web`: typecheck + lint + unit/golden tests + /app build must pass.
+# Job `e2e`: the /app build's JS budget, then Playwright in chromium, webkit,
+# Mobile Safari and Mobile Chrome — specs, axe and lab vitals
+# (docs/migration/VERIFICATION.md boxes 14, 15, 17).
+# Job `audit`: no high/critical advisory anywhere in the dependency tree (box 18).
 # Job `ledger`: any PR labeled `migration` must touch MIGRATION.md in the same
 # PR ("a decision that isn't written down didn't happen").
-# Branch protection on main should require both checks (human task, one-time).
+# Branch protection on main should require these checks (human task, one-time).
+# Every action is pinned to a full commit SHA (a tag can be moved); the
+# trailing comment is the release that SHA was on 2026-10-19.
 name: CI
 
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
 
+# Least privilege for GITHUB_TOKEN: every job only reads the repository.
+permissions:
+  contents: read
+
 jobs:
   web:
     runs-on: ubuntu-latest
-    # Job-level, not build-step-only: `svelte-kit sync` (inside npm run check)
-    # generates the $env/static/public TYPE module from the env it sees, so
-    # check needs the names declared too. Same PUBLIC-by-design secrets as
-    # deploy.yml (D-007). An UNSET secret interpolates to '' — still declared,
-    # and the required() guard in web/src/lib/config.ts then fails the build.
+    # Same PUBLIC-by-design secrets as deploy.yml (D-007). Kit 3 takes the
+    # variable NAMES (and the $app/env/public types) from web/src/env.ts; the
+    # build validates these VALUES against its schemas and inlines them. An
+    # UNSET secret interpolates to '', which those schemas reject — the build
+    # fails rather than ship a client with no backend.
     env:
       PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
           cache: npm
@@ -39,11 +49,62 @@ jobs:
         run: BASE_PATH=/app npm run build
         working-directory: web
 
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Loopback placeholders, not the secrets: no e2e page calls Supabase, so a
+    # build pointed at 127.0.0.1 cannot reach production whatever a test does.
+    # The same values built web/budget.json's baseline, so the budget compares
+    # like with like.
+    env:
+      PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      PUBLIC_SUPABASE_ANON_KEY: local-test-key
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+        working-directory: web
+      - name: Install Playwright browsers (chromium + webkit, with OS deps)
+        run: npx playwright install --with-deps chromium webkit
+        working-directory: web
+      - name: JS budget of the /app build (box 17)
+        run: BASE_PATH=/app npm run build && npm run budget
+        working-directory: web
+      # playwright.config's webServer rebuilds at base '' and serves it with
+      # `vite preview` (the specs address root paths, G-019).
+      - name: Playwright — chromium, webkit, Mobile Safari, Mobile Chrome
+        run: npx playwright test
+        working-directory: web
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: playwright-test-results
+          path: web/test-results/
+          retention-days: 7
+
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+      # The WHOLE tree, devDependencies included: svelte, @sveltejs/kit and
+      # devalue are devDependencies, yet the build compiles them into every
+      # page of the Pages artifact, and the rest of the toolchain produces it.
+      # An unfixable advisory is recorded as an exception in the PR (box 18).
+      - run: npm audit --audit-level=high
+        working-directory: web
+
   ledger:
     if: contains(github.event.pull_request.labels.*.name, 'migration')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
       - name: migration-labeled PRs must update MIGRATION.md

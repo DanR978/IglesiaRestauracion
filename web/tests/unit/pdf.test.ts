@@ -23,7 +23,7 @@ import {
   sectionHeading,
   th,
   type Watermark,
-} from '$lib/pdf';
+} from '#lib/pdf.js';
 
 // Minimal structural views used to reach into PdfContent (unknown) results.
 interface TextNode {

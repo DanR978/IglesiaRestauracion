@@ -13,24 +13,25 @@
  * ministry read return rows is additive and lands in S56b — until then it
  * simply returns what the owner policy already allows.
  *
+ * D-027: RLS refuses `updateProject` / `deleteProject` on a ministry row for a
+ * non-finance user. The refusal matches no row, and that comes back as a
+ * `not_found` failure — never as a success.
+ *
  * Entry-level reads/writes are NOT here — a project entry is an ordinary
  * `fin_income`/`fin_expenses` row, so it goes through `./entries`; the
  * per-project rollups are in `./summary`.
  *
  * Usage:
- *   import { fetchProjects, createProject } from '$lib/repos/treasury';
+ *   import { fetchProjects, createProject } from '#lib/repos/treasury/index.js';
+ *   const res = await fetchProjects({ ownerId: userId });
+ *   if (res.ok) renderTabs(res.data);
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import type { WriteResult } from '../types';
-import {
-  warnRead,
-  writeFail,
-  writeOk,
-  type ProjectInsert,
-  type ProjectRow,
-  type ProjectUpdate,
-} from './shared';
+import { supabase } from '#lib/db/client.js';
+import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
+import type { ReadResult, WriteResult } from '../types';
+import { TAG, type ProjectInsert, type ProjectRow, type ProjectUpdate } from './shared';
 
 export type ProjectFilter = {
   /** Legacy scope: the containers this user owns (`project-treasury.js:60`). */
@@ -50,17 +51,16 @@ export async function fetchProjects({
   ownerId,
   ministryIds,
   includeArchived = false,
-}: ProjectFilter = {}): Promise<ProjectRow[]> {
+}: ProjectFilter = {}): Promise<ReadResult<ProjectRow[]>> {
+  const denied = await requireSession(TAG, 'fetchProjects');
+  if (denied) return denied;
   let q = supabase.from('fin_projects').select('*');
   if (ownerId) q = q.eq('owner_id', ownerId);
   if (ministryIds?.length) q = q.in('ministry_id', ministryIds);
   if (!includeArchived) q = q.eq('archived', false);
-  const { data, error } = await q.order('created_at');
-  if (error) {
-    warnRead('fetchProjects', error.message);
-    return [];
-  }
-  return data ?? [];
+  const { data, error, status } = await q.order('created_at');
+  if (error) return fail(TAG, 'fetchProjects', error, status);
+  return ok(data ?? []);
 }
 
 /**
@@ -69,11 +69,16 @@ export async function fetchProjects({
  * a church-books expense allocated to it (`project-treasury.js:84-89`).
  *
  * Legacy swallowed both errors inside one `try`, which made "no budget" and
- * "the query failed" indistinguishable; here a failed probe warns and
- * contributes nothing, and the other probe still counts.
+ * "the query failed" indistinguishable. Here either probe failing fails the
+ * read: a partial list would hide a ministry's budget tab exactly as if it
+ * had never been funded.
  */
-export async function fetchBudgetedMinistryIds(ministryIds: string[]): Promise<string[]> {
-  if (!ministryIds.length) return [];
+export async function fetchBudgetedMinistryIds(
+  ministryIds: string[],
+): Promise<ReadResult<string[]>> {
+  const denied = await requireSession(TAG, 'fetchBudgetedMinistryIds');
+  if (denied) return denied;
+  if (!ministryIds.length) return ok([]);
   const [recRes, expRes] = await Promise.all([
     supabase
       .from('fin_recurring')
@@ -86,23 +91,33 @@ export async function fetchBudgetedMinistryIds(ministryIds: string[]): Promise<s
       .is('project_id', null)
       .in('ministry_id', ministryIds),
   ]);
-  if (recRes.error) warnRead('fetchBudgetedMinistryIds', recRes.error.message);
-  if (expRes.error) warnRead('fetchBudgetedMinistryIds', expRes.error.message);
+  if (recRes.error) {
+    return fail(TAG, 'fetchBudgetedMinistryIds recurring', recRes.error, recRes.status);
+  }
+  if (expRes.error) {
+    return fail(TAG, 'fetchBudgetedMinistryIds expenses', expRes.error, expRes.status);
+  }
   const funded = new Set<string>();
   for (const row of [...(recRes.data ?? []), ...(expRes.data ?? [])]) {
     if (row.ministry_id) funded.add(row.ministry_id);
   }
-  return [...funded];
+  return ok([...funded]);
 }
 
 /* ── Writes ────────────────────────────────────────────────────────────── */
 
 export async function createProject(input: ProjectInsert): Promise<WriteResult<ProjectRow>> {
-  if (!input?.owner_id) return writeFail('createProject', 'Falta el propietario del proyecto.');
-  if (!input.name?.trim()) return writeFail('createProject', 'El proyecto necesita un nombre.');
-  const { data, error } = await supabase.from('fin_projects').insert(input).select().single();
-  if (error) return writeFail('createProject', error.message);
-  return writeOk(data);
+  const denied = await requireSession(TAG, 'createProject');
+  if (denied) return denied;
+  if (!input?.owner_id) return invalid('Falta el propietario del proyecto.');
+  if (!input.name?.trim()) return invalid('El proyecto necesita un nombre.');
+  const { data, error, status } = await supabase
+    .from('fin_projects')
+    .insert(input)
+    .select()
+    .single();
+  if (error) return fail(TAG, 'createProject', error, status);
+  return ok(data);
 }
 
 /** Rename, re-colour, archive, or attach a ministry (`project-treasury.js:97, 347`). */
@@ -110,15 +125,17 @@ export async function updateProject(
   id: string,
   patch: ProjectUpdate,
 ): Promise<WriteResult<ProjectRow>> {
-  if (!id) return writeFail('updateProject', 'Falta el identificador del proyecto.');
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'updateProject');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del proyecto.');
+  const { data, error, status } = await supabase
     .from('fin_projects')
     .update(patch)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateProject', error.message);
-  return writeOk(data);
+  if (error) return fail(TAG, 'updateProject', error, status);
+  return ok(data);
 }
 
 /**
@@ -128,8 +145,14 @@ export async function updateProject(
  * promises ("quedarán sin proyecto").
  */
 export async function deleteProject(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteProject', 'Falta el identificador del proyecto.');
-  const { error } = await supabase.from('fin_projects').delete().eq('id', id);
-  if (error) return writeFail('deleteProject', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteProject');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del proyecto.');
+  const { error, status, count } = await supabase
+    .from('fin_projects')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteProject', error, status);
+  if (!count) return noRows(TAG, 'deleteProject');
+  return ok(undefined);
 }

@@ -3,7 +3,7 @@
   // the light/dark/system toggle so a human can confirm the palette flips with
   // no reload flash. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import { theme, THEMES, type Theme } from '$lib/theme.svelte';
+  import { theme, THEMES, type Theme } from '#lib/theme.svelte.js';
 
   const THEME_LABEL: Record<Theme, string> = {
     light: 'Claro',

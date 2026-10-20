@@ -23,9 +23,9 @@
  *   <Icon name="church" />                          decorative solid glyph
  *   <Icon set="far" name="clock" label="Hora" />    meaningful → role=img + aria-label
  *   <Icon set="sprite" name="logo-church" class="footer__logo" />
- *   import { injectSprite, SPRITE_ICONS, isSpriteIcon } from '$lib/components/icon';
+ *   import { injectSprite, SPRITE_ICONS, isSpriteIcon } from '#lib/components/icon.js';
  * ========================================================================== */
-import spriteMarkup from '$lib/assets/icons.svg?raw';
+import spriteMarkup from '#lib/assets/icons.svg?raw';
 
 /** Where a glyph comes from. `fas`/`far`/`fab` are the Font Awesome 6 style prefixes. */
 export type IconSet = 'fas' | 'far' | 'fab' | 'sprite';

@@ -9,10 +9,10 @@
 import { fireEvent, render, within } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Modal from '$lib/components/Modal.svelte';
-import { MODAL_VARIANTS } from '$lib/components/modal';
-import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '$lib/scroll-lock';
-import { focusTrapDepth } from '$lib/focus-trap';
+import Modal from '#lib/components/Modal.svelte';
+import { MODAL_VARIANTS } from '#lib/components/modal.js';
+import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '#lib/scroll-lock.js';
+import { focusTrapDepth } from '#lib/focus-trap.js';
 import ModalHarness from './fixtures/ModalHarness.svelte';
 
 /** Press a key on whatever currently has focus, so it propagates like a real one. */

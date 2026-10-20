@@ -4,9 +4,9 @@
   // size and colour, the icon-only-control pattern, the admin surface, and the
   // refusal of an unknown name. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import Icon from '$lib/components/Icon.svelte';
-  import { FA_VERSION, SPRITE_HOLDER_ID, SPRITE_ICONS } from '$lib/components/icon';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import Icon from '#lib/components/Icon.svelte';
+  import { FA_VERSION, SPRITE_HOLDER_ID, SPRITE_ICONS } from '#lib/components/icon.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
 
   // The most-used legacy `fas` names (grep of the live site), with their role.
   const SOLID = [

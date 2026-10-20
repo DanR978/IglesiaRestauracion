@@ -4,13 +4,13 @@
 // the grouped/disabled/deferred-action behaviours the four legacy menus needed.
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ActionSheet from '$lib/components/ActionSheet.svelte';
-import ActionSheetHost from '$lib/components/ActionSheetHost.svelte';
+import ActionSheet from '#lib/components/ActionSheet.svelte';
+import ActionSheetHost from '#lib/components/ActionSheetHost.svelte';
 import {
   MOBILE_QUERY,
   closeActionSheet,
   showActionSheet,
-} from '$lib/components/action-sheet.svelte';
+} from '#lib/components/action-sheet.svelte.js';
 
 // ── matchMedia mock ────────────────────────────────────────────────────────
 // One stable MediaQueryList per query (svelte's MediaQuery keeps a reference to

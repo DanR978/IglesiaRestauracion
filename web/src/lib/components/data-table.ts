@@ -8,7 +8,7 @@
  * Appendix) — here the sorted array is what the component renders.
  *
  * Usage:
- *   import { sortRows, type DataTableColumn } from '$lib/components/data-table';
+ *   import { sortRows, type DataTableColumn } from '#lib/components/data-table.js';
  * ========================================================================== */
 import type { Snippet } from 'svelte';
 

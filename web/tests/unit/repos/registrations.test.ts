@@ -1,10 +1,15 @@
 // S22 — repos/registrations: query shape per legacy js/lib/special-events.js
-// + js/pages/eventos/hub.js:58 + registro-wizard.js:478, and G-006.
+// + js/pages/eventos/hub.js:58 + registro-wizard.js:478, and G-006. S22b —
+// the ReadResult / WriteResult contract: a failed read is `{ ok: false }`,
+// never an empty list or a throw, and every call here is public.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
+import { OFFLINE, RLS_DENIED, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as registrations from '#lib/repos/registrations.js';
 import {
   fetchLiveEvents,
   fetchSpecialEventBy,
@@ -12,7 +17,7 @@ import {
   fetchSpecialEventsForCalendar,
   submitRegistrations,
   type EventRegistrationInsert,
-} from '$lib/repos/registrations';
+} from '#lib/repos/registrations.js';
 import fixtureJson from '../../fixtures/special-events.json';
 
 const ERR = { message: 'boom' };
@@ -68,21 +73,49 @@ describe('repos/registrations', () => {
       it(`golden: filter/sort/limit [${i}]${v.note ? ` — ${v.note}` : ''}`, async () => {
         mock.results.special_events = [{ data: v.input.rows }];
         const out = await fetchLiveEvents({ now: v.input.now, limit: v.input.limit });
-        expect(out.map((e) => e.id)).toEqual(v.expected);
+        if (!out.ok) throw new Error(`expected rows, got ${out.error.kind}`);
+        expect(out.data.map((e) => e.id)).toEqual(v.expected);
       });
     });
 
-    it('[] and a [registrations] warning on error', async () => {
+    it('no live events is an empty SUCCESS', async () => {
+      mock.results.special_events = [{ data: [] }];
+      expect(await fetchLiveEvents({ now: NOW })).toEqual({ ok: true, data: [] });
+    });
+
+    it('a failed read is an error, never an empty rail (D-032), warned [registrations]', async () => {
       mock.results.special_events = [{ data: null, error: ERR }];
-      expect(await fetchLiveEvents({ now: NOW })).toEqual([]);
+      const res = await fetchLiveEvents({ now: NOW });
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: [] });
       expect(warn).toHaveBeenCalledWith('[registrations] fetchLiveEvents:', 'boom');
     });
+
+    it('a prerender with no network is a network error (the page renders loading, not empty)', async () => {
+      mock.results.special_events = [
+        { data: null, error: { message: 'TypeError: fetch failed', code: '' }, status: 0 },
+      ];
+      expect(await fetchLiveEvents({ now: NOW })).toEqual(
+        failure('network', 'TypeError: fetch failed'),
+      );
+    });
+
+    it.each([Number.NaN, Number.POSITIVE_INFINITY, 9e15])(
+      'a `now` that is no instant (%s) is refused as invalid, without a query — never a RangeError',
+      async (now) => {
+        await expect(fetchLiveEvents({ now })).resolves.toEqual(invalidInput('Fecha inválida.'));
+        expect(mock.queries).toEqual([]);
+      },
+    );
   });
 
   describe('fetchSpecialEventBy (special-events.js:188)', () => {
     it('slug wins over id; embeds album refs; maybeSingle', async () => {
       mock.results.special_events = [{ data: { id: 'e' } }];
-      expect(await fetchSpecialEventBy({ slug: 'vbs', id: 'e' })).toEqual({ id: 'e' });
+      expect(await fetchSpecialEventBy({ slug: 'vbs', id: 'e' })).toEqual({
+        ok: true,
+        data: { id: 'e' },
+      });
       expect(mock.chain()).toEqual(['select', 'eq', 'maybeSingle']);
       expect(mock.args('select')).toEqual([`*,${ALBUM_EMBED}`]);
       expect(mock.args('eq')).toEqual(['slug', 'vbs']);
@@ -91,18 +124,20 @@ describe('repos/registrations', () => {
       await fetchSpecialEventBy({ id: 'e' });
       expect(mock.args('eq')).toEqual(['id', 'e']);
     });
-    it('null without a query when no key, null on error', async () => {
-      expect(await fetchSpecialEventBy({})).toBeNull();
+    it('a successful null without a query when no key; an error on failure', async () => {
+      expect(await fetchSpecialEventBy({})).toEqual({ ok: true, data: null });
       expect(mock.queries).toHaveLength(0);
       mock.results.special_events = [{ data: null, error: ERR }];
-      expect(await fetchSpecialEventBy({ slug: 'x' })).toBeNull();
+      const res = await fetchSpecialEventBy({ slug: 'x' });
+      expect(res).toEqual(failure('unknown', 'boom'));
+      expect(res).not.toEqual({ ok: true, data: null });
       expect(warn).toHaveBeenCalledWith('[registrations] fetchSpecialEventBy:', 'boom');
     });
   });
 
   describe('fetchSpecialEventsForCalendar (hub.js:58)', () => {
     it('selects the hub projection ordered by event_at', async () => {
-      await fetchSpecialEventsForCalendar();
+      expect(await fetchSpecialEventsForCalendar()).toEqual({ ok: true, data: [] });
       expect(mock.query().table).toBe('special_events');
       expect(mock.chain()).toEqual(['select', 'order']);
       expect(mock.args('select')).toEqual([
@@ -110,9 +145,9 @@ describe('repos/registrations', () => {
       ]);
       expect(mock.args('order')).toEqual(['event_at']);
     });
-    it('[] on error', async () => {
+    it('a failed read is an error, never []', async () => {
       mock.results.special_events = [{ data: null, error: ERR }];
-      expect(await fetchSpecialEventsForCalendar()).toEqual([]);
+      expect(await fetchSpecialEventsForCalendar()).toEqual(failure('unknown', 'boom'));
     });
   });
 
@@ -123,9 +158,11 @@ describe('repos/registrations', () => {
       expect(mock.args('select')).toEqual(['id,title,event_at']);
       expect(mock.args('order')).toEqual(['event_at', { ascending: false, nullsFirst: false }]);
     });
-    it('[] on error', async () => {
-      mock.results.special_events = [{ data: null, error: ERR }];
-      expect(await fetchSpecialEventOptions()).toEqual([]);
+    it('a failed read is an error, never an empty picker', async () => {
+      mock.results.special_events = [OFFLINE];
+      expect(await fetchSpecialEventOptions()).toEqual(
+        failure('network', 'TypeError: Failed to fetch'),
+      );
     });
   });
 
@@ -151,22 +188,46 @@ describe('repos/registrations', () => {
     });
 
     it('rejects an empty batch without a network call', async () => {
-      expect((await submitRegistrations([])).ok).toBe(false);
+      expect(await submitRegistrations([])).toEqual(
+        invalidInput('No hay participantes que inscribir.'),
+      );
       expect(mock.queries).toHaveLength(0);
     });
 
-    it('returns { ok:false, error } with the RLS message when the event is closed', async () => {
-      mock.results.event_registrations = [
-        { data: null, error: { message: 'new row violates row-level security policy' } },
-      ];
-      expect(await submitRegistrations([row])).toEqual({
-        ok: false,
-        error: 'new row violates row-level security policy',
-      });
+    it('a closed event (the event_reg_insert policy) is kind forbidden; the raw text stays in detail', async () => {
+      mock.results.event_registrations = [RLS_DENIED];
+      const res = await submitRegistrations([row]);
+      expect(res).toEqual(
+        failure('forbidden', '42501: new row violates row-level security policy'),
+      );
       expect(warn).toHaveBeenCalledWith(
         '[registrations] submitRegistrations:',
-        'new row violates row-level security policy',
+        '42501: new row violates row-level security policy',
       );
     });
+  });
+
+  // RLS: `special_events_public_read` lets anon read EVERY row, so even the
+  // admin gallery picker gets the same answer signed out; the sign-up is an
+  // anon insert (`event_reg_insert`).
+  describeSessionGate(registrations, '[registrations]', {
+    publicCalls: {
+      fetchLiveEvents: () => fetchLiveEvents({ now: NOW }),
+      fetchSpecialEventBy: () => fetchSpecialEventBy({ slug: 'vbs' }),
+      fetchSpecialEventsForCalendar: () => fetchSpecialEventsForCalendar(),
+      fetchSpecialEventOptions: () => fetchSpecialEventOptions(),
+      submitRegistrations: () =>
+        submitRegistrations([
+          {
+            event_id: 'e',
+            first_name: 'Ana',
+            last_name: 'López',
+            age: 9,
+            contact_name: 'Luis',
+            contact_phone: '617',
+            relationship: 'Padre',
+          },
+        ]),
+    },
   });
 });

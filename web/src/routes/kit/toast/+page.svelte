@@ -4,14 +4,14 @@
   // message), the stack cap, hover-to-hold, and the "message is text, never
   // HTML" guarantee. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import ToastHost from '$lib/components/ToastHost.svelte';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import ToastHost from '#lib/components/ToastHost.svelte';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
   import {
     TOAST_DURATION_MS,
     TOAST_MAX,
     TOAST_UNDO_DURATION_MS,
     toast,
-  } from '$lib/stores/toast.svelte';
+  } from '#lib/stores/toast.svelte.js';
 
   const PAYLOAD = '<img src=x onerror="alert(1)"> · <b>negrita</b>';
   const LONG =
@@ -228,7 +228,7 @@
       vez, dentro del envoltorio de la superficie.
     </p>
     <pre class="snippet"><code
-        >{`import { toast } from '$lib/stores/toast.svelte';
+        >{`import { toast } from '#lib/stores/toast.svelte.js';
 
 toast.success('Guardado');
 toast.error('No pudimos guardar los cambios.');
@@ -358,7 +358,10 @@ toast.dismiss(id);`}</code
     background: var(--color-surface);
     box-shadow: var(--shadow-sm);
     font-size: var(--fs-xs);
-    overflow-x: auto;
+    /* Wrap rather than scroll: keyboard users cannot reach a scroller in
+       WebKit, which does not make one focusable (axe, S05b). */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 640px) {

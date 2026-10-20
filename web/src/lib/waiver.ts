@@ -18,9 +18,9 @@
 // single signature from the signing adult / guardian.
 //
 // Usage:
-//   import { renderWaiverPrintDoc, buildWaiverDocDef, WAIVER_CSS } from '$lib/waiver';
+//   import { renderWaiverPrintDoc, buildWaiverDocDef, WAIVER_CSS } from '#lib/waiver.js';
 //   printFrame.srcdoc = `<style>${WAIVER_CSS}</style>` + renderWaiverPrintDoc(opts);
-//   await savePdf(buildWaiverDocDef(opts), 'exoneracion.pdf');   // $lib/pdf (S09)
+//   await savePdf(buildWaiverDocDef(opts), 'exoneracion.pdf');   // #lib/pdf (S09)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { esc } from './escape';
@@ -293,7 +293,7 @@ export function renderWaiverPrintDoc({
 
 // ─────────────────────────────────────────────────────────────────────────────
 // pdfmake version — used by the admin surface to generate a real PDF (the
-// app-wide standard, see $lib/pdf, S09/G-007) instead of the browser print
+// app-wide standard, see #lib/pdf, S09/G-007) instead of the browser print
 // dialog. Same constants + clause text as renderWaiverPrintDoc above, so the
 // on-screen / signed document and this PDF stay identical. Takes the SAME opts
 // object. Returns a complete pdfmake document definition; hand it to

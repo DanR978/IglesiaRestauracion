@@ -7,7 +7,7 @@
  * stay YYYY-MM-DD strings).
  *
  * Usage:
- *   import { pad2, ymd, isoDate, todayISO } from '$lib/date';
+ *   import { pad2, ymd, isoDate, todayISO } from '#lib/date.js';
  *   ymd(2026, 7, 6)   // "2026-08-06"  ← note: month is 0-indexed
  *   isoDate(someDate) // "2026-08-06"  ← in the *viewer's* timezone
  * ========================================================================== */

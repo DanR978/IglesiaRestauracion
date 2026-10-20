@@ -1,8 +1,8 @@
 # Testing and rollout
 
 > Snapshot 2026-10-18 · repo `f3b8c94`. The binding gate is
-> [`docs/migration/VERIFICATION.md`](../migration/VERIFICATION.md) (boxes 1–13). The boxes below are
-> **proposed** as 14–20 and get added to VERIFICATION.md by S05b, once they can run. Until branch
+> [`docs/migration/VERIFICATION.md`](../migration/VERIFICATION.md). Boxes 14–19 below are live there
+> since S05b (2026-10-19); box 20 is still proposed, for the first cutover PR. Until branch
 > protection is turned on for `main` and `develop`, every gate is advisory (MIGRATION.md §1).
 
 ## 1. Proposed gates

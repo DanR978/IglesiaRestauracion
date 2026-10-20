@@ -2,7 +2,7 @@
 // conventions (a collapsed-by-default panel behind a labelled toggle), the
 // table card-collapses with NO horizontal scroll at 360px, and the wizard
 // drives the field-type contract. Runs against `vite preview`
-// (playwright.config); not part of the CI gate.
+// (playwright.config); CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const CONTROLS =

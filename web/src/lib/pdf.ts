@@ -18,7 +18,7 @@
  * only when a function is called.
  *
  * Usage:
- *   import { loadPdfMake, churchDocDef, savePdf, imageDataUrl } from '$lib/pdf';
+ *   import { loadPdfMake, churchDocDef, savePdf, imageDataUrl } from '#lib/pdf.js';
  *   const def = churchDocDef({ title: 'Roster', headRight: 'EBV 2026', content: [...] });
  *   await savePdf(def, 'roster.pdf');
  *

@@ -4,8 +4,9 @@
 // filename (the cross-origin `download` fix), share falls back to the
 // clipboard, there is no horizontal scroll at 360px, and the surface stays
 // dark in both themes. Runs against `vite preview` (playwright.config);
-// not part of the CI gate.
+// CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
+import { focusesClickedButtons } from './helpers/click-focus';
 
 const KIT = '/kit/lightbox/';
 
@@ -40,9 +41,25 @@ test.describe('kit/lightbox', () => {
 
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);
-    // Focus went back to the tile that opened it.
-    await expect(page.locator('.tile').first()).toBeFocused();
     expect(errors).toEqual([]);
+  });
+
+  test('returns focus to the tile that opened it', async ({ page }) => {
+    // G-038 / X-1: an engine that doesn't focus a clicked <button> (Safari;
+    // Playwright's WebKit on Windows and macOS) makes the viewer record
+    // <main>/<body> as its opener, and focus never returns to the tile.
+    // Removed when focus-trap.ts records the opener — PR-C2 does that; this
+    // then fails as "passed unexpectedly".
+    test.fail(
+      !(await focusesClickedButtons(page)),
+      'G-038 / X-1: focus does not return to a clicked opener',
+    );
+    await page.goto(KIT);
+    await openFromTile(page, 0);
+
+    await page.keyboard.press('Escape');
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page.locator('.tile').first()).toBeFocused();
   });
 
   test('closes on the backdrop but not on the photo itself', async ({ page }) => {
@@ -56,7 +73,15 @@ test.describe('kit/lightbox', () => {
     await expect(dialog(page)).toHaveCount(0);
   });
 
-  test('locks the page scroll while open and gives the position back', async ({ page }) => {
+  test('locks the page scroll while open and gives the position back', async ({
+    page,
+    browserName,
+    isMobile,
+  }) => {
+    test.skip(
+      browserName === 'webkit' && isMobile,
+      'Playwright cannot dispatch a mouse wheel in mobile WebKit (S05b)',
+    );
     await page.goto(KIT);
     await page.evaluate(() => window.scrollTo(0, 600));
     await openFromTile(page, 1);

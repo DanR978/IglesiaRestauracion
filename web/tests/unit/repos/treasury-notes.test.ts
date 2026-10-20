@@ -1,10 +1,16 @@
-// S52 — repos/treasury/notes: `fin_notes` (treasury-tab.js:542-559).
+// S52 — repos/treasury/notes: `fin_notes` (treasury-tab.js:542-559). S22b —
+// the ReadResult / WriteResult contract: a failed read is `{ ok: false }`,
+// never an empty list, a delete that matched no row is `not_found`, and every
+// call made signed out is `auth`.
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/db/client', () => import('./mock-client'));
+vi.mock('#lib/db/client.js', () => import('./mock-client'));
 
 import { mock } from './mock-client';
-import { createNote, deleteNote, fetchNotes, updateNote } from '$lib/repos/treasury';
+import { NOT_FOUND, failure, invalidInput } from './results';
+import { describeSessionGate } from './session-gate';
+import * as notes from '#lib/repos/treasury/notes.js';
+import { createNote, deleteNote, fetchNotes, updateNote } from '#lib/repos/treasury/index.js';
 
 const ERR = { message: 'boom' };
 const note = {
@@ -26,7 +32,7 @@ describe('repos/treasury/notes', () => {
 
   it('lists pinned first, then newest', async () => {
     mock.results.fin_notes = [{ data: [note] }];
-    expect(await fetchNotes()).toEqual([note]);
+    expect(await fetchNotes()).toEqual({ ok: true, data: [note] });
     expect(mock.query().table).toBe('fin_notes');
     expect(mock.chain()).toEqual(['select', 'order', 'order']);
     expect(mock.query().calls.map((c) => c.args)).toEqual([
@@ -36,9 +42,11 @@ describe('repos/treasury/notes', () => {
     ]);
   });
 
-  it('[] + warn on error', async () => {
+  it('a failed read is an error + warn, never an empty list (D-032)', async () => {
     mock.results.fin_notes = [{ data: null, error: ERR }];
-    expect(await fetchNotes()).toEqual([]);
+    const res = await fetchNotes();
+    expect(res).toEqual(failure('unknown', 'boom'));
+    expect(res).not.toEqual({ ok: true, data: [] });
     expect(warn).toHaveBeenCalledWith('[treasury] fetchNotes:', 'boom');
   });
 
@@ -58,22 +66,33 @@ describe('repos/treasury/notes', () => {
     expect(mock.args('eq')).toEqual(['id', 'n1']);
 
     mock.reset();
+    mock.results.fin_notes = [{ count: 1 }];
     expect(await deleteNote('n1')).toEqual({ ok: true, data: undefined });
     expect(mock.chain()).toEqual(['delete', 'eq']);
+    expect(mock.args('delete')).toEqual([{ count: 'exact' }]);
+  });
+
+  it('a delete that matched no note is not_found (D-027)', async () => {
+    mock.results.fin_notes = [{ count: 0 }];
+    expect(await deleteNote('n1')).toEqual(NOT_FOUND);
   });
 
   it('guards a missing id and surfaces write errors', async () => {
-    expect(await updateNote('', {})).toEqual({
-      ok: false,
-      error: 'Falta el identificador de la nota.',
-    });
-    expect(await deleteNote('')).toEqual({
-      ok: false,
-      error: 'Falta el identificador de la nota.',
-    });
+    expect(await updateNote('', {})).toEqual(invalidInput('Falta el identificador de la nota.'));
+    expect(await deleteNote('')).toEqual(invalidInput('Falta el identificador de la nota.'));
     expect(mock.queries).toHaveLength(0);
     mock.results.fin_notes = [{ data: null, error: ERR }];
-    expect(await createNote({ body: 'x' })).toEqual({ ok: false, error: 'boom' });
+    expect(await createNote({ body: 'x' })).toEqual(failure('unknown', 'boom'));
     expect(warn).toHaveBeenCalledWith('[treasury] createNote:', 'boom');
+  });
+
+  // RLS: every `fin_*` policy is `to authenticated`.
+  describeSessionGate(notes, '[treasury]', {
+    staffOnly: {
+      fetchNotes: () => fetchNotes(),
+      createNote: () => createNote({ body: 'x' }),
+      updateNote: () => updateNote('n1', { pinned: false }),
+      deleteNote: () => deleteNote('n1'),
+    },
   });
 });

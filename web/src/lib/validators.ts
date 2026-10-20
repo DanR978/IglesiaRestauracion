@@ -16,7 +16,7 @@
  *   valid US phone (legacy `v ?? ''`).
  *
  * Usage:
- *   import { isValidEmail, normalizeUSPhone, formatUSPhoneNational } from '$lib/validators';
+ *   import { isValidEmail, normalizeUSPhone, formatUSPhoneNational } from '#lib/validators.js';
  * ========================================================================== */
 
 export const isValidEmail = (v?: string | null): boolean =>

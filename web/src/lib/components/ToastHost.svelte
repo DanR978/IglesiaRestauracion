@@ -5,7 +5,7 @@
   to <body> would fall back to the public palette).
 
   It is pure presentation: every piece of state, and the whole
-  schedule → leaving → removed lifecycle, lives in $lib/stores/toast.svelte,
+  schedule → leaving → removed lifecycle, lives in #lib/stores/toast.svelte,
   so a repo module can raise a toast without a component in the loop (S38).
 
   The message is interpolated as TEXT — never {@html} (D-005). `error` carries
@@ -14,7 +14,7 @@
 -->
 <script lang="ts">
   import Icon from './Icon.svelte';
-  import { toast, type ToastVariant } from '$lib/stores/toast.svelte';
+  import { toast, type ToastVariant } from '#lib/stores/toast.svelte.js';
 
   /** Colour already carries the meaning; the glyph repeats it (never colour alone). */
   const ICONS: Record<ToastVariant, string> = {

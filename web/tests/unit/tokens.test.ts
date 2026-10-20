@@ -14,7 +14,7 @@ import {
   readStyle,
   stripComments,
   stylesDir,
-} from '$lib/test/css';
+} from '#lib/test/css.js';
 
 const colors = readStyle('tokens/colors.css');
 const typography = readStyle('tokens/typography.css');

@@ -1,12 +1,13 @@
 // S52 — type-level contract for the treasury repo. The frozen part of the
 // foundation is the SHAPE: rows come from the generated Database types, money
-// crosses as `amountCents` and never as `amount`, reads resolve to rows or a
-// safe empty, and writes resolve to WriteResult. These assertions are checked
-// by `npm run check` (svelte-check covers tests/**).
+// crosses as `amountCents` and never as `amount`, reads resolve to ReadResult
+// (S22b, ADR-0004 — an error is never an empty list) and writes to
+// WriteResult. These assertions are checked by `npm run check` (svelte-check
+// covers tests/**).
 import { describe, expectTypeOf, it } from 'vitest';
-import type { Database } from '$lib/db/database.types';
-import type { WriteResult } from '$lib/repos/types';
-import * as treasury from '$lib/repos/treasury';
+import type { Database } from '#lib/db/database.types.js';
+import type { ReadResult, WriteResult } from '#lib/repos/types.js';
+import * as treasury from '#lib/repos/treasury/index.js';
 
 type Row<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 type Insert<T extends keyof Database['public']['Tables']> =
@@ -63,17 +64,34 @@ describe('repos/treasury types', () => {
     expectTypeOf<treasury.IncomeCategoryUpdate>().toEqualTypeOf<Update<'fin_income_categories'>>();
   });
 
-  it('reads resolve to typed entries and never to a nullable list', () => {
-    expectTypeOf(treasury.fetchIncome).returns.resolves.toEqualTypeOf<treasury.IncomeEntry[]>();
-    expectTypeOf(treasury.fetchExpenses).returns.resolves.toEqualTypeOf<treasury.ExpenseEntry[]>();
-    expectTypeOf(treasury.fetchPayables).returns.resolves.toEqualTypeOf<treasury.PayableEntry[]>();
-    expectTypeOf(treasury.fetchRecurring).returns.resolves.toEqualTypeOf<
-      treasury.RecurringEntry[]
+  it('reads resolve to a ReadResult of typed entries, never to a nullable list', () => {
+    expectTypeOf(treasury.fetchIncome).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.IncomeEntry[]>
     >();
-    expectTypeOf(treasury.fetchFunds).returns.resolves.toEqualTypeOf<treasury.FundEntry[]>();
-    expectTypeOf(treasury.fetchNotes).returns.resolves.toEqualTypeOf<Row<'fin_notes'>[]>();
-    expectTypeOf(treasury.fetchProjects).returns.resolves.toEqualTypeOf<Row<'fin_projects'>[]>();
-    expectTypeOf(treasury.fetchBudgetedMinistryIds).returns.resolves.toEqualTypeOf<string[]>();
+    expectTypeOf(treasury.fetchExpenses).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.ExpenseEntry[]>
+    >();
+    expectTypeOf(treasury.fetchPayables).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.PayableEntry[]>
+    >();
+    expectTypeOf(treasury.fetchRecurring).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.RecurringEntry[]>
+    >();
+    expectTypeOf(treasury.fetchFunds).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.FundEntry[]>
+    >();
+    expectTypeOf(treasury.fetchNotes).returns.resolves.toEqualTypeOf<
+      ReadResult<Row<'fin_notes'>[]>
+    >();
+    expectTypeOf(treasury.fetchProjects).returns.resolves.toEqualTypeOf<
+      ReadResult<Row<'fin_projects'>[]>
+    >();
+    expectTypeOf(treasury.fetchBudgetedMinistryIds).returns.resolves.toEqualTypeOf<
+      ReadResult<string[]>
+    >();
+    expectTypeOf(treasury.fetchCatalog).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.TreasuryCatalog>
+    >();
   });
 
   it('range reads take a DateRange, and the church books require one (PERF-07)', () => {
@@ -89,25 +107,41 @@ describe('repos/treasury types', () => {
       .toEqualTypeOf<treasury.DateRange | undefined>();
   });
 
-  it('aggregates expose cents and name their failed reads', () => {
+  it('aggregates are all-or-nothing ReadResults of exact cents', () => {
+    expectTypeOf(treasury.fetchBooksSummary).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.BooksSummary>
+    >();
     expectTypeOf<treasury.BooksSummary>().toEqualTypeOf<{
       incomeCents: number;
       expensesCents: number;
       balanceCents: number;
       openPayablesCents: number;
       byAllocation: treasury.ExpenseAllocationTotals;
-      failed: treasury.FailedReads;
     }>();
+    // No partial-success channel: a failed query is the error branch, not a
+    // flag next to totals a view could still render as "$0.00".
+    expectTypeOf<treasury.BooksSummary>().not.toHaveProperty('failed');
     expectTypeOf<treasury.ExpenseAllocationTotals>().toEqualTypeOf<{
       generalCents: number;
       pastorCents: number;
       byMinistryCents: Record<string, number>;
     }>();
-    expectTypeOf(treasury.fetchProjectTotals).returns.resolves.toHaveProperty('byProject');
+    expectTypeOf(treasury.fetchProjectTotals).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.ProjectTotalsResult>
+    >();
+    expectTypeOf<treasury.ProjectTotalsResult>().toEqualTypeOf<{
+      byProject: Record<string, treasury.ProjectTotals>;
+    }>();
     expectTypeOf<treasury.ProjectTotals>().toEqualTypeOf<{
       incomeCents: number;
       expensesCents: number;
     }>();
+    expectTypeOf(treasury.fetchMinistryAllocationTotals).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.MinistryAllocationTotals>
+    >();
+    expectTypeOf(treasury.fetchReportEntries).returns.resolves.toEqualTypeOf<
+      ReadResult<treasury.ReportEntries>
+    >();
     expectTypeOf<treasury.ReportIncomeRow>().toHaveProperty('amountCents').toEqualTypeOf<number>();
     expectTypeOf<treasury.ReportExpenseRow>().not.toHaveProperty('amount');
   });

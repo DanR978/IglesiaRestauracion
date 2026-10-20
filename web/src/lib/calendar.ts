@@ -11,7 +11,7 @@
  * offset); output stamps are UTC (`getUTC*`), so results are TZ-independent.
  *
  * Usage:
- *   import { addToCalendar, buildICS, buildGoogleCalUrl } from '$lib/calendar';
+ *   import { addToCalendar, buildICS, buildGoogleCalUrl } from '#lib/calendar.js';
  * ========================================================================== */
 
 import { isIOS } from './detect-device';

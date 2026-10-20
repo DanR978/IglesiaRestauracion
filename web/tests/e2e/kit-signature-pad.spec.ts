@@ -1,8 +1,9 @@
 // S19 — real-browser proof of the ROADMAP "done when": the pad draws at the
 // device pixel ratio, toDataURL() returns a PNG trimmed to the stroke, and
 // clear / loadDataURL / isEmpty drive it from outside the component. Runs
-// against `vite preview` (playwright.config); not part of the CI gate.
+// against `vite preview` (playwright.config); CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
+import { gotoWithTheme } from './helpers/theme';
 
 const KIT = '/kit/signature-pad/';
 const PAD = '#kit-framed canvas';
@@ -89,8 +90,7 @@ test.describe('kit/signature-pad @2x', () => {
   });
 
   test('the paper stays light in dark mode so the fixed ink still reads', async ({ page }) => {
-    await page.goto(KIT);
-    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+    await gotoWithTheme(page, KIT, 'dark');
     await expect(page.locator('.sigpad__paper').first()).toHaveCSS(
       'background-color',
       'rgb(255, 255, 255)',

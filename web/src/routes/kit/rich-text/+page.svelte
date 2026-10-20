@@ -4,11 +4,11 @@
   // "escríbelo y mira dónde queda el cursor" check a human has to do by hand.
   // Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import Button from '$lib/components/Button.svelte';
-  import RichText from '$lib/components/RichText.svelte';
-  import RichTextEditor from '$lib/components/RichTextEditor.svelte';
-  import { RICH_TEXT_TOOLS, type RichTextEditorApi } from '$lib/components/rich-text';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import Button from '#lib/components/Button.svelte';
+  import RichText from '#lib/components/RichText.svelte';
+  import RichTextEditor from '#lib/components/RichTextEditor.svelte';
+  import { RICH_TEXT_TOOLS, type RichTextEditorApi } from '#lib/components/rich-text.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
 
   const SEED =
     '<p>Vacaciones Bíblicas <b>2026</b>: cinco días de historias, música y juegos.</p>' +

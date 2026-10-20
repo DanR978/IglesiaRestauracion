@@ -19,7 +19,7 @@
  *
  * WHAT COUNTS AS SAFE
  *   sanitizeHtml(x) · renderRichText(x)        — the allowlist (configurable)
- *   html`…`                                     — $lib/escape's auto-escaping tag
+ *   html`…`                                     — #lib/escape's auto-escaping tag
  *   'a string literal' / `a template with no ${}` — static, author-written markup
  *   spriteMarkup                                — an import whose source matches
  *                                                 rawAssetPattern (default
@@ -121,7 +121,7 @@ const rule = {
       rawHtml:
         '{@html} is forbidden unless the value is {{sanitizers}} output (MIGRATION.md D-005). Render the value as text, or use <RichText value={…}> which sanitizes on render.',
       rawSink:
-        'Assigning unsanitized markup to `{{sink}}` bypasses the {@html} rule (MIGRATION.md D-005). Pass {{sanitizers}} output, or build the string with the `html` tag from $lib/escape.',
+        'Assigning unsanitized markup to `{{sink}}` bypasses the {@html} rule (MIGRATION.md D-005). Pass {{sanitizers}} output, or build the string with the `html` tag from #lib/escape.',
     },
   },
 

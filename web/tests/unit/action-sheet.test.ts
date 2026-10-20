@@ -20,7 +20,7 @@ import {
   popoverPosition,
   showActionSheet,
   type SheetAction,
-} from '$lib/components/action-sheet.svelte';
+} from '#lib/components/action-sheet.svelte.js';
 
 const VIEWPORT = { width: 1280, height: 800 };
 const box = (top: number, left: number, w = 32, h = 32) => ({
