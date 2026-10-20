@@ -43,6 +43,13 @@
   backdrop-filter: blur(24px) saturate(1.4);
   padding: 2.5rem 2rem;
   color: #daf0fa;
+  /* A card taller than the screen (the two-factor setup on a phone) scrolls
+     inside itself — #authScreen clips its overflow for the underwater scene.
+     3rem = #authScreen's vertical padding. */
+  max-height: calc(100vh - 3rem);
+  max-height: calc(100dvh - 3rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Force inner text colors to white so nothing inherits black from elsewhere */
@@ -200,3 +207,40 @@
   padding-left: 0.5em;
 }
 .mfa-code-input::placeholder { letter-spacing: 0.4em; font-weight: 400; }
+
+/* First-timer walkthrough on the setup step — closed until it's asked for. */
+.mfa-help {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-sm, 6px);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.8);
+}
+.mfa-help summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: rgba(150, 220, 248, 0.95);
+}
+.mfa-help summary:focus-visible {
+  outline: 2px solid rgba(150, 220, 248, 0.9);
+  outline-offset: 2px;
+}
+.mfa-help[open] summary { margin-bottom: 0.5rem; }
+.mfa-help h3 {
+  margin: 0.85rem 0 0.35rem;
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #daf0fa;
+}
+.mfa-help p { margin: 0 0 0.5rem; }
+.mfa-help p:last-child { margin-bottom: 0; }
+.mfa-help ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  list-style: decimal;
+}
+.mfa-help li + li { margin-top: 0.3rem; }
+.mfa-help strong { color: #daf0fa; }
