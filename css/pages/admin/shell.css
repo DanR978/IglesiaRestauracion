@@ -53,17 +53,6 @@ body {
   letter-spacing: 0.02em;
 }
 
-/* Tiny amber dot acts as the brand mark — clean, intentional */
-.topbar__title::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--color-secondary, #c89858);
-  box-shadow: 0 0 12px rgba(200, 152, 88, 0.6);
-  flex-shrink: 0;
-}
-
 .topbar__title span {
   font-weight: 500;
   opacity: 0.65;
