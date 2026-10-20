@@ -72,6 +72,7 @@
 | [ADR-0002](architecture-decisions/ADR-0002-frontend-platform.md) | Continue SvelteKit; upgrade to SvelteKit 3; browser-support policy | D-030 |
 | [ADR-0003](architecture-decisions/ADR-0003-design-tokens.md) | Three-layer CSS tokens plus motion tokens; no preprocessor or token pipeline | D-031 |
 | [ADR-0004](architecture-decisions/ADR-0004-repo-results.md) | Data-layer results distinguish errors from empty data | D-032 |
+| [ADR-0005](architecture-decisions/ADR-0005-staff-oauth.md) | Staff sign-in with Google and Microsoft, federated through Supabase Auth | D-035 |
 
 ## Relation to the migration machinery
 
