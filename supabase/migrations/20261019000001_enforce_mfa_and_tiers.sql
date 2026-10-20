@@ -10,9 +10,10 @@
 --     and after re-running 20260702000001_designs.sql,
 --     20260703000001_profile_avatar.sql, 20260704000002_profile_self_service.sql
 --     or 20261012_site_analytics.sql, which re-create RPCs hardened below.
---   • Apply only AFTER the MFA enrollment cutoff. From here on, a session that
---     has not passed its second factor (aal1) reads and writes only what a
---     signed-out visitor can, plus its own profile row.
+--   • No enrollment cutoff needed (D-033 as amended 2026-10-20): an account
+--     WITH a verified factor whose session has not passed it (aal1) reads and
+--     writes only what a signed-out visitor can, plus its own profile row; an
+--     account without a factor works as before.
 --   • Check with supabase/sql/preflight-auth.sql (the catalog query must return
 --     zero rows). Undo with supabase/sql/rollback-auth.sql.
 --
