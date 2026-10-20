@@ -11,14 +11,14 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { flushSync, tick } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Lightbox from '$lib/components/Lightbox.svelte';
+import Lightbox from '#lib/components/Lightbox.svelte';
 import {
   closeLightbox,
   lightbox,
   openLightbox,
   type LightboxPhoto,
-} from '$lib/stores/lightbox.svelte';
-import { toast } from '$lib/stores/toast.svelte';
+} from '#lib/stores/lightbox.svelte.js';
+import { toast } from '#lib/stores/toast.svelte.js';
 
 const CDN = 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/gallery';
 
@@ -275,6 +275,24 @@ describe('Lightbox — scroll lock and focus', () => {
     flushSync();
     expect(document.activeElement).toBe(trigger);
     trigger.remove();
+  });
+
+  it('returns focus to a tile a tap left unfocused, as Safari does (G-038)', async () => {
+    const tile = document.createElement('button');
+    tile.textContent = 'Ver foto';
+    document.body.append(tile);
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    render(Lightbox);
+    await fireEvent.pointerDown(tile);
+    open();
+    await tick();
+    expect(document.activeElement).toBe(dialog());
+
+    closeLightbox();
+    flushSync();
+    expect(document.activeElement).toBe(tile);
+    tile.remove();
   });
 });
 

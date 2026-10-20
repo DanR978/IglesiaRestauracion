@@ -2,8 +2,10 @@
  * web/src/lib/repos/discipleship.ts — Discipulado groups, interests, members,
  * messages (S22)
  * ----------------------------------------------------------------------------
- * Port of the query half of legacy `js/lib/discipleship.js`. Reads never throw
- * (warn with `[discipulado]`, return a safe empty); writes return `WriteResult`.
+ * Port of the query half of legacy `js/lib/discipleship.js`. Reads return a
+ * `ReadResult` and writes a `WriteResult` (ADR-0004); neither throws, and a
+ * failed read is `{ ok: false, error }` — never an empty list. Failures are
+ * logged with the `[discipulado]` tag.
  *
  * G-006: `submitInterest` is the ONE anon write here. `discipleship_interests`
  * is anon INSERT-only (it holds contact info — staff read it), so the insert
@@ -11,15 +13,27 @@
  * RLS would deny it, and a row that saved fine would surface as "violates
  * row-level security policy". The public form only needs "it succeeded".
  *
+ * Staff-only calls check for a live session first (`./session`): signed out,
+ * the anon key reads interests, members and messages as empty tables and
+ * groups as only the published ones. Public: `fetchPublicGroups`,
+ * `fetchPublicGroupBy`, `submitInterest`.
+ *
+ * S40 adds `countPendingInterests` for the admin Inicio (dashboard.js
+ * "Discipulado pendiente") — staff-only too: signed out it would count 0.
+ *
  * Usage:
- *   import { fetchPublicGroups, submitInterest } from '$lib/repos/discipleship';
+ *   import { fetchPublicGroups, submitInterest } from '#lib/repos/discipleship.js';
+ *   const res = await submitInterest(form);
+ *   if (!res.ok) showError(res.error.message);
  * ========================================================================== */
 
-import { browser } from '$app/environment';
-import { supabase } from '$lib/db/client';
-import type { Tables, TablesInsert } from '$lib/db/database.types';
-import { slugify } from '$lib/slug';
-import type { ChangeHandler, Unsubscribe, WriteResult } from './types';
+import { browser } from '$app/env';
+import { supabase } from '#lib/db/client.js';
+import type { Tables, TablesInsert } from '#lib/db/database.types.js';
+import { slugify } from '#lib/slug.js';
+import { fail, invalid, noCount, noRows, ok } from './errors';
+import { requireSession } from './session';
+import type { ChangeHandler, ReadResult, Unsubscribe, WriteResult } from './types';
 
 const TAG = '[discipulado]';
 
@@ -34,66 +48,57 @@ export type DiscipleshipMessage = Tables<'discipleship_messages'>;
 /* ── Read: groups ──────────────────────────────────────────────────────── */
 
 /** Published groups still taking people (open or running), soonest start first. */
-export async function fetchPublicGroups(): Promise<DiscipleshipGroup[]> {
-  const { data, error } = await supabase
+export async function fetchPublicGroups(): Promise<ReadResult<DiscipleshipGroup[]>> {
+  const { data, error, status } = await supabase
     .from('discipleship_groups')
     .select('*')
     .eq('is_published', true)
     .in('status', ['open', 'active'])
     .order('starts_on', { ascending: true, nullsFirst: false });
-  if (error) {
-    console.warn(`${TAG} fetchPublicGroups:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchPublicGroups', error, status);
+  return ok(data ?? []);
 }
 
 /** Every group for the admin list, newest start first. */
-export async function fetchAllGroups(): Promise<DiscipleshipGroup[]> {
-  const { data, error } = await supabase
+export async function fetchAllGroups(): Promise<ReadResult<DiscipleshipGroup[]>> {
+  const denied = await requireSession(TAG, 'fetchAllGroups');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('discipleship_groups')
     .select('*')
     .order('starts_on', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false });
-  if (error) {
-    console.warn(`${TAG} fetchAllGroups:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchAllGroups', error, status);
+  return ok(data ?? []);
 }
 
-/** One group by id regardless of publication (admin editor). */
-export async function fetchGroupById(id: string): Promise<DiscipleshipGroup | null> {
-  if (!id) return null;
-  const { data, error } = await supabase
+/** One group by id regardless of publication (admin editor); `null` when none. */
+export async function fetchGroupById(id: string): Promise<ReadResult<DiscipleshipGroup | null>> {
+  const denied = await requireSession(TAG, 'fetchGroupById');
+  if (denied) return denied;
+  if (!id) return ok(null);
+  const { data, error, status } = await supabase
     .from('discipleship_groups')
     .select('*')
     .eq('id', id)
     .maybeSingle();
-  if (error) {
-    console.warn(`${TAG} fetchGroupById:`, error.message);
-    return null;
-  }
-  return data;
+  if (error) return fail(TAG, 'fetchGroupById', error, status);
+  return ok(data);
 }
 
 export type GroupLookup = { id?: string | null; slug?: string | null };
 
-/** One published group by id and/or slug (both apply when both are given). */
-export async function fetchPublicGroupBy({
-  id,
-  slug,
-}: GroupLookup = {}): Promise<DiscipleshipGroup | null> {
-  if (!id && !slug) return null;
+/** One published group by id and/or slug (both apply when both are given); `null` when none. */
+export async function fetchPublicGroupBy({ id, slug }: GroupLookup = {}): Promise<
+  ReadResult<DiscipleshipGroup | null>
+> {
+  if (!id && !slug) return ok(null);
   let q = supabase.from('discipleship_groups').select('*').eq('is_published', true);
   if (id) q = q.eq('id', id);
   if (slug) q = q.eq('slug', slug);
-  const { data, error } = await q.maybeSingle();
-  if (error) {
-    console.warn(`${TAG} fetchPublicGroupBy:`, error.message);
-    return null;
-  }
-  return data;
+  const { data, error, status } = await q.maybeSingle();
+  if (error) return fail(TAG, 'fetchPublicGroupBy', error, status);
+  return ok(data);
 }
 
 /* ── Write: groups (staff only via RLS) ────────────────────────────────── */
@@ -102,26 +107,33 @@ export type GroupUpsert = Partial<DiscipleshipGroupInsert> & { id?: string };
 
 /** Insert (no `id`) or update (with `id`); derives `slug` from the name when missing. */
 export async function upsertGroup(group: GroupUpsert): Promise<WriteResult<DiscipleshipGroup>> {
+  const denied = await requireSession(TAG, 'upsertGroup');
+  if (denied) return denied;
   const payload: GroupUpsert = { ...group };
   if (!payload.slug && payload.name) payload.slug = slugify(payload.name);
   const query = payload.id
     ? supabase.from('discipleship_groups').update(payload).eq('id', payload.id)
     : supabase.from('discipleship_groups').insert(payload as DiscipleshipGroupInsert);
-  const { data, error } = await query.select().single();
-  if (error) {
-    console.warn(`${TAG} upsertGroup:`, error.message);
-    return { ok: false, error: error.message };
-  }
-  return { ok: true, data };
+  const { data, error, status } = await query.select().single();
+  if (error) return fail(TAG, 'upsertGroup', error, status);
+  return ok(data);
 }
 
 export async function deleteGroup(id: string): Promise<WriteResult> {
-  const { error } = await supabase.from('discipleship_groups').delete().eq('id', id);
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data: undefined };
+  const denied = await requireSession(TAG, 'deleteGroup');
+  if (denied) return denied;
+  const { error, status, count } = await supabase
+    .from('discipleship_groups')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteGroup', error, status);
+  if (!count) return noRows(TAG, 'deleteGroup');
+  return ok(undefined);
 }
 
-export function markGroupCompleted(id: string): Promise<WriteResult<DiscipleshipGroup>> {
+export async function markGroupCompleted(id: string): Promise<WriteResult<DiscipleshipGroup>> {
+  const denied = await requireSession(TAG, 'markGroupCompleted');
+  if (denied) return denied;
   return upsertGroup({ id, status: 'completed' });
 }
 
@@ -175,37 +187,39 @@ export async function submitInterest(
     age_range: payload.age_range || null,
     gender: payload.gender || null,
   };
-  if (!row.full_name) return { ok: false, error: 'Por favor escribe tu nombre.' };
+  if (!row.full_name) return invalid('Por favor escribe tu nombre.');
   if (!row.email && !row.phone) {
-    return { ok: false, error: 'Necesitamos al menos un correo o teléfono para contactarte.' };
+    return invalid('Necesitamos al menos un correo o teléfono para contactarte.');
   }
 
-  const { error } = await supabase.from('discipleship_interests').insert(row);
-  if (error) {
-    console.warn(`${TAG} submitInterest:`, error.message);
-    return { ok: false, error: error.message };
-  }
-  return { ok: true, data: row };
+  const { error, status } = await supabase.from('discipleship_interests').insert(row);
+  if (error) return fail(TAG, 'submitInterest', error, status);
+  return ok(row);
 }
 
-/** Interests newest first, optionally by status (staff only via RLS). */
-export async function fetchInterests({ status }: { status?: string | null } = {}): Promise<
-  DiscipleshipInterest[]
+/**
+ * The pipeline an interest moves through — exactly the values
+ * `discipleship_interests_status_check` allows (baseline.sql) and legacy
+ * `discipleship-tab.js` writes. The generated types widen the column to
+ * `string`; this narrows it back.
+ */
+export type InterestStatus = 'pending' | 'approved' | 'placed' | 'declined';
+
+/** Interests newest first, optionally by status; no status means all of them. */
+export async function fetchInterests({ status }: { status?: InterestStatus | null } = {}): Promise<
+  ReadResult<DiscipleshipInterest[]>
 > {
+  const denied = await requireSession(TAG, 'fetchInterests');
+  if (denied) return denied;
   let q = supabase
     .from('discipleship_interests')
     .select('*')
     .order('created_at', { ascending: false });
   if (status) q = q.eq('status', status);
-  const { data, error } = await q;
-  if (error) {
-    console.warn(`${TAG} fetchInterests:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  const res = await q;
+  if (res.error) return fail(TAG, 'fetchInterests', res.error, res.status);
+  return ok(res.data ?? []);
 }
-
-export type InterestStatus = 'new' | 'contacted' | 'approved' | 'placed' | 'archived' | string;
 
 /** Move an interest through the pipeline; `placed` records the group, others clear it. */
 export async function updateInterestStatus(
@@ -213,54 +227,79 @@ export async function updateInterestStatus(
   status: InterestStatus,
   assignedGroupId: string | null = null,
 ): Promise<WriteResult<DiscipleshipInterest>> {
+  const denied = await requireSession(TAG, 'updateInterestStatus');
+  if (denied) return denied;
   const patch: Partial<DiscipleshipInterest> = { status };
   if (status === 'placed' && assignedGroupId) patch.assigned_group_id = assignedGroupId;
   if (status !== 'placed') patch.assigned_group_id = null;
   if (status === 'approved' || status === 'placed') patch.contacted_at = new Date().toISOString();
-  const { data, error } = await supabase
+  const res = await supabase
     .from('discipleship_interests')
     .update(patch)
     .eq('id', id)
     .select()
     .single();
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data };
+  if (res.error) return fail(TAG, 'updateInterestStatus', res.error, res.status);
+  return ok(res.data);
+}
+
+/**
+ * How many interests still wait for a decision (`pending`) — Inicio's
+ * "Interesados pendientes" (S41). Staff-only: the session is checked first.
+ */
+export async function countPendingInterests(): Promise<ReadResult<number>> {
+  const denied = await requireSession(TAG, 'countPendingInterests');
+  if (denied) return denied;
+  const { count, error, status } = await supabase
+    .from('discipleship_interests')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending');
+  if (error) return fail(TAG, 'countPendingInterests', error, status);
+  if (count === null) return noCount(TAG, 'countPendingInterests');
+  return ok(count);
 }
 
 /* ── Members ───────────────────────────────────────────────────────────── */
 
 /** A group's roster, leaders first then by name. */
-export async function fetchMembers(groupId: string): Promise<DiscipleshipMember[]> {
-  if (!groupId) return [];
-  const { data, error } = await supabase
+export async function fetchMembers(groupId: string): Promise<ReadResult<DiscipleshipMember[]>> {
+  const denied = await requireSession(TAG, 'fetchMembers');
+  if (denied) return denied;
+  if (!groupId) return ok([]);
+  const { data, error, status } = await supabase
     .from('discipleship_members')
     .select('*')
     .eq('group_id', groupId)
     .order('role', { ascending: true })
     .order('full_name', { ascending: true });
-  if (error) {
-    console.warn(`${TAG} fetchMembers:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchMembers', error, status);
+  return ok(data ?? []);
 }
 
 export async function addMember(
   member: DiscipleshipMemberInsert,
 ): Promise<WriteResult<DiscipleshipMember>> {
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'addMember');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('discipleship_members')
     .insert(member)
     .select()
     .single();
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data };
+  if (error) return fail(TAG, 'addMember', error, status);
+  return ok(data);
 }
 
 export async function removeMember(id: string): Promise<WriteResult> {
-  const { error } = await supabase.from('discipleship_members').delete().eq('id', id);
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data: undefined };
+  const denied = await requireSession(TAG, 'removeMember');
+  if (denied) return denied;
+  const { error, status, count } = await supabase
+    .from('discipleship_members')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'removeMember', error, status);
+  if (!count) return noRows(TAG, 'removeMember');
+  return ok(undefined);
 }
 
 /** Move a member to another group (admin member-card kebab). */
@@ -268,33 +307,37 @@ export async function moveMember(
   memberId: string,
   newGroupId: string,
 ): Promise<WriteResult<DiscipleshipMember>> {
-  if (!memberId || !newGroupId) return { ok: false, error: 'invalid-args' };
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'moveMember');
+  if (denied) return denied;
+  if (!memberId || !newGroupId) return invalid('Falta el miembro o el grupo de destino.');
+  const { data, error, status } = await supabase
     .from('discipleship_members')
     .update({ group_id: newGroupId })
     .eq('id', memberId)
     .select()
     .single();
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data };
+  if (error) return fail(TAG, 'moveMember', error, status);
+  return ok(data);
 }
 
 /* ── Messages ──────────────────────────────────────────────────────────── */
 
 /** A group's most recent messages, newest first. */
-export async function fetchMessages(groupId: string, limit = 25): Promise<DiscipleshipMessage[]> {
-  if (!groupId) return [];
-  const { data, error } = await supabase
+export async function fetchMessages(
+  groupId: string,
+  limit = 25,
+): Promise<ReadResult<DiscipleshipMessage[]>> {
+  const denied = await requireSession(TAG, 'fetchMessages');
+  if (denied) return denied;
+  if (!groupId) return ok([]);
+  const { data, error, status } = await supabase
     .from('discipleship_messages')
     .select('*')
     .eq('group_id', groupId)
     .order('sent_at', { ascending: false })
     .limit(limit);
-  if (error) {
-    console.warn(`${TAG} fetchMessages:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchMessages', error, status);
+  return ok(data ?? []);
 }
 
 export type MessageDraft = { groupId: string; subject?: string | null; body: string };
@@ -304,14 +347,16 @@ export async function sendMessage({
   subject,
   body,
 }: MessageDraft): Promise<WriteResult<DiscipleshipMessage>> {
-  if (!body || !body.trim()) return { ok: false, error: 'El mensaje no puede estar vacío.' };
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'sendMessage');
+  if (denied) return denied;
+  if (!body || !body.trim()) return invalid('El mensaje no puede estar vacío.');
+  const { data, error, status } = await supabase
     .from('discipleship_messages')
     .insert({ group_id: groupId, subject: subject || null, body: body.trim() })
     .select()
     .single();
-  if (error) return { ok: false, error: error.message };
-  return { ok: true, data };
+  if (error) return fail(TAG, 'sendMessage', error, status);
+  return ok(data);
 }
 
 /* ── Realtime ──────────────────────────────────────────────────────────── */

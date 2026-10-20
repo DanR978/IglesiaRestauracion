@@ -19,7 +19,7 @@
   legacy call sites hand-rolled with `!htmlIsEmpty(x) ? … : ''`.
 -->
 <script lang="ts">
-  import { htmlIsEmpty, renderRichText } from '$lib/sanitize-html';
+  import { htmlIsEmpty, renderRichText } from '#lib/sanitize-html.js';
   import { RICH_TEXT_CONTENT_BLOCK } from './rich-text';
 
   interface Props {
@@ -31,7 +31,7 @@
 
   let { value, class: className = '' }: Props = $props();
 
-  // $lib/sanitize-html parses with DOMParser (G-001), which exists in a browser
+  // #lib/sanitize-html parses with DOMParser (G-001), which exists in a browser
   // and in jsdom but NOT in the Node prerender pass. Rather than ship unchecked
   // markup on the server, this renders nothing there and fills in on the client
   // — which is also where the data arrives, since every screen that shows rich
@@ -77,7 +77,7 @@
   }
 
   .rich-content :global(a) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
     text-decoration: underline;
     overflow-wrap: anywhere;
   }

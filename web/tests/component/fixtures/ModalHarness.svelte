@@ -5,8 +5,8 @@
   button outside the dialog so focus-return has somewhere real to go back to.
 -->
 <script lang="ts">
-  import Modal from '$lib/components/Modal.svelte';
-  import type { ModalVariant } from '$lib/components/modal';
+  import Modal from '#lib/components/Modal.svelte';
+  import type { ModalVariant } from '#lib/components/modal.js';
 
   interface Props {
     open?: boolean;

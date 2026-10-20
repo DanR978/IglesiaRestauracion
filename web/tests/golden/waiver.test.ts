@@ -3,8 +3,8 @@
 // (see docs/migration/sessions/S10 notes) — never regenerate them from the
 // ported module. VERIFICATION.md: we pin docdef *structure/text*, not PDF bytes.
 import { describe } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
-import { buildWaiverDocDef, renderWaiverPrintDoc, type WaiverOptions } from '$lib/waiver';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
+import { buildWaiverDocDef, renderWaiverPrintDoc, type WaiverOptions } from '#lib/waiver.js';
 import htmlVectors from '../fixtures/waiver-html.json';
 import docdefVectors from '../fixtures/waiver-docdef.json';
 

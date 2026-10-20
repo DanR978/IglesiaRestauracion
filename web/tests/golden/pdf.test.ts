@@ -10,7 +10,7 @@
  * scope (VERIFICATION.md: assert docdef structure, never pdfmake bytes).
  * ========================================================================== */
 import { describe } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
 import {
   CHURCH,
   CHURCH_ADDRESS,
@@ -21,7 +21,7 @@ import {
   th,
   type ChurchDocDef,
   type ChurchDocDefOpts,
-} from '$lib/pdf';
+} from '#lib/pdf.js';
 import constVectors from '../fixtures/pdf-constants.json';
 import shVectors from '../fixtures/pdf-section-heading.json';
 import thVectors from '../fixtures/pdf-th.json';

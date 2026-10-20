@@ -6,7 +6,7 @@
  * upsertGroup) — byte-identical, so existing slugs keep resolving.
  *
  * Usage:
- *   import { slugify } from '$lib/slug';
+ *   import { slugify } from '#lib/slug.js';
  *   slugify('Noche de Oración — ¡Gloria!') // "noche-de-oracion-gloria"
  * ========================================================================== */
 

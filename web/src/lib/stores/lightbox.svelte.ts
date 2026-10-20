@@ -17,11 +17,11 @@
  * whole contract is testable without rendering anything.
  *
  * Usage:
- *   import { openLightbox } from '$lib/stores/lightbox.svelte';
+ *   import { openLightbox } from '#lib/stores/lightbox.svelte.js';
  *   openLightbox(photos, i);          // photos: gallery_photos rows
  *   <Lightbox />                      // mounted once on the route
  * ========================================================================== */
-import { toast } from '$lib/stores/toast.svelte';
+import { toast } from '#lib/stores/toast.svelte.js';
 
 /**
  * Structurally a `gallery_photos` row (Database['public']['Tables']

@@ -96,7 +96,9 @@ a {
 }
 
 strong {
-  color: var(--color-secondary);
+  /* The accent TEXT role, not the --color-secondary fill: that one has no dark
+     value and sank to 3.3:1 on the dark surface (D-038). */
+  color: var(--color-accent-ink);
   font-weight: var(--fw-bold);
 }
 

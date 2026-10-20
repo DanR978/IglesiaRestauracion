@@ -5,26 +5,29 @@
   // one-photo edge case, a missing caption, a very long caption, and the
   // scroll lock (the page below is deliberately tall). Prerendered, noindex,
   // no data fetching.
-  import { base } from '$app/paths';
-  import Lightbox from '$lib/components/Lightbox.svelte';
-  import ToastHost from '$lib/components/ToastHost.svelte';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
-  import { lightbox, openLightbox, type LightboxPhoto } from '$lib/stores/lightbox.svelte';
+  import { asset } from '$app/paths';
+  import type { AssetPath } from '$app/types';
+  import Lightbox from '#lib/components/Lightbox.svelte';
+  import ToastHost from '#lib/components/ToastHost.svelte';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
+  import { lightbox, openLightbox, type LightboxPhoto } from '#lib/stores/lightbox.svelte.js';
 
-  const photo = (file: string, width: number, height: number, caption: string | null) => ({
-    public_url: `${base}/kit/lightbox/${file}`,
-    thumbnail_url: `${base}/kit/lightbox/${file}`,
+  // AssetPath is generated from static/, so a renamed or missing placeholder fails
+  // `npm run check` instead of 404ing inside the viewer.
+  const photo = (file: AssetPath, width: number, height: number, caption: string | null) => ({
+    public_url: asset(file),
+    thumbnail_url: asset(file),
     caption,
     width,
     height,
   });
 
   const ALBUM: LightboxPhoto[] = [
-    photo('foto-1.svg', 1200, 800, 'Retiro de jóvenes · apertura del sábado'),
-    photo('foto-2.svg', 800, 1200, 'Bautismos de verano'),
-    photo('foto-3.svg', 1000, 1000, null),
+    photo('kit/lightbox/foto-1.svg', 1200, 800, 'Retiro de jóvenes · apertura del sábado'),
+    photo('kit/lightbox/foto-2.svg', 800, 1200, 'Bautismos de verano'),
+    photo('kit/lightbox/foto-3.svg', 1000, 1000, null),
     photo(
-      'foto-4.svg',
+      'kit/lightbox/foto-4.svg',
       1400,
       700,
       'Salida misionera a la comunidad: entrega de despensas, oración por las familias y ' +
@@ -148,8 +151,8 @@
   <section class="kit__section" aria-labelledby="h-api">
     <h2 id="h-api">Desde código que no es un componente</h2>
     <pre class="snippet"><code
-        >{`import { openLightbox } from '$lib/stores/lightbox.svelte';
-import Lightbox from '$lib/components/Lightbox.svelte';
+        >{`import { openLightbox } from '#lib/stores/lightbox.svelte.js';
+import Lightbox from '#lib/components/Lightbox.svelte';
 
 // una sola vez en la ruta:
 <Lightbox />
@@ -310,7 +313,10 @@ openLightbox(photos, i);`}</code
     background: var(--color-surface);
     box-shadow: var(--shadow-sm);
     font-size: var(--fs-xs);
-    overflow-x: auto;
+    /* Wrap rather than scroll: keyboard users cannot reach a scroller in
+       WebKit, which does not make one focusable (axe, S05b). */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   @media (max-width: 640px) {

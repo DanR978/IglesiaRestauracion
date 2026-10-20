@@ -9,8 +9,8 @@
 import { fireEvent, render } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import ToastHost from '$lib/components/ToastHost.svelte';
-import { TOAST_DURATION_MS, TOAST_EXIT_MS, toast } from '$lib/stores/toast.svelte';
+import ToastHost from '#lib/components/ToastHost.svelte';
+import { TOAST_DURATION_MS, TOAST_EXIT_MS, toast } from '#lib/stores/toast.svelte.js';
 
 const TO_FAKE = ['setTimeout', 'clearTimeout', 'Date'] as const;
 

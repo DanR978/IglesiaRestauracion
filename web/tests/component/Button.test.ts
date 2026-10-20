@@ -8,8 +8,8 @@ import { createRawSnippet } from 'svelte';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
-import Button from '$lib/components/Button.svelte';
-import { BUTTON_BLOCK, BUTTON_SIZES, BUTTON_VARIANTS } from '$lib/components/button';
+import Button from '#lib/components/Button.svelte';
+import { BUTTON_BLOCK, BUTTON_SIZES, BUTTON_VARIANTS } from '#lib/components/button.js';
 
 /** A children snippet holding plain text — the label every Button should have. */
 const label = (text: string) => createRawSnippet(() => ({ render: () => `<span>${text}</span>` }));

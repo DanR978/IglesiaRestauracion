@@ -4,7 +4,7 @@
 // filename (the cross-origin `download` fix), share falls back to the
 // clipboard, there is no horizontal scroll at 360px, and the surface stays
 // dark in both themes. Runs against `vite preview` (playwright.config);
-// not part of the CI gate.
+// CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const KIT = '/kit/lightbox/';
@@ -40,9 +40,18 @@ test.describe('kit/lightbox', () => {
 
     await page.keyboard.press('Escape');
     await expect(dialog(page)).toHaveCount(0);
-    // Focus went back to the tile that opened it.
-    await expect(page.locator('.tile').first()).toBeFocused();
     expect(errors).toEqual([]);
+  });
+
+  test('returns focus to the tile that opened it', async ({ page }) => {
+    // In WebKit the click leaves the tile unfocused, so focus returns to the
+    // opener the press was tracked to (G-038, S05b finding X-1).
+    await page.goto(KIT);
+    await openFromTile(page, 0);
+
+    await page.keyboard.press('Escape');
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page.locator('.tile').first()).toBeFocused();
   });
 
   test('closes on the backdrop but not on the photo itself', async ({ page }) => {
@@ -56,7 +65,15 @@ test.describe('kit/lightbox', () => {
     await expect(dialog(page)).toHaveCount(0);
   });
 
-  test('locks the page scroll while open and gives the position back', async ({ page }) => {
+  test('locks the page scroll while open and gives the position back', async ({
+    page,
+    browserName,
+    isMobile,
+  }) => {
+    test.skip(
+      browserName === 'webkit' && isMobile,
+      'Playwright cannot dispatch a mouse wheel in mobile WebKit (S05b)',
+    );
     await page.goto(KIT);
     await page.evaluate(() => window.scrollTo(0, 600));
     await openFromTile(page, 1);

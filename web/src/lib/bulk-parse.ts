@@ -15,7 +15,7 @@
  *           shift a day when the viewer is in Tokyo. Day-first ALWAYS
  *           (Spanish-locale paste): `03/04/2026` is the 3rd of April. An
  *           unreadable date is a per-row error — never a guess.
- *   D-003 — money is INTEGER CENTS, parsed through `$lib/money`'s `toCents`
+ *   D-003 — money is INTEGER CENTS, parsed through `#lib/money`'s `toCents`
  *           after locale normalization. `ParsedRow.amountCents` and the
  *           `amount` field of every payload below are cents.
  *           **The repo layer converts**: `insertIncomeBatch` /
@@ -33,15 +33,15 @@
  * `js/pages/admin/project-treasury.js` (`addEntry`).
  *
  * Usage:
- *   import { parseBulkPaste, toInsertPayload, targetTable } from '$lib/bulk-parse';
+ *   import { parseBulkPaste, toInsertPayload, targetTable } from '#lib/bulk-parse.js';
  *
  *   const { rows, errors } = parseBulkPaste(textarea.value);
  *   const payloads = rows.map((r) => toInsertPayload(r, { mode: 'income', fund: 'General' }));
  *   await insertBatch(targetTable(ctx), payloads);   // repo converts cents → numeric
  * ========================================================================== */
 
-import { pad2 } from '$lib/date';
-import { toCents } from '$lib/money';
+import { pad2 } from '#lib/date.js';
+import { toCents } from '#lib/money.js';
 
 /* ── Public types ──────────────────────────────────────────────────────────── */
 

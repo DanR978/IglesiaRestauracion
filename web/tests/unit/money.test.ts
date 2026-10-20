@@ -3,7 +3,7 @@
 // the hand-computed arithmetic contract (sumC exactness, rounding, round-trip)
 // and the documented divergences from the legacy float path.
 import { describe, expect, it } from 'vitest';
-import { formatUSD, sumC, toCents, toNumeric } from '$lib/money';
+import { formatUSD, sumC, toCents, toNumeric } from '#lib/money.js';
 import divergence from '../fixtures/money-usd-divergence.json';
 
 describe('toCents — parsing', () => {

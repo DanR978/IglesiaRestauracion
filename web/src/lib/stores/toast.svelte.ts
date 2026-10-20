@@ -19,13 +19,13 @@
  * timing is unit-testable without a DOM.
  *
  * Usage:
- *   import { toast } from '$lib/stores/toast.svelte';
+ *   import { toast } from '#lib/stores/toast.svelte.js';
  *   toast.success('Guardado');
  *   toast.error('No pudimos guardar los cambios. Intenta de nuevo.');
  *   toast.info('Sincronizando…', { duration: 0 });           // until closed
  *   toast.undo('Álbum eliminado', { onAction: () => restore(id) });
  * ========================================================================== */
-import { motionMs } from '$lib/reduced-motion';
+import { motionMs } from '#lib/reduced-motion.js';
 
 export type ToastVariant = 'success' | 'error' | 'info' | 'undo';
 export type ToastRole = 'alert' | 'status';

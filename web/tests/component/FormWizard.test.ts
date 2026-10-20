@@ -7,8 +7,8 @@
 import { cleanup, render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { bodyScrollLockDepth } from '$lib/scroll-lock';
-import type { WizardData, WizardStep } from '$lib/components/wizard';
+import { bodyScrollLockDepth } from '#lib/scroll-lock.js';
+import type { WizardData, WizardStep } from '#lib/components/wizard.js';
 import FormWizardHarness from './fixtures/FormWizardHarness.svelte';
 
 /** The treasury "Nuevo ingreso" spec, trimmed to the shapes under test. */
@@ -146,6 +146,26 @@ describe('FormWizard — shell', () => {
     await tick();
     expect(second.getByTestId('open-state')).toHaveTextContent('cerrado');
     expect(onClose).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns focus to an opener a click left unfocused, as Safari does (G-038)', async () => {
+    const { getByTestId, rerender } = render(FormWizardHarness, {
+      steps: INCOME_STEPS,
+      open: false,
+    });
+    const opener = getByTestId('opener');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // Safari: the press happens, the button never takes focus.
+    opener.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    await rerender({ steps: INCOME_STEPS, open: true });
+    await tick();
+    expect(document.activeElement).not.toBe(opener);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await tick();
+    expect(getByTestId('open-state')).toHaveTextContent('cerrado');
+    expect(document.activeElement).toBe(opener);
   });
 
   it('gives the scrim an accessible name instead of a click handler on a bare div', () => {

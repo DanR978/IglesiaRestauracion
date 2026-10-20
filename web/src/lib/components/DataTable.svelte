@@ -34,7 +34,7 @@
 <script lang="ts" generics="T">
   import type { Snippet } from 'svelte';
   import { MediaQuery } from 'svelte/reactivity';
-  import { formatUSD } from '$lib/money';
+  import { formatUSD } from '#lib/money.js';
   import Icon from './Icon.svelte';
   import {
     ariaSort,

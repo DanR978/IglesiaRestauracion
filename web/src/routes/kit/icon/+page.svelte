@@ -4,9 +4,9 @@
   // size and colour, the icon-only-control pattern, the admin surface, and the
   // refusal of an unknown name. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import Icon from '$lib/components/Icon.svelte';
-  import { FA_VERSION, SPRITE_HOLDER_ID, SPRITE_ICONS } from '$lib/components/icon';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import Icon from '#lib/components/Icon.svelte';
+  import { FA_VERSION, SPRITE_HOLDER_ID, SPRITE_ICONS } from '#lib/components/icon.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
 
   // The most-used legacy `fas` names (grep of the live site), with their role.
   const SOLID = [
@@ -286,10 +286,10 @@
     <h2 id="h-admin">Superficie pública vs. admin</h2>
     <div class="compare">
       <div class="compare__col">
-        <strong><Icon set="fas" name="star" /> --color-secondary público (dorado)</strong>
+        <strong><Icon set="fas" name="star" /> --color-accent-ink público (dorado)</strong>
       </div>
       <div class="compare__col" data-surface="admin">
-        <strong><Icon set="fas" name="star" /> --color-secondary admin (pizarra)</strong>
+        <strong><Icon set="fas" name="star" /> --color-accent-ink admin (pizarra)</strong>
       </div>
     </div>
   </section>

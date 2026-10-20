@@ -4,11 +4,11 @@
   // the pure-CSS card grid that replaces autoBalance() (G-010), and both
   // palettes. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import { base } from '$app/paths';
-  import Button from '$lib/components/Button.svelte';
-  import Card from '$lib/components/Card.svelte';
-  import type { KpiTile } from '$lib/components/card';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  import { resolve } from '$app/paths';
+  import Button from '#lib/components/Button.svelte';
+  import Card from '#lib/components/Card.svelte';
+  import type { KpiTile } from '#lib/components/card.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
 
   const KPIS: KpiTile[] = [
     { icon: 'users', value: 128, label: 'Inscritos', scope: 'Este mes' },
@@ -91,7 +91,7 @@
       </Card>
       <Card
         variant="interactive"
-        href="{base}/kit/button/"
+        href={resolve('kit/button/')}
         heading="Ir a los botones"
         headingIcon="arrow-right"
       >
@@ -130,9 +130,10 @@
           <Button size="sm" icon="eye">Ver inscritos</Button>
         </div>
       </Card>
+      <!-- No ariaLabel: the content already reads as the name, and a label that
+           leaves out the visible text fails WCAG 2.5.3 Label in Name (axe, S05b). -->
       <Card
         variant="interactive"
-        ariaLabel="Abrir Vacaciones Bíblicas 2026"
         heading="Vacaciones Bíblicas 2026"
         headingIcon="church"
         onclick={() => (opened = 'Vacaciones Bíblicas 2026')}
@@ -160,12 +161,7 @@
     <h3 class="kit__sub">Los mismos mosaicos, interactivos</h3>
     <div class="cardgrid">
       {#each KPIS.slice(0, 3) as kpi (kpi.label)}
-        <Card
-          variant="interactive"
-          {kpi}
-          ariaLabel="Ver {kpi.label}"
-          onclick={() => (opened = kpi.label)}
-        />
+        <Card variant="interactive" {kpi} onclick={() => (opened = kpi.label)} />
       {/each}
     </div>
   </section>

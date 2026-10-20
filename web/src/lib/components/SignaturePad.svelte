@@ -1,6 +1,6 @@
 <!--
   SignaturePad — the drawn-signature field (S19, DESIGN-SYSTEM §4.3).
-  Wraps the ported canvas controller ($lib/signature-pad): hi-DPI drawing with
+  Wraps the ported canvas controller (#lib/signature-pad): hi-DPI drawing with
   pointer events, a trimmed transparent PNG out, and clear / loadDataURL /
   isEmpty exposed both as component exports (bind:this) and through bind:value.
 
@@ -24,7 +24,7 @@
     SIGNATURE_PAD_HEIGHT,
     type SignatureChangeReason,
     type SignaturePad as SignaturePadController,
-  } from '$lib/signature-pad';
+  } from '#lib/signature-pad.js';
 
   interface Props {
     /** The captured signature as a trimmed PNG data URL. '' when unsigned. */

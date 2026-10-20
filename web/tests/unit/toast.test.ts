@@ -10,7 +10,7 @@ import {
   TOAST_UNDO_DURATION_MS,
   TOAST_UNDO_LABEL,
   toast,
-} from '$lib/stores/toast.svelte';
+} from '#lib/stores/toast.svelte.js';
 
 // Only the timer surface the store uses. queueMicrotask stays real so Svelte's
 // own flush keeps working in the sibling component suite.

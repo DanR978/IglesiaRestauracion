@@ -3,7 +3,7 @@
 // it to '' on close, so a confirm nested in a modal unlocked the page under it
 // (DESIGN-SYSTEM §4.2 / PORT-DEBT S16).
 import { afterEach, describe, expect, it } from 'vitest';
-import { FLOATING_POPUP_CLASS, bodyScrollLockDepth, lockBodyScroll } from '$lib/scroll-lock';
+import { FLOATING_POPUP_CLASS, bodyScrollLockDepth, lockBodyScroll } from '#lib/scroll-lock.js';
 
 const overflow = () => document.body.style.overflow;
 

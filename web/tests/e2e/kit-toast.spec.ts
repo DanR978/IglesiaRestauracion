@@ -2,7 +2,7 @@
 // render with the right live-region role, they stack, they auto-dismiss and
 // close by hand, the body is text and not markup, the fills clear AA against
 // their ink in both themes, and reduced motion is honoured. Runs against
-// `vite preview` (playwright.config); not part of the CI gate.
+// `vite preview` (playwright.config); CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const KIT = '/kit/toast/';

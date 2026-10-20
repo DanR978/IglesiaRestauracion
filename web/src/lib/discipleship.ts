@@ -3,10 +3,10 @@
  * ----------------------------------------------------------------------------
  * The pure half of legacy `js/lib/discipleship.js`: level/weekday/status
  * vocabularies, the derived display status, and schedule/date/phone
- * formatting. Queries live in `$lib/repos/discipleship`.
+ * formatting. Queries live in `#lib/repos/discipleship.js`.
  *
  * Usage:
- *   import { LEVELS, displayStatus, formatSchedule } from '$lib/discipleship';
+ *   import { LEVELS, displayStatus, formatSchedule } from '#lib/discipleship.js';
  * ========================================================================== */
 
 import { todayISO } from './date';

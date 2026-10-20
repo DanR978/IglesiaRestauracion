@@ -13,6 +13,7 @@
 > Last updated: 2026-07-14 · by: dual-fix-triage · Scope: `/admin` (frozen — VBS/registration season)
 > DF-001 landed in legacy 2026-07-14; S51 port mirror still open.
 > DF-002 landed in legacy AND in the port 2026-08-24 (one PR; golden fixture re-captured).
+> DF-006 (mandatory MFA in the legacy admin) filed 2026-10-18 on `fix/DF-006-mandatory-mfa`.
 
 ---
 
@@ -52,6 +53,7 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 | DF-001 | Unescaped visitor free-text → admin `.innerHTML` in Interesados | security / PII | major | ✅ yes | S51 `dual-fix` | ☑ |
 | DF-002 | `safeHref` scheme check defeated by embedded newline (`java\nscript:`) | security | major | ✅ yes | landed with the fix (port patched in the same PR) | ☑ |
 | DF-005 | Contact form messages never reach the advertised inbox (FormSubmit → `serve@`) | production-down | major | ✅ yes | S25 — port `ContactForm` calls `contact-submit` | ☐ |
+| DF-006 | Admin sign-in opens the panel without the second factor | security / PII | major | ✅ yes | S39 — the port's MFA gate + its tests | ☐ |
 | — | project-treasury renders `$0.00` on failed fetch | missing-error-state | — | ❌ no → PORT-DEBT (S56) | — | — |
 | — | calendar `filters.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S48/S49) | — | — |
 | — | `filters.js` + `ministries.js` unescaped ministry name/color | admin-self-XSS | — | ❌ no → PORT-DEBT (S44/S48/S49) | — | — |
@@ -60,6 +62,56 @@ here is "fix legacy now **and** mirror into the port as `dual-fix`".
 ---
 
 ## CONFIRMED — land in legacy, mirror into the port
+
+### DF-006 — Admin sign-in opens the panel without the second factor
+
+- **id:** `admin-mfa-optional`
+- **Category:** security / PII — two-factor authentication became optional on 2026-05-20
+  (`9d4a492`); the owner made it mandatory again on 2026-10-17 (D-033). The panel holds minors'
+  registration data and the church books.
+- **Severity:** major.
+- **Surface:** `/admin` sign-in, invitation acceptance, password recovery, and "Mi cuenta" →
+  verificación en dos pasos (`js/pages/admin/auth.js`, `mfa.js`, `account.js`).
+- **Reproduction (D-012a)** — run against the local Supabase stack (`supabase start` with TOTP
+  enabled, synthetic accounts, no PII; there is no staging project), legacy served by `npm run dev`:
+  1. A confirmed staff account **with** a verified authenticator signs in with email + password.
+     *Before:* the panel opens with no code. *After:* the "Verifica tu identidad" step appears and
+     the panel opens only after a valid 6-digit code.
+  2. A confirmed staff account **without** an authenticator signs in. *Before:* the panel opens.
+     *After:* the enrollment step (QR + secret) must be completed first.
+  3. A recovery link for an account with an authenticator. *Before:* choosing the new password fails
+     with an untranslated error. *After:* the code is asked first, then the new password is accepted.
+  4. "Mi cuenta" → Reconfigurar. *Before:* the current authenticator is deleted before the new one
+     is verified (cancelling leaves the account without 2FA). *After:* the old one is removed only
+     once the new one verifies; cancelling keeps it.
+- **Fix:** `routeAfterLogin()` routes every credential step through `mfaStatus()` (fresh factor list
+  from the server) → challenge, enroll, or the panel; a code from any verified authenticator is
+  accepted; recovery steps up before the password change; the one-time `token_hash` leaves the
+  address bar as soon as it is spent; re-enrollment is additive; realtime is re-authenticated after
+  a verify; password changes confirm the current password; auth errors are mapped by code and never
+  shown raw. Supporting changes: supabase-js pinned to an exact CDN version, and every request made
+  by an admin page (its own and the shared modules) bypasses the service worker, with a cache bump;
+  the Spanish error map is a new module, so a cached copy of the previous `auth.js` can't stop Mi
+  cuenta from loading. The very first `/admin/` load after this deploy can still run the previous
+  worker's cached copy; the next load uses the new gate.
+- **Reproduction run** (local stack, GoTrue v2.187.0, Playwright driving `/admin/`): *before*
+  (develop, 2026-10-18) 3/3 cases reproduced; *after* (this branch, 2026-10-19) 13/13 checks pass —
+  including "cancel keeps the original authenticator" and "old authenticator active until the new
+  one verifies" — plus 11/11 routing and lock-out probes: no route reaches the panel without the
+  second factor, and a second device's code, an admin 2FA reset and a half-finished enrollment all
+  still get in. With "Require current password" on in the local GoTrue, a wrong current password
+  is refused ("La contraseña actual no es correcta.") and the old password keeps working.
+- **Mirror:** S39 builds the gate natively in the port (`resolveAccess()` + the `verificar/` route);
+  its automated tests — the mocked suite and the local-stack integration suite — are the D-012b test.
+- **Release checklist:** TOTP enrollment and verification enabled in the project's Auth settings;
+  every developer completes one challenge on this build before it reaches `main` (reload `/admin/`
+  once after the deploy so the new worker is in control). **Required after release:** switch on the
+  Auth setting "Require current password" (Dashboard → Authentication, or the config script that
+  ships with the database hardening). Until then GoTrue ignores the "Contraseña actual" this branch
+  sends. Verified on the local stack: GoTrue checks it only for an account that has a password, in a
+  session not opened from an emailed link — invitations, recovery links (also after the second-factor
+  step-up) and Google/Microsoft-only accounts are exempt.
+- **Landed:** ☐ — ships with `fix/DF-006-mandatory-mfa`.
 
 ### DF-005 — Contact form messages never reach the advertised inbox
 

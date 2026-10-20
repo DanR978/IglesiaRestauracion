@@ -4,8 +4,8 @@
   spec's toPayload().
 -->
 <script lang="ts">
-  import FormWizard from '$lib/components/FormWizard.svelte';
-  import type { WizardData, WizardStep, WizardSubmitResult } from '$lib/components/wizard';
+  import FormWizard from '#lib/components/FormWizard.svelte';
+  import type { WizardData, WizardStep, WizardSubmitResult } from '#lib/components/wizard.js';
 
   interface Props {
     open?: boolean;

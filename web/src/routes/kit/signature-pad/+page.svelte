@@ -5,8 +5,12 @@
   // from outside the component, the hi-DPI backing store, and the trimmed
   // export with its size cap. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import SignaturePad from '$lib/components/SignaturePad.svelte';
-  import { dataUrlByteLength, SIGNATURE_MAX_BYTES, SIGNATURE_PAD_HEIGHT } from '$lib/signature-pad';
+  import SignaturePad from '#lib/components/SignaturePad.svelte';
+  import {
+    dataUrlByteLength,
+    SIGNATURE_MAX_BYTES,
+    SIGNATURE_PAD_HEIGHT,
+  } from '#lib/signature-pad.js';
 
   let framed = $state('');
   let bare = $state('');
@@ -293,7 +297,9 @@
     font-size: var(--fs-xxs);
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    opacity: 0.65;
+    /* 0.65 measured 3.7:1 on the white paper (axe, S05b); 0.8 clears 4.5:1 in
+       both themes. */
+    opacity: 0.8;
   }
 
   .row {

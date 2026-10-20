@@ -9,10 +9,10 @@
 import { fireEvent, render, within } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Modal from '$lib/components/Modal.svelte';
-import { MODAL_VARIANTS } from '$lib/components/modal';
-import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '$lib/scroll-lock';
-import { focusTrapDepth } from '$lib/focus-trap';
+import Modal from '#lib/components/Modal.svelte';
+import { MODAL_VARIANTS } from '#lib/components/modal.js';
+import { FLOATING_POPUP_CLASS, bodyScrollLockDepth } from '#lib/scroll-lock.js';
+import { focusTrapDepth } from '#lib/focus-trap.js';
 import ModalHarness from './fixtures/ModalHarness.svelte';
 
 /** Press a key on whatever currently has focus, so it propagates like a real one. */
@@ -208,6 +208,20 @@ describe('Modal — focus', () => {
     const trigger = getByTestId('trigger');
 
     trigger.focus();
+    await fireEvent.click(trigger);
+    expect(document.activeElement).toBe(dialogOf());
+
+    await press('Escape');
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('returns focus to a trigger a click left unfocused, as Safari does (G-038)', async () => {
+    const { getByTestId } = render(ModalHarness, { props: { open: false } });
+    const trigger = getByTestId('trigger');
+    (document.activeElement as HTMLElement | null)?.blur();
+
+    // Safari: the press happens, the button never takes focus.
+    await fireEvent.pointerDown(trigger);
     await fireEvent.click(trigger);
     expect(document.activeElement).toBe(dialogOf());
 

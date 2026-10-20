@@ -15,7 +15,7 @@ import {
   WAIVER_VERSION,
   buildWaiverDocDef,
   renderWaiverPrintDoc,
-} from '$lib/waiver';
+} from '#lib/waiver.js';
 import snapshot from '../fixtures/waiver-constants.json';
 
 describe('waiver constants snapshot (D-004)', () => {

@@ -1,0 +1,1027 @@
+{
+  "$comment": "Captured by tests/unit/capture-activity-format.test.ts from js/pages/admin/activity-tab.js (loadActivity's rendered text), TZ=America/New_York, clock pinned to \"now\". Never hand-edit.",
+  "tz": "America/New_York",
+  "rows": [
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "INSERT → creó"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "UPDATE",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez editó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "UPDATE → editó"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "DELETE",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez eliminó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "DELETE → eliminó"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "TRUNCATE",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez truncate un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "an unknown operation: its code, lower-cased"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez  un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "an empty operation: no verb"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": null,
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez  un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "no operation: no verb"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento especial “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity events"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity calendar_events"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_presets",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó una plantilla de calendario “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity calendar_presets"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "ministries",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un ministerio “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity ministries"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "discipleship_groups",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un grupo de discipulado “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity discipleship_groups"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "discipleship_members",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un miembro de discipulado “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity discipleship_members"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "discipleship_messages",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un mensaje de discipulado “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity discipleship_messages"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "gallery_albums",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un álbum de galería “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity gallery_albums"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "leader_sections",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó una sección de Líderes “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity leader_sections"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "leader_members",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó una persona de Líderes “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity leader_members"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "app_settings",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó la configuración “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity app_settings"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "invitations",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó una invitación “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity invitations"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_income",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un ingreso “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_income"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_expenses",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un gasto “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_expenses"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_budgets",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un presupuesto “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_budgets"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_payables",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó una cuenta por pagar “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_payables"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_recurring",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un pago recurrente “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_recurring"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_notes",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó una nota de tesorería “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_notes"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "profiles",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity profiles — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "role_presets",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity role_presets — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "special_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity special_events — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "event_registrations",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity event_registrations — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_funds",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_funds — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_income_categories",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_income_categories — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "fin_expense_categories",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity fin_expense_categories — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "unknown_table",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "entity unknown_table — not in the legacy map"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": null,
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un registro “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "no entity"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": null,
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Alguien creó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "no actor → Alguien"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Alguien creó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "an empty actor → Alguien"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Sistema",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Sistema creó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "a trigger without a session"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "<b>Ana</b> & \"Luis\"",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "<b>Ana</b> & \"Luis\" creó un evento “Culto dominical”",
+        "time": "hace 5 min"
+      },
+      "note": "markup in the actor is text"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": null,
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento",
+        "time": "hace 5 min"
+      },
+      "note": "no label"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento",
+        "time": "hace 5 min"
+      },
+      "note": "an empty label"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "UPDATE",
+          "entity": "profiles",
+          "label": "Ana · rol: admin · páginas: users",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez editó un registro “Ana · rol: admin · páginas: users”",
+        "time": "hace 5 min"
+      },
+      "note": "an access change, as the PR-B trigger labels it"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "<img src=x onerror=alert(1)>",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “<img src=x onerror=alert(1)>”",
+        "time": "hace 5 min"
+      },
+      "note": "markup in the label is text"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "“Citado” y 'apóstrofo'",
+          "created_at": "2026-10-19T13:55:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento ““Citado” y 'apóstrofo'”",
+        "time": "hace 5 min"
+      },
+      "note": "quotes in the label"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T14:00:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace un momento"
+      },
+      "note": "0 s ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:59:59.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace un momento"
+      },
+      "note": "1 s ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:59:01.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace un momento"
+      },
+      "note": "59 s ago — still a moment"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:59:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 1 min"
+      },
+      "note": "60 s ago — 1 min"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:58:59.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 1 min"
+      },
+      "note": "61 s ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:00:01.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 59 min"
+      },
+      "note": "59 min 59 s ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T13:00:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 1 h"
+      },
+      "note": "60 min ago — 1 h"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-18T14:00:01.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 23 h"
+      },
+      "note": "23 h 59 min 59 s ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-18T14:00:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 1 d"
+      },
+      "note": "24 h ago — 1 d"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-18T13:59:59.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 1 d"
+      },
+      "note": "1 d 1 s ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-12T14:00:01.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 6 d"
+      },
+      "note": "7 d minus 1 s — 6 d"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-12T14:00:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "12 oct 2026"
+      },
+      "note": "7 d ago — the date"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2025-09-14T14:00:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "14 sept 2025"
+      },
+      "note": "400 d ago — last year"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T14:05:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace un momento"
+      },
+      "note": "five minutes ahead — a moment"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-01T03:30:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "30 sept 2026"
+      },
+      "note": "a week+ ago, 1 Oct in UTC but 30 Sep in New York"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-01-01T02:00:00.000Z"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "31 dic 2025"
+      },
+      "note": "New Year in UTC, still 2025 in New York"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "2026-10-19T09:29:59.123456+00:00"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "hace 4 h"
+      },
+      "note": "as PostgREST sends it (microseconds, offset): 4 h ago"
+    },
+    {
+      "input": {
+        "row": {
+          "actor_name": "Ana Pérez",
+          "action": "INSERT",
+          "entity": "calendar_events",
+          "label": "Culto dominical",
+          "created_at": "no es una fecha"
+        },
+        "now": "2026-10-19T14:00:00.000Z"
+      },
+      "expected": {
+        "text": "Ana Pérez creó un evento “Culto dominical”",
+        "time": "Invalid Date"
+      },
+      "note": "an unreadable timestamp"
+    }
+  ],
+  "empty": "Aún no hay actividad registrada."
+}

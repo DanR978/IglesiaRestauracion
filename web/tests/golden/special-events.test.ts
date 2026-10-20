@@ -1,9 +1,9 @@
-// S22 golden parity for $lib/special-events (pure half of js/lib/special-events.js).
+// S22 golden parity for #lib/special-events (pure half of js/lib/special-events.js).
 // Fixture captured from the legacy module with `now` pinned to
 // 2026-08-24T18:00:00Z; the lifecycle formats in America/New_York explicitly,
 // so the vectors are byte-identical under NY and Tokyo (G-002).
 import { describe, expect, it } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
 import {
   LINGER_DAYS,
   PHASE_ICON,
@@ -21,7 +21,7 @@ import {
   type EventRef,
   type EventWithAlbums,
   type LifecycleInput,
-} from '$lib/special-events';
+} from '#lib/special-events.js';
 import fixtureJson from '../fixtures/special-events.json';
 
 type Ev = LifecycleInput & { id: string; slug: string };

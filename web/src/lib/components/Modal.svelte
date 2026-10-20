@@ -12,9 +12,9 @@
   What it adds over legacy, all of which legacy lacks:
     · Escape closes — and only the TOPMOST overlay does (focus-trap stack).
     · a reference-counted scroll lock that RESTORES the previous body overflow,
-      so closing a confirm over a modal does not unlock the page ($lib/scroll-lock).
+      so closing a confirm over a modal does not unlock the page (#lib/scroll-lock).
     · focus moves into the dialog on open, is trapped while open, and returns
-      to the trigger on close ($lib/focus-trap).
+      to the trigger on close (#lib/focus-trap).
     · role="dialog" + aria-modal + an accessible name.
 
   Content comes in as three snippets — `header` (optional, replaces the title),
@@ -26,8 +26,8 @@
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
   import { MODAL_BLOCK, MODAL_CLOSE_LABEL, type ModalVariant } from './modal';
-  import { lockBodyScroll } from '$lib/scroll-lock';
-  import { isTopmostTrap, trapFocus } from '$lib/focus-trap';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
+  import { isTopmostTrap, returnFocusTarget, trapFocus } from '#lib/focus-trap.js';
 
   interface Props {
     /** Two-way: `bind:open`. The component sets it to false on every close path. */
@@ -129,7 +129,8 @@
     const dialog = dialogEl;
     if (!open || !dialog) return;
 
-    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    // Not document.activeElement: after a click in Safari that is <body> (G-038).
+    const trigger = returnFocusTarget();
     const releaseScroll = lockBodyScroll();
     const releaseTrap = trapFocus(dialog);
     const wanted = initialFocus ? dialog.querySelector<HTMLElement>(initialFocus) : null;

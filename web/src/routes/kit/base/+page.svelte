@@ -3,7 +3,7 @@
   // mobile-input floor, container/zigzag scaffolds, animation utilities and
   // the reduced-motion signal. Prerendered, no data fetching, noindex.
   import { onMount } from 'svelte';
-  import { prefersReducedMotion, motionMs } from '$lib/reduced-motion';
+  import { prefersReducedMotion, motionMs } from '#lib/reduced-motion.js';
 
   let inputEl: HTMLInputElement | undefined = $state();
   let inputPx = $state('');
@@ -94,7 +94,7 @@
       <h5>Encabezado h5</h5>
       <h6>Encabezado h6</h6>
       <p>
-        Párrafo con <strong>texto fuerte en --color-secondary</strong>, <em>énfasis</em>, un
+        Párrafo con <strong>texto fuerte en --color-accent-ink</strong>, <em>énfasis</em>, un
         <a href="#h-elements">enlace en --color-40</a> y <code>código</code>. Los márgenes de los
         encabezados están a cero; cada componente decide su ritmo.
       </p>
@@ -465,6 +465,13 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
     gap: var(--mg-sm);
+  }
+  /* Unrevealed .scroll-fade-right sits 28px to the right and widened a 360px
+     phone by 8px: Chromium zooms the page out to fit it and WebKit counts it as
+     scrollable width (S05b). Real pages clip reveals inside .wrapper
+     (layout/container.css); the demo clips its own. */
+  .anim-grid.reveal-stagger {
+    overflow-x: clip;
   }
   .anim-box {
     display: flex;

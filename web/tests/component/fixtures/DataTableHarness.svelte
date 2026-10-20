@@ -5,8 +5,8 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import DataTable from '$lib/components/DataTable.svelte';
-  import type { DataTableColumn, DataTableState, SortDir } from '$lib/components/data-table';
+  import DataTable from '#lib/components/DataTable.svelte';
+  import type { DataTableColumn, DataTableState, SortDir } from '#lib/components/data-table.js';
   import type { HarnessRow } from './rows';
 
   interface Props {

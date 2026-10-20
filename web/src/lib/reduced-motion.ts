@@ -13,7 +13,7 @@
  * touches `window` at import time.
  *
  * Usage:
- *   import { prefersReducedMotion, motionMs } from '$lib/reduced-motion';
+ *   import { prefersReducedMotion, motionMs } from '#lib/reduced-motion.js';
  *   {#if !prefersReducedMotion.current} <div transition:fly={{ duration: motionMs(220) }}>
  *   setTimeout(close, motionMs(240));
  * ========================================================================== */

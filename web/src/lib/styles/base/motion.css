@@ -7,7 +7,7 @@
  * `@media (prefers-reduced-motion: reduce)` guard for anything this block
  * cannot neutralise (a resting-state `opacity: 0` that waits for a class, a
  * scroll-driven `animation-timeline`, a JS-driven duration — see
- * $lib/reduced-motion for those).
+ * #lib/reduced-motion for those).
  *
  * Durations are 0.01ms, not `none`: `animationend` / `transitionend` still
  * fire, so code that awaits them to unmount an overlay keeps working.

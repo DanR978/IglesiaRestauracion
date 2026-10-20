@@ -1,0 +1,102 @@
+# .github/workflows/db.yml
+# Database + Edge Function checks against a throwaway local Supabase stack
+# (MIGRATION.md D-039). Nothing here reaches the production project: no link,
+# no secrets, no deploy.
+#   1. every migration applies from scratch (`supabase db reset`);
+#   2. the pgTAP suite in supabase/tests passes — RLS by role × aal1/aal2, the
+#      tiers, the RPCs, the triggers, storage, and the catalog guard that fails
+#      when a new table ships without the RESTRICTIVE aal2 layer;
+#   3. the integration suite (web/tests/integration) passes — the new admin,
+#      built against THIS stack, signs in for real in Chromium: password +
+#      TOTP, first enrollment, the emailed invitation and recovery links (read
+#      from Mailpit), aal1 refused at the API, the tiers, Mi cuenta's devices
+#      and password, sign-out everywhere;
+#   4. the Edge Functions type-check and their unit tests pass.
+# It also runs for web/** changes: the integration suite is the only check of
+# the admin's sign-in and account flows against a real GoTrue and RLS.
+# Informational, not a required check (branch protection is not changed).
+# Action refs are pinned to commit SHAs; the CLI and Deno to exact versions.
+name: DB
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - 'web/**'
+      - '.github/workflows/db.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.78.1
+
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: 2.7.5
+
+      - name: Start the local stack
+        run: supabase start -x studio,imgproxy,vector,logflare,supavisor
+
+      - name: Apply every migration from scratch
+        run: supabase db reset
+
+      # Lets supabase/tests run GoTrue's account delete as GoTrue's own role
+      # (SET only, no inherited privileges). Local stack, its default password;
+      # must follow `db reset`, which drops the grant.
+      - name: Let the test session take GoTrue's role
+        run: >-
+          docker exec -e PGPASSWORD=postgres supabase_db_IglesiaRestauracion
+          psql -h 127.0.0.1 -U supabase_admin -d postgres -v ON_ERROR_STOP=1
+          -c "grant supabase_auth_admin to postgres with inherit false, set true"
+
+      - name: pgTAP suite
+        run: supabase test db
+
+      # The integration suite. Same Node setup as ci.yml.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install the web app's dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: Install Playwright's Chromium (with OS deps)
+        run: npx playwright install --with-deps chromium
+        working-directory: web
+
+      # playwright.integration.config.ts reads this stack's API URL and anon key
+      # from `supabase status -o env` here, in the job (no secret — it refuses a
+      # non-loopback URL), builds the app at /app against them, serves it with
+      # `vite preview`, and makes and removes its own synthetic accounts.
+      - name: Integration suite — the admin against this stack (Chromium)
+        run: npm run test:integration
+        working-directory: web
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: failure()
+        with:
+          name: integration-test-results
+          path: web/test-results/
+          retention-days: 7
+
+      - name: Type-check the Edge Functions
+        run: deno check supabase/functions
+
+      - name: Edge Function unit tests
+        run: deno test --permit-no-files supabase/functions

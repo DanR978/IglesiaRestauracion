@@ -26,7 +26,7 @@ function mockMatchMedia(initial: boolean) {
 }
 
 async function load() {
-  return import('$lib/reduced-motion');
+  return import('#lib/reduced-motion.js');
 }
 
 beforeEach(() => {

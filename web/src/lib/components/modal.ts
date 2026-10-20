@@ -19,8 +19,8 @@
  *                                                          used by consumers)
  *
  * Usage:
- *   import Modal from '$lib/components/Modal.svelte';
- *   import { MODAL_VARIANTS, type ModalVariant } from '$lib/components/modal';
+ *   import Modal from '#lib/components/Modal.svelte';
+ *   import { MODAL_VARIANTS, type ModalVariant } from '#lib/components/modal.js';
  * ========================================================================== */
 
 /**

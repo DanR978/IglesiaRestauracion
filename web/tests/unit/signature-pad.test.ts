@@ -12,7 +12,7 @@ import {
   SIGNATURE_PAD_HEIGHT,
   SIGNATURE_STROKE_WIDTH,
   type SignatureChangeReason,
-} from '$lib/signature-pad';
+} from '#lib/signature-pad.js';
 import {
   flush,
   installCanvasMock,

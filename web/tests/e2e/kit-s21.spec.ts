@@ -2,7 +2,7 @@
 // conventions (a collapsed-by-default panel behind a labelled toggle), the
 // table card-collapses with NO horizontal scroll at 360px, and the wizard
 // drives the field-type contract. Runs against `vite preview`
-// (playwright.config); not part of the CI gate.
+// (playwright.config); CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const CONTROLS =
@@ -187,12 +187,17 @@ test.describe('kit/form-wizard — 360px phone', () => {
     await expect(dialog.getByRole('button', { name: 'Guardar' })).toBeEnabled();
   });
 
-  test('Escape closes and the body scroll lock is restored', async ({ page }) => {
+  test('Escape closes, restores the body scroll lock and returns focus to the opener', async ({
+    page,
+  }) => {
     await page.goto('/kit/form-wizard/');
-    await page.getByRole('button', { name: /Nuevo ingreso/ }).click();
+    const opener = page.getByRole('button', { name: /Nuevo ingreso/ });
+    await opener.click();
     await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
     await page.keyboard.press('Escape');
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+    // WebKit leaves the clicked button unfocused; focus still comes back (G-038).
+    await expect(opener).toBeFocused();
   });
 });

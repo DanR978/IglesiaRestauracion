@@ -7,7 +7,7 @@
  * `navigator` every check reports desktop.
  *
  * Usage:
- *   import { isIOS, isAndroid, isDesktop, getPlatform } from '$lib/detect-device';
+ *   import { isIOS, isAndroid, isDesktop, getPlatform } from '#lib/detect-device.js';
  * ========================================================================== */
 
 function getUA(): string {

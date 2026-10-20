@@ -2,9 +2,10 @@
  * web/src/lib/repos/receipts.ts — treasury receipts (S56b · D-018 / D-019)
  * ----------------------------------------------------------------------------
  * The data layer behind the Recibos month grid: list one scope + one year,
- * upload an already-optimised WebP pair, delete, and download. Reads never
- * throw (warn with `[receipts]`, return a safe empty); writes return
- * `WriteResult`.
+ * upload an already-optimised WebP pair, delete, and download. Reads return a
+ * `ReadResult` and writes a `WriteResult` (ADR-0004); neither throws, and a
+ * failed read is `{ ok: false, error }` — never an empty month grid. Failures
+ * are logged with the `[receipts]` tag.
  *
  * THE BUCKET IS PRIVATE (D-018). There is no `getPublicUrl` here and no signed
  * URL: every read goes through an authenticated `.download()` so no bearer URL
@@ -14,24 +15,28 @@
  * VISIBILITY is RLS's job, not this module's (D-002). `scope='ministry'` rows
  * are shared with every leader of that ministry (D-019); `scope='project'` rows
  * are owner-only and invisible even to finance. The scope argument here only
- * shapes the query.
+ * shapes the query. Every call is staff-only (`fin_receipts` and the bucket
+ * have no anon policy), so each one checks for a live session first
+ * (`./session`): signed out, RLS would answer an empty month, not an error.
  *
  * TYPES — TEMPORARY: `fin_receipts` is not in the generated
- * `$lib/db/database.types` yet. S56b's UI session runs `supabase gen types
+ * `#lib/db/database.types` yet. S56b's UI session runs `supabase gen types
  * --local` and then this module drops `FinReceipt` / `ReceiptsDatabase` for
  * `Tables<'fin_receipts'>` and the plain `supabase` client. Until then the row
  * type below mirrors `supabase/migrations/20260824120000_fin_receipts.sql`
  * column for column.
  *
  * Usage:
- *   import { listReceipts, monthSummaries, uploadReceipt } from '$lib/repos/receipts';
- *   const rows = await listReceipts({ scope: 'church' }, 2026);
- *   const months = monthSummaries(rows);   // always 12 entries, Ene…Dic
+ *   import { listReceipts, monthSummaries, uploadReceipt } from '#lib/repos/receipts.js';
+ *   const res = await listReceipts({ scope: 'church' }, 2026);
+ *   if (res.ok) render(monthSummaries(res.data)); // always 12 entries, Ene…Dic
  * ========================================================================== */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabase } from '$lib/db/client';
-import type { WriteResult } from './types';
+import { supabase } from '#lib/db/client.js';
+import { fail, invalid, noRows, ok } from './errors';
+import { requireSession } from './session';
+import type { ReadResult, WriteResult } from './types';
 
 const TAG = '[receipts]';
 
@@ -152,8 +157,10 @@ export function receiptPaths(
 /* ── Read ──────────────────────────────────────────────────────────────────── */
 
 /** Every receipt of one scope + year, in month then upload order. */
-export async function listReceipts(ref: ScopeRef, year: number): Promise<FinReceipt[]> {
-  if (!Number.isInteger(year)) return [];
+export async function listReceipts(ref: ScopeRef, year: number): Promise<ReadResult<FinReceipt[]>> {
+  const denied = await requireSession(TAG, 'listReceipts');
+  if (denied) return denied;
+  if (!Number.isInteger(year)) return invalid('Año inválido.');
   let q = db
     .from('fin_receipts')
     .select('*')
@@ -163,23 +170,27 @@ export async function listReceipts(ref: ScopeRef, year: number): Promise<FinRece
     .order('created_at', { ascending: true });
   if (ref.scope === 'ministry') q = q.eq('ministry_id', ref.ministryId);
   if (ref.scope === 'project') q = q.eq('project_id', ref.projectId);
-  const { data, error } = await q;
-  if (error) {
-    console.warn(`${TAG} listReceipts:`, error.message);
-    return [];
-  }
-  return data ?? [];
+  const { data, error, status } = await q;
+  if (error) return fail(TAG, 'listReceipts', error, status);
+  return ok(data ?? []);
 }
 
-/** Authenticated fetch of one object; `null` on failure (the bucket is private). */
-export async function downloadReceipt(path: string): Promise<Blob | null> {
-  if (!path) return null;
-  const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).download(path);
-  if (error) {
-    console.warn(`${TAG} downloadReceipt:`, error.message);
-    return null;
+/**
+ * Authenticated fetch of one object (the bucket is private). storage-js reads
+ * the body (`.blob()`) outside its own error handling, so a connection that
+ * drops mid-transfer REJECTS instead of resolving `{ error }` — caught here.
+ */
+export async function downloadReceipt(path: string): Promise<ReadResult<Blob>> {
+  const denied = await requireSession(TAG, 'downloadReceipt');
+  if (denied) return denied;
+  if (!path) return invalid('Falta el recibo que quieres ver.');
+  try {
+    const { data, error } = await supabase.storage.from(RECEIPTS_BUCKET).download(path);
+    if (error) return fail(TAG, 'downloadReceipt', error);
+    return ok(data);
+  } catch (e) {
+    return fail(TAG, 'downloadReceipt', e);
   }
-  return data ?? null;
 }
 
 /* ── Grouping (the 4×3 month grid) ─────────────────────────────────────────── */
@@ -282,14 +293,12 @@ export async function uploadReceipt(
   ref: ScopeRef,
   input: ReceiptUpload,
 ): Promise<WriteResult<FinReceipt>> {
-  if (!input?.main || !input?.thumb) return { ok: false, error: 'Argumentos inválidos' };
+  const denied = await requireSession(TAG, 'uploadReceipt');
+  if (denied) return denied;
+  if (!input?.main || !input?.thumb) return invalid('Falta la imagen del recibo.');
   const { year, month } = input;
-  if (!Number.isInteger(year) || year < 2000 || year > 2100) {
-    return { ok: false, error: 'Año inválido' };
-  }
-  if (!Number.isInteger(month) || month < 1 || month > 12) {
-    return { ok: false, error: 'Mes inválido' };
-  }
+  if (!Number.isInteger(year) || year < 2000 || year > 2100) return invalid('Año inválido.');
+  if (!Number.isInteger(month) || month < 1 || month > 12) return invalid('Mes inválido.');
 
   const { mainPath, thumbPath } = receiptPaths(ref, year);
   const bucket = supabase.storage.from(RECEIPTS_BUCKET);
@@ -303,8 +312,7 @@ export async function uploadReceipt(
   if (failed?.error) {
     // One of the pair may still have landed — never leave half a receipt.
     void bucket.remove([mainPath, thumbPath]);
-    console.warn(`${TAG} uploadReceipt storage:`, failed.error.message);
-    return { ok: false, error: failed.error.message };
+    return fail(TAG, 'uploadReceipt storage', failed.error);
   }
 
   const row: FinReceiptInsert = {
@@ -321,20 +329,21 @@ export async function uploadReceipt(
     uploaded_by: input.uploadedBy ?? null,
   };
 
-  const { data, error } = await db.from('fin_receipts').insert(row).select().single();
+  const { data, error, status } = await db.from('fin_receipts').insert(row).select().single();
   if (error) {
     void bucket.remove([mainPath, thumbPath]);
-    console.warn(`${TAG} uploadReceipt row:`, error.message);
-    return { ok: false, error: error.message };
+    return fail(TAG, 'uploadReceipt row', error, status);
   }
-  return { ok: true, data };
+  return ok(data);
 }
 
 /** Delete a receipt: its objects first (best effort), then the row. */
 export async function deleteReceipt(
   receipt: Pick<FinReceipt, 'id'> & { storage_path?: string | null; thumb_path?: string | null },
 ): Promise<WriteResult> {
-  if (!receipt?.id) return { ok: false, error: 'Argumentos inválidos' };
+  const denied = await requireSession(TAG, 'deleteReceipt');
+  if (denied) return denied;
+  if (!receipt?.id) return invalid('Falta el recibo que quieres eliminar.');
   const paths = [receipt.storage_path, receipt.thumb_path].filter(
     (p): p is string => typeof p === 'string' && p.length > 0,
   );
@@ -342,10 +351,11 @@ export async function deleteReceipt(
     const { error: rmErr } = await supabase.storage.from(RECEIPTS_BUCKET).remove(paths);
     if (rmErr) console.warn(`${TAG} deleteReceipt storage:`, rmErr.message);
   }
-  const { error } = await db.from('fin_receipts').delete().eq('id', receipt.id);
-  if (error) {
-    console.warn(`${TAG} deleteReceipt:`, error.message);
-    return { ok: false, error: error.message };
-  }
-  return { ok: true, data: undefined };
+  const { error, status, count } = await db
+    .from('fin_receipts')
+    .delete({ count: 'exact' })
+    .eq('id', receipt.id);
+  if (error) return fail(TAG, 'deleteReceipt', error, status);
+  if (!count) return noRows(TAG, 'deleteReceipt');
+  return ok(undefined);
 }

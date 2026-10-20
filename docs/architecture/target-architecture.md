@@ -2,7 +2,7 @@
 
 > Snapshot 2026-10-18 · repo `f3b8c94`. Builds on the locked migration target (`MIGRATION.md` §0:
 > SvelteKit + adapter-static, Svelte 5 runes, TypeScript; same Supabase backend, Edge Functions and
-> RLS) and adds what the Church Center research requires. Decisions: ADR-0001 to ADR-0004
+> RLS) and adds what the Church Center research requires. Decisions: ADR-0001 to ADR-0005
 > (ledger D-029 to D-032).
 
 ## 1. Principles
@@ -60,8 +60,9 @@ that S23's `site/Newsletter.svelte`, which already imports a repo, stays legal. 
   detail pages (`/eventos/evento.html?id=`, `/eventos/evento-especial.html?e=|?id=`,
   `/eventos/registro.html?e=|?id=`, `/discipulado/grupo/?slug=|?id=`, `/galeria/album/?slug=|?id=`,
   `/eventos/?view=…`) stay valid; S28's redirect stubs must forward `location.search` and the hash.
-- **Rendering:** public routes are prerendered (`trailingSlash: 'always'`). The admin group uses
-  `ssr=false` with a fallback, constrained by G-021 (Pages serves only the root `404.html`).
+- **Rendering:** public routes are prerendered (`trailingSlash: 'always'`). Admin routes are
+  prerendered `ssr=false` shells, one per route, with no SPA fallback (D-036): Pages serves only
+  the root `404.html` (G-021), so every admin URL is a real file.
 - **Back navigation:** every meaningful view state is a URL (`?view=`, admin tabs as routes in
   S37). Full-screen overlays — Lightbox, the mobile ActionSheet, a phone-width FormWizard — use
   SvelteKit **shallow routing** (`pushState` / `replaceState` from `$app/navigation`, read through
@@ -74,8 +75,9 @@ that S23's `site/Newsletter.svelte`, which already imports a repo, stays legal. 
 
 ## 5. Authentication, authorization, sessions
 
-- **Identity provider:** Supabase Auth only (ADR-0001). Email + password; TOTP enforced for `/admin`
-  per D-010 (client redirect plus an `aal2` RLS check, S39; G-016).
+- **Identity provider:** Supabase Auth only (ADR-0001). Email + password, and for staff Google or
+  Microsoft federated through Supabase Auth (ADR-0005). TOTP required for every staff account
+  (D-033): the admin gate plus the database's two-factor layer (D-034).
 - **Email links** (invite, recovery) use `token_hash` + `verifyOtp` on the landing page, so they
   complete in **whatever browser the mail app opens**. Don't switch the templates to PKCE
   `ConfirmationURL` links: PKCE keeps the code verifier in the browser that *requested* the email,
@@ -93,14 +95,17 @@ that S23's `site/Newsletter.svelte`, which already imports a repo, stays legal. 
   - Subscribe to `onAuthStateChange`. On a failed refresh or `SIGNED_OUT`, show a Spanish
     "Tu sesión expiró" screen with sign-in, never a raw error.
   - Never assume a session started in another context.
-  - Never use popups or redirect chains for auth.
+  - Never use popups for auth. OAuth is one top-level redirect to the provider and back to a
+    callback route (ADR-0005); email links complete in place.
 - **Accessible authentication (WCAG 3.3.8):** allow paste and password managers;
   `autocomplete="username"` / `"current-password"` / `"new-password"`; the code field uses
   `inputmode="numeric"` and `autocomplete="one-time-code"`.
 - **Configuration:** add the `/app/` paths to the Supabase Auth redirect allow-list before S39.
-- **If social login is ever considered:** Google blocks OAuth in embedded WebViews
+- **Social sign-in (ADR-0005):** Google blocks OAuth in embedded WebViews
   ([Google OAuth policies](https://developers.google.com/identity/protocols/oauth2/policies)); RFC 8252
   §8.12 forbids embedded user-agents for authorization ([RFC 8252](https://www.rfc-editor.org/rfc/rfc8252)).
+  The sign-in screen therefore keeps password + TOTP and asks people in an app's browser to open
+  Safari or Chrome.
 - **Authorization:** RLS policies are the guard; `visibleSurfacesFor(profile)` (D-006) only shapes
   navigation.
 

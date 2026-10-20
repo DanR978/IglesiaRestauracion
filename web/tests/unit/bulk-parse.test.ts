@@ -1,4 +1,4 @@
-// S56c — the CONTRACT for $lib/bulk-parse. There is no legacy oracle for bulk
+// S56c — the CONTRACT for #lib/bulk-parse. There is no legacy oracle for bulk
 // entry (new feature: VERIFICATION.md box #5 is N/A), so this suite IS the
 // specification the BulkEntryGrid / PasteImport session is written against.
 // Changing an expectation here is changing the feature.
@@ -18,8 +18,8 @@ import {
   targetTable,
   toInsertPayload,
   type ParsedRow,
-} from '$lib/bulk-parse';
-import { sumC, toNumeric } from '$lib/money';
+} from '#lib/bulk-parse.js';
+import { sumC, toNumeric } from '#lib/money.js';
 
 const lines = (...rows: string[]): string => rows.join('\n');
 

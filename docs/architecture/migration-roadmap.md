@@ -130,7 +130,7 @@ Church Center goes live on the **legacy** site; it does not wait for the port. U
 - **Dependencies:** S02b, S05b, S22b, S11 ✅, S15/S16 ✅.
 - **Risks → mitigations:**
   - Lockout during MFA enforcement → staged rollout with the owner.
-  - G-021 deep links → the root `404.html` boot strategy.
+  - G-021 deep links → prerendered `ssr=false` shells, one per route (D-036).
 - **Testing:** auth e2e against staging; negative authorization tests (D-006); ASVS 5.0 V6/V7/V8 Level 2 checklist.
 - **Acceptance:**
   - an enrolled account can't reach `/admin/*` at `aal1`;

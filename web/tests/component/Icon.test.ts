@@ -3,8 +3,8 @@
 // untrusted name can reach the sprite or add a class to the element.
 import { render } from '@testing-library/svelte';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Icon from '$lib/components/Icon.svelte';
-import { SPRITE_HOLDER_ID, SPRITE_ICONS } from '$lib/components/icon';
+import Icon from '#lib/components/Icon.svelte';
+import { SPRITE_HOLDER_ID, SPRITE_ICONS } from '#lib/components/icon.js';
 
 const holders = () => document.querySelectorAll(`#${SPRITE_HOLDER_ID}`);
 const icon = (container: HTMLElement) => container.querySelector('.icon');

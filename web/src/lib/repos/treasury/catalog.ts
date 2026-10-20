@@ -18,19 +18,21 @@
  * allows a negative cents value.
  *
  * Usage:
- *   import { fetchCatalog, createFund } from '$lib/repos/treasury';
+ *   import { fetchCatalog, createFund } from '#lib/repos/treasury/index.js';
+ *   const res = await fetchCatalog();
+ *   if (res.ok) fillSelects(res.data);
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import { toNumeric } from '$lib/money';
-import type { TablesInsert, TablesUpdate } from '$lib/db/database.types';
-import type { WriteResult } from '../types';
+import { supabase } from '#lib/db/client.js';
+import { toNumeric } from '#lib/money.js';
+import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
+import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
+import type { ReadResult, WriteResult } from '../types';
 import {
+  TAG,
   centsError,
   toFundEntry,
-  warnRead,
-  writeFail,
-  writeOk,
   type ExpenseCategoryInsert,
   type ExpenseCategoryRow,
   type ExpenseCategoryUpdate,
@@ -52,58 +54,68 @@ export type TreasuryCatalog = {
 /* ── Reads ─────────────────────────────────────────────────────────────── */
 
 /** Unarchived funds, `sort` then `name` (`treasury-tab.js:66`). */
-export async function fetchFunds(): Promise<FundEntry[]> {
-  const { data, error } = await supabase
+export async function fetchFunds(): Promise<ReadResult<FundEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchFunds');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_funds')
     .select('*')
     .eq('archived', false)
     .order('sort')
     .order('name');
-  if (error) {
-    warnRead('fetchFunds', error.message);
-    return [];
-  }
-  return (data ?? []).map(toFundEntry);
+  if (error) return fail(TAG, 'fetchFunds', error, status);
+  return ok((data ?? []).map(toFundEntry));
 }
 
 /** Unarchived income categories, `sort` then `name` (`treasury-tab.js:67`). */
-export async function fetchIncomeCategories(): Promise<IncomeCategoryRow[]> {
-  const { data, error } = await supabase
+export async function fetchIncomeCategories(): Promise<ReadResult<IncomeCategoryRow[]>> {
+  const denied = await requireSession(TAG, 'fetchIncomeCategories');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_income_categories')
     .select('*')
     .eq('archived', false)
     .order('sort')
     .order('name');
-  if (error) {
-    warnRead('fetchIncomeCategories', error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchIncomeCategories', error, status);
+  return ok(data ?? []);
 }
 
 /** Unarchived expense categories, `sort` then `name` (`treasury-tab.js:68`). */
-export async function fetchExpenseCategories(): Promise<ExpenseCategoryRow[]> {
-  const { data, error } = await supabase
+export async function fetchExpenseCategories(): Promise<ReadResult<ExpenseCategoryRow[]>> {
+  const denied = await requireSession(TAG, 'fetchExpenseCategories');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_expense_categories')
     .select('*')
     .eq('archived', false)
     .order('sort')
     .order('name');
-  if (error) {
-    warnRead('fetchExpenseCategories', error.message);
-    return [];
-  }
-  return data ?? [];
+  if (error) return fail(TAG, 'fetchExpenseCategories', error, status);
+  return ok(data ?? []);
 }
 
-/** The three lists in parallel — the port of `loadFundData()`. */
-export async function fetchCatalog(): Promise<TreasuryCatalog> {
+/**
+ * The three lists in parallel — the port of `loadFundData()`. All or nothing:
+ * a wizard offered an empty category list because that one read failed would
+ * look like a church with no categories.
+ */
+export async function fetchCatalog(): Promise<ReadResult<TreasuryCatalog>> {
+  const denied = await requireSession(TAG, 'fetchCatalog');
+  if (denied) return denied;
   const [funds, incomeCategories, expenseCategories] = await Promise.all([
     fetchFunds(),
     fetchIncomeCategories(),
     fetchExpenseCategories(),
   ]);
-  return { funds, incomeCategories, expenseCategories };
+  if (!funds.ok) return funds;
+  if (!incomeCategories.ok) return incomeCategories;
+  if (!expenseCategories.ok) return expenseCategories;
+  return ok({
+    funds: funds.data,
+    incomeCategories: incomeCategories.data,
+    expenseCategories: expenseCategories.data,
+  });
 }
 
 /* ── Writes: funds ─────────────────────────────────────────────────────── */
@@ -112,42 +124,52 @@ export async function fetchCatalog(): Promise<TreasuryCatalog> {
 const OPENING_BALANCE = { field: 'saldo inicial', allowNegative: true } as const;
 
 export async function createFund(input: FundInsert): Promise<WriteResult<FundEntry>> {
+  const denied = await requireSession(TAG, 'createFund');
+  if (denied) return denied;
   const { openingBalanceCents, ...rest } = input;
   const row: TablesInsert<'fin_funds'> = { ...rest };
   if (openingBalanceCents !== undefined) {
     const bad = centsError(openingBalanceCents, OPENING_BALANCE);
-    if (bad) return writeFail('createFund', bad);
+    if (bad) return invalid(bad);
     row.opening_balance = toNumeric(openingBalanceCents);
   }
-  const { data, error } = await supabase.from('fin_funds').insert(row).select().single();
-  if (error) return writeFail('createFund', error.message);
-  return writeOk(toFundEntry(data));
+  const { data, error, status } = await supabase.from('fin_funds').insert(row).select().single();
+  if (error) return fail(TAG, 'createFund', error, status);
+  return ok(toFundEntry(data));
 }
 
 export async function updateFund(id: string, patch: FundUpdate): Promise<WriteResult<FundEntry>> {
-  if (!id) return writeFail('updateFund', 'Falta el identificador del fondo.');
+  const denied = await requireSession(TAG, 'updateFund');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del fondo.');
   const { openingBalanceCents, ...rest } = patch;
   const row: TablesUpdate<'fin_funds'> = { ...rest };
   if (openingBalanceCents !== undefined) {
     const bad = centsError(openingBalanceCents, OPENING_BALANCE);
-    if (bad) return writeFail('updateFund', bad);
+    if (bad) return invalid(bad);
     row.opening_balance = toNumeric(openingBalanceCents);
   }
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from('fin_funds')
     .update(row)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateFund', error.message);
-  return writeOk(toFundEntry(data));
+  if (error) return fail(TAG, 'updateFund', error, status);
+  return ok(toFundEntry(data));
 }
 
 export async function deleteFund(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteFund', 'Falta el identificador del fondo.');
-  const { error } = await supabase.from('fin_funds').delete().eq('id', id);
-  if (error) return writeFail('deleteFund', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteFund');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del fondo.');
+  const { error, status, count } = await supabase
+    .from('fin_funds')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteFund', error, status);
+  if (!count) return noRows(TAG, 'deleteFund');
+  return ok(undefined);
 }
 
 /* ── Writes: income categories ─────────────────────────────────────────── */
@@ -155,35 +177,45 @@ export async function deleteFund(id: string): Promise<WriteResult> {
 export async function createIncomeCategory(
   input: IncomeCategoryInsert,
 ): Promise<WriteResult<IncomeCategoryRow>> {
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'createIncomeCategory');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_income_categories')
     .insert(input)
     .select()
     .single();
-  if (error) return writeFail('createIncomeCategory', error.message);
-  return writeOk(data);
+  if (error) return fail(TAG, 'createIncomeCategory', error, status);
+  return ok(data);
 }
 
 export async function updateIncomeCategory(
   id: string,
   patch: IncomeCategoryUpdate,
 ): Promise<WriteResult<IncomeCategoryRow>> {
-  if (!id) return writeFail('updateIncomeCategory', 'Falta el identificador de la categoría.');
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'updateIncomeCategory');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador de la categoría.');
+  const { data, error, status } = await supabase
     .from('fin_income_categories')
     .update(patch)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateIncomeCategory', error.message);
-  return writeOk(data);
+  if (error) return fail(TAG, 'updateIncomeCategory', error, status);
+  return ok(data);
 }
 
 export async function deleteIncomeCategory(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteIncomeCategory', 'Falta el identificador de la categoría.');
-  const { error } = await supabase.from('fin_income_categories').delete().eq('id', id);
-  if (error) return writeFail('deleteIncomeCategory', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteIncomeCategory');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador de la categoría.');
+  const { error, status, count } = await supabase
+    .from('fin_income_categories')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteIncomeCategory', error, status);
+  if (!count) return noRows(TAG, 'deleteIncomeCategory');
+  return ok(undefined);
 }
 
 /* ── Writes: expense categories ────────────────────────────────────────── */
@@ -191,33 +223,43 @@ export async function deleteIncomeCategory(id: string): Promise<WriteResult> {
 export async function createExpenseCategory(
   input: ExpenseCategoryInsert,
 ): Promise<WriteResult<ExpenseCategoryRow>> {
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'createExpenseCategory');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_expense_categories')
     .insert(input)
     .select()
     .single();
-  if (error) return writeFail('createExpenseCategory', error.message);
-  return writeOk(data);
+  if (error) return fail(TAG, 'createExpenseCategory', error, status);
+  return ok(data);
 }
 
 export async function updateExpenseCategory(
   id: string,
   patch: ExpenseCategoryUpdate,
 ): Promise<WriteResult<ExpenseCategoryRow>> {
-  if (!id) return writeFail('updateExpenseCategory', 'Falta el identificador de la categoría.');
-  const { data, error } = await supabase
+  const denied = await requireSession(TAG, 'updateExpenseCategory');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador de la categoría.');
+  const { data, error, status } = await supabase
     .from('fin_expense_categories')
     .update(patch)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateExpenseCategory', error.message);
-  return writeOk(data);
+  if (error) return fail(TAG, 'updateExpenseCategory', error, status);
+  return ok(data);
 }
 
 export async function deleteExpenseCategory(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteExpenseCategory', 'Falta el identificador de la categoría.');
-  const { error } = await supabase.from('fin_expense_categories').delete().eq('id', id);
-  if (error) return writeFail('deleteExpenseCategory', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteExpenseCategory');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador de la categoría.');
+  const { error, status, count } = await supabase
+    .from('fin_expense_categories')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteExpenseCategory', error, status);
+  if (!count) return noRows(TAG, 'deleteExpenseCategory');
+  return ok(undefined);
 }

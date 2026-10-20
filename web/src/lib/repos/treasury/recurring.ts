@@ -21,25 +21,27 @@
  * yearly rows generate nothing; and the wizard never edits `active`.
  *
  * Usage:
- *   import { fetchRecurring, materializeRecurring } from '$lib/repos/treasury';
+ *   import { fetchRecurring, materializeRecurring } from '#lib/repos/treasury/index.js';
+ *   const res = await materializeRecurring('2026-08', { createdBy: userId });
+ *   if (res.ok && res.data.inserted) refreshExpenses();
  * ========================================================================== */
 
-import { supabase } from '$lib/db/client';
-import { toNumeric } from '$lib/money';
-import { todayISO } from '$lib/date';
-import type { TablesInsert, TablesUpdate } from '$lib/db/database.types';
-import type { WriteResult } from '../types';
+import { supabase } from '#lib/db/client.js';
+import { toNumeric } from '#lib/money.js';
+import { todayISO } from '#lib/date.js';
+import type { TablesInsert, TablesUpdate } from '#lib/db/database.types.js';
+import { fail, invalid, noRows, ok } from '../errors';
+import { requireSession } from '../session';
+import type { ReadResult, WriteResult } from '../types';
 import {
   AUTO_NOTE_PREFIX,
+  TAG,
   centsError,
   lastDayOfMonth,
   monthKeyOf,
   monthRange,
   recurringNoteTag,
   toRecurringEntry,
-  warnRead,
-  writeFail,
-  writeOk,
   type DateRange,
   type RecurringEntry,
   type RecurringInsert,
@@ -55,17 +57,16 @@ const RECURRING_CATEGORY = 'Recurrente';
 /* ── Reads ─────────────────────────────────────────────────────────────── */
 
 /** Every recurring payment, active first then by payee (`treasury-tab.js:361`). */
-export async function fetchRecurring(): Promise<RecurringEntry[]> {
-  const { data, error } = await supabase
+export async function fetchRecurring(): Promise<ReadResult<RecurringEntry[]>> {
+  const denied = await requireSession(TAG, 'fetchRecurring');
+  if (denied) return denied;
+  const { data, error, status } = await supabase
     .from('fin_recurring')
     .select('*')
     .order('active', { ascending: false })
     .order('payee');
-  if (error) {
-    warnRead('fetchRecurring', error.message);
-    return [];
-  }
-  return (data ?? []).map(toRecurringEntry);
+  if (error) return fail(TAG, 'fetchRecurring', error, status);
+  return ok((data ?? []).map(toRecurringEntry));
 }
 
 /* ── Writes ────────────────────────────────────────────────────────────── */
@@ -73,42 +74,56 @@ export async function fetchRecurring(): Promise<RecurringEntry[]> {
 export async function createRecurring(
   input: RecurringInsert,
 ): Promise<WriteResult<RecurringEntry>> {
+  const denied = await requireSession(TAG, 'createRecurring');
+  if (denied) return denied;
   const bad = centsError(input.amountCents);
-  if (bad) return writeFail('createRecurring', bad);
+  if (bad) return invalid(bad);
   const { amountCents, ...rest } = input;
   const row: TablesInsert<'fin_recurring'> = { ...rest, amount: toNumeric(amountCents) };
-  const { data, error } = await supabase.from('fin_recurring').insert(row).select().single();
-  if (error) return writeFail('createRecurring', error.message);
-  return writeOk(toRecurringEntry(data));
+  const { data, error, status } = await supabase
+    .from('fin_recurring')
+    .insert(row)
+    .select()
+    .single();
+  if (error) return fail(TAG, 'createRecurring', error, status);
+  return ok(toRecurringEntry(data));
 }
 
 export async function updateRecurring(
   id: string,
   patch: RecurringUpdate,
 ): Promise<WriteResult<RecurringEntry>> {
-  if (!id) return writeFail('updateRecurring', 'Falta el identificador del pago recurrente.');
+  const denied = await requireSession(TAG, 'updateRecurring');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del pago recurrente.');
   const { amountCents, ...rest } = patch;
   const row: TablesUpdate<'fin_recurring'> = { ...rest };
   if (amountCents !== undefined) {
     const bad = centsError(amountCents);
-    if (bad) return writeFail('updateRecurring', bad);
+    if (bad) return invalid(bad);
     row.amount = toNumeric(amountCents);
   }
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from('fin_recurring')
     .update(row)
     .eq('id', id)
     .select()
     .single();
-  if (error) return writeFail('updateRecurring', error.message);
-  return writeOk(toRecurringEntry(data));
+  if (error) return fail(TAG, 'updateRecurring', error, status);
+  return ok(toRecurringEntry(data));
 }
 
 export async function deleteRecurring(id: string): Promise<WriteResult> {
-  if (!id) return writeFail('deleteRecurring', 'Falta el identificador del pago recurrente.');
-  const { error } = await supabase.from('fin_recurring').delete().eq('id', id);
-  if (error) return writeFail('deleteRecurring', error.message);
-  return writeOk(undefined);
+  const denied = await requireSession(TAG, 'deleteRecurring');
+  if (denied) return denied;
+  if (!id) return invalid('Falta el identificador del pago recurrente.');
+  const { error, status, count } = await supabase
+    .from('fin_recurring')
+    .delete({ count: 'exact' })
+    .eq('id', id);
+  if (error) return fail(TAG, 'deleteRecurring', error, status);
+  if (!count) return noRows(TAG, 'deleteRecurring');
+  return ok(undefined);
 }
 
 /* ── Materialization ───────────────────────────────────────────────────── */
@@ -132,14 +147,16 @@ export async function materializeRecurring(
   monthKey: string,
   { createdBy = null, today = todayISO() }: MaterializeOptions = {},
 ): Promise<WriteResult<{ inserted: number }>> {
+  const denied = await requireSession(TAG, 'materializeRecurring');
+  if (denied) return denied;
   let range: DateRange;
   try {
     range = monthRange(monthKey);
   } catch {
-    return writeFail('materializeRecurring', 'Mes inválido.');
+    return invalid('Mes inválido.');
   }
   // Never generate rows for a month that has not started (`treasury-tab.js:378`).
-  if (monthKey > monthKeyOf(today)) return writeOk({ inserted: 0 });
+  if (monthKey > monthKeyOf(today)) return ok({ inserted: 0 });
 
   const [recRes, tagRes] = await Promise.all([
     supabase.from('fin_recurring').select('*').eq('active', true).eq('frequency', 'monthly'),
@@ -150,13 +167,15 @@ export async function materializeRecurring(
       .lte('occurred_on', range.end)
       .like('note', RECURRING_NOTE_LIKE),
   ]);
-  if (recRes.error) return writeFail('materializeRecurring', recRes.error.message);
+  if (recRes.error) {
+    return fail(TAG, 'materializeRecurring recurring', recRes.error, recRes.status);
+  }
   // Without the existing tags we cannot tell what is already there, and
   // guessing would double-post the month.
-  if (tagRes.error) return writeFail('materializeRecurring', tagRes.error.message);
+  if (tagRes.error) return fail(TAG, 'materializeRecurring tags', tagRes.error, tagRes.status);
 
   const recurring = recRes.data ?? [];
-  if (!recurring.length) return writeOk({ inserted: 0 });
+  if (!recurring.length) return ok({ inserted: 0 });
 
   const existing = new Set((tagRes.data ?? []).map((r) => r.note));
   const [year, month] = monthKey.split('-').map(Number);
@@ -183,9 +202,9 @@ export async function materializeRecurring(
       created_by: createdBy,
     });
   }
-  if (!rows.length) return writeOk({ inserted: 0 });
+  if (!rows.length) return ok({ inserted: 0 });
 
-  const { error } = await supabase.from('fin_expenses').insert(rows);
-  if (error) return writeFail('materializeRecurring', error.message);
-  return writeOk({ inserted: rows.length });
+  const { error, status } = await supabase.from('fin_expenses').insert(rows);
+  if (error) return fail(TAG, 'materializeRecurring', error, status);
+  return ok({ inserted: rows.length });
 }

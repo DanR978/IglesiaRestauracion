@@ -1,11 +1,11 @@
-// S07 golden parity for $lib/date (port of js/utils/date.js).
+// S07 golden parity for #lib/date (port of js/utils/date.js).
 // G-002: isoDate vectors are LOCAL calendar parts ([y, mIndex, d, hh, mm])
 // constructed and read back in the same local TZ, so they hold under any
 // machine timezone (the generator verified NY vs Tokyo byte-identical).
 // todayISO is clock-dependent → covered in tests/unit/date.test.ts, not here.
 import { describe } from 'vitest';
-import { itGolden, type GoldenVector } from '$lib/test/golden';
-import { isoDate, pad2, ymd } from '$lib/date';
+import { itGolden, type GoldenVector } from '#lib/test/golden.js';
+import { isoDate, pad2, ymd } from '#lib/date.js';
 import fixtureJson from '../fixtures/date.json';
 
 type Fixture = {

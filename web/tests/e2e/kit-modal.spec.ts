@@ -2,9 +2,10 @@
 // z-index that puts a confirm above an open modal, the panel widths per
 // variant, the real body scroll lock, keyboard focus trapping and return, the
 // open animation and its reduced-motion guard, dark mode, and no horizontal
-// scroll at 360px. Runs against `vite preview` (playwright.config); not part of
-// the CI gate.
+// scroll at 360px. Runs against `vite preview` (playwright.config); CI job `e2e`
+// runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
+import { gotoWithTheme } from './helpers/theme';
 
 const KIT = '/kit/modal/';
 
@@ -74,10 +75,9 @@ test.describe('kit/modal', () => {
     await expect(dialog).toHaveCount(0);
   });
 
-  test('traps Tab inside the dialog and returns focus to the trigger', async ({ page }) => {
+  test('traps Tab inside the dialog', async ({ page }) => {
     await page.goto(KIT);
-    const trigger = page.getByRole('button', { name: 'Modal normal' });
-    await trigger.click();
+    await page.getByRole('button', { name: 'Modal normal' }).click();
 
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeFocused();
@@ -91,6 +91,18 @@ test.describe('kit/modal', () => {
         }),
       ).toBe(true);
     }
+
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+  });
+
+  test('returns focus to the trigger that opened it', async ({ page }) => {
+    // In WebKit the click leaves the button unfocused (<main> takes focus), so
+    // this is the opener the press was tracked to (G-038, S05b finding X-1).
+    await page.goto(KIT);
+    const trigger = page.getByRole('button', { name: 'Modal normal' });
+    await trigger.click();
+    await expect(page.getByRole('dialog')).toBeFocused();
 
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();
@@ -177,8 +189,7 @@ test.describe('kit/modal', () => {
   });
 
   test('reads in dark mode and never scrolls sideways at 360px', async ({ page }) => {
-    await page.goto(KIT);
-    await page.evaluate(() => document.documentElement.setAttribute('data-theme', 'dark'));
+    await gotoWithTheme(page, KIT, 'dark');
     await page.getByRole('button', { name: 'Modal normal' }).click();
 
     const panel = await page.getByRole('dialog').evaluate((el) => {

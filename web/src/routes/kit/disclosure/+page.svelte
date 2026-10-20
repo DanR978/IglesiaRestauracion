@@ -3,7 +3,7 @@
   // (collapsed / expanded / disabled), the active state that stays readable
   // while collapsed, lazy onLoad, refresh() without re-toggling, the trailing
   // slot, and both palettes. Prerendered, no data fetching, noindex.
-  import Disclosure from '$lib/components/Disclosure.svelte';
+  import Disclosure from '#lib/components/Disclosure.svelte';
 
   let filters = $state(false);
   let day = $state('todos');

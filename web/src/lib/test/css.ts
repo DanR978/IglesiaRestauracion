@@ -7,7 +7,7 @@
  * pull declarations out of a block without a CSS parser dependency.
  *
  * Usage:
- *   import { bundleAppCss, stylesDir, listCssFiles, blockOf, declarations } from '$lib/test/css';
+ *   import { bundleAppCss, stylesDir, listCssFiles, blockOf, declarations } from '#lib/test/css.js';
  * ========================================================================== */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';

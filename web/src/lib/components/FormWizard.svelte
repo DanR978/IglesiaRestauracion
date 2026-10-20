@@ -18,7 +18,7 @@
    • the three divergent review renderers;
    • the unescaped money `value="${v ?? ''}"` (values are bound now);
    • `document.body.style.overflow = ''` on close — the lock is
-     reference-counted ($lib/scroll-lock), so a nested overlay cannot unlock
+     reference-counted (#lib/scroll-lock), so a nested overlay cannot unlock
      the page underneath this one;
    • the click-only, non-focusable `<div>` choice cards — `choice` is a real
      radio group (arrow keys, Space, labels).
@@ -34,7 +34,8 @@
 -->
 <script lang="ts">
   import { tick, untrack } from 'svelte';
-  import { lockBodyScroll } from '$lib/scroll-lock';
+  import { returnFocusTarget } from '#lib/focus-trap.js';
+  import { lockBodyScroll } from '#lib/scroll-lock.js';
   import Icon from './Icon.svelte';
   import {
     applyDefaults,
@@ -123,7 +124,8 @@
   $effect(() => {
     if (!open) return;
     const release = lockBodyScroll();
-    const restoreTo = document.activeElement as HTMLElement | null;
+    // Not document.activeElement: after a click in Safari that is <body> (G-038).
+    const restoreTo = returnFocusTarget();
 
     const onKeydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -675,7 +677,7 @@
   }
 
   .wiz__card :global(.wiz__card-icon) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
     font-size: var(--fs-md);
   }
 
@@ -718,7 +720,7 @@
   }
 
   .wiz__review-key :global(.wiz__review-icon) {
-    color: var(--color-secondary);
+    color: var(--color-accent-ink);
   }
 
   .wiz__review-val {

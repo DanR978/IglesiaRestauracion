@@ -2,7 +2,7 @@
 // anchors to its trigger and repositions on scroll/resize/viewport edges, ≤640px
 // becomes a bottom sheet, and the menu is a keyboard-navigable role=menu that
 // Escape closes with focus back on the trigger. Runs against `vite preview`
-// (playwright.config); not part of the CI gate.
+// (playwright.config); CI job `e2e` runs it (S05b).
 import { expect, test, type Page } from '@playwright/test';
 
 const KIT = '/kit/action-sheet/';
@@ -60,7 +60,11 @@ test.describe('kit/action-sheet — desktop popover', () => {
     }
   });
 
-  test('repositions while the page scrolls under it', async ({ page }) => {
+  test('repositions while the page scrolls under it', async ({ page, browserName, isMobile }) => {
+    test.skip(
+      browserName === 'webkit' && isMobile,
+      'Playwright cannot dispatch a mouse wheel in mobile WebKit (S05b)',
+    );
     await page.goto(KIT);
     const trigger = page.getByRole('button', { name: 'Acciones de Retiro de matrimonios' });
     await trigger.click();

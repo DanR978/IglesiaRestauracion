@@ -38,7 +38,8 @@ Run [`rls-audit.sql`](./rls-audit.sql) any time; it's read-only. As of 2026-07-1
 SELECT**. `gallery_albums`/`gallery_photos` public reads *are* scoped to
 `is_published = true`.
 
-**Open (recorded in `MIGRATION.md`; hardening belongs to migration session S39):**
+**Open (recorded in `MIGRATION.md`; status: the server-side MFA/tier migration is
+written, not applied — see [Staff sign-in](#staff-sign-in--oauth-providers-mfa-rollout-break-glass)):**
 
 1. **`is_aal2()` is a stub — its body is `select true`** (G-016). Every policy that
    reads as MFA-gated (`dinterests_staff_all` on the PII table, the three `Gallery
@@ -62,10 +63,12 @@ scope to. (An earlier version of this README implied otherwise.)
 
 ## Edge functions
 
-- `functions/admin-invite/` — privileged account management. Re-verifies the
-  caller's JWT + admin role server-side; uses the `service_role` key, which must
-  never reach the client. Consider restricting its CORS `Access-Control-Allow-Origin`
-  from `*` to `https://www.irdlex.org`.
+- `functions/admin-invite/` — privileged account management with the
+  `service_role` key, which must never reach the client. Every action requires,
+  server-side, a live session that passed a second factor (`aal2`) and the
+  developer tier; CORS answers only `https://www.irdlex.org` and loopback dev
+  origins (override with the `ALLOWED_ORIGINS` secret). Deploy it only after the
+  server-side migration is in — see [Rollout order](#rollout-order).
 - `functions/youtube-live/` — proxies the YouTube Data API. **Rotate the API key
   that was previously committed in this file's deploy comment** and restrict it to
   the YouTube Data API v3 in Google Cloud.
@@ -130,10 +133,13 @@ them in the dashboard — edit the file, then push:
 ```bash
 SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-auth-email.mjs          # dry run: prints the diff
 SUPABASE_ACCESS_TOKEN=sbp_… node supabase/apply-auth-email.mjs --apply
+node supabase/apply-auth-email.mjs --help                               # every flag
 ```
 
 It reads the live config and sends only what differs (it never touches SMTP). The
-rules the templates follow:
+same run enforces the settings in §4 and, given a secrets file, the Google and
+Microsoft providers — see [Running the config script safely](#running-the-config-script-safely).
+The rules the templates follow:
 
 - **Links carry `token_hash`, never `{{ .ConfirmationURL }}`** (the script refuses
   it). ConfirmationURL spends the one-time token on the first GET, so any mail
@@ -150,21 +156,78 @@ rules the templates follow:
   request either email through the public API.
 - Links live **24 h** (`mailer_otp_exp`), and the copy says so. That — not
   `invitations.expires_at` — is what expires an invitation.
-- **Password changed** notifications are on, so an owner learns of a takeover.
+- **Security notifications are on** — password changed, verification method added /
+  removed (`mfa_factor_*`), sign-in method linked / removed (`identity_*`) — so an
+  owner learns of a change they didn't make. The two identity emails are purely
+  informational: no button and no link at all.
 
 ### 4. Settings the script enforces
 
-- Site URL `https://www.irdlex.org`; Redirect URLs gain
-  `https://www.irdlex.org/admin/**` and `http://localhost:3000/admin/**` (dev).
+Field names are the Management API's (`UpdateAuthConfigBody` of
+`PATCH /v1/projects/{ref}/config/auth`). Every run asserts:
+
+| Field | Value | Why |
+| --- | --- | --- |
+| `site_url` | `https://www.irdlex.org` | |
+| `disable_signup` | `true` | invite-only — below |
+| `mailer_autoconfirm` | `false` | **Confirm email** stays on — below |
+| `mailer_allow_unverified_email_sign_ins` | `false` | a provider sign-in with an unverified email is refused |
+| `external_anonymous_users_enabled` | `false` | |
+| `security_manual_linking_enabled` | `false` | the client's link/unlink endpoints stay off (D-035) |
+| `mfa_totp_enroll_enabled`, `mfa_totp_verify_enabled` | `true` | the MFA gate needs both, or nobody can enroll or sign in |
+| `password_min_length` | at least `8` | raised when lower; a stricter live value is kept |
+| `jwt_exp` | `900` | 15-minute access tokens (D-040) |
+| `mailer_otp_exp` | `86400` | email links live 24 h |
+| `mailer_notifications_{password_changed, mfa_factor_enrolled, mfa_factor_unenrolled, identity_linked, identity_unlinked}_enabled` | `true` | §3 |
+| `uri_allow_list` | gains `https://www.irdlex.org/admin/**`, `https://www.irdlex.org/app/**` and `http://localhost:3000/admin/**` (dev) | append-only: nothing is removed |
+
+**Opt-ins** are written only when their flag is passed; a later run without the
+flag leaves them as they are (turn one off in the dashboard):
+
+| Flag | Field | When |
+| --- | --- | --- |
+| `--require-current-password` | `security_update_password_require_current_password: true` | **required** once the DF-006 admin is live — below |
+| `--hibp` | `password_hibp_enabled: true` | Pro plan only |
+| `--sessions <h>,<h>` | `sessions_timebox`, `sessions_inactivity_timeout` (hours, `0` = off) | Pro plan only; `/admin` and `/app` share one session, so both are timed out |
+
+On the Free plan the API may refuse a PATCH that carries a Pro field — and with it
+everything else in that PATCH — so run `--hibp` / `--sessions` on their own, after
+the base settings are in.
+
+**Providers** are managed only when their values are present (environment or
+`--secret-file`), and an absent provider is left exactly as it is — the script never
+turns one off:
+
+- Google (`GOOGLE_OAUTH_CLIENT_ID`): `external_google_enabled: true`,
+  `external_google_client_id`, `external_google_email_optional: false`.
+- Microsoft (`AZURE_OAUTH_CLIENT_ID` + `AZURE_TENANT_ID`, both GUIDs):
+  `external_azure_enabled: true`, `external_azure_client_id`,
+  `external_azure_url: https://login.microsoftonline.com/<tenant GUID>`,
+  `external_azure_email_optional: false`.
+- `external_google_secret` / `external_azure_secret` are sent **only** with
+  `--rotate-secrets`, and never printed.
+
+Why the rest is set the way it is:
+
 - **Sign-ups off** (`disable_signup`). Accounts are invite-only, and GoTrue's admin
   invite (`inviteUserByEmail` in `admin-invite`) ignores the switch. Left on, anyone
   holding the public anon key gets an `authenticated` session — and with
   **Confirm email** off, signing up as a *pending invitee's* address confirms that
   account and hands over its preset role. So Confirm email stays on
-  (`mailer_autoconfirm: false`) and anonymous sign-ins stay off.
-- Keep **Secure password change**, **Require current password** and **CAPTCHA**
-  off: the legacy admin sends no nonce, current password or captcha token, so each
-  would break login, reset or Mi cuenta.
+  (`mailer_autoconfirm: false`) and anonymous sign-ins stay off. With sign-ups off, a
+  Google / Microsoft sign-in can only reach an invited account (below).
+- Keep **CAPTCHA** (`security_captcha_enabled`) and **Secure password change**
+  (`security_update_password_require_reauthentication`) off: neither admin sends a
+  captcha token or a reauthentication nonce, so each would break login, reset or
+  Mi cuenta. The script doesn't touch them.
+- **Require current password** goes on once the DF-006 admin is live (its Mi cuenta
+  sends `current_password`; so does the new admin) — DF-006's release requires it.
+  GoTrue checks it only for an account that has a password, in a session not opened
+  from an emailed link: invitations, recovery links (also after the MFA step-up) and
+  a Google/Microsoft-only account setting its first password are exempt, and a
+  missing or wrong current password is refused (`current_password_required`,
+  `current_password_invalid`). Verified on the local stack (GoTrue v2.187.0). Then
+  `--require-current-password --apply`.
 
 ### 5. Check it
 
@@ -172,6 +235,192 @@ rules the templates follow:
 their recent runs, what the functions answered, whether Vault's `cron_secret`
 matches the `CRON_SECRET` function secret, and whether each job still carries it.
 Resend → **Emails** logs every message with its delivery status.
+
+## Staff sign-in — OAuth providers, MFA rollout, break-glass
+
+Staff sign in with password + TOTP. Once the new admin (`/app/admin/`) ships, it
+also offers Google and Microsoft (Entra ID, the irdlex.org tenant only), federated
+through Supabase Auth and still followed by TOTP; the legacy `/admin` keeps
+password + TOTP only. Sign-ups stay off, so a provider sign-in only reaches an
+invited account: GoTrue links the provider identity automatically when the provider
+reports the account's email as **verified**, and answers `signup_disabled`
+otherwise. That automatic link is recorded in the Auth audit log
+(`identity_linked`); the identity emails (§3) cover links and unlinks made from a
+signed-in session.
+
+### OAuth providers — one-time setup
+
+Both providers redirect to the project's callback,
+`https://snqwxgyhfiinouewxgiy.supabase.co/auth/v1/callback`. The IDs and secrets they
+hand out go into `supabase/.env.auth.local` (next section), never into git.
+
+**Microsoft Entra ID** — Entra admin center → **App registrations → New registration**:
+
+1. **Supported account types:** *Accounts in this organizational directory only*
+   (single tenant — "My organization only"). **Redirect URI:** platform **Web**, the
+   callback above.
+2. **Overview:** *Application (client) ID* → `AZURE_OAUTH_CLIENT_ID`; *Directory
+   (tenant) ID* → `AZURE_TENANT_ID`. The script builds
+   `external_azure_url = https://login.microsoftonline.com/<tenant GUID>` from it, so
+   Supabase accepts ID tokens issued by this tenant only (never `common` or
+   `organizations`; it refuses anything but a GUID).
+3. **Certificates & secrets → New client secret**, expiry **12 months or less**. Copy
+   the *Value* column (not the *Secret ID*) → `AZURE_OAUTH_CLIENT_SECRET`, and set a
+   calendar reminder two weeks before it expires. To rotate: new secret in Entra →
+   `--rotate-secrets --apply` → sign in once → delete the old secret.
+4. **Token configuration → Add optional claim → ID:** `email` and `xms_edov` (accept
+   the Microsoft Graph `email` permission it offers); Supabase's guide also adds
+   `xms_edov` to the access token. With `xms_edov` in the token, Supabase counts the
+   Entra email as verified only when the domain owner verified it.
+5. **Drop unverified emails from tokens** — single-tenant apps keep them by default.
+   In Graph Explorer, signed in as an Entra admin (consent to
+   `Application.ReadWrite.All` if asked):
+
+   ```http
+   PATCH https://graph.microsoft.com/v1.0/applications/<Object ID>/authenticationBehaviors
+   Content-Type: application/json
+
+   { "removeUnverifiedEmailClaim": true }
+   ```
+
+   `<Object ID>` is the app's *Object ID* on **Overview**, not the client ID. Expect
+   `204 No Content`; a `GET` on the same URL shows the setting.
+
+Staff then sign in with their irdlex.org Microsoft 365 account, which must be the
+address they were invited with.
+
+**Google** — Google Cloud console → **Google Auth Platform**:
+
+1. **Branding:** app name (e.g. *Iglesia Restauración Divina — Panel*), support
+   email, authorized domains `irdlex.org` and `snqwxgyhfiinouewxgiy.supabase.co`.
+2. **Audience:** *External* (staff use their own Google accounts), then **Publish
+   app**. **Data Access:** only `openid`, `…/auth/userinfo.email` and
+   `…/auth/userinfo.profile` — basic scopes, which need no Google verification.
+3. **Clients → Create client → Web application.** Authorized JavaScript origins:
+   `https://www.irdlex.org`. Authorized redirect URIs: the callback above. *Client ID*
+   → `GOOGLE_OAUTH_CLIENT_ID`, *Client secret* → `GOOGLE_OAUTH_CLIENT_SECRET`. To
+   rotate: add a second secret on the client → `--rotate-secrets --apply` → disable
+   and delete the old one.
+4. Google refuses its sign-in inside embedded browsers (in-app WebViews); the login
+   page tells staff to open Safari or Chrome, and password + TOTP is always offered.
+
+After `--apply`, `GET https://snqwxgyhfiinouewxgiy.supabase.co/auth/v1/settings`
+(header `apikey: <anon key>`) should list `"google": true` / `"azure": true` under
+`external`: the new admin shows a provider's button only when that endpoint does.
+
+### Running the config script safely
+
+1. **Token.** Create a personal access token (supabase.com → Account → Access
+   Tokens) with a short expiry, and revoke it when done. It reaches every project the
+   account can, so keep it out of shell history and out of the repo: put it in a file
+   outside the repo and pass `--token-file <path>`. The script refuses a token or
+   secrets file that git would commit.
+2. **Secrets file.** `cp supabase/.env.auth.local.example supabase/.env.auth.local`
+   (ignored by `.env.*.local`) and fill it in. Values still in `<angle brackets>` are
+   refused; a provider whose lines are empty is left untouched. Never pass a secret
+   on the command line — the script has no flag for one.
+3. **Dry run** — the default — and read every line:
+
+   ```bash
+   node supabase/apply-auth-email.mjs --token-file ~/sb-token --secret-file supabase/.env.auth.local
+   ```
+
+   Each change prints as `field: live → new`; secret fields only ever print as
+   `«hidden»`, and error text is scrubbed of every secret read. For each provider it
+   also says whether the live client secret matches the one in your file (compared by
+   fingerprint, never shown or sent).
+4. **Apply** with `--apply`. Client secrets travel only with `--rotate-secrets`:
+   needed the first time a provider is set up, whenever its client ID changes, and on
+   every rotation — the script refuses to enable a provider that has no secret live.
+5. **Clean up:** delete `supabase/.env.auth.local` and revoke the token. The
+   provider console stays the source of truth for the secret.
+
+### Rollout order
+
+Each step is finished before the next one starts.
+
+0. **Pre-flight.** Run [`sql/preflight-auth.sql`](./sql/preflight-auth.sql)
+   (read-only, SQL editor) and the script's dry run. TOTP enroll + verify must be
+   **on** before step 1 — if the dry run lists `mfa_totp_*_enabled`, `--apply` the
+   base settings now (no secrets file needed). Check each developer's factors and
+   last verified challenge (an old factor may be on a lost phone), the accounts
+   without a factor, the Administrador holders and `pause_invites`.
+1. **Legacy MFA gate (DF-006).** Every developer passes a real TOTP challenge on the
+   new gate — a local build, or right after the deploy with break-glass ready —
+   before it reaches `main`; staff then enroll at their next sign-in. Keep at least
+   two developers who have passed it. Then switch on **Require current password**
+   (Dashboard → Authentication, or `--require-current-password --apply` — see
+   [Settings the script enforces](#4-settings-the-script-enforces)).
+2. **Enrollment cutoff.** On the announced date, reset, notify or remove every account
+   still without a factor (pre-flight lists them). This comes before the providers:
+   from then on every account that can sign in already has its own factor.
+3. **Server-side enforcement.** Tag the source of the `admin-invite` deployed today so
+   it can be redeployed: `git tag pre-authz-YYYYMMDD a8749cf && git push origin pre-authz-YYYYMMDD`.
+   `a8749cf` is the `develop` commit this hardening branched from; its `admin-invite`
+   is the one on `main` (last changed in `799437f`, 2026-07-01) — if you have deployed
+   `admin-invite` from another commit since, tag that one instead. Apply any
+   pending migration files, then paste
+   [`migrations/20261019000001_enforce_mfa_and_tiers.sql`](./migrations/20261019000001_enforce_mfa_and_tiers.sql)
+   into the SQL editor as one run. Re-run `preflight-auth.sql`: its catalog query must
+   return no table or bucket without the aal2 layer. **Only then**
+   `supabase functions deploy admin-invite`. The migration is idempotent; re-run it
+   after applying any later migration file.
+4. **Providers.** Set up Entra and Google (above), then
+   `--secret-file supabase/.env.auth.local --rotate-secrets` — dry run, then `--apply`.
+5. **New admin.** Ship the port (`web/`, served at `/app/`) and announce
+   `https://www.irdlex.org/app/admin/` to staff: Google / Microsoft sign-in lives
+   there; tabs not ported yet open in the current panel.
+
+### Rollback
+
+- **Server side:** run [`sql/rollback-auth.sql`](./sql/rollback-auth.sql) in the SQL
+  editor, then redeploy the previous `admin-invite` from the tag:
+
+  ```bash
+  git worktree add ../irdlex-rollback pre-authz-YYYYMMDD
+  cd ../irdlex-rollback && supabase functions deploy admin-invite --project-ref snqwxgyhfiinouewxgiy
+  ```
+
+- **Legacy MFA gate:** revert it only together with the server-side rollback — the
+  database layer expects sessions that passed the gate.
+- **Providers:** Dashboard → Authentication → Sign In / Providers → switch Google or
+  Azure off. The script never turns a provider off.
+- **Opt-ins** (require current password, leaked-password check, session limits):
+  switch them off in the dashboard; a later run without the flag leaves them off.
+- **New admin:** revert its merge; `/admin` is unaffected.
+
+### Break-glass (dashboard owner, SQL editor)
+
+- **Lost authenticator** — any account, the last developer included:
+
+  ```sql
+  delete from auth.mfa_factors where user_id = '<user uuid>';
+  ```
+
+  Its challenges go with it; the user signs in with the password and enrolls a new
+  factor straight away. No email is sent for this, so tell the user. If the account
+  may be compromised, also end its sessions (what `admin_revoke_user_sessions` does;
+  an access token already issued lives out its 15 minutes):
+
+  ```sql
+  delete from auth.sessions where user_id = '<user uuid>';
+  ```
+
+- **Last developer** — the `trg_guard_last_developer` trigger on `public.profiles`
+  refuses any update or delete (including one cascaded from `auth.users`) that would
+  leave no developer. To make such a change on purpose, switch it off for that one
+  change, in one transaction, so it can't stay off:
+
+  ```sql
+  begin;
+  alter table public.profiles disable trigger trg_guard_last_developer;
+  -- the change it would refuse, e.g. delete from auth.users where id = '<user uuid>';
+  alter table public.profiles enable trigger trg_guard_last_developer;
+  commit;
+  ```
+
+  Access changes made here are still written to `audit_log`: the access-audit
+  triggers stay on.
 
 ## Newsletter — welcome, monthly digest, day-before reminders
 

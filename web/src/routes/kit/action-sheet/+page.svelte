@@ -4,9 +4,9 @@
   // member menu (section label · divider · empty fallback), the four viewport
   // corners the popover has to flip and clamp against, the imperative
   // showActionSheet() singleton, and the admin surface. Prerendered, no data.
-  import ActionSheet from '$lib/components/ActionSheet.svelte';
-  import ActionSheetHost from '$lib/components/ActionSheetHost.svelte';
-  import Icon from '$lib/components/Icon.svelte';
+  import ActionSheet from '#lib/components/ActionSheet.svelte';
+  import ActionSheetHost from '#lib/components/ActionSheetHost.svelte';
+  import Icon from '#lib/components/Icon.svelte';
   import {
     MOBILE_QUERY,
     VIEWPORT_GUTTER,
@@ -14,8 +14,8 @@
     showActionSheet,
     type SheetAction,
     type SheetGroup,
-  } from '$lib/components/action-sheet.svelte';
-  import { prefersReducedMotion } from '$lib/reduced-motion';
+  } from '#lib/components/action-sheet.svelte.js';
+  import { prefersReducedMotion } from '#lib/reduced-motion.js';
   import { onMount } from 'svelte';
 
   const GROUPS: SheetGroup[] = [
