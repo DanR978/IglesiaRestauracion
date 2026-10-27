@@ -33,7 +33,6 @@
   <link rel="stylesheet" href="css/pages/admin/modal.css" />
   <link rel="stylesheet" href="css/pages/admin/palette.css" />
   <link rel="stylesheet" href="css/pages/admin/platform.css" />
-  <link rel="stylesheet" href="css/pages/admin/presets.css" />
   <link rel="stylesheet" href="css/pages/admin/report-builder.css" />
   <link rel="stylesheet" href="css/pages/admin/rich-text.css" />
   <link rel="stylesheet" href="css/pages/admin/role-presets.css" />
@@ -581,9 +580,6 @@
     <div class="cal-toolbar">
       <h2>Calendario de Actividades</h2>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-        <button class="btn btn--ghost admin-only" style="font-size:.85rem;padding:.55rem 1rem;display:none" id="calSmartBtn">
-          <i class="fas fa-magic"></i> Preselección
-        </button>
         <button class="btn btn--primary" id="calAddBtn">
           <i class="fas fa-plus"></i> Agregar
         </button>
@@ -635,74 +631,6 @@
       </div>
       <div id="admTabSpecial"></div>
       <div id="admTabRegular" hidden></div>
-    </div>
-
-    <!-- Smart preset panel -->
-    <div class="smart-panel" id="smartPanel">
-      <div class="smart-panel-header">
-        <h3>Llenar mes con preselección</h3>
-        <div style="display:flex;gap:.5rem;align-items:center">
-          <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartNewPresetBtn">
-            <i class="fas fa-plus"></i> Nueva preselección
-          </button>
-          <button class="btn btn--ghost" style="padding:.3rem .7rem;font-size:.82rem" id="smartClose">
-            ✕ Cerrar
-          </button>
-        </div>
-      </div>
-
-      <!-- Month + Year row -->
-      <div class="smart-selector-row">
-        <div class="smart-month-dropdown" id="monthDropdown">
-          <button type="button" id="monthDropdownBtn" class="smart-month-btn">
-            <span class="smart-month-btn__label"><i class="fas fa-calendar-alt"></i> Seleccionar meses</span>
-            <span class="smart-month-btn__badge" id="monthDropdownBadge">0</span>
-            <i class="fas fa-chevron-down smart-month-btn__caret"></i>
-          </button>
-          <div id="monthDropdownMenu" class="smart-month-menu">
-            <div class="smart-month-menu__header">
-              <span>Meses</span>
-              <button type="button" class="smart-month-menu__clear" id="monthClearAll">Limpiar</button>
-            </div>
-            <div class="smart-month-menu__grid">
-              <label class="smart-month-opt"><input type="checkbox" value="0"><span>Ene</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="1"><span>Feb</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="2"><span>Mar</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="3"><span>Abr</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="4"><span>May</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="5"><span>Jun</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="6"><span>Jul</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="7"><span>Ago</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="8"><span>Sep</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="9"><span>Oct</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="10"><span>Nov</span></label>
-              <label class="smart-month-opt"><input type="checkbox" value="11"><span>Dic</span></label>
-            </div>
-          </div>
-        </div>
-        <div class="smart-year-field">
-          <label class="smart-year-field__label" for="smartYear">Año</label>
-          <input type="number" id="smartYear" class="smart-year-input" min="2024" max="2035" value="2026">
-        </div>
-      </div>
-
-      <p style="font-size:.7rem;font-weight:700;color:var(--color-muted);text-transform:uppercase;letter-spacing:.05em;margin:.75rem 0 .4rem">
-        Selecciona preseleccion:
-      </p>
-      <div class="smart-grid" id="presetGrid"></div>
-
-      <div id="smartPreview" style="display:none">
-        <p style="font-size:.78rem;font-weight:600;margin-bottom:.35rem">
-          Vista previa — <span id="smartCount">0</span> eventos a crear:
-        </p>
-        <div class="preview-pills" id="previewPills"></div>
-        <div style="display:flex;gap:.5rem;margin-top:.65rem">
-          <button class="btn btn--primary" style="font-size:.85rem" id="smartCreate">
-            <i class="fas fa-check"></i> Crear todos
-          </button>
-          <button class="btn btn--ghost" style="font-size:.85rem" id="smartClear">Limpiar</button>
-        </div>
-      </div>
     </div>
 
   </div><!-- /tab-calendario -->
@@ -1539,78 +1467,6 @@
     <div class="modal__footer">
       <button class="btn btn--ghost"  id="confirmNo">No, cancelar</button>
       <button class="btn btn--danger" id="confirmYes">Sí, continuar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Preset modal (create / edit DB presets) -->
-<div class="modal-backdrop" id="presetModal">
-  <div class="modal" style="max-width:480px">
-    <div class="modal__header">
-      <div class="modal__title" id="presetModalTitle">Nuevo Preset</div>
-      <button class="modal__close" id="presetModalClose"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="form-group">
-      <label>Nombre *</label>
-      <input type="text" id="pmName" placeholder="ej. Estudio Bíblico">
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Categoría</label>
-        <select id="pmCategory">
-          <option value="servicio">Servicio</option>
-          <option value="estudio">Estudio Bíblico</option>
-          <option value="oracion">Oración</option>
-          <option value="evangelizacion">Evangelización</option>
-          <option value="especial">Especial</option>
-          <option value="otro">Otro</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Hora</label>
-        <input type="text" id="pmTime" placeholder="7:00 PM">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Ubicación</label>
-      <input type="text" id="pmLocation">
-    </div>
-    <div class="form-group">
-      <label>Descripción</label>
-      <textarea id="pmDescription" rows="2" placeholder="Descripción breve del evento..."></textarea>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>Patrón de repetición</label>
-        <select id="pmPatternType">
-          <option value="weekly">Semanal (cada semana)</option>
-          <option value="lastWeekday">Último día del mes</option>
-          <option value="nthWeekday">N-ésimo día del mes</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Día de la semana</label>
-        <select id="pmDayOfWeek">
-          <option value="0">Domingo</option>
-          <option value="1">Lunes</option>
-          <option value="2">Martes</option>
-          <option value="3">Miércoles</option>
-          <option value="4">Jueves</option>
-          <option value="5">Viernes</option>
-          <option value="6">Sábado</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group" id="pmNthWeekRow" style="display:none">
-      <label>Semana del mes (1–5)</label>
-      <input type="number" id="pmNthWeek" min="1" max="5" placeholder="ej. 3 → 3er viernes del mes">
-    </div>
-    <div class="auth-error" id="presetModalError"></div>
-    <div class="modal__footer">
-      <button class="btn btn--ghost"   id="presetModalCancel">Cancelar</button>
-      <button class="btn btn--primary" id="presetModalSave">
-        <i class="fas fa-save"></i> Guardar preselección
-      </button>
     </div>
   </div>
 </div>
