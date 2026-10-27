@@ -1,0 +1,222 @@
+/* admin/event-presets.css
+   Calendario → Presets (js/pages/admin/event-presets.js): the preset panel,
+   its card list, and the editor / "Programar" modals. Namespace: ep-.
+   Light panel + dark ink like every other admin card (--color-white surface,
+   --color-dark ink — both stay that way in dark mode). */
+
+.ep-panel,
+.ep-modal {
+  --ep-ink: var(--color-dark, #394548);
+  /* --color-muted is too faint on this always-light fill in dark mode. */
+  --ep-dim: color-mix(in srgb, var(--ep-ink) 78%, transparent);
+}
+
+/* .btn sets display:inline-flex, which would beat the bare [hidden] attribute. */
+.ep-panel[hidden],
+.ep-modal [hidden] { display: none; }
+
+/* forms.css / rich-text.css ink fields with --color-15 / --color-text, which
+   turn light in dark mode while this modal stays light — typed text would
+   vanish (same fix as .ldr-modal in leaders.css). */
+.ep-modal .form-group input,
+.ep-modal .form-group select,
+.ep-modal .form-group textarea,
+.ep-modal .tag-picker-btn,
+.ep-modal .rt-area,
+.ep-modal .rt-btn { color: var(--ep-ink); }
+
+.ep-modal .form-group label { color: var(--ep-dim); }
+
+/* ── Panel ───────────────────────────────────────────── */
+.ep-panel {
+  background: var(--color-white);
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: var(--radius-lg);
+  padding: var(--pd-sm);
+  margin-bottom: 1rem;
+}
+
+.ep-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ep-panel__title { font-size: var(--fs-base); font-weight: 700; margin: 0 0 0.25rem; }
+.ep-panel__hint  { font-size: var(--fs-xs); color: var(--ep-dim); margin: 0; max-width: 60ch; line-height: 1.45; }
+
+/* ── Preset cards ────────────────────────────────────── */
+.ep-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 0.75rem;
+}
+
+.ep-card {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 0.6rem 0.75rem;
+  padding: 0.85rem;
+  border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  min-width: 0;
+}
+
+.ep-card__img {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: rgba(127, 127, 127, 0.12);
+}
+
+.ep-card__img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ep-dim);
+}
+
+.ep-card__body  { min-width: 0; }
+.ep-card__title { font-size: var(--fs-base); font-weight: 700; line-height: 1.25; margin: 0 0 0.2rem; overflow-wrap: anywhere; }
+.ep-card__meta  { font-size: var(--fs-xs); color: var(--ep-dim); margin: 0.1rem 0 0; overflow-wrap: anywhere; }
+.ep-card__meta i { width: 1rem; text-align: center; opacity: 0.7; }
+
+.ep-card__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ep-card__actions .btn { padding: 0.45rem 0.85rem; font-size: var(--fs-xs); }
+
+/* ── Modals ──────────────────────────────────────────── */
+.modal.ep-modal { max-width: 560px; }
+.ep-modal .modal__footer { flex-wrap: wrap; }
+.ep-spacer { flex: 1; }
+
+.ep-rule {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 0.9rem 0.25rem;
+  margin: 0 0 1rem;
+  min-width: 0;
+}
+
+.ep-rule__legend,
+.ep-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--ep-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ep-rule__legend { padding: 0 0.35rem; }
+.ep-label        { display: block; margin-bottom: 0.35rem; }
+
+.ep-hint { font-size: var(--fs-xs); color: var(--ep-dim); margin: 0.25rem 0 0.75rem; line-height: 1.45; }
+.ep-hint--warn   { color: var(--color-dark); }
+.ep-hint--warn i { color: var(--color-warn); }
+
+/* ── Programar: months + dates ───────────────────────── */
+.ep-deploy__rule { font-weight: 600; margin: -0.5rem 0 1rem; }
+
+.ep-deploy__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ep-deploy__head .ep-label { margin-bottom: 0; }
+
+.ep-link {
+  background: none;
+  border: none;
+  padding: 0.35rem 0.4rem;
+  font: inherit;
+  font-size: var(--fs-xs);
+  color: var(--color-dark);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.ep-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.ep-dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.ep-chip,
+.ep-date {
+  min-height: 40px;
+  padding: 0.4rem 0.7rem;
+  border: 1.5px solid rgba(127, 127, 127, 0.35);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-dark);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+              color 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ep-chip[aria-pressed="true"],
+.ep-date[aria-pressed="true"] {
+  background: var(--color-dark);
+  border-color: var(--color-dark);
+  color: var(--color-white);
+}
+
+.ep-date small { font-weight: 400; }
+
+.ep-date--off {
+  border-style: dashed;
+  color: var(--ep-dim);
+  text-decoration: line-through;
+}
+
+.ep-date--past,
+.ep-date--taken { opacity: 0.55; cursor: not-allowed; }
+
+.ep-date--none {
+  display: inline-flex;
+  align-items: center;
+  border-style: dashed;
+  color: var(--ep-dim);
+  cursor: default;
+}
+
+.ep-chip:focus-visible,
+.ep-date:focus-visible,
+.ep-link:focus-visible {
+  outline: 2px solid var(--color-dark);
+  outline-offset: 2px;
+}
+
+@media (max-width: 480px) {
+  .ep-panel__head .btn  { width: 100%; }
+  .ep-card__actions .btn { flex: 1 1 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ep-chip,
+  .ep-date { transition: none; }
+}

@@ -14,7 +14,7 @@ import { initAccountPage } from './account.js';
 import { initCalendarNav } from './calendar-tab.js';
 import { initEventViews, openEventsTab } from './event-views.js';
 import { initForms } from './event-form.js';
-import { loadPresets, buildPresetGrid, initSmartPresets } from './presets.js';
+import { initEventPresets } from './event-presets.js';
 import { loadUsers, initUserModal } from './users.js';
 import { loadRolePresets, initRolePresets } from './role-presets.js';
 import { initWizard } from './wizard.js';
@@ -71,10 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Ministry filter ────────────────────────────────────────────────────────
   initFilterToggles();
 
-  // ── Smart presets ──────────────────────────────────────────────────────────
-  buildPresetGrid();
-  loadPresets();  // load DB presets on boot
-  initSmartPresets();
+  // ── Special-event presets (Calendario → Presets) ──────────────────────────
+  initEventPresets();
 
   // ── Event creation wizard ────────────────────────────────────────────────
   initWizard();
@@ -106,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Rich-text editors on every admin textbox whose content is shown on the
   //    public website (description / información fields). Progressive upgrade:
   //    existing save logic keeps reading these textareas' .value. ────────────
-  ['fDesc', 'bDesc', 'evDescription', 'pmDescription', 'dscpGroupDesc', 'galAdmDesc']
+  ['fDesc', 'bDesc', 'evDescription', 'epDesc', 'dscpGroupDesc', 'galAdmDesc']
     .forEach(id => { const el = document.getElementById(id); if (el) enhanceTextarea(el); });
 
   // ── Mobile burger drawer ───────────────────────────────────────────────────
