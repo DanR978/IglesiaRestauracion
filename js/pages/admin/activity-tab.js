@@ -18,6 +18,7 @@ const ENTITY = {
   events:                 'un evento especial',
   calendar_events:        'un evento',
   calendar_presets:       'una plantilla de calendario',
+  event_presets:          'un preset de evento especial',
   ministries:             'un ministerio',
   discipleship_groups:    'un grupo de discipulado',
   discipleship_members:   'un miembro de discipulado',

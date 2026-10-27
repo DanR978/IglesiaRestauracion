@@ -26,6 +26,7 @@
   <link rel="stylesheet" href="css/pages/admin/calendar-tab.css" />
   <link rel="stylesheet" href="css/pages/admin/dashboard.css" />
   <link rel="stylesheet" href="css/pages/admin/discipleship.css" />
+  <link rel="stylesheet" href="css/pages/admin/event-presets.css" />
   <link rel="stylesheet" href="css/pages/admin/filters.css" />
   <link rel="stylesheet" href="css/pages/admin/forms.css" />
   <link rel="stylesheet" href="css/pages/admin/gallery.css" />
@@ -580,11 +581,27 @@
     <div class="cal-toolbar">
       <h2>Calendario de Actividades</h2>
       <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn--ghost" style="font-size:.85rem;padding:.55rem 1rem" id="calPresetsBtn"
+                aria-expanded="false" aria-controls="epPanel">
+          <i class="fas fa-layer-group"></i> Presets
+        </button>
         <button class="btn btn--primary" id="calAddBtn">
           <i class="fas fa-plus"></i> Agregar
         </button>
       </div>
     </div>
+
+    <!-- Special-event presets (event_presets) — toggled by #calPresetsBtn -->
+    <section class="ep-panel" id="epPanel" aria-labelledby="epPanelTitle" hidden>
+      <div class="ep-panel__head">
+        <div>
+          <h3 class="ep-panel__title" id="epPanelTitle">Presets de eventos especiales</h3>
+          <p class="ep-panel__hint">Un preset llena todos los datos del evento. Si tiene repetición (ej. último sábado del mes), con «Programar» lo creas en varios meses a la vez.</p>
+        </div>
+        <button class="btn btn--primary" id="epNewBtn"><i class="fas fa-plus"></i> Nuevo preset</button>
+      </div>
+      <div id="epList"></div>
+    </section>
 
     <!-- Ministry filter (shared state with Próximos) -->
     <div class="filter-bar admin-only" id="calFilterBarWrap" style="display:none">
@@ -1467,6 +1484,104 @@
     <div class="modal__footer">
       <button class="btn btn--ghost"  id="confirmNo">No, cancelar</button>
       <button class="btn btn--danger" id="confirmYes">Sí, continuar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Special-event preset: create / edit (event-presets.js) -->
+<div class="modal-backdrop" id="epModal">
+  <div class="modal ep-modal" role="dialog" aria-modal="true" aria-labelledby="epModalTitle">
+    <div class="modal__header">
+      <div class="modal__title" id="epModalTitle">Nuevo preset</div>
+      <button class="modal__close" id="epModalClose" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="form-group">
+      <label for="epTitle">Nombre del evento *</label>
+      <input type="text" id="epTitle" maxlength="120" placeholder="ej. Noche de Caballeros">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Categoría (máx 2)</label>
+        <div id="epTagPicker"></div>
+        <input type="hidden" id="epTag">
+      </div>
+      <div class="form-group">
+        <label for="epLoc">Ubicación</label>
+        <input type="text" id="epLoc" maxlength="200">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label for="epStart">Hora inicio</label><input type="time" id="epStart"></div>
+      <div class="form-group"><label for="epEnd">Hora fin</label><input type="time" id="epEnd"></div>
+    </div>
+    <div class="form-group">
+      <label for="epDesc">Descripción</label>
+      <textarea id="epDesc" rows="3" placeholder="Describe el evento..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label for="epOrgName">Organizador</label><input type="text" id="epOrgName" maxlength="120" placeholder="ej. Pastor Juan"></div>
+      <div class="form-group"><label for="epOrgEmail">Email organizador</label><input type="email" id="epOrgEmail" maxlength="254" placeholder="juan@irdlex.org"></div>
+    </div>
+    <div class="form-group"><label>Imagen</label><div id="epImgSection"></div></div>
+    <fieldset class="ep-rule">
+      <legend class="ep-rule__legend">Repetición</legend>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="epPattern">Se repite</label>
+          <select id="epPattern"></select>
+        </div>
+        <div class="form-group" id="epDowRow">
+          <label for="epDow">Día de la semana</label>
+          <select id="epDow"></select>
+        </div>
+      </div>
+      <div class="form-group" id="epNthRow">
+        <label for="epNth">Semana del mes</label>
+        <select id="epNth"></select>
+      </div>
+      <p class="ep-hint" id="epRuleHint"></p>
+    </fieldset>
+    <div class="auth-error" id="epModalError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--danger" id="epModalDelete" hidden><i class="fas fa-trash"></i> Eliminar</button>
+      <span class="ep-spacer"></span>
+      <button class="btn btn--ghost" id="epModalCancel">Cancelar</button>
+      <button class="btn btn--primary" id="epModalSave"><i class="fas fa-save"></i> Guardar preset</button>
+    </div>
+  </div>
+</div>
+
+<!-- Special-event preset: schedule across several months (event-presets.js) -->
+<div class="modal-backdrop" id="epDeployModal">
+  <div class="modal ep-modal" role="dialog" aria-modal="true" aria-labelledby="epDeployTitle">
+    <div class="modal__header">
+      <div class="modal__title" id="epDeployTitle">Programar</div>
+      <button class="modal__close" id="epDeployClose" aria-label="Cerrar"><i class="fas fa-times"></i></button>
+    </div>
+    <p class="ep-deploy__rule" id="epDeployRule"></p>
+    <div class="form-row">
+      <div class="form-group"><label for="epDeployStart">Hora inicio *</label><input type="time" id="epDeployStart"></div>
+      <div class="form-group"><label for="epDeployEnd">Hora fin</label><input type="time" id="epDeployEnd"></div>
+    </div>
+    <div class="form-group">
+      <div class="ep-deploy__head">
+        <span class="ep-label" id="epMonthsLabel">Meses</span>
+        <span class="ep-deploy__links">
+          <button type="button" class="ep-link" id="epMonthsAll">Todos</button>
+          <button type="button" class="ep-link" id="epMonthsNone">Limpiar</button>
+        </span>
+      </div>
+      <div class="ep-months" id="epMonths" role="group" aria-labelledby="epMonthsLabel"></div>
+    </div>
+    <div class="form-group">
+      <span class="ep-label">Fechas</span>
+      <div id="epDates"></div>
+    </div>
+    <p class="ep-hint">Si ese día hay un servicio regular (servicio, estudio u oración), el evento especial lo reemplaza.</p>
+    <div class="auth-error" id="epDeployError"></div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="epDeployCancel">Cancelar</button>
+      <button class="btn btn--primary" id="epDeploySave" disabled><i class="fas fa-calendar-plus"></i> Crear eventos</button>
     </div>
   </div>
 </div>

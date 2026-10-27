@@ -9,42 +9,27 @@ import { toast, openModal, closeModal, showView } from './ui.js';
 import { loadUpcoming } from './events-tab.js';
 import { loadCalendario } from './calendar-tab.js';
 import { goToTab } from './event-views.js';
+import { fetchEventPresets } from '/js/lib/event-presets.js';
+import { isoDate } from '/js/utils/date.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 export const DEFAULT_LOC_ADDR = '2601 Clays Mill Road';
-const IMG_BASE    = import.meta.env?.VITE_STORAGE_EVENT_IMAGES
-  ? import.meta.env.VITE_STORAGE_EVENT_IMAGES + '/'
-  : 'https://snqwxgyhfiinouewxgiy.supabase.co/storage/v1/object/public/event-images/';
 const TAG_OPTIONS = ['Servicio','Convivio','Celebración','Evangelismo','Ministerio','Oración','Adoración','Jóvenes','Niños'];
-
-export const EVENT_PRESETS = [
-  { title:'Noche de Caballeros', tags:['Servicio','Convivio'],    img:'caballeros.png',         desc:'Una noche de compañerismo entre hombres de fe. Tiempo de oración, estudio bíblico, comida y edificación mutua.' },
-  { title:'Noche de Damas',      tags:['Servicio','Convivio'],    img:'damas.png',              desc:'Una noche especial para las mujeres de la iglesia. Alabanza, oración, comunión y compañerismo.' },
-  { title:'Vigilia',             tags:['Servicio','Oración'],     img:'vigilia.png',            desc:'Una noche especial de oración, adoración y comunión. Habrá café, comida, alabanza y un tiempo inolvidable de fe.' },
-  { title:'Devocional',          tags:['Servicio','Oración'],     img:'devocional.png',         desc:'Un tiempo dedicado a la reflexión bíblica, oración y crecimiento espiritual.' },
-  { title:'Noche de Jóvenes',    tags:['Servicio','Convivio'],    img:'jovenes.png',            desc:'Una noche de comunión entre jóvenes. Palabra, comida y actividades.' },
-  { title:'Día de las Madres',   tags:['Celebración','Servicio'], img:'madres.png',             desc:'Un servicio especial para honrar y celebrar a las madres de nuestra comunidad.' },
-  { title:'Día del Padre',       tags:['Celebración','Servicio'], img:'padre.png',              desc:'Celebramos a los padres de nuestra iglesia con un servicio especial.' },
-  { title:'Día del Niño',        tags:['Celebración','Niños'],    img:'nino.png',               desc:'Celebración para los más pequeños. Juegos, actividades, comida y un mensaje especial.' },
-  { title:'Thanksgiving',        tags:['Celebración','Convivio'], img:'thanksgivings.png',      desc:'Servicio de acción de gracias. Cena especial, alabanza y testimonios.' },
-  { title:'Comida Navideña',     tags:['Celebración','Convivio'], img:'cenanavidena.png',       desc:'Celebramos el nacimiento de Cristo con cena, villancicos y compañerismo.' },
-  { title:'Campaña Evangelística',tags:['Evangelismo','Servicio'],img:'campanaEvangelistica.png',desc:'Servicios enfocados en compartir las buenas nuevas de Cristo con la comunidad.' },
-  { title:'Aniversario',         tags:['Celebración','Servicio'], img:'aniversario.png',        desc:'Celebración del aniversario de nuestra iglesia. Alabanza, testimonios y compañerismo.' },
-];
 
 // ─── Picker instances ─────────────────────────────────────────────────────────
 let fTagPicker, bTagPicker;
+let presets = [];   // event_presets rows behind the "Tipo de evento" selects
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 export function initForms() {
   _populateTypeSelect('fType');
   _populateTypeSelect('bType');
-  fTagPicker = _mountTagPicker('fTagPicker', 'fTag');
-  bTagPicker = _mountTagPicker('bTagPicker', 'bTag');
-  _mountImgPicker(document.getElementById('fImgSection'), 'f');
-  _mountImgPicker(document.getElementById('bImgSection'), 'b');
-  _wireTypeSelect('fType','fTitleCustom','fPresetNote', fTagPicker,'fDesc','fDescGroup','f-url','f-preview','f-preview-wrap');
-  _wireTypeSelect('bType','bTitleCustom','bPresetNote', bTagPicker,'bDesc','bDescGroup','b-url','b-preview','b-preview-wrap');
+  fTagPicker = mountTagPicker('fTagPicker', 'fTag');
+  bTagPicker = mountTagPicker('bTagPicker', 'bTag');
+  mountImgPicker(document.getElementById('fImgSection'), 'f');
+  mountImgPicker(document.getElementById('bImgSection'), 'b');
+  _wireTypeSelect('f', fTagPicker);
+  _wireTypeSelect('b', bTagPicker);
   _wireLocOverride('fLoc','fLocBtn');
   _wireLocOverride('bLoc','bLocBtn');
   _initSingleForm();
@@ -131,23 +116,20 @@ export async function openEditRegular(id) {
 
 // ─── Single event form (events table) ────────────────────────────────────────
 function _initSingleForm() {
-  document.getElementById('newEventBtn')?.addEventListener('click', () => {
+  document.getElementById('newEventBtn')?.addEventListener('click', async () => {
+    await refreshPresetSelects();
     document.getElementById('formTitle').textContent = 'Nuevo Evento';
     document.getElementById('fId').value = '';
     document.getElementById('fType').value = '';
     document.getElementById('fTitleCustom').value = '';
-    document.getElementById('fTitleCustom').classList.remove('show');
-    document.getElementById('fPresetNote').classList.remove('show');
-    fTagPicker.reset(); fTagPicker.setDisabled(false);
+    _syncTypeUi('f');
+    fTagPicker.reset();
     document.getElementById('fDesc').value    = '';
-    document.getElementById('fDesc').readOnly = false;
-    document.getElementById('fDescGroup').classList.remove('fg-locked');
-    document.getElementById('fDescGroup').querySelector('.fg-locked-note')?.remove();
     document.getElementById('fStarts').value  = '';
     document.getElementById('fEnds').value    = '';
     document.getElementById('fOrgName').value  = '';
     document.getElementById('fOrgEmail').value = '';
-    _clearImg('f'); _resetLoc('fLoc','fLocBtn');
+    clearImg('f'); _resetLoc('fLoc','fLocBtn');
     document.getElementById('fError').style.display = 'none';
     showView('form');
   });
@@ -189,43 +171,29 @@ function _initSingleForm() {
 export async function openEditSpecial(rawId) {
   const { data: ev } = await sb.from('events').select('*').eq('id', rawId).single();
   if (!ev) return;
+  await refreshPresetSelects();
 
   // Open Eventos → Próximos so the form (inside #tab-upcoming) is visible.
   goToTab('upcoming');
 
   document.getElementById('formTitle').textContent = 'Editar Evento';
   document.getElementById('fId').value = ev.id;
-  const idx = EVENT_PRESETS.findIndex(p => p.title === ev.title);
-  if (idx >= 0) {
-    document.getElementById('fType').value = String(idx);
-    document.getElementById('fTitleCustom').classList.remove('show');
-  } else if (ev.title) {
-    document.getElementById('fType').value = '__custom__';
-    document.getElementById('fTitleCustom').classList.add('show');
-    document.getElementById('fTitleCustom').value = ev.title;
-  } else {
-    document.getElementById('fType').value = '';
-  }
-  document.getElementById('fType').dispatchEvent(new Event('change'));
-  if (ev.tag) fTagPicker.setTags(ev.tag.split('/').map(t => t.trim()));
-  if (ev.description) document.getElementById('fDesc').value = ev.description;
-  if (ev.starts_at)   document.getElementById('fStarts').value = _toLocalDT(ev.starts_at);
-  if (ev.ends_at)     document.getElementById('fEnds').value   = _toLocalDT(ev.ends_at);
-  _resetLoc('fLoc','fLocBtn');
-  if (ev.location && ev.location !== DEFAULT_LOC_ADDR) {
-    document.getElementById('fLoc').value    = ev.location;
-    document.getElementById('fLoc').readOnly = false;
-    document.getElementById('fLocBtn').textContent = 'Restaurar';
-    document.getElementById('fLocBtn').classList.add('active');
-  }
+  // Select the matching preset WITHOUT applying it: every field below comes
+  // from the saved event, never from the preset.
+  const preset = presets.find(p => p.title === ev.title);
+  document.getElementById('fType').value = preset ? preset.id : (ev.title ? '__custom__' : '');
+  document.getElementById('fTitleCustom').value = preset ? '' : (ev.title || '');
+  _syncTypeUi('f');
+  fTagPicker.reset();
+  if (ev.tag) fTagPicker.setTags(ev.tag.split('/').map(t => t.trim()).filter(Boolean));
+  document.getElementById('fDesc').value   = ev.description || '';
+  document.getElementById('fStarts').value = ev.starts_at ? _toLocalDT(ev.starts_at) : '';
+  document.getElementById('fEnds').value   = ev.ends_at   ? _toLocalDT(ev.ends_at)   : '';
+  _setLoc('f', ev.location);
   document.getElementById('fOrgName').value  = ev.organizer_name  || '';
   document.getElementById('fOrgEmail').value = ev.organizer_email || '';
-  _clearImg('f');
-  if (ev.image_url) {
-    document.getElementById('f-url').value    = ev.image_url;
-    document.getElementById('f-preview').src  = ev.image_url;
-    document.getElementById('f-preview-wrap').style.display = 'inline-block';
-  }
+  clearImg('f');
+  if (ev.image_url) setImg('f', ev.image_url);
   document.getElementById('fError').style.display = 'none';
   showView('form');
 }
@@ -235,17 +203,14 @@ window.__adminEditSpecial = rawId => openEditSpecial(rawId);
 
 // ─── Bulk form ────────────────────────────────────────────────────────────────
 function _initBulkForm() {
-  document.getElementById('bulkEventBtn')?.addEventListener('click', () => {
+  document.getElementById('bulkEventBtn')?.addEventListener('click', async () => {
+    await refreshPresetSelects();
     document.getElementById('bType').value = '';
     document.getElementById('bTitleCustom').value = '';
-    document.getElementById('bTitleCustom').classList.remove('show');
-    document.getElementById('bPresetNote').classList.remove('show');
-    bTagPicker.reset(); bTagPicker.setDisabled(false);
+    _syncTypeUi('b');
+    bTagPicker.reset();
     document.getElementById('bDesc').value    = '';
-    document.getElementById('bDesc').readOnly = false;
-    document.getElementById('bDescGroup').classList.remove('fg-locked');
-    document.getElementById('bDescGroup').querySelector('.fg-locked-note')?.remove();
-    _clearImg('b'); _resetLoc('bLoc','bLocBtn');
+    clearImg('b'); _resetLoc('bLoc','bLocBtn');
     document.getElementById('bulkDates').innerHTML = '';
     _addBulkDate(); _addBulkDate(); _updateBulkSummary();
     document.getElementById('bError').style.display = 'none';
@@ -305,65 +270,84 @@ function _updateBulkSummary() {
 }
 
 // ─── Type select + preset wiring ─────────────────────────────────────────────
+// Reload the presets (cached in the repo module) and rebuild both selects.
+// Before the event_presets migration is applied this leaves "Otro" only.
+export async function refreshPresetSelects() {
+  const { data } = await fetchEventPresets();
+  presets = data || [];
+  _populateTypeSelect('fType');
+  _populateTypeSelect('bType');
+}
+
 function _populateTypeSelect(selId) {
   const s = document.getElementById(selId);
+  const keep = s.value;
   s.innerHTML = '<option value="">— Seleccionar tipo —</option>';
-  EVENT_PRESETS.forEach((p, i) => {
+  presets.forEach(p => {
     const o = document.createElement('option');
-    o.value = i; o.textContent = p.title; s.appendChild(o);
+    o.value = p.id; o.textContent = p.title; s.appendChild(o);
   });
   const c = document.createElement('option');
   c.value = '__custom__'; c.textContent = 'Otro / Personalizado'; s.appendChild(c);
+  if ([...s.options].some(o => o.value === keep)) s.value = keep;
 }
 
-function _wireTypeSelect(selId, customId, noteId, tagPicker, descId, descGroupId, imgUrlId, previewId, pwrapId) {
-  document.getElementById(selId).onchange = () => {
-    const v        = document.getElementById(selId).value;
-    const isPreset = v !== '' && v !== '__custom__';
-    const isCustom = v === '__custom__';
-    document.getElementById(customId).classList.toggle('show', isCustom);
-    if (isCustom) document.getElementById(customId).focus();
-    const note = document.getElementById(noteId);
-    if (isPreset) { note.textContent = `✓ Preset: ${EVENT_PRESETS[Number(v)].title}`; note.classList.add('show'); }
-    else note.classList.remove('show');
-    if (isPreset) {
-      const p = EVENT_PRESETS[Number(v)];
-      tagPicker.setTags(p.tags); tagPicker.setDisabled(true);
-      document.getElementById(descId).value    = p.desc;
-      document.getElementById(descId).readOnly = true;
-      document.getElementById(descGroupId).classList.add('fg-locked');
-      let n = document.getElementById(descGroupId).querySelector('.fg-locked-note');
-      if (!n) {
-        n = document.createElement('p'); n.className = 'fg-locked-note';
-        n.style.cssText = 'font-size:.7rem;color:var(--color-dark);font-weight:600;margin-top:.2rem';
-        document.getElementById(descGroupId).appendChild(n);
-      }
-      n.textContent = 'Auto-completado por preset.';
-      if (p.img) {
-        const url = IMG_BASE + p.img;
-        document.getElementById(imgUrlId).value = url;
-        document.getElementById(previewId).src  = url;
-        document.getElementById(pwrapId).style.display = 'inline-block';
-      }
-    } else {
-      tagPicker.setDisabled(false);
-      document.getElementById(descId).readOnly = false;
-      document.getElementById(descGroupId).classList.remove('fg-locked');
-      document.getElementById(descGroupId).querySelector('.fg-locked-note')?.remove();
-      if (!isPreset) document.getElementById(descId).value = '';
-    }
+// Picking a preset fills every field it has a value for. Nothing is locked:
+// the admin can still change any field for this one event.
+function _wireTypeSelect(prefix, tagPicker) {
+  document.getElementById(`${prefix}Type`).onchange = () => {
+    _syncTypeUi(prefix);
+    const v = document.getElementById(`${prefix}Type`).value;
+    if (v === '__custom__') document.getElementById(`${prefix}TitleCustom`).focus();
+    const p = presets.find(x => x.id === v);
+    if (p) _applyPreset(prefix, p, tagPicker);
   };
+}
+
+// Custom-title input + preset note for the current choice. Changes no field.
+function _syncTypeUi(prefix) {
+  const v = document.getElementById(`${prefix}Type`).value;
+  document.getElementById(`${prefix}TitleCustom`).classList.toggle('show', v === '__custom__');
+  const note = document.getElementById(`${prefix}PresetNote`);
+  const p = presets.find(x => x.id === v);
+  note.textContent = p ? `✓ Preset: ${p.title}` : '';
+  note.classList.toggle('show', !!p);
+}
+
+function _applyPreset(prefix, p, tagPicker) {
+  if (p.tag) tagPicker.setTags(p.tag.split('/').map(t => t.trim()).filter(Boolean));
+  if (p.description) document.getElementById(`${prefix}Desc`).value = p.description;
+  if (p.location) _setLoc(prefix, p.location);
+  if (p.organizer_name)  document.getElementById(`${prefix}OrgName`).value  = p.organizer_name;
+  if (p.organizer_email) document.getElementById(`${prefix}OrgEmail`).value = p.organizer_email;
+  if (p.image_url) setImg(prefix, p.image_url);
+  if (prefix === 'b') {
+    if (p.start_time) document.getElementById('bTimeStart').value = p.start_time;
+    if (p.end_time)   document.getElementById('bTimeEnd').value   = p.end_time;
+    return;
+  }
+  // Single form: put the preset's times on the day already chosen.
+  const starts = document.getElementById('fStarts');
+  const day = starts.value.slice(0, 10);
+  if (!day) return;
+  if (p.start_time) starts.value = `${day}T${p.start_time}`;
+  if (p.end_time) {
+    const endDay = new Date(`${day}T00:00`);
+    if (p.end_time < starts.value.slice(11, 16)) endDay.setDate(endDay.getDate() + 1);   // past midnight
+    document.getElementById('fEnds').value = `${isoDate(endDay)}T${p.end_time}`;
+  }
 }
 
 function _getTitle(selId, customId) {
   const v = document.getElementById(selId).value;
   if (v === '__custom__') return document.getElementById(customId).value.trim();
   if (v === '') return '';
-  return EVENT_PRESETS[Number(v)]?.title || '';
+  return presets.find(p => p.id === v)?.title || '';
 }
 
 // ─── Tag picker ───────────────────────────────────────────────────────────────
-function _mountTagPicker(containerId, hiddenId) {
+// Max-2 category picker writing "A/B" into the hidden input `hiddenId`.
+export function mountTagPicker(containerId, hiddenId) {
   const container = document.getElementById(containerId);
   const btn = document.createElement('button');
   btn.type = 'button'; btn.className = 'tag-picker-btn'; btn.id = `${hiddenId}-btn`;
@@ -405,7 +389,6 @@ function _mountTagPicker(containerId, hiddenId) {
       if (cu.length) document.getElementById(`${hiddenId}-custom`).value = cu[0];
       upd();
     },
-    setDisabled(d) { document.getElementById(`${hiddenId}-btn`).classList.toggle('disabled', d); },
     reset() {
       dd.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
       document.getElementById(`${hiddenId}-custom`).value = ''; upd();
@@ -432,9 +415,18 @@ function _resetLoc(inputId, btnId) {
   document.getElementById(btnId).textContent = 'Cambiar';
   document.getElementById(btnId).classList.remove('active');
 }
+// Any address other than the church's unlocks the override.
+function _setLoc(prefix, loc) {
+  if (!loc || loc === DEFAULT_LOC_ADDR) { _resetLoc(`${prefix}Loc`, `${prefix}LocBtn`); return; }
+  document.getElementById(`${prefix}Loc`).value    = loc;
+  document.getElementById(`${prefix}Loc`).readOnly = false;
+  document.getElementById(`${prefix}LocBtn`).textContent = 'Restaurar';
+  document.getElementById(`${prefix}LocBtn`).classList.add('active');
+}
 
 // ─── Image picker ─────────────────────────────────────────────────────────────
-function _mountImgPicker(sectionEl, prefix) {
+// Upload-or-pick from the event-images bucket; the URL lands in `${prefix}-url`.
+export function mountImgPicker(sectionEl, prefix) {
   sectionEl.innerHTML = `
     <div class="img-grid">
       <div class="img-opt" id="${prefix}-opt-upload">
@@ -458,10 +450,16 @@ function _mountImgPicker(sectionEl, prefix) {
     <div style="font-size:.7rem;color:var(--color-muted);margin-top:.3rem" id="${prefix}-status"></div>`;
   document.getElementById(`${prefix}-opt-gallery`).onclick = () => _toggleGallery(prefix);
   document.getElementById(`${prefix}-file`).onchange       = e => _handleImgUpload(e, prefix);
-  document.getElementById(`${prefix}-del`).onclick         = () => _clearImg(prefix);
+  document.getElementById(`${prefix}-del`).onclick         = () => clearImg(prefix);
 }
 
-function _clearImg(p) {
+export function setImg(p, url) {
+  document.getElementById(`${p}-url`).value = url;
+  document.getElementById(`${p}-preview`).src = url;
+  document.getElementById(`${p}-preview-wrap`).style.display = 'inline-block';
+}
+
+export function clearImg(p) {
   document.getElementById(`${p}-url`).value = '';
   document.getElementById(`${p}-preview`).src = '';
   document.getElementById(`${p}-preview-wrap`).style.display = 'none';
@@ -488,9 +486,7 @@ async function _loadGallery(prefix) {
   g.querySelectorAll('.img-gal-item').forEach(el => el.onclick = () => {
     g.querySelectorAll('.img-gal-item').forEach(i => i.classList.remove('selected'));
     el.classList.add('selected');
-    document.getElementById(`${prefix}-url`).value   = el.dataset.url;
-    document.getElementById(`${prefix}-preview`).src = el.dataset.url;
-    document.getElementById(`${prefix}-preview-wrap`).style.display = 'inline-block';
+    setImg(prefix, el.dataset.url);
     document.getElementById(`${prefix}-status`).textContent = 'Seleccionada ✓';
   });
 }
@@ -500,7 +496,9 @@ function _toggleGallery(prefix) {
   const show = g.style.display === 'none';
   g.style.display = show ? 'grid' : 'none';
   document.getElementById(`${prefix}-opt-gallery`).classList.toggle('active', show);
-  if (show && !galleryImages) _loadGallery(prefix);
+  // galleryImages is shared by every picker; a picker that never rendered the
+  // grid still has to fill its own.
+  if (show && (!galleryImages || !g.querySelector('.img-gal-item'))) _loadGallery(prefix);
 }
 
 async function _handleImgUpload(e, prefix) {
